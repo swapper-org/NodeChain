@@ -126,10 +126,10 @@ NodeChain uses the JSON RPC protocol for API requests. The API provides the foll
 Please read [Contribution Guidelines](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Docs
-We use [Swagger](https://swagger.io/) for docs. All the documentation concerning Nodechain is available at [Nodechain Docs]()
+We use [Swagger](https://swagger.io/) for docs. All the documentation concerning Nodechain is available at [Nodechain Docs](https://docs.nodechain.swapper.market)
 
 ## Version
-Please read [Version Guidelines](VERSION.md) for details on our versioning system. For the version available, see the [tags on this repository]().
+Please read [Version Guidelines](VERSION.md) for details on our versioning system. For the version available, see the [tags on this repository](https://github.com/swapper-org/NodeChain/releases).
 
 ## License
 This software is licensed under the MIT License. See [LICENSE](LICENSE) for the full details. 
