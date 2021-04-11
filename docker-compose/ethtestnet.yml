@@ -1,0 +1,24 @@
+version: "3"
+services:
+  ethereumgo:
+    image: ethereum/client-go:latest
+    command: --http --http.addr=ethereumgo --ropsten --cache=1024 --http.port=8545 --syncmode=full --gcmode=archive --ws --ws.addr=ethereumgo --ws.port=8546 --ws.origins=connector
+    volumes:
+      - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
+
+  connector:
+    build: ../Connector
+    environment:
+      COIN: ETHTESTNET
+      STAGE: ${STAGE}
+      PORT: ${PORT}
+    image: connector
+
+  nginx:
+    image: nginx
+    volumes:
+      - ${NGINX_CONFIG_PATH}:/etc/nginx/nginx.conf
+      - ${CERT_PATH}:/etc/nginx/certs
+    ports:
+      - ${PORT}:80
+      - ${SSL_PORT}:443

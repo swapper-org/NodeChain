@@ -1,0 +1,94 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "",
+    "description": "",
+    "type": "object",
+    "properties": {
+        "transaction": {
+            "type": "object",
+            "properties": {
+                "blockHash": {
+                    "type": "string"
+                },
+                "blockNumber": {
+                    "type": "string"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "gas": {
+                    "type": "string"
+                },
+                "gasPrice": {
+                    "type": "string"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "input": {
+                    "type": "string"
+                },
+                "nonce": {
+                    "type": "string"
+                },
+                "r": {
+                    "type": "string"
+                },
+                "s": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "transactionIndex": {
+                    "type": "string"
+                },
+                "v": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "inputs": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "address": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "outputs": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "address": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "amount": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "required": [
+        "transaction",
+        "inputs",
+        "outputs"
+    ]
+}

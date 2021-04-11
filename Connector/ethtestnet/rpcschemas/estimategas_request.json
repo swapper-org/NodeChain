@@ -1,0 +1,34 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "",
+    "description": "",
+    "type": "object",
+    "properties": {
+        "tx":{
+            "type":"object",
+            "properties": {
+                "from" : {
+                    "type": "string"
+                },
+                "to" : {
+                    "type": "string"
+                },
+                "gas" : {
+                    "type": "string"
+                },
+                "gasPrice" : {
+                    "type": "string"
+                },
+                "value" : {
+                    "type": "string"
+                },
+                "data" : {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "required": [
+        "tx"
+    ]
+}
