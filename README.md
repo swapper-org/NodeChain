@@ -150,7 +150,7 @@ All the documentation concerning Nodechain is available at [Nodechain Docs](http
 All changes to the documentation must be made in the [NodeChain-docs](https://github.com/swapper-org/NodeChain-docs) repository.
 
 ## Version
-Please read [Version Guidelines](VERSION.md) for details on our versioning system. For the version available, see the [tags on this repository](https://github.com/swapper-org/NodeChain/releases).
+Please read [Contribution Guidelines](https://github.com/swapper-org/NodeChain/blob/master/CONTRIBUTING.md) for details on our versioning system. For the version available, see the [tags on this repository](https://github.com/swapper-org/NodeChain/releases).
 
 ## License
 This software is licensed under the MIT License. See [LICENSE](LICENSE) for the full details.
