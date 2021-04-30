@@ -145,7 +145,7 @@ Please read [Contribution Guidelines](https://github.com/swapper-org/NodeChain/b
 
 ## Docs
 We use [Swagger](https://swagger.io/) for docs.
-All the documentation concerning Nodechain is available at [Nodechain Docs](https://docs.nodechain.swapper.market)
+All the documentation concerning Nodechain is available at [NodeChain Docs](https://docs.nodechain.swapper.market)
 
 All changes to the documentation must be made in the [NodeChain-docs](https://github.com/swapper-org/NodeChain-docs) repository.
 

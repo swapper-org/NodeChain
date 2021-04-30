@@ -1,5 +1,5 @@
 ---
-name: ":bulb: Feature Request"
+name: "\U0001F4A1 Feature Request"
 about: Do you have ideas for new features and improvements?
 title: ''
 labels: enhancement

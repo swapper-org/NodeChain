@@ -1,5 +1,5 @@
 ---
-name: ":question: Everything Else"
+name: "\U00002753 Everything Else"
 about: Do you have a question/issue that does not fall into any of the other categories?
 title: ''
 labels: question

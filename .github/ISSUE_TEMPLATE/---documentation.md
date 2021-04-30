@@ -1,5 +1,5 @@
 ---
-name: ":books: Documentation"
+name: "\U0001F4DA Documentation"
 about: Did you find errors, problems, or anything unclear in the docs (https://docs.nodechain.swapper.market)?
 title: ''
 labels: docs
