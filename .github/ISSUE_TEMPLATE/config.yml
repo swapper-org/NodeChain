@@ -1,0 +1,11 @@
+# Ref: https://help.github.com/en/github/building-a-strong-community/configuring-issue-templates-for-your-repository#configuring-the-template-chooser
+blank_issues_enabled: true
+contact_links:
+- name: '💬 Nodechain Communication Channel on Github'
+  url: https://github.com/swapper-org/NodeChain/discussions
+  about: |
+    Chat with the community, ask questions, and learn about best practices.
+- name: '📖 Nodechain Documentation'
+  url: https://docs.nodechain.swapper.market/
+  about: |
+    Check the documentation of the repository
