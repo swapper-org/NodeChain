@@ -10,11 +10,13 @@ import random
 import sys
 import socket
 import json
+from logger import logger
 
 
 @wsutils.webSocket
 def bitcoinWS():
     app = WebApp()
+    logger.printInfo("Starting WS for bitcoin callback")
     app.add_routes([web.post(BITCOIN_CALLBACK_PATH, bitcoinCallback)])
 
 
@@ -28,7 +30,7 @@ async def bitcoinCallback(request):
     messageLoaded = json.loads(requestBody)
 
     if not SubcriptionsHandler.coinInAddressSubscription():
-       print("There are no subscribers")
+       logger.printWarning("There are no subscribers")
        return
     
     clients = SubcriptionsHandler.getAddressClients(messageLoaded[ADDRESS])
