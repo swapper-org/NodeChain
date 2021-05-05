@@ -8,6 +8,7 @@ from .constants import *
 from rpcutils import errorhandler as rpcErrorHandler, constants as rpcConstants
 from wsutils.subscriptionshandler import SubcriptionsHandler
 from . import apirpc
+from logger import logger
 
 
 def ensureHash(hashAddr):
@@ -47,22 +48,24 @@ def getWSResponseMethodSchema(name):
 def searchAddressesIntoBlock(data):
 
     if not SubcriptionsHandler.coinInAddressSubscription():
-        #raise rpcErrorHandler.InternalServerError("No coin " + os.environ["COIN"] + " founded in ADDRESSES_SUBSCRIBED")
+        logger.printWarning("Coin not available in subscriptions handler")
         return
     
     if not SubcriptionsHandler.getSubscriptionsAvailable():
-        #raise rpcErrorHandler.InternalServerError("No addresses subscribed for" + os.environ["COIN"])
+        logger.printWarning("There are no addresses subscribed for")
         return
 
     reqParsed = None
     try:
         reqParsed = json.loads(data)
     except Exception as e:
-        raise rpcErrorHandler.BadRequestError("Payload is not JSON message: " + str(e))
+        logger.printError(f"Payload is not JSON message. Error: {e}")
+        raise rpcErrorHandler.BadRequestError(f"Payload is not JSON message. Error: {e}")
     
     params = reqParsed[rpcConstants.PARAMS]
     blockNumber = params[rpcConstants.RESULT][NUMBER]
 
+    logger.printInfo(f"Getting new block to check addresses subscribed for. Block number: {params[rpcConstants.RESULT][NUMBER]}")
     block = apirpc.getBlockByNumber(
         random.randint(1, sys.maxsize),
         {
@@ -89,12 +92,15 @@ async def notify(address):
 
     addressClients = SubcriptionsHandler.getAddressClients(address)
 
+    logger.printInfo(f"Getting balance for address subscribed for in new block. Address: {address}")
     balance = apirpc.getAddressBalance(
         random.randint(1, sys.maxsize),
         {
             ADDRESS: address
         }
     )
+
+    logger.printInfo("Sending balance to subscribers")
 
     for client in addressClients:
 
