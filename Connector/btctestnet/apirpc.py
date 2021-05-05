@@ -134,6 +134,7 @@ def getAddressUnspent(id, params):
 @rpcutils.rpcMethod
 def getBlockByHash(id, params):
 
+    logger.printInfo(f"Executing RPC method getBlockByHash with id {id} and params {params}")
     
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_HASH)
 
