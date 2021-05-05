@@ -18,8 +18,8 @@ def parseRpcRequest(request):
     try:
         parsedRequest = json.loads(request)
     except Exception as e:
-        logger.printError(f"Payload is not JSON message: {e}"))
-        raise errorhandler.BadRequestError(f"Payload is not JSON message: {e}"))
+        logger.printError(f"Payload is not JSON message: {e}")
+        raise errorhandler.BadRequestError(f"Payload is not JSON message: {e}")
 
     if METHOD not in parsedRequest or PARAMS not in parsedRequest or JSON_RPC not in parsedRequest or ID not in parsedRequest:
         logger.printError("JSON request is malformed")

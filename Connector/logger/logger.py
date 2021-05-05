@@ -6,9 +6,9 @@ def printInfo(*argv, sep='', end='\n', file=sys.stdout, flush=True):
     print(f"[INFO][{datetime.now()}] ", *argv, sep=sep, end=end, file=file, flush=flush)
 
 
-def printWarning():
+def printWarning(*argv, sep='', end='\n', file=sys.stdout, flush=True):
     print(f"[WARNING][{datetime.now()}] ", *argv, sep=sep, end=end, file=file, flush=flush)
 
 
-def printError():
+def printError(*argv, sep='', end='\n', file=sys.stdout, flush=True):
     print(f"[ERROR][{datetime.now()}] ", *argv, sep=sep, end=end, file=file, flush=flush)
