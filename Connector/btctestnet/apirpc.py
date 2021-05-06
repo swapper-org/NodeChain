@@ -195,6 +195,10 @@ def getFeePerByte(id, params):
 
     feePerByte = RPCConnector.request(RPC_CORE_ENDPOINT, id, ESTIMATE_SMART_FEE_METHOD, [confirmations])
 
+    if not FEE_RATE in feePerByte:
+        logger.printError(f"Response without {FEE_RATE}. No feerate found")
+        raise rpcerrorhandler.InternalServerError(f"Response without {FEE_RATE}. No feerate found")
+
     response = {
         FEE_PER_BYTE: utils.convertToSatoshi(feePerByte[FEE_RATE])
     }
