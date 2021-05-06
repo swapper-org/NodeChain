@@ -11,6 +11,7 @@ from wsutils.subscriptionshandler import SubcriptionsHandler
 import importlib
 from logger import logger
 
+logger.printInfo(f"Loading connector for {os.environ['COIN']}")
 importlib.__import__(os.environ['COIN'].lower())
 
 
