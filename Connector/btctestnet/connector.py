@@ -12,7 +12,7 @@ RPC_ELECTRUM_USER = "swapper"
 RPC_ELECTRUM_PASSWORD = "swapper"
 
 BITCOIN_CALLBACK_PATH = "/bitcoincallback"
-BITCOIN_CALLBACK_ENDPOINT = "http://{}:{}{}".format("localhost", 80, BITCOIN_CALLBACK_PATH)
+BITCOIN_CALLBACK_ENDPOINT = "http://{}:{}{}".format("connector", 80, BITCOIN_CALLBACK_PATH)
 ELECTRUM_NAME = "electrum"
 
 RPC_CORE_ENDPOINT = 'http://{}:{}@{}:{}'.format(RPC_CORE_USER, RPC_CORE_PASSWORD, RPC_CORE_HOST, RPC_CORE_PORT)
