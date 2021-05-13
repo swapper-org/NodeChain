@@ -3,10 +3,13 @@ from .connector import RPC_CORE_ENDPOINT, RPC_ELECTRUM_CASH_ENDPOINT
 from rpcutils import rpcutils, errorhandler as rpcerrorhandler
 from rpcutils.rpcconnector import RPCConnector
 from . import utils
+from logger import logger
 
 
 @rpcutils.rpcMethod
 def getAddressHistory(id, params):
+
+    logger.printInfo(f"Executing RPC method getAddressHistory with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_HISTORY)
 
@@ -33,6 +36,8 @@ def getAddressHistory(id, params):
 @rpcutils.rpcMethod
 def getAddressBalance(id, params):
 
+    logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_BALANCE)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -56,6 +61,8 @@ def getAddressBalance(id, params):
 @rpcutils.rpcMethod
 def getAddressesBalance(id, params):
     
+    logger.printInfo(f"Executing RPC method getAddressesBalance with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_BALANCE)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -89,6 +96,8 @@ def getAddressesBalance(id, params):
 
 @rpcutils.rpcMethod
 def getAddressUnspent(id, params):
+
+    logger.printInfo(f"Executing RPC method getAddressUnspent with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_UNSPENT)
 
@@ -125,6 +134,8 @@ def getAddressUnspent(id, params):
 @rpcutils.rpcMethod
 def getBlockByHash(id, params):
 
+    logger.printInfo(f"Executing RPC method getBlockByHash with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_HASH)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -142,6 +153,8 @@ def getBlockByHash(id, params):
 
 @rpcutils.rpcMethod
 def getBlockByNumber(id, params):
+
+    logger.printInfo(f"Executing RPC method getBlockByNumber with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_NUMBER)
 
@@ -166,6 +179,8 @@ def getBlockByNumber(id, params):
 
 @rpcutils.rpcMethod
 def getFeePerByte(id, params):
+
+    logger.printInfo(f"Executing RPC method getFeePerByte with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_FEE_PER_BYTE)
 
@@ -194,6 +209,8 @@ def getFeePerByte(id, params):
 @rpcutils.rpcMethod
 def getHeight(id, params):
 
+    logger.printInfo(f"Executing RPC method getHeight with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(GET_HEIGHT)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -219,6 +236,8 @@ def getHeight(id, params):
 @rpcutils.rpcMethod
 def getTransactionHex(id, params):
     
+    logger.printInfo(f"Executing RPC method getTransactionHex with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION_HEX)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -241,6 +260,8 @@ def getTransactionHex(id, params):
 @rpcutils.rpcMethod
 def getTransaction(id, params):
     
+    logger.printInfo(f"Executing RPC method getTransaction with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -261,6 +282,8 @@ def getTransaction(id, params):
 @rpcutils.rpcMethod
 def getTransactionCount(id, params):
     
+    logger.printInfo(f"Executing RPC method getTransactionCount with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION_COUNT)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -287,6 +310,8 @@ def getTransactionCount(id, params):
 
 @rpcutils.rpcMethod
 def broadcastTransaction(id, params):
+
+    logger.printInfo(f"Executing RPC method broadcastTransaction with id {id} and params {params}")
 
     requestSchema = utils.getRequestMethodSchema(BROADCAST_TRANSACTION)
 

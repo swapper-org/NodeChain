@@ -3,10 +3,13 @@ from .connector import RPC_ENDPOINT
 from rpcutils import rpcutils, errorhandler as rpcerrorhandler
 from rpcutils.rpcconnector import RPCConnector
 from . import utils
+from logger import logger
 
 
 @rpcutils.rpcMethod
 def getAddressBalance(id, params):
+
+    logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_BALANCE)
 
@@ -31,6 +34,8 @@ def getAddressBalance(id, params):
 
 @rpcutils.rpcMethod
 def getAddressesBalance(id, params):
+
+    logger.printInfo(f"Executing RPC method getAddressesBalance with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_BALANCE)
 
@@ -64,6 +69,8 @@ def getAddressesBalance(id, params):
 @rpcutils.rpcMethod
 def getHeight(id, params):
 
+    logger.printInfo(f"Executing RPC method getHeight with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(GET_HEIGHT)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -87,6 +94,8 @@ def getHeight(id, params):
 @rpcutils.rpcMethod
 def broadcastTransaction(id, params):
 
+    logger.printInfo(f"Executing RPC method broadcastTransaction with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(BROADCAST_TRANSACTION)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -109,6 +118,8 @@ def broadcastTransaction(id, params):
 @rpcutils.rpcMethod
 def getTransaction(id, params):
 
+    logger.printInfo(f"Executing RPC method getTransaction with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -118,6 +129,7 @@ def getTransaction(id, params):
     transaction = RPCConnector.request(RPC_ENDPOINT, id, GET_TRANSACTION_BY_HASH_METHOD, [params[TX_HASH]])
 
     if transaction is None:
+        logger.printWarning("Could not get transaction from node")
         raise rpcerrorhandler.BadRequestError("Could not get transaction from node")
     
     inputs = []
@@ -152,6 +164,8 @@ def getTransaction(id, params):
 @rpcutils.rpcMethod
 def getBlockByHash(id, params):
 
+    logger.printInfo(f"Executing RPC method getBlockByHash with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_HASH)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -173,6 +187,8 @@ def getBlockByHash(id, params):
 
 @rpcutils.rpcMethod
 def getTransactionCount(id, params):
+
+    logger.printInfo(f"Executing RPC method getTransactionCount with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION_COUNT)
 
@@ -196,6 +212,8 @@ def getTransactionCount(id, params):
 @rpcutils.rpcMethod
 def getGasPrice(id, params):
 
+    logger.printInfo(f"Executing RPC method getGasPrice with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(GET_GAS_PRICE)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -217,6 +235,8 @@ def getGasPrice(id, params):
 
 @rpcutils.rpcMethod
 def estimateGas(id, params):
+
+    logger.printInfo(f"Executing RPC method estimateGas with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(ESTIMATE_GAS)
 
@@ -244,6 +264,8 @@ contains information that is only available once a transaction has been executed
 @rpcutils.rpcMethod
 def getTransactionReceipt(id, params):
 
+    logger.printInfo(f"Executing RPC method getTransactionReceipt with id {id} and params {params}")
+
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION_RECEIPT)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
@@ -261,6 +283,8 @@ def getTransactionReceipt(id, params):
 
 @rpcutils.rpcMethod
 def getBlockByNumber(id, params):
+
+    logger.printInfo(f"Executing RPC method getBlockByNumber with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_NUMBER)
 

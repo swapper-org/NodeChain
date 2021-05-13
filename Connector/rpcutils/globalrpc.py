@@ -3,9 +3,13 @@ import os
 from .rpcutils import rpcMethod
 from .errorhandler import InternalServerError
 from .constants import *
+from logger import logger
+
 
 @rpcMethod
 def getVersion(id, params):
+
+    logger.printInfo("Executing RPC method getVersion")
 
     try:
         file = os.path.join(".", CONFIG_JSON)
@@ -13,6 +17,7 @@ def getVersion(id, params):
             config = json.load(fp)
 
     except Exception as e:
+        logger.printError(str(e))
         raise InternalServerError(str(e))
 
     return {
