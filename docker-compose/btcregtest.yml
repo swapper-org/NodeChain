@@ -1,0 +1,55 @@
+version: "3"
+services:
+  bitcoincore:
+    build: ../packages/swapper-bitcoin-core
+    image: bitcoincore
+    command:
+      -rpcuser=swapper
+      -rpcpassword=swapper
+      -server=1
+      -rpcallowip=0.0.0.0/0
+      -rpcbind=0.0.0.0
+      -txindex=1
+      -regtest=1
+      -debug=1
+      -rpcport=8332
+      -deprecatedrpc=generate
+      -fallbackfee=0.0001
+    volumes:
+      - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
+
+  electrumx:
+    image: lukechilds/electrumx
+    environment:
+      DAEMON_URL: http://swapper:swapper@bitcoincore:8332
+      COIN: BitcoinSegwit
+      PEER_DISCOVERY: "off"
+      SERVICES: tcp://:50001
+      COST_SOFT_LIMIT: 0 #Disable cost limitation so electrumx does not crash electrum during sync
+      COST_HARD_LIMIT: 0
+      NET: regtest
+    volumes:
+      - ${BLOCKCHAIN_PATH}/electrumx:/data
+
+  electrum:
+    build: ../packages/swapper-electrum-regtest
+    image: electrum
+    environment:
+      TESTNET: 1
+
+  connector:
+    build: ../Connector
+    environment:
+      COIN: BTCTESTNET
+      STAGE: ${STAGE}
+      PORT: ${PORT}
+    image: connector
+
+  nginx:
+    image: nginx
+    volumes:
+      - ${NGINX_CONFIG_PATH}:/etc/nginx/nginx.conf
+      - ${CERT_PATH}:/etc/nginx/certs
+    ports:
+      - ${PORT}:80
+      - ${SSL_PORT}:443
