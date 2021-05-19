@@ -7,30 +7,30 @@ import utils
 FNULL = open(os.devnull, 'w')
 
 
-def setup(coin):
-    os.chdir("../docker-compose")
-    print("Starting " + f"{coin}_api node...")
-    sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_api", "up", "--build", "-d"],
+def setup(coin, stage):
+    os.chdir(f"../docker-compose/{stage}")
+    print("Starting " + f"{coin}_{stage}_api node...")
+    sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{stage}_api", "up", "--build", "-d"],
                      stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
     err = sp.communicate()
     if sp.returncode == 0:
-        print(f"{coin}_api node started")
+        print(f"{coin}_{stage}_api node started")
     else:
-        print(f"An error occurred while trying to start {coin}_api:")
+        print(f"An error occurred while trying to start {coin}_{stage}_api:")
         print("\n")
         print(err[1].decode("ascii"))
 
 
-def stop(coin):
-    os.chdir("../docker-compose")
-    print("Stopping " + f"{coin}_api node...")
-    sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_api", "down"],
+def stop(coin, stage):
+    os.chdir(f"../docker-compose/{stage}")
+    print("Stopping " + f"{coin}_{stage}_api node...")
+    sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{stage}_api", "down"],
                      stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
     err = sp.communicate()
     if sp.returncode == 0:
-        print(f"{coin}_api node stopped")
+        print(f"{coin}_{stage}_api node stopped")
     else:
-        print(f"An error occurred while trying to start {coin}_api:")
+        print(f"An error occurred while trying to start {coin}_{stage}_api:")
         print("\n")
         print(err[1].decode("ascii"))
 
@@ -45,16 +45,16 @@ def invalid():
     print("INVALID CHOICE!")
 
 
-def checkIfRunning(coin):
+def checkIfRunning(coin, stage):
     for container in client.containers.list():
-        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_api":
+        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_{stage}_api":
             return True
 
 
-def listRunningContainers():
+def listRunningApis():
     running = []
     for container in client.containers.list():
-        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and not client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] in running:
+        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and not client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"][:-4] in running:
             running.append(
                 client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"][:-4])
     return running
@@ -70,9 +70,10 @@ def listApis():
 def listStages():
     return os.listdir("../docker-compose")
 
-def getUsedPort(coin):
+
+def getUsedPort(coin, stage):
     for container in client.containers.list():
-        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_api":
+        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_{stage}_api":
             bindings = client.containers.get(container.name).attrs["HostConfig"]["PortBindings"]
             if "80/tcp" in bindings:
                 os.environ["PORT"] = bindings["80/tcp"][0]["HostPort"]
@@ -82,31 +83,32 @@ def getUsedPort(coin):
 
 
 def checkStatus():
-    if checkIfRunning(os.environ["COIN"].lower()):
-        getUsedPort(os.environ["COIN"].lower())
-        # stop(os.environ["COIN"].lower())
+    if checkIfRunning(os.environ["COIN"].lower(), os.environ["STAGE"].lower()):
+        getUsedPort(os.environ["COIN"].lower(), os.environ["STAGE"].lower())
+        stop(os.environ["COIN"].lower(), os.environ["STAGE"].lower())
     else:
         os.environ["PORT"] = utils.queryPort("Port to start: ")
-        os.environ["BLOCKCHAIN_PATH"] = utils.queryPath(os.environ["COIN"].lower())
+        os.environ["BLOCKCHAIN_PATH"] = utils.queryPath(os.environ["COIN"].lower(), os.environ["STAGE"].lower())
         os.environ["SSL_PORT"] = utils.queryPort("Port to start (SSL): ")
         utils.askSSL()
-        os.environ["STAGE"] = "PRO"
-        # setup(os.environ["COIN"].lower())
+        setup(os.environ["COIN"].lower(), os.environ["STAGE"].lower())
 
 
 def apiChoice(coin):
     os.environ["COIN"] = coin.upper()
     checkStatus()
 
+
 def stageChoice(stage):
     os.environ["STAGE"] = stage.upper()
     apiMenu()
 
+
 def apiMenu():
     menu = utils.fillMenu(listApis, apiChoice, exitSetup)
-
+    # TODO: poner algo bonito aqui rollo ----- API SELECTION ----- meter la funcion en utils
     for key in sorted(menu.keys()):
-        if menu[key][0] in listRunningContainers():
+        if (menu[key][0]+"_{stage}".format(stage=os.environ["STAGE"].lower())) in listRunningApis():
             print("[RUNNING]" + "\t" + key + "." + menu[key][0])
         else:
             print("[OFF]" + "\t" + key + "." + menu[key][0])
@@ -114,16 +116,16 @@ def apiMenu():
     ans = input("Please pick a node to start/stop (1-{options}): ".format(options=(len(listApis()) + 1)))
     menu.get(ans, [None, invalid])[1](menu[ans][0].upper())
 
+
 def stageMenu():
     menu = utils.fillMenu(listStages, stageChoice, exitSetup)
-
+    # TODO: poner algo bonito aqui rollo ----- STAGE SELECTION ----- meter la funcion en utils
     for key in sorted(menu.keys()):
-        print("[OFF]" + "\t" + key + "." + menu[key][0])
+        print(key + "." + menu[key][0])
 
-    stage = input("Please choose the environment that you want to use to build up the node(1-{options}): ".format(options=(len(listStages()) + 1)))
+    stage = input("Please choose the environment that you want to use to build up/stop the node(1-{options}): ".format(options=(len(listStages()) + 1)))
     menu.get(stage, [None, invalid])[1](menu[stage][0].upper())
 
 
 client = docker.from_env()
 stageMenu()
-print(os.environ["STAGE"])

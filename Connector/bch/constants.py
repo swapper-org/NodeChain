@@ -8,7 +8,6 @@ ESTIMATE_SMART_FEE_METHOD = "estimatesmartfee"
 GET_TRANSACTION_METHOD = "gettransaction"
 DECODE_RAW_TRANSACTION_METHOD = "decoderawtransaction"
 SEND_RAW_TRANSACTION_METHOD = "sendrawtransaction"
-NOTIFY_METHOD = "notify"
 
 VERBOSITY_LESS_MODE = 0
 VERBOSITY_DEFAULT_MODE = 1
@@ -52,11 +51,8 @@ BLOCK_HASH = "blockHash"
 BLOCK_NUMBER = "blockNumber"
 CONFIRMATIONS = "confirmations"
 PENDING = "pending"
-CALLBACK_ENDPOINT = "callBackEndpoint"
-SUCCESS = "success"
 
-RPC_JSON_SCHEMA_FOLDER = "btctestnet/rpcschemas/"
-WS_JSON_SCHEMA_FOLDER = "btctestnet/wsschemas/"
+RPC_JSON_SCHEMA_FOLDER = "bch/rpcschemas/"
 SCHEMA_CHAR_SEPARATOR = "_"
 REQUEST = "request"
 RESPONSE = "response"
@@ -74,7 +70,3 @@ GET_PENDING_TRANSACTION_COUNT = "getpendingtransactioncount"
 GET_TRANSACTION = "gettransaction"
 GET_TRANSACTION_COUNT = "gettransactioncount"
 GET_TRANSACTION_HEX = "gettransactionhex"
-NOTIFY = "notify"
-
-SUBSCRIBE_ADDRESS_BALANCE = "subscribeaddressbalance"
-UNSUBSCRIBE_ADDRESS_BALANCE = "unsubscribeaddressbalance"

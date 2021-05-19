@@ -36,13 +36,13 @@ def queryPort(question):
             return port
 
 
-def queryPath(coin):
+def queryPath(coin, stage):
     try:
-        path = input("Please choose the directory to save blockchain data " + f"(/srv/swapper-node/{coin}): ")
+        path = input("Please choose the directory to save blockchain data " + f"(/srv/swapper-node/{coin}_{stage}): ")
     except SyntaxError:
-        path = f"/srv/swapper-node/{coin}"
+        path = f"/srv/swapper-node/{coin}_{stage}"
     if not path:
-        path = f"/srv/swapper-node/{coin}"
+        path = f"/srv/swapper-node/{coin}_{stage}"
     return path
 
 
@@ -73,13 +73,13 @@ def askSSL():
 
             if os.path.isdir(path) and "swapper_cert.key" in os.listdir(path) and "swapper_cert.crt" in os.listdir(path):
                 os.environ["CERT_PATH"] = path
-                os.environ["NGINX_CONFIG_PATH"] = "../nginx/ssl.conf"
+                os.environ["NGINX_CONFIG_PATH"] = "../../nginx/ssl.conf"
                 return
             else:
                 sys.stdout.write("You need to have the files swapper_cert.key and swapper_cert.crt in the "
                                  "certificates directory. \n")
         else:
-            os.environ["NGINX_CONFIG_PATH"] = "../nginx/nginx.conf"
+            os.environ["NGINX_CONFIG_PATH"] = "../../nginx/nginx.conf"
             os.environ["CERT_PATH"] = "/etc/ssl/certs"
             return
 
