@@ -82,3 +82,15 @@ def askSSL():
             os.environ["NGINX_CONFIG_PATH"] = "../nginx/nginx.conf"
             os.environ["CERT_PATH"] = "/etc/ssl/certs"
             return
+
+
+def fillMenu(listFnc, choiceFnc, exitFnc):
+    menu = {}
+    counter = 1
+    for item in listFnc():
+        menu[str(counter)] = (item, choiceFnc)
+        counter += 1
+
+    menu[str(len(listFnc()) + 1)] = ("Exit", exitFnc)
+
+    return menu

@@ -35,7 +35,8 @@ def stop(coin):
         print(err[1].decode("ascii"))
 
 
-def exitSetup():
+# "coin" argument is never used. Is declared to prevent errors
+def exitSetup(coin=None):
     print("Exiting...")
     raise SystemExit
 
@@ -60,9 +61,14 @@ def listRunningContainers():
 
 
 def listApis():
-    composes = os.listdir("../docker-compose")
+    composes = os.listdir("../docker-compose/{stage}".format(stage=os.environ["STAGE"].lower()))
+
+    # Trim last 4 characters for every "coin.yml" to remove the ".yml" part
     return [f[:-4] for f in composes]
 
+
+def listStages():
+    return os.listdir("../docker-compose")
 
 def getUsedPort(coin):
     for container in client.containers.list():
@@ -78,37 +84,46 @@ def getUsedPort(coin):
 def checkStatus():
     if checkIfRunning(os.environ["COIN"].lower()):
         getUsedPort(os.environ["COIN"].lower())
-        stop(os.environ["COIN"].lower())
+        # stop(os.environ["COIN"].lower())
     else:
         os.environ["PORT"] = utils.queryPort("Port to start: ")
         os.environ["BLOCKCHAIN_PATH"] = utils.queryPath(os.environ["COIN"].lower())
         os.environ["SSL_PORT"] = utils.queryPort("Port to start (SSL): ")
         utils.askSSL()
         os.environ["STAGE"] = "PRO"
-        setup(os.environ["COIN"].lower())
+        # setup(os.environ["COIN"].lower())
 
 
 def apiChoice(coin):
     os.environ["COIN"] = coin.upper()
     checkStatus()
 
+def stageChoice(stage):
+    os.environ["STAGE"] = stage.upper()
+    apiMenu()
+
+def apiMenu():
+    menu = utils.fillMenu(listApis, apiChoice, exitSetup)
+
+    for key in sorted(menu.keys()):
+        if menu[key][0] in listRunningContainers():
+            print("[RUNNING]" + "\t" + key + "." + menu[key][0])
+        else:
+            print("[OFF]" + "\t" + key + "." + menu[key][0])
+
+    ans = input("Please pick a node to start/stop (1-{options}): ".format(options=(len(listApis()) + 1)))
+    menu.get(ans, [None, invalid])[1](menu[ans][0].upper())
+
+def stageMenu():
+    menu = utils.fillMenu(listStages, stageChoice, exitSetup)
+
+    for key in sorted(menu.keys()):
+        print("[OFF]" + "\t" + key + "." + menu[key][0])
+
+    stage = input("Please choose the environment that you want to use to build up the node(1-{options}): ".format(options=(len(listStages()) + 1)))
+    menu.get(stage, [None, invalid])[1](menu[stage][0].upper())
 
 
 client = docker.from_env()
-menu = {}
-counter = 1
-
-for coinContainer in listApis():
-    menu[str(counter)] = (coinContainer, apiChoice)
-    counter += 1
-
-menu[str(len(listApis()) + 1)] = ("Exit", exitSetup)
-
-for key in sorted(menu.keys()):
-    if menu[key][0] in listRunningContainers():
-        print("[RUNNING]"+"\t" + key + "." + menu[key][0])
-    else:
-        print("[OFF]"+"\t" + key + "." + menu[key][0])
-
-ans = input("Please pick a server to start/stop (1-{options}): ".format(options=(len(listApis()) + 1)))
-menu.get(ans, [None, invalid])[1](menu[ans][0].upper())
+stageMenu()
+print(os.environ["STAGE"])
