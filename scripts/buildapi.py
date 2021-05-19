@@ -106,7 +106,7 @@ def stageChoice(stage):
 
 def apiMenu():
     menu = utils.fillMenu(listApis, apiChoice, exitSetup)
-    # TODO: poner algo bonito aqui rollo ----- API SELECTION ----- meter la funcion en utils
+    utils.showSubtitle("BLOCKCHAIN SELECTION")
     for key in sorted(menu.keys()):
         if (menu[key][0]+"_{stage}".format(stage=os.environ["STAGE"].lower())) in listRunningApis():
             print("[RUNNING]" + "\t" + key + "." + menu[key][0])
@@ -119,7 +119,7 @@ def apiMenu():
 
 def stageMenu():
     menu = utils.fillMenu(listStages, stageChoice, exitSetup)
-    # TODO: poner algo bonito aqui rollo ----- STAGE SELECTION ----- meter la funcion en utils
+    utils.showSubtitle("ENVIRONMENT SELECTION")
     for key in sorted(menu.keys()):
         print(key + "." + menu[key][0])
 
@@ -128,4 +128,6 @@ def stageMenu():
 
 
 client = docker.from_env()
+utils.showMainTitle()
+
 stageMenu()
