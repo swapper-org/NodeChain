@@ -130,14 +130,14 @@ _(To activate SSL note that you need to have the files `swapper_cert.key` and `s
 
 **IMPORTANT: You must use a different port for each API**
 
-### Stop any API
+## Stop nodes
 
 1. Navigate to `/scripts` and run the script to stop any running API:
 ```sh
 ~$ python3 buildapi.py
 ```
-
-2. Choose the API you want to stop.
+2. Choose the environment to show running nodes
+3. Choose the API you want to stop.
 
 ## Usage
 NodeChain uses the JSON RPC protocol for API requests. The API provides the following endpoints:
