@@ -11,8 +11,8 @@ SUBSCRIBE_METHOD = "eth_subscribe"
 
 NEW_HEADS_SUBSCRIPTION = "newHeads"
 
-RPC_JSON_SCHEMA_FOLDER = "ethtestnet/rpcschemas/"
-WS_JSON_SCHEMA_FOLDER = "ethtestnet/wsschemas/"
+RPC_JSON_SCHEMA_FOLDER = "eth/rpcschemas/"
+WS_JSON_SCHEMA_FOLDER = "eth/wsschemas/"
 SCHEMA_CHAR_SEPARATOR = "_"
 REQUEST = "request"
 RESPONSE = "response"

@@ -15,20 +15,22 @@ services:
       SERVICES: tcp://:50001
       COST_SOFT_LIMIT: 0 #Disable cost limitation so electrumx does not crash electrum during sync
       COST_HARD_LIMIT: 0
+      NET: testnet
     volumes:
       - ${BLOCKCHAIN_PATH}/electrumx:/data
 
   electrum:
-    build: ../packages/swapper-electron-cash
+    build: ../../packages/swapper-electron-cash
     image: electrum
     environment:
       TESTNET: 1
 
   connector:
-    build: ../Connector
+    build: ../../Connector
     environment:
       COIN: BCH
       STAGE: ${STAGE}
+      PORT: ${PORT}
     image: connector
 
   nginx:

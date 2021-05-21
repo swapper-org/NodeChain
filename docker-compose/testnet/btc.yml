@@ -1,20 +1,9 @@
 version: "3"
 services:
   bitcoincore:
-    build: ../packages/swapper-bitcoin-core
+    build: ../../packages/swapper-bitcoin-core
     image: bitcoincore
-    command:
-      -rpcuser=swapper
-      -rpcpassword=swapper
-      -server=1
-      -rpcallowip=0.0.0.0/0
-      -rpcbind=0.0.0.0
-      -txindex=1
-      -regtest=1
-      -debug=1
-      -rpcport=8332
-      -deprecatedrpc=generate
-      -fallbackfee=0.0001
+    command: -rpcuser=swapper -rpcpassword=swapper -server=1 -rpcallowip=0.0.0.0/0 -rpcbind=bitcoincore -txindex=1 -testnet -rpcport=8332
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
 
@@ -27,20 +16,20 @@ services:
       SERVICES: tcp://:50001
       COST_SOFT_LIMIT: 0 #Disable cost limitation so electrumx does not crash electrum during sync
       COST_HARD_LIMIT: 0
-      NET: regtest
+      NET: testnet
     volumes:
       - ${BLOCKCHAIN_PATH}/electrumx:/data
 
   electrum:
-    build: ../packages/swapper-electrum-regtest
+    build: ../../packages/swapper-electrum
     image: electrum
     environment:
       TESTNET: 1
 
   connector:
-    build: ../Connector
+    build: ../../Connector
     environment:
-      COIN: BTCTESTNET
+      COIN: BTC
       STAGE: ${STAGE}
       PORT: ${PORT}
     image: connector

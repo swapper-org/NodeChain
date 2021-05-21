@@ -1,8 +1,7 @@
 version: "3"
 services:
   bitcoincore:
-    build: ../packages/swapper-bitcoin-core
-    image: bitcoincore
+    image: uphold/bitcoin-abc:latest
     command: -rpcuser=swapper -rpcpassword=swapper -server=1 -rpcallowip=0.0.0.0/0 -rpcbind=bitcoincore -txindex=1 -rpcport=8332
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
@@ -11,7 +10,7 @@ services:
     image: lukechilds/electrumx
     environment:
       DAEMON_URL: http://swapper:swapper@bitcoincore:8332
-      COIN: BitcoinSegwit
+      COIN: BitcoinCashABC
       PEER_DISCOVERY: "off"
       SERVICES: tcp://:50001
       COST_SOFT_LIMIT: 0 #Disable cost limitation so electrumx does not crash electrum during sync
@@ -20,15 +19,14 @@ services:
       - ${BLOCKCHAIN_PATH}/electrumx:/data
 
   electrum:
-    build: ../packages/swapper-electrum
+    build: ../../packages/swapper-electron-cash
     image: electrum
 
   connector:
-    build: ../Connector
+    build: ../../Connector
     environment:
-      COIN: BTC
+      COIN: BCH
       STAGE: ${STAGE}
-      PORT: ${PORT}
     image: connector
 
   nginx:

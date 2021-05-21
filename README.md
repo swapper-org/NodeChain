@@ -36,34 +36,40 @@ See deployment for notes on how to deploy the project on a live system.
 - [Python3](https://www.python.org/downloads/)
 - [Pip](https://pypi.org/project/pip/)
 
-### Installing
 
-#### Only APIs (Connector service)
+### Development stage
+This environment is intended for the development and contribution of the project.
+Blockchains used are created locally (*regtest, ganache,...*) facilitating the development and waiting times in block mining.
 
-1. Clone the project in your computer or your server
+1. Follow the [CONTRIBUTING.md](https://github.com/swapper-org/NodeChain/blob/master/CONTRIBUTING.md) guidelines to clone
+the repository.
 
-```sh
-~$ git clone https://github.com/swappermarket/NodeChain.git
-```
-
-2. Create a new configuration with the following environmental variables:
-`COIN=<YOUR_COIN>`,`STAGE=DEV`.
-   You can also set up `PORT`, `SSL_PORT`, `NGINX_CONFIG_PATH`, `CERT_PATH`, `BLOCKCHAIN_PATH` but this is not needed to build only the Connector.
-
-
-3. Navigate to `/Connector` and run:
-
+2. Navigate to `/scripts` and install the requirements:
 ```sh
 ~$ pip install -r "requirements.txt"
 ```
 
-4. Run the server.
+3. Run the script to build any API:
+```sh
+~$ python3 buildapi.py
+```
 
-To set the connection with the APIs of the native nodes of each blockchain you can modify the file `/<API>/connector.py`
+4. Follow the steps of the script:
+   - Choose "Development" environment.
+   - Choose an API to build.
+   - Choose a port where you want to build the API.
+   - Choose a path where you want to store the Blockchain.
+   - Choose a port where you want to bind SSL port.
+   - Choose if you want to add SSL to your node. 
 
-#### Full nodes (Connector service + Blockchain nodes)
+_(To activate SSL note that you need to have the files `swapper_cert.key` and `swapper_cert.crt` in the certificates directory)_
 
-**_IMPORTANT: To work with full nodes in development mode, You need to have the blockchain synchronized for its use. If the blockchain is not synchronized locally, connection to public nodes may be necessary._**
+
+## Deployment
+
+### Testnet stage
+
+**_IMPORTANT: To work with full nodes in development mode, You need to have the blockchain synchronized for its use. If the testnet blockchain is not synchronized locally, some features might not work._**
 
 1. Clone the project in your computer or your server
 
@@ -83,7 +89,7 @@ To set the connection with the APIs of the native nodes of each blockchain you c
 ```
 
 4. Follow the steps of the script:
-
+    - Choose "Testnet" environment.
     - Choose an API to build
     - Choose a port where you want to build the API
     - Choose a path where you want to store the Blockchain
@@ -93,9 +99,7 @@ To set the connection with the APIs of the native nodes of each blockchain you c
 _(To activate SSL note that you need to have the files `swapper_cert.key` and `swapper_cert.crt` in the certificates directory)_
 
 
-## Deployment
-
-### Start any API
+### Mainnet stage
 
 1. Clone the project in your computer or your server
 
@@ -115,7 +119,7 @@ _(To activate SSL note that you need to have the files `swapper_cert.key` and `s
 ```
 
 4. Follow the steps of the script:
-
+    - Choose "Mainnet" environment.
     - Choose an API to build
     - Choose a port where you want to build the API
     - Choose a path where you want to store the Blockchain
@@ -126,14 +130,14 @@ _(To activate SSL note that you need to have the files `swapper_cert.key` and `s
 
 **IMPORTANT: You must use a different port for each API**
 
-### Stop any API
+## Stop nodes
 
 1. Navigate to `/scripts` and run the script to stop any running API:
 ```sh
 ~$ python3 buildapi.py
 ```
-
-2. Choose the API you want to stop.
+2. Choose the environment to show running nodes
+3. Choose the API you want to stop.
 
 ## Usage
 NodeChain uses the JSON RPC protocol for API requests. The API provides the following endpoints:
