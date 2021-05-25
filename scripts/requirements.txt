@@ -1,2 +1,5 @@
 docker
 six
+flake8
+pytest
+pytest-cov
