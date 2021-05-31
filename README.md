@@ -163,6 +163,8 @@ You can lint with the following command:
 ~$ flake8 --statistics
 ```
 
+### Local testing
+
 ### Testing with CircleCI
 
 On the other hand, if you have a [CircleCI](https://circleci.com/) account, you can use it for local testing.
