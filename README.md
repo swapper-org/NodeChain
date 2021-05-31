@@ -163,11 +163,11 @@ You can lint with the following command:
 ~$ flake8 --statistics
 ```
 
-### Local testing
-
 ### Testing with CircleCI
 
-On the other hand, if you have a [CircleCI](https://circleci.com/) account, you can use it for local testing.
+If you have a [CircleCI](https://circleci.com/) account, you can use it for local testing.
+
+_Note: This method also run the lint._
 
 To use CircleCI, follow the steps below, in case you need more information, [here](https://circleci.com/docs/2.0/local-cli/).
 
@@ -185,6 +185,38 @@ To use CircleCI, follow the steps below, in case you need more information, [her
 ~$ circleci config process .circleci/config.yml > process.yml
 
 ~$ circleci local execute -c process.yml --job build
+```
+
+_(Note that you need to have pushed any change to the branch you are working on)_
+
+### Local testing
+
+On the other hand, if you do not have a CircleCi account, you can do the local testing manually:
+
+1. Lint the project using the instructions above.
+
+2. Install all dependencies in the project:
+
+```sh
+~$ cd scripts
+
+~$ pip install -r "requirements.txt"
+
+~$ cd ../Connector
+
+~$ pip install -r "requirements.txt"
+```
+
+3. Create an environmental variable with the `COIN` of the API you want to test:
+
+```sh
+~$ export COIN=<PACKAGE_TO_TEST_UPPERCASE>
+```
+
+4. Run:
+
+```sh
+~$ pytest -v --cov=<PACKAGE_TO_TEST>
 ```
 
 ## Contributing
