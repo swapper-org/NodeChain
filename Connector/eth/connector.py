@@ -1,5 +1,3 @@
-import os
-
 RPC_ETHEREUM_PORT = 8545
 RPC_ETHEREUM_HOST = "ethereumgo"
 

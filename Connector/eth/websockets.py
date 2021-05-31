@@ -16,7 +16,8 @@ from logger import logger
 def ethereumWS():
 
     logger.printInfo("Starting WS for Ethereum")
-    ethereumWSClient = threading.Thread(target=ethereumWSThread, args=("Eth daemon",), daemon=True)
+    ethereumWSClient = threading.Thread(
+        target=ethereumWSThread, args=("Eth daemon",), daemon=True)
     ethereumWSClient.start()
 
 
@@ -59,7 +60,8 @@ async def ethereumClientCallback(request):
                     await session.close()
 
                 elif rpcConstants.PARAMS in msg.data:
-                    addrSearcherThread = threading.Thread(target=utils.searchAddressesIntoBlock, args=(msg.data,), daemon=True)
+                    addrSearcherThread = threading.Thread(
+                        target=utils.searchAddressesIntoBlock, args=(msg.data,), daemon=True)
                     addrSearcherThread.start()
 
             elif msg.type == aiohttp.WSMsgType.ERROR:

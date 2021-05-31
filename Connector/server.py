@@ -25,10 +25,13 @@ async def rpcServerHandler(request):
         logger.printInfo(f"New RPC request received: {reqParsed}")
 
         if reqParsed[rpcutils.METHOD] in rpcutils.RPCMethods:
-            payload = rpcutils.RPCMethods[reqParsed[rpcutils.METHOD]](reqParsed[rpcutils.ID], reqParsed[rpcutils.PARAMS])
+            payload = rpcutils.RPCMethods[reqParsed[rpcutils.METHOD]](
+                reqParsed[rpcutils.ID], reqParsed[rpcutils.PARAMS])
         else:
-            logger.printError(f"RPC Method not supported for {os.environ['COIN']}")
-            raise rpcErrorHandler.MethodNotAllowedError(f"RPC Method not supported for {os.environ['COIN']}")
+            logger.printError(
+                f"RPC Method not supported for {os.environ['COIN']}")
+            raise rpcErrorHandler.MethodNotAllowedError(
+                f"RPC Method not supported for {os.environ['COIN']}")
 
         response = rpcutils.generateRPCResultResponse(
             reqParsed[rpcutils.ID],
@@ -63,7 +66,7 @@ async def rpcServerHandler(request):
 
 
 async def websocketServerHandler(request):
-    
+
     ws = ServerWebSocket()
     await ws.websocket.prepare(request)
 
@@ -79,22 +82,26 @@ async def websocketServerHandler(request):
                 logger.printInfo(f"New WS request received: {reqParsed}")
 
                 if reqParsed[rpcutils.METHOD] == "close":
-                    logger.printInfo(f"Closing WS connection with client")
+                    logger.printInfo("Closing WS connection with client")
                     await ws.websocket.close()
 
                 elif reqParsed[rpcutils.METHOD] not in wsutils.webSocketMethods:
-                    logger.printError(f"WS Method not supported for {os.environ['COIN']}")
-                    raise rpcErrorHandler.BadRequestError(f"WS Method not supported for {os.environ['COIN']}")
-                    
+                    logger.printError(
+                        f"WS Method not supported for {os.environ['COIN']}")
+                    raise rpcErrorHandler.BadRequestError(
+                        f"WS Method not supported for {os.environ['COIN']}")
+
                 else:
 
-                    payload = wsutils.webSocketMethods[reqParsed[rpcutils.METHOD]](ws, reqParsed[rpcutils.ID], reqParsed[rpcutils.PARAMS])
-                    
+                    payload = wsutils.webSocketMethods[reqParsed[rpcutils.METHOD]](
+                        ws, reqParsed[rpcutils.ID], reqParsed[rpcutils.PARAMS])
+
                     response = rpcutils.generateRPCResultResponse(
                         reqParsed[rpcutils.ID],
                         payload
                     )
-                    logger.printInfo(f"Sending WS response to requestor: {response}")
+                    logger.printInfo(
+                        f"Sending WS response to requestor: {response}")
 
                     await ws.websocket.send_str(
                         json.dumps(
@@ -103,8 +110,10 @@ async def websocketServerHandler(request):
                     )
 
             elif msg.type == aiohttp.WSMsgType.ERROR:
-                logger.printError('WS connection closed with exception %s' % ws.websocket.exception())
-                raise rpcErrorHandler.InternalServerError('WS connection closed with exception %s' % ws.websocket.exception())
+                logger.printError(
+                    'WS connection closed with exception %s' % ws.websocket.exception())
+                raise rpcErrorHandler.InternalServerError(
+                    'WS connection closed with exception %s' % ws.websocket.exception())
 
     except rpcErrorHandler.Error as e:
 
@@ -119,7 +128,7 @@ async def websocketServerHandler(request):
                 response
             )
         )
-        
+
     SubcriptionsHandler.removeClient(ws)
     return ws
 
@@ -132,6 +141,6 @@ if __name__ == '__main__':
 
     for webSocket in wsutils.webSockets:
         webSocket()
-    
+
     logger.printInfo("Starting connector")
     web.run_app(app, port=80)

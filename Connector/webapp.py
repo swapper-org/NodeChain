@@ -9,7 +9,5 @@ class WebApp(web.Application):
 
         if not WebApp.instance:
             WebApp.instance = web.Application()
-        
-        return WebApp.instance
-    
 
+        return WebApp.instance

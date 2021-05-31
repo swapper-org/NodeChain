@@ -7,12 +7,12 @@ from logger import logger
 RPCMethods = {}
 
 
-def rpcMethod (f):
+def rpcMethod(f):
     logger.printInfo(f"Registering new RPC method: {f.__name__}")
     RPCMethods[f.__name__] = f
     return f
 
- 
+
 def parseRpcRequest(request):
 
     try:
@@ -34,8 +34,10 @@ def parseRpcRequest(request):
         raise errorhandler.BadRequestError(f"{PARAMS} must be dictionary")
 
     if parsedRequest[JSON_RPC] != JSON_RPC_VERSION:
-        logger.printError(f"This version of JSON RPC is not supported. Supported version: {JSON_RPC_VERSION}")
-        raise errorhandler.BadRequestError(f"This version of JSON RPC is not supported. Supported version: {JSON_RPC_VERSION}")
+        logger.printError(
+            f"This version of JSON RPC is not supported. Supported version: {JSON_RPC_VERSION}")
+        raise errorhandler.BadRequestError(
+            f"This version of JSON RPC is not supported. Supported version: {JSON_RPC_VERSION}")
 
     if not isinstance(parsedRequest[ID], int):
         logger.printError(f"{ID} must be integer")
@@ -49,7 +51,7 @@ def parseRpcRequest(request):
 
 
 def validateJSONRPCSchema(params, jsonSchemaFile):
-    
+
     logger.printInfo(f"Validating JSON RPC Schema with {jsonSchemaFile}")
 
     with open(jsonSchemaFile) as file:
@@ -90,6 +92,7 @@ def generateRPCErrorResponse(id, err):
         }
     }
 
+
 def unifyResponse(response):
 
     parsedResponse = {}
@@ -100,7 +103,7 @@ def unifyResponse(response):
     for key, value in response.items():
 
         parsedKey = stringToCamelCase(key)
-        
+
         if isinstance(value, dict):
             parsedResponse[parsedKey] = unifyResponse(value)
         elif isinstance(value, list):
@@ -133,6 +136,7 @@ def unifyArray(array):
 
     return parsedArray
 
+
 def stringToCamelCase(string):
 
     translations = {
@@ -147,4 +151,4 @@ def stringToCamelCase(string):
         return translations[string]
     else:
         init, *temp = string.split("_")
-        return ''.join([init, *map(str.title, temp)]) 
+        return ''.join([init, *map(str.title, temp)])

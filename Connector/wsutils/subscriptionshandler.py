@@ -10,10 +10,9 @@ COIN = os.environ["COIN"]
 
 class SubcriptionsHandler():
 
-
     @staticmethod
     def subscribe(address, client):
-        
+
         logger.printInfo(f"Client trying to subscribe to address {address}")
         if COIN not in ADDRESSES_SUBSCRIBED:
             logger.printInfo(f"Creating subscriptions for {COIN}")
@@ -25,8 +24,9 @@ class SubcriptionsHandler():
             addressesByCoin[address] = []
             addressesByCoin[address].append(client)
             client.addAddress(address)
-            
-            logger.printInfo(f"Client successfully subscribed to address ${address}")
+
+            logger.printInfo(
+                f"Client successfully subscribed to address ${address}")
 
             return {
                 SUBSCRIBED: True
@@ -36,24 +36,25 @@ class SubcriptionsHandler():
             addressesByCoin[address].append(client)
             client.addAddress(address)
 
-            logger.printInfo(f"Client successfully subscribed to address ${address}")
-    
+            logger.printInfo(
+                f"Client successfully subscribed to address ${address}")
+
             return {
                 SUBSCRIBED: True
             }
-        
+
         logger.printInfo(f"Client already subscribed to address ${address}")
 
         return {
             SUBSCRIBED: False
         }
 
-
     @staticmethod
     def unsubscribe(address, client):
 
         if COIN not in ADDRESSES_SUBSCRIBED:
-            logger.printError(f"Coin doesn't exist in subscription handler: {COIN}")
+            logger.printError(
+                f"Coin doesn't exist in subscription handler: {COIN}")
             return {
                 UNSUBSCRIBED: False
             }
@@ -61,7 +62,8 @@ class SubcriptionsHandler():
         addressesByCoin = ADDRESSES_SUBSCRIBED[COIN]
 
         if address not in addressesByCoin:
-            logger.printError(f"Address {address} doesn't exist for {COIN} in subscription handler")
+            logger.printError(
+                f"Address {address} doesn't exist for {COIN} in subscription handler")
             return {
                 UNSUBSCRIBED: False
             }
@@ -77,11 +79,11 @@ class SubcriptionsHandler():
 
         SubcriptionsHandler.clean(addressesByCoin, address)
 
-        logger.printInfo(f"Client successfully unsubscribed to address {address}")
+        logger.printInfo(
+            f"Client successfully unsubscribed to address {address}")
         return {
             UNSUBSCRIBED: True
         }
-
 
     @staticmethod
     def removeClient(client):
@@ -96,12 +98,13 @@ class SubcriptionsHandler():
             if addressSubscribed in addressesByCoin:
                 if client in addressesByCoin[addressSubscribed]:
                     addressesByCoin[addressSubscribed].remove(client)
-                    SubcriptionsHandler.clean(addressesByCoin, addressSubscribed)
+                    SubcriptionsHandler.clean(
+                        addressesByCoin, addressSubscribed)
 
-        logger.printInfo("Client removed successfully from subscriptions handler")
+        logger.printInfo(
+            "Client removed successfully from subscriptions handler")
         client.clean()
         return
-
 
     @staticmethod
     def clean(addressesByCoin, address):
@@ -113,25 +116,21 @@ class SubcriptionsHandler():
 
         return
 
-
     @staticmethod
     def coinInAddressSubscription():
         return COIN in ADDRESSES_SUBSCRIBED
-    
 
     @staticmethod
     def getSubscriptionsAvailable():
         return ADDRESSES_SUBSCRIBED[COIN]
-    
 
     @staticmethod
     def getAddressClients(address):
 
         if SubcriptionsHandler.coinInAddressSubscription() and SubcriptionsHandler.addressHasClients(address):
             return ADDRESSES_SUBSCRIBED[COIN][address]
-        
+
         return []
-    
 
     @staticmethod
     def addressHasClients(address):

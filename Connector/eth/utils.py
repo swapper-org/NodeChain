@@ -50,7 +50,7 @@ def searchAddressesIntoBlock(data):
     if not SubcriptionsHandler.coinInAddressSubscription():
         logger.printWarning("Coin not available in subscriptions handler")
         return
-    
+
     if not SubcriptionsHandler.getSubscriptionsAvailable():
         logger.printWarning("There are no addresses subscribed for")
         return
@@ -60,12 +60,14 @@ def searchAddressesIntoBlock(data):
         reqParsed = json.loads(data)
     except Exception as e:
         logger.printError(f"Payload is not JSON message. Error: {e}")
-        raise rpcErrorHandler.BadRequestError(f"Payload is not JSON message. Error: {e}")
-    
+        raise rpcErrorHandler.BadRequestError(
+            f"Payload is not JSON message. Error: {e}")
+
     params = reqParsed[rpcConstants.PARAMS]
     blockNumber = params[rpcConstants.RESULT][NUMBER]
 
-    logger.printInfo(f"Getting new block to check addresses subscribed for. Block number: {params[rpcConstants.RESULT][NUMBER]}")
+    logger.printInfo(
+        f"Getting new block to check addresses subscribed for. Block number: {params[rpcConstants.RESULT][NUMBER]}")
     block = apirpc.getBlockByNumber(
         random.randint(1, sys.maxsize),
         {
@@ -76,7 +78,8 @@ def searchAddressesIntoBlock(data):
     for address in SubcriptionsHandler.getSubscriptionsAvailable():
         for transaction in block[TRANSACTIONS]:
             if address == transaction[FROM] or address == transaction[TO]:
-                notifyThread = threading.Thread(target=notifyHandler, args=(address,), daemon=True)
+                notifyThread = threading.Thread(
+                    target=notifyHandler, args=(address,), daemon=True)
                 notifyThread.start()
 
 
@@ -92,7 +95,8 @@ async def notify(address):
 
     addressClients = SubcriptionsHandler.getAddressClients(address)
 
-    logger.printInfo(f"Getting balance for address subscribed for in new block. Address: {address}")
+    logger.printInfo(
+        f"Getting balance for address subscribed for in new block. Address: {address}")
     balance = apirpc.getAddressBalance(
         random.randint(1, sys.maxsize),
         {
