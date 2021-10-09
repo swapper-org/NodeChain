@@ -1,15 +1,15 @@
 #!/usr/bin/python3
+import aiohttp
+from aiohttp import web
+import importlib
 import json
 import os
-from webapp import WebApp
-from aiohttp import web
-import aiohttp
-from wsutils.serverwebsocket import ServerWebSocket
+from logger import logger
 from rpcutils import rpcutils, errorhandler as rpcErrorHandler
+from wsutils.serverwebsocket import ServerWebSocket
 from wsutils import wsutils
 from wsutils.subscriptionshandler import SubcriptionsHandler
-import importlib
-from logger import logger
+from webapp import WebApp
 
 logger.printInfo(f"Loading connector for {os.environ['COIN']}")
 importlib.__import__(os.environ['COIN'].lower())
@@ -124,14 +124,17 @@ async def websocketServerHandler(request):
     return ws
 
 
-if __name__ == '__main__':
-
+def runServer():
     app = WebApp()
     app.add_routes([web.post('/rpc', rpcServerHandler)])
     app.add_routes([web.get('/ws', websocketServerHandler)])
 
     for webSocket in wsutils.webSockets:
         webSocket()
-    
+
     logger.printInfo("Starting connector")
     web.run_app(app, port=80)
+
+
+if __name__ == '__main__':
+    runServer()

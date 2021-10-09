@@ -1,3 +1,7 @@
 aiohttp==3.7.2
 requests==2.24.0
 jsonschema==3.2.0
+pytest
+pytest-cov
+pytest-env
+coverage
