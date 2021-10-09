@@ -15,10 +15,12 @@ services:
       PORT: ${PORT}
     image: connector
     restart: on-failure
+    ports:
+      - ${PORT}:80
     depends_on:
       - ethereumgo
 
-  nginx:
+  """nginx:
     image: nginx
     volumes:
       - ${NGINX_CONFIG_PATH}:/etc/nginx/nginx.conf
@@ -27,4 +29,4 @@ services:
       - ${PORT}:80
       - ${SSL_PORT}:443
     depends_on:
-      - ethereumgo
+      - ethereumgo"""
