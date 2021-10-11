@@ -52,13 +52,17 @@ def validateJSONRPCSchema(params, jsonSchemaFile):
     
     logger.printInfo(f"Validating JSON RPC Schema with {jsonSchemaFile}")
 
-    with open(jsonSchemaFile) as file:
-        schema = json.load(file)
-        try:
-            jsonschema.validate(instance=params, schema=schema)
-        except jsonschema.exceptions.ValidationError as err:
-            logger.printError(f"Error validation params with schema: {err}")
-            return err
+    try:
+        with open(jsonSchemaFile) as file:
+            schema = json.load(file)
+            try:
+                jsonschema.validate(instance=params, schema=schema)
+            except jsonschema.exceptions.ValidationError as err:
+                logger.printError(f"Error validation params with schema: {err}")
+                return err
+    except FileNotFoundError as err:
+        logger.printError(f"Schema {jsonSchemaFile} not found: {err}")
+        raise errorhandler.InternalServerError(f"Schema {jsonSchemaFile} not found: {err}")
 
     return None
 
