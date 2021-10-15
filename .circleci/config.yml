@@ -17,7 +17,7 @@ jobs:
       - run: 
           name: Deploy Development ETH Connector
           command: |
-            docker-compose -f docker-compose/development/eth.yml -p eth_development_api up --build -d
+            docker-compose -f tests/docker-compose/eth.yml -p eth_development_api up --build -d
       - run:
           name: Run ETH Test
           command: |
