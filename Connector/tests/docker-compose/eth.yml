@@ -10,7 +10,7 @@ services:
       - 8545:8545
 
   connector:
-    build: ../../Connector
+    build: ../../.
     environment:
       COIN: ETH
       STAGE: ${STAGE}
