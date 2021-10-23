@@ -13,6 +13,8 @@ services:
       STAGE: ${STAGE}
       PORT: ${PORT}
     image: connector
+    depends_on:
+      - ethereumgo
 
   nginx:
     image: nginx
@@ -22,3 +24,5 @@ services:
     ports:
       - ${PORT}:80
       - ${SSL_PORT}:443
+    depends_on:
+      - connector
