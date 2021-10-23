@@ -1,24 +1,26 @@
 version: 2
 jobs:
   build:
-    docker:
-      - image: circleci/python:3
-        environment:
-          FLASK_CONFIG: develop
-          STAGE: development
-          PORT: 80
-          SSL_PORT: 443
-          NGINX_CONFIG_PATH: ../../nginx/nginx.conf
-          CERT_PATH: /etc/ssl/certs
-          BLOCKCHAIN_PATH: ./blockchain/
+    machine:
+      image: ubuntu-1604:202007-01
+    environment:
+      STAGE: development
+      PORT: 80
+      SSL_PORT: 443
+      NGINX_CONFIG_PATH: ../../nginx/nginx.conf
+      CERT_PATH: /etc/ssl/certs
+      BLOCKCHAIN_PATH: ./blockchain/
     steps:
       - checkout
-      - setup_remote_docker
       - run: 
           name: Deploy Development ETH Connector
           command: |
-            docker-compose -f tests/docker-compose/eth.yml -p eth_development_api up --build -d
+            docker-compose -f Connector/tests/docker-compose/eth.yml -p eth_development_api up --build -d
+      - run: 
+          name: Allow access to ports
+          command: |
+            sleep 5 && nc -vz localhost 8545
       - run:
           name: Run ETH Test
           command: |
-            docker exec -it eth_development_api_connector_1 bash -c "cd Connector && python -m pytest -c tests/pytest_eth.ini -s --cov=eth/ --cov=logger/ --cov=rpcutils/ --cov=wsutils/ --cov=. tests/"
+            docker exec -it eth_development_api_connector_1 bash -c "cd Connector && python -m pytest -c tests/eth/pytest_eth.ini -s --cov=eth/ --cov=logger/ --cov=rpcutils/ --cov=wsutils/ tests/eth"
