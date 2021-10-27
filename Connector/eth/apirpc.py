@@ -358,8 +358,6 @@ def syncing(id, params):
         raise rpcerrorhandler.BadRequestError(
             "Could not get sync info from node")
 
-    logger.printInfo(f"TEST -> {sync}")
-
     if not sync:
         response = {
             SYNCING: False
@@ -367,9 +365,9 @@ def syncing(id, params):
     else:
         response = {
             SYNCING: True,
-            STARTING_BLOCK_INDEX: syncData[STARTING_BLOCK],
-            CURRENT_BLOCK_INDEX: syncData[CURRENT_BLOCK],
-            LATEST_BLOCK_INDEX: syncData[HIGHEST_BLOCK],
+            STARTING_BLOCK_INDEX: sync[STARTING_BLOCK],
+            CURRENT_BLOCK_INDEX: sync[CURRENT_BLOCK],
+            LATEST_BLOCK_INDEX: sync[HIGHEST_BLOCK],
         }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
