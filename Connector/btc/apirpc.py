@@ -4,7 +4,6 @@ from rpcutils import rpcutils, errorhandler as rpcerrorhandler
 from rpcutils.rpcconnector import RPCConnector
 from . import utils
 from logger import logger
-from time import time
 
 
 @rpcutils.rpcMethod

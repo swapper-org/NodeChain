@@ -62,7 +62,6 @@ HIGHEST_BLOCK = "highestBlock"
 SYNC_PERCENTAGE = "syncPercentage"
 VERIFICATION_PROGRESS = "verificationprogress"
 BLOCKS = "blocks"
-TIME = "time"
 HEADERS = "headers"
 
 RPC_JSON_SCHEMA_FOLDER = "btc/rpcschemas/"
