@@ -7,7 +7,7 @@
     "syncing": {
         "type": "boolean"
     },
-    "startingBlock":{
+    "syncPercentage":{
         "type": "string"
     },
     "currentBlock":{
