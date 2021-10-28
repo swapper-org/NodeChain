@@ -358,6 +358,8 @@ def syncing(id, params):
         raise rpcerrorhandler.BadRequestError(
             "Could not get sync info from node")
 
+    syncPercentage = utils.getSyncPercentage(int(sync[CURRENT_BLOCK], 16), int(sync[HIGHEST_BLOCK], 16))
+
     if not sync:
         response = {
             SYNCING: False
@@ -365,9 +367,9 @@ def syncing(id, params):
     else:
         response = {
             SYNCING: True,
-            STARTING_BLOCK_INDEX: sync[STARTING_BLOCK],
-            CURRENT_BLOCK_INDEX: sync[CURRENT_BLOCK],
-            LATEST_BLOCK_INDEX: sync[HIGHEST_BLOCK],
+            SYNC_PERCENTAGE: f"{syncPercentage}%",
+            CURRENT_BLOCK_INDEX: int(sync[CURRENT_BLOCK], 16),
+            LATEST_BLOCK_INDEX: int(sync[HIGHEST_BLOCK], 16),
         }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)

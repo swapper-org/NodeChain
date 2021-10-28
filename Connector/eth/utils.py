@@ -109,3 +109,7 @@ async def notify(address):
                 balance
             )
         )
+
+
+def getSyncPercentage(currentBlock, latestBlock):
+    return (currentBlock * 100) / latestBlock
