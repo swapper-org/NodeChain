@@ -23,7 +23,7 @@ def makeBitcoinCoreTransaction(method, params):
 
 
 def mineBlocksToAddress(address, numBlocks=1):
-    makeBitcoinCoreTransaction("generatetoaddress", [numBlocks, address])
+    return makeBitcoinCoreTransaction("generatetoaddress", [numBlocks, address])
 
 
 
@@ -32,6 +32,8 @@ makeBitcoinCoreTransaction("createwallet", [wallet1Name])
 address1 = makeBitcoinCoreTransaction("getnewaddress", [])
 privateKey1 = makeBitcoinCoreTransaction("dumpprivkey", [address1])
 address2 = makeBitcoinCoreTransaction("getnewaddress", [])
+minerAddress = makeBitcoinCoreTransaction("getnewaddress", [])
+refundAddress1 = makeBitcoinCoreTransaction("getnewaddress", [])
 serverWebSocket = ServerWebSocket()
 
 mineBlocksToAddress(address1, 150)
@@ -45,9 +47,9 @@ def app():
     return
 
 
-def sendTransaction(fromAddress, toAddress, utxos, amount):
+def sendTransaction(fromAddress, toAddress, amount):
 
-    signedRawTransaction, ok = createSignedRawTransaction(fromAddress, toAddress, utxos, amount)
+    signedRawTransaction, ok = createSignedRawTransaction(fromAddress, toAddress, amount)
     
     if not ok:
         return None, False
@@ -56,35 +58,61 @@ def sendTransaction(fromAddress, toAddress, utxos, amount):
         return makeBitcoinCoreTransaction("sendrawtransaction", [signedRawTransaction[HEX]]), True
 
 
-def createSignedRawTransaction(fromAddress, toAddress, utxos, amount):
+def createSignedRawTransaction(fromAddress, toAddress, amount):
     
-    addressInfo = makeBitcoinCoreTransaction("getaddressinfo", [fromAddress])
+    adddressUtxos = makeBitcoinCoreTransaction("listunspent", [1, 9999999, [fromAddress]])
 
-    temp1 = []
-    temp2 = []
+    amountCount = 0
+    transactionUtxos = []
+    allowed = False
 
-    for i in utxos:
-        temp1.append(
+    for addressUtxo in adddressUtxos:
+
+        amountCount += addressUtxo[AMOUNT]
+        transactionUtxos.append({
+            TX_ID: addressUtxo[TX_ID],
+            VOUT: addressUtxo[VOUT],
+            AMOUNT: addressUtxo[AMOUNT],
+            SCRIPT_PUB_KEY: addressUtxo[SCRIPT_PUB_KEY]
+        })
+
+        if amountCount > amount:
+            allowed = True
+            break
+
+    if not allowed:
+        logger.printError(f"Transaction without {amount} fund")
+        return None, False
+
+
+    rawTransaction = makeBitcoinCoreTransaction("createrawtransaction",
+        [
+            [{key: transactionUtxo[key] for key in (TX_ID, VOUT) if key in transactionUtxo} for transactionUtxo in transactionUtxos],
+            [{toAddress: amount}],
+            0,
+            True
+        ]
+    )
+    fundTransactionResponse = makeBitcoinCoreTransaction("fundrawtransaction",
+        [
+            rawTransaction,
             {
-                TX_ID: i[TX_ID],
-                VOUT: 0
+                "changeAddress": refundAddress1,
+                "includeWatching": False,
+                "feeRate": 0.00005,
+                "replaceable": True,
+                "changePosition": 1,
+                "subtractFeeFromOutputs": [0]
             }
-        )
-        temp2.append(
-            {
-                TX_ID: i[TX_ID],
-                VOUT: 0,
-                AMOUNT: i[AMOUNT],
-                SCRIPT_PUB_KEY: addressInfo[SCRIPT_PUB_KEY]
-            }
-        )
+        ]
+    )
 
-    rawTransaction = makeBitcoinCoreTransaction("createrawtransaction", [temp1, [{toAddress: amount}], 0, True])
-    fundTransactionResponse = makeBitcoinCoreTransaction("fundrawtransaction", [rawTransaction,
-        {"changeAddress": fromAddress, "includeWatching": False, "feeRate": 0.00005, "replaceable": True,
-         "changePosition": 1, "subtractFeeFromOutputs": [0]}])
     signedRawTransaction = makeBitcoinCoreTransaction("signrawtransactionwithwallet",
-                                                      [fundTransactionResponse[HEX], temp2])
+        [
+            fundTransactionResponse[HEX],
+            [{key: transactionUtxo[key] for key in (TX_ID, VOUT, AMOUNT, SCRIPT_PUB_KEY) if key in transactionUtxo} for transactionUtxo in transactionUtxos]
+        ]
+    )
 
     if signedRawTransaction["complete"]:
         return signedRawTransaction, True
@@ -92,39 +120,19 @@ def createSignedRawTransaction(fromAddress, toAddress, utxos, amount):
     return None, False
 
 
-def simulateTransactions(numTransations = 100, amount = 0.01, transactionsPerBlock = 5, minerAddress = address1):
+def simulateTransactions(numTransations = 100, amount = 0.01, transactionsPerBlock = 5, minerAddress = minerAddress):
 
-    adddressUtxos = makeBitcoinCoreTransaction("listunspent", [1, 9999999, [address1]])
 
-    transactionCount = 0
-    amountCount = 0
-    transactionUtxos = []
-
-    for addressUtxo in adddressUtxos:
-
-        if transactionCount > numTransations:
-            break
-            
-        if amountCount < amount:
-
-            amountCount += addressUtxo[AMOUNT]
-            transactionUtxos.append({
-                TX_ID: addressUtxo[TX_ID],
-                VOUT: addressUtxo[VOUT],
-                AMOUNT: addressUtxo[AMOUNT]
-            })
-
-            continue
+    for i in range(numTransations):
         
-        transaction = sendTransaction(address1, address2, transactionUtxos, amount)
+        transaction, ok = sendTransaction(address1, address2, amount)
 
-        logger.printInfo(f"Transaction {transactionCount} done: {transaction}")
+        if not ok:
+            break
 
-        amountCount = 0
-        transactionUtxos = []
-        transactionCount += 1
+        logger.printInfo(f"Transaction {i} done: {transaction}")
 
-        if transactionCount % transactionsPerBlock == 0:
+        if i % transactionsPerBlock == 0:
             makeBitcoinCoreTransaction("generatetoaddress", [1, minerAddress])
             logger.printInfo(f"New block generated")
 
@@ -205,7 +213,31 @@ def testBroadcastTransaction():
         logger.printError(f"broadcastTransaction not loaded in RPCMethods")
         assert False
 
-    assert True
+    signedRawTransaction, ok = createSignedRawTransaction(address1, address2, 115)
+
+    if not ok:
+        logger.printError(f"Can not create transaction to broadcasts")
+        assert False
+
+    RPCMethods["broadcastTransaction"](0, {
+        RAW_TRANSACTION: signedRawTransaction[HEX]
+    })
+
+    blockMinedHash = mineBlocksToAddress(minerAddress, 1)[0]
+    blockMined = makeBitcoinCoreTransaction(GET_BLOCK_METHOD, [blockMinedHash, 2])
+
+
+    found = signedRawTransaction[HEX] in [tx[HEX] for tx in blockMined[TX]]
+
+    """found = False
+    for transaction in blockMined[TX]:
+        if transaction[HEX] == signedRawTransaction[HEX]:
+            found = True
+            assert True"""
+
+    if not found:
+        logger.printError(f"Signed raw transaction {signedRawTransaction[HEX]} not found in last generated block {blockMinedHash}")
+    assert found
 
 
 def testSubscribeAddressBalance():
