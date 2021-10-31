@@ -1,7 +1,7 @@
+import json
 import pytest
 import threading
 from web3 import Web3
-from web3.types import TReturn
 import server
 from eth.connector import RPC_ENDPOINT
 from eth.constants import *
@@ -54,33 +54,6 @@ def makeEtherumgoRequest(method, params):
     except Exception as err:
         logger.printError(f"Can not make request to {RPC_ENDPOINT}. {err}")
         assert False
-
-
-def checkBlocksHaveSameTransactions(expected, got):
-
-    if len(expected[TRANSACTIONS]) != len(got[TRANSACTIONS]):
-        logger.printError(f"Blocks do not have the same number of transactions. Expected: {expected[TRANSACTIONS]} Got: {got[TRANSACTIONS]}")
-        assert False
-
-    for expectedTransaction in expected[TRANSACTIONS]:
-        found = False
-        for gotTransaction  in got[TRANSACTIONS]:
-            if expectedTransaction[HASH] == gotTransaction[HASH]:
-                found = True
-                for key in expectedTransaction:
-                    if key not in gotTransaction:
-                        logger.printError(f"{key} not found in transaction response. Expected: {expectedTransaction} Got: {gotTransaction}")
-                        return False
-                
-                    if gotTransaction[key] != expectedTransaction[key]:
-                        logger.printError(f"Transaction data not correct. Expected: {expectedTransaction} Got: {gotTransaction}")
-                        return False
-        
-        if not found:
-            logger.printError(f"Transaction with {expectedTransaction[HASH]} hash not found in block. Got: {got[TRANSACTIONS]}")
-            return False
-    
-    return True
 
 
 def testGetAddressBalance():
@@ -291,12 +264,12 @@ def testGetBlock():
         BLOCK_HASH: expected[HASH]
     })
 
-    if not checkBlocksHaveSameTransactions(expected, gotBlockByNumber):
+    if not json.dumps(expected[TRANSACTIONS], sort_keys=True) == json.dumps(gotBlockByNumber[TRANSACTIONS], sort_keys=True):
         logger.printError("getBlockByNumber failed")
         assert False
 
-    if not checkBlocksHaveSameTransactions(expected, gotBlockByHash):
-        logger.printError("getBlockByNumber failed")
+    if not json.dumps(expected[TRANSACTIONS], sort_keys=True) == json.dumps(gotBlockByHash[TRANSACTIONS], sort_keys=True):
+        logger.printError("getBlockByHash failed")
         assert False
 
     assert True
