@@ -36,6 +36,7 @@ jobs:
       CERT_PATH: /etc/ssl/certs
       BLOCKCHAIN_PATH: ./blockchain/    
     steps:
+      - checkout
       - run: 
           name: Deploy Development BTC Connector
           command: |
@@ -52,8 +53,6 @@ jobs:
           name: Run BTC Test
           command: |
             docker exec -it btc_development_api_connector_1 bash -c "cd Connector && python -m pytest -c tests/btc/pytest_btc.ini -s --cov=btc/ --cov=logger/ --cov=rpcutils/ --cov=wsutils/ tests/btc"
-
-
 workflows:
   version: 2
   tests:

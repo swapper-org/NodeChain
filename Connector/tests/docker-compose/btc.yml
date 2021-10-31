@@ -1,7 +1,7 @@
 version: "3"
 services:
   bitcoincore:
-    build: ../../packages/swapper-bitcoin-core
+    build: ../../../packages/swapper-bitcoin-core
     image: bitcoincore
     command:
       -rpcuser=swapper
@@ -34,7 +34,7 @@ services:
       - ${BLOCKCHAIN_PATH}/electrumx:/data
 
   electrum:
-    build: ../../packages/swapper-electrum-regtest
+    build: ../../../packages/swapper-electrum-regtest
     image: electrum
     environment:
       TESTNET: 1
@@ -42,7 +42,7 @@ services:
       - 30000:30000
 
   connector:
-    build: ../../Connector
+    build: ../../.
     environment:
       COIN: BTC
       STAGE: ${STAGE}
