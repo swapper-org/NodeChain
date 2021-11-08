@@ -2,6 +2,7 @@
 import sys
 import os
 import argparse
+import json
 
 
 def queryYesNo(question, default="yes"):
@@ -129,7 +130,16 @@ def signalHandler(sig, frame):
     sys.exit(0)
 
 
+def getVersion():
+    os.chdir(f"../Connector/")
+    f = open('config.json')
+    data = json.load(f)
+    return data['version']
+
+
 def argumentHandler():
+    version = getVersion()
+
     parser = argparse.ArgumentParser(
         description='Nodechain allows the user to build and manage their own nodes natively without having to rely on external services.', prog="python3 nodechain.py")
     parser.add_argument('-t', '--token', action="store",
@@ -149,7 +159,7 @@ def argumentHandler():
     parser.add_argument('-c', '--cert', action="store",
                         dest='certs', help="path to certs", default=None)
     parser.add_argument('-v', '--version', action="version",
-                        version="NodeChain version 1.1.1", help="software version ", default=None)
+                        version=f"NodeChain version {version}", help="software version", default=None)
 
     args = parser.parse_args()
 
