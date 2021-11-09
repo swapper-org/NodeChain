@@ -68,19 +68,7 @@ def queryCerts(certs):
 
 
 def askSSL(config, certs):
-    if config:
-        while True:
-            path = queryCerts(certs)
-
-            if os.path.isdir(path) and "swapper_cert.key" in os.listdir(path) and "swapper_cert.crt" in os.listdir(path):
-                os.environ["CERT_PATH"] = path
-                os.environ["NGINX_CONFIG_PATH"] = "../../nginx/ssl.conf"
-                return
-    elif not config:
-        os.environ["NGINX_CONFIG_PATH"] = "../../nginx/nginx.conf"
-        os.environ["CERT_PATH"] = "/etc/ssl/certs"
-        return
-    else:
+    if config is None:
         while True:
             if queryYesNo("Do you want to activate SSL? ", "no"):
                 path = queryCerts(certs)
@@ -96,6 +84,17 @@ def askSSL(config, certs):
                 os.environ["NGINX_CONFIG_PATH"] = "../../nginx/nginx.conf"
                 os.environ["CERT_PATH"] = "/etc/ssl/certs"
                 return
+    elif config:
+        while True:
+            path = queryCerts(certs)
+            if os.path.isdir(path) and "swapper_cert.key" in os.listdir(path) and "swapper_cert.crt" in os.listdir(path):
+                os.environ["CERT_PATH"] = path
+                os.environ["NGINX_CONFIG_PATH"] = "../../nginx/ssl.conf"
+                return
+    else:
+        os.environ["NGINX_CONFIG_PATH"] = "../../nginx/nginx.conf"
+        os.environ["CERT_PATH"] = "/etc/ssl/certs"
+        return
 
 
 def fillMenu(listFnc, choiceFnc, exitFnc):
