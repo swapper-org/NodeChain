@@ -144,6 +144,71 @@ NodeChain uses the JSON RPC protocol for API requests. The API provides the foll
 - `https://<URL-SERVER>:<PORT>/rpc` for RPC requests.
 - `wss://<URL-SERVER>:<PORT>/ws` for real time requests.
 
+## Test
+
+
+We use [Flake8](https://flake8.pycqa.org/en/latest/) for linting and [PyTest](https://docs.pytest.org/en/6.2.x/) for testing.
+
+### Lint
+
+The Flake8 configuration is inside the `.flake8` file. The project is configured only for linting python code from the `Connector/` and `scripts/` directories.
+
+You can lint with the following command:
+
+```sh
+~$ flake8 --statistics
+```
+
+As optional, you can create a [GitHub Hook](https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks) to automatically check that your code follows the linting rules before commiting your changes.
+
+Follow the steps to create a pre-commit hook
+
+1. Create the file `pre-commit` inside the path `.git/hooks/` of your local repository with this content:
+
+```sh
+#!/bin/bash
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+
+echo "Running Flake8"
+flake8 ${ROOT_DIR} --statistics
+```
+
+2. Assign it execution permission
+
+```sh
+~$ chmod +x .git/hooks/pre-commit
+
+```
+
+### Local testing
+
+You can do the local testing manually:
+
+1. Lint the project using the instructions above.
+
+2. Use the `scripts/buildapi.py` script to launch NodeChain in development network locally and select the token you want to test
+ 
+3. Run tests inside the Connector docker image with the following command where you have to replace ${TOKEN} by the token symbol you are testing in lower case 
+ 
+```sh
+docker exec -it ${TOKEN}_development_api_connector_1 bash -c "cd Connector && python -m pytest -c tests/${TOKEN}/pytest_${TOKEN}.ini -s --cov=${TOKEN}/ --cov=logger/ --cov=rpcutils/ --cov=wsutils/ tests/${TOKEN}"
+```
+
+### CircleCI testing
+
+If you have a [CircleCI](https://circleci.com/) account, you can use it for remote testing. Use the GitHub account with your forked Nodechain repository.
+
+Follow the steps for CircleCI remote testing
+
+1. Go to the projects tab and click on the _Set Up Project_ button of your forked Nodechain repository.
+2. Select the _staging_ branch
+3. Implement your fix or feature
+4. Push the code to GitHub and tests will be automatically executed
+
+_**Note**: When running test remotely, CircleCI will execute all the jobs defined in the `.circleci/config.yml`_
+
+
 ## Contributing
 Please read [Contribution Guidelines](https://github.com/swapper-org/NodeChain/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
