@@ -100,7 +100,6 @@ def testGetAddressesBalance():
         )
 
         found = False
-
         for gotBalance in got:
 
             if gotBalance[ADDRESS] == address:
@@ -108,7 +107,6 @@ def testGetAddressesBalance():
                 if not (gotBalance[BALANCE][CONFIRMED] == expectedPending and gotBalance[BALANCE][UNCONFIRMED] == (hex(int(expectedPending, 16) - int(expectedLatest, 16)))):
                     logger.printError(f"Error validating {address}")
                     assert False
-
         if not found:
             logger.printError(f"Can not find balance for {address}")
             assert False
@@ -153,7 +151,6 @@ def testGetTransaction():
         if got[TRANSACTION][key] != expected[key]:
             logger.printError("Transaction data not correct")
             assert False
-
     for input in got[INPUTS]:
         if input[ADDRESS] != expected[FROM] or input[AMOUNT] != expected[VALUE]:
             logger.printError(f"Transaction input not correct. Output address: {input[ADDRESS]} Expected: {expected[FROM]} Output ampount: {input[AMOUNT]} Expected: {expected[VALUE]}")
@@ -217,7 +214,6 @@ def testGetTransactionReceipt():
         assert False
 
     _, txHash = makeTransaction()
-
     got = RPCMethods["getTransactionReceipt"](0, {TX_HASH: txHash.hex()})
     expected = makeEtherumgoRequest(GET_TRANSACTION_RECEIPT_METHOD, [txHash.hex()])
 
