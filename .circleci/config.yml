@@ -13,6 +13,12 @@ jobs:
     steps:
       - checkout
       - run: 
+          name: Install scripts dependencies
+          command: pip install -r scripts/requirements.txt
+      - run: 
+          name: Check Lint
+          command: flake8 --statistics
+      - run: 
           name: Deploy Development ETH Connector
           command: |
             docker-compose -f Connector/tests/docker-compose/eth.yml -p eth_development_api up --build -d
@@ -37,6 +43,12 @@ jobs:
       BLOCKCHAIN_PATH: ./blockchain/    
     steps:
       - checkout
+      - run: 
+          name: Install scripts dependencies
+          command: pip install -r scripts/requirements.txt
+      - run: 
+          name: Check Lint
+          command: flake8 --statistics
       - run: 
           name: Deploy Development BTC Connector
           command: |
