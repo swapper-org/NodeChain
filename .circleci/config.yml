@@ -14,7 +14,7 @@ jobs:
       - checkout
       - run: 
           name: Install scripts dependencies
-          command: pip install -r scripts/requirements.txt
+          command: pip3 install -r scripts/requirements.txt
       - run: 
           name: Check Lint
           command: flake8 --statistics
@@ -45,7 +45,7 @@ jobs:
       - checkout
       - run: 
           name: Install scripts dependencies
-          command: pip install -r scripts/requirements.txt
+          command: pip3 install -r scripts/requirements.txt
       - run: 
           name: Check Lint
           command: flake8 --statistics
