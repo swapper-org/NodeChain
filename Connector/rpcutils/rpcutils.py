@@ -7,12 +7,12 @@ from logger import logger
 RPCMethods = {}
 
 
-def rpcMethod (f):
+def rpcMethod(f):
     logger.printInfo(f"Registering new RPC method: {f.__name__}")
     RPCMethods[f.__name__] = f
     return f
 
- 
+
 def parseRpcRequest(request):
 
     try:
@@ -49,7 +49,7 @@ def parseRpcRequest(request):
 
 
 def validateJSONRPCSchema(params, jsonSchemaFile):
-    
+
     logger.printInfo(f"Validating JSON RPC Schema with {jsonSchemaFile}")
 
     try:

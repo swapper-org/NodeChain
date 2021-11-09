@@ -63,7 +63,7 @@ async def rpcServerHandler(request):
 
 
 async def websocketServerHandler(request):
-    
+
     ws = ServerWebSocket()
     await ws.websocket.prepare(request)
 
@@ -79,17 +79,17 @@ async def websocketServerHandler(request):
                 logger.printInfo(f"New WS request received: {reqParsed}")
 
                 if reqParsed[rpcutils.METHOD] == "close":
-                    logger.printInfo(f"Closing WS connection with client")
+                    logger.printInfo("Closing WS connection with client")
                     await ws.websocket.close()
 
                 elif reqParsed[rpcutils.METHOD] not in wsutils.webSocketMethods:
                     logger.printError(f"WS Method not supported for {os.environ['COIN']}")
                     raise rpcErrorHandler.BadRequestError(f"WS Method not supported for {os.environ['COIN']}")
-                    
+
                 else:
 
                     payload = wsutils.webSocketMethods[reqParsed[rpcutils.METHOD]](ws, reqParsed[rpcutils.ID], reqParsed[rpcutils.PARAMS])
-                    
+
                     response = rpcutils.generateRPCResultResponse(
                         reqParsed[rpcutils.ID],
                         payload
@@ -119,7 +119,7 @@ async def websocketServerHandler(request):
                 response
             )
         )
-        
+
     SubcriptionsHandler.removeClient(ws)
     return ws
 

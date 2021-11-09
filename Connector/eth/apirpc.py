@@ -54,7 +54,7 @@ def getAddressesBalance(id, params):
         )
         response.append(
             {
-                ADDRESS: address, 
+                ADDRESS: address,
                 BALANCE: balance
             }
         )
@@ -87,7 +87,7 @@ def getHeight(id, params):
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     return response
 
 
@@ -115,6 +115,8 @@ def broadcastTransaction(id, params):
 
 
 """ Data Structure: Transaction trie. Records transaction request vectors. """
+
+
 @rpcutils.rpcMethod
 def getTransaction(id, params):
 
@@ -131,26 +133,26 @@ def getTransaction(id, params):
     if transaction is None:
         logger.printWarning("Could not get transaction from node")
         raise rpcerrorhandler.BadRequestError("Could not get transaction from node")
-    
+
     inputs = []
     outputs = []
 
     inputs.append(
         {
-            ADDRESS: transaction[FROM], 
+            ADDRESS: transaction[FROM],
             AMOUNT: transaction[VALUE]
         }
     )
     outputs.append(
         {
-            ADDRESS: transaction[TO], 
+            ADDRESS: transaction[TO],
             AMOUNT: transaction[VALUE]
         }
     )
 
     response = {
-        TRANSACTION: transaction, 
-        INPUTS: inputs, 
+        TRANSACTION: transaction,
+        INPUTS: inputs,
         OUTPUTS: outputs
     }
 
@@ -171,7 +173,7 @@ def getBlockByHash(id, params):
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     block = RPCConnector.request(RPC_ENDPOINT, id, GET_BLOCK_BY_HASH_METHOD, [params[BLOCK_HASH], True])
 
     response = {
@@ -181,7 +183,7 @@ def getBlockByHash(id, params):
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     return response
 
 
@@ -253,14 +255,16 @@ def estimateGas(id, params):
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     return response
 
 
 """ Data Structure: Transaction receipt trie. Records the transaction outcome.
-Receipts stores information that results from executing the transaction. I.e: The transaction receipt 
-contains information that is only available once a transaction has been executed in a block Adding 
+Receipts stores information that results from executing the transaction. I.e: The transaction receipt
+contains information that is only available once a transaction has been executed in a block Adding
 "cumulativeGasUsed", "contractAddress", "logs" and "logsBloom" """
+
+
 @rpcutils.rpcMethod
 def getTransactionReceipt(id, params):
 
@@ -277,7 +281,7 @@ def getTransactionReceipt(id, params):
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     return response
 
 
@@ -292,18 +296,17 @@ def getBlockByNumber(id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-
     if not params[BLOCK_NUMBER].startswith('0x'):
         blockNumber = hex(int(params[BLOCK_NUMBER]))
     else:
         blockNumber = params[BLOCK_NUMBER]
 
     block = RPCConnector.request(RPC_ENDPOINT, id, GET_BLOCK_BY_NUMBER_METHOD, [blockNumber, True])
-    
+
     response = {
         TRANSACTIONS: block[TRANSACTIONS]
     }
-        
+
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)

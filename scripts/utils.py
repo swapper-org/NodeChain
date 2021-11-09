@@ -40,8 +40,7 @@ def queryPort(question):
 
 def queryPath(coin, stage):
     try:
-        path = input("Please choose the directory to save blockchain data " +
-                     f"(/srv/swapper-node/{coin}_{stage}): ")
+        path = input(f"Please choose the directory to save blockchain data (/srv/swapper-node/{coin}_{stage}): ")
     except SyntaxError:
         path = f"/srv/swapper-node/{coin}_{stage}"
     if not path:
@@ -51,14 +50,14 @@ def queryPath(coin, stage):
 
 def queryCerts():
     try:
-        sys.stdout.write("WARN: Please note that you need to have the files swapper_cert.key and swapper_cert.crt in "
-                         "the certificates directory.\n")
-        path = input("Please choose the path of the certs " +
-                     f"(/etc/ssl/certs): ")
+        sys.stdout.write(
+            "WARN: Please note that you need to have the files swapper_cert.key and swapper_cert.crt in " +
+            "the certificates directory.\n")
+        path = input("Please choose the path of the certs (/etc/ssl/certs): ")
     except SyntaxError:
-        path = f"/etc/ssl/certs"
+        path = "/etc/ssl/certs"
     if not path:
-        path = f"/etc/ssl/certs"
+        path = "/etc/ssl/certs"
     return path
 
 
@@ -67,14 +66,13 @@ def askSSL():
         if queryYesNo("Do you want to activate SSL? ", "no"):
             try:
                 sys.stdout.write(
-                    "WARN: Please note that you need to have the files swapper_cert.key and swapper_cert.crt in "
+                    "WARN: Please note that you need to have the files swapper_cert.key and swapper_cert.crt in " +
                     "the certificates directory.\n")
-                path = input(
-                    "Please choose the path of the certs " + f"(/etc/ssl/certs): ")
+                path = input("Please choose the path of the certs (/etc/ssl/certs): ")
             except SyntaxError:
-                path = f"/etc/ssl/certs"
+                path = "/etc/ssl/certs"
             if not path:
-                path = f"/etc/ssl/certs"
+                path = "/etc/ssl/certs"
 
             if os.path.isdir(path) and "swapper_cert.key" in os.listdir(path) and "swapper_cert.crt" in os.listdir(path):
                 os.environ["CERT_PATH"] = path
