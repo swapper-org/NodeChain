@@ -9,17 +9,14 @@ from btc.utils import convertToSatoshi
 from logger import logger
 from rpcutils.rpcconnector import RPCConnector
 from rpcutils.rpcutils import RPCMethods
+from rpcutils.errorhandler import BadRequestError
 from wsutils.serverwebsocket import ServerWebSocket
 from wsutils.wsutils import webSocketMethods
 from wsutils.constants import *
 
 
 def makeRequest(endpoint, method, params):
-    try:
-        return RPCConnector.request(endpoint, 1, method, params)
-    except Exception as err:
-        logger.printError(f"Can not make request to {endpoint}. {err}")
-        assert False
+    return RPCConnector.request(endpoint, 1, method, params)
 
 
 def makeBitcoinCoreRequest(method, params):
@@ -35,7 +32,12 @@ def mineBlocksToAddress(address, numBlocks=1):
 
 
 wallet1Name = "wallet1"
-makeBitcoinCoreRequest("createwallet", [wallet1Name])
+try:
+    makeBitcoinCoreRequest("loadwallet", [wallet1Name])
+except BadRequestError:
+    if wallet1Name not in makeBitcoinCoreRequest("listwallets", []):
+        makeBitcoinCoreRequest("createwallet", [wallet1Name])
+
 address1 = makeBitcoinCoreRequest("getnewaddress", [])
 privateKey1 = makeBitcoinCoreRequest("dumpprivkey", [address1])
 address2 = makeBitcoinCoreRequest("getnewaddress", [])
