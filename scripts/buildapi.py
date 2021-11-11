@@ -112,7 +112,7 @@ def apiMenu():
     menu = utils.fillMenu(listApis, apiChoice, exitSetup)
     utils.showSubtitle("BLOCKCHAIN SELECTION")
     for key in sorted(menu.keys()):
-        if (menu[key][0]+"_{stage}".format(stage=os.environ["STAGE"].lower())) in listRunningApis():
+        if (menu[key][0] + "_{stage}".format(stage=os.environ["STAGE"].lower())) in listRunningApis():
             print("[RUNNING]" + "\t" + key + "." + menu[key][0])
         else:
             print("[OFF]" + "\t" + key + "." + menu[key][0])

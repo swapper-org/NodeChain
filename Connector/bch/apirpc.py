@@ -16,7 +16,7 @@ def getAddressHistory(id, params):
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     addrHistory = RPCConnector.request(RPC_ELECTRUM_CASH_ENDPOINT, id, GET_ADDRESS_HISTORY_METHOD, [params[ADDRESS]])
 
     response = {
@@ -29,7 +29,7 @@ def getAddressHistory(id, params):
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     return response
 
 
@@ -60,7 +60,7 @@ def getAddressBalance(id, params):
 
 @rpcutils.rpcMethod
 def getAddressesBalance(id, params):
-    
+
     logger.printInfo(f"Executing RPC method getAddressesBalance with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_BALANCE)
@@ -68,7 +68,7 @@ def getAddressesBalance(id, params):
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     response = []
 
     for address in params[ADDRESSES]:
@@ -86,7 +86,7 @@ def getAddressesBalance(id, params):
                 BALANCE: addrBalance
             }
         )
-    
+
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
@@ -104,7 +104,7 @@ def getAddressUnspent(id, params):
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     connResponse = RPCConnector.request(RPC_ELECTRUM_CASH_ENDPOINT, id, GET_ADDRESS_UNSPENT_METHOD, [params[ADDRESS]])
 
     response = []
@@ -113,17 +113,16 @@ def getAddressUnspent(id, params):
 
         response.append(
             {
-                TX_HASH: tx[TX_HASH_SNAKE_CASE], 
+                TX_HASH: tx[TX_HASH_SNAKE_CASE],
                 VOUT: str(tx[TX_POS_SNAKE_CASE]),
-                STATUS: 
-                    {
-                        CONFIRMED: tx[HEIGHT] != 0,
-                        BLOCK_HEIGHT: str(tx[HEIGHT])
-                    },
+                STATUS: {
+                    CONFIRMED: tx[HEIGHT] != 0,
+                    BLOCK_HEIGHT: str(tx[HEIGHT])
+                },
                 VALUE: str(tx[VALUE])
             }
         )
-    
+
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
@@ -141,13 +140,13 @@ def getBlockByHash(id, params):
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     block = RPCConnector.request(RPC_CORE_ENDPOINT, id, GET_BLOCK_METHOD, [params[BLOCK_HASH], VERBOSITY_MORE_MODE])
 
     err = rpcutils.validateJSONRPCSchema(block, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     return block
 
 
@@ -161,13 +160,13 @@ def getBlockByNumber(id, params):
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     try:
         blockNumber = int(params[BLOCK_NUMBER], base=10)
     except Exception as err:
         raise rpcerrorhandler.BadRequestError(str(err))
 
-    blockHash = RPCConnector.request(RPC_CORE_ENDPOINT, id, GET_BLOCK_HASH_METHOD,[blockNumber])
+    blockHash = RPCConnector.request(RPC_CORE_ENDPOINT, id, GET_BLOCK_HASH_METHOD, [blockNumber])
 
     return getBlockByHash(
         id,
@@ -187,7 +186,7 @@ def getFeePerByte(id, params):
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     try:
         confirmations = int(params[CONFIRMATIONS], base=10)
     except ValueError as err:
@@ -221,21 +220,23 @@ def getHeight(id, params):
     latestBlockHash = RPCConnector.request(RPC_CORE_ENDPOINT, id, GET_BLOCK_HASH_METHOD, [latestBlockHeight])
 
     response = {
-        LATEST_BLOCK_INDEX: latestBlockHeight, 
+        LATEST_BLOCK_INDEX: latestBlockHeight,
         LATEST_BLOCK_HASH: latestBlockHash
     }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     return response
 
 
 """Returns raw transaction (hex)"""
+
+
 @rpcutils.rpcMethod
 def getTransactionHex(id, params):
-    
+
     logger.printInfo(f"Executing RPC method getTransactionHex with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION_HEX)
@@ -259,7 +260,7 @@ def getTransactionHex(id, params):
 
 @rpcutils.rpcMethod
 def getTransaction(id, params):
-    
+
     logger.printInfo(f"Executing RPC method getTransaction with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION)
@@ -268,20 +269,19 @@ def getTransaction(id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-
     transactionRaw = RPCConnector.request(RPC_ELECTRUM_CASH_ENDPOINT, id, GET_TRANSACTION_METHOD, [params[TX_HASH]])
     transaction = RPCConnector.request(RPC_CORE_ENDPOINT, id, DECODE_RAW_TRANSACTION_METHOD, [transactionRaw])
-    
+
     err = rpcutils.validateJSONRPCSchema(transaction, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     return transaction
 
 
 @rpcutils.rpcMethod
 def getTransactionCount(id, params):
-    
+
     logger.printInfo(f"Executing RPC method getTransactionCount with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION_COUNT)
@@ -304,7 +304,7 @@ def getTransactionCount(id, params):
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     return response
 
 
@@ -318,7 +318,7 @@ def broadcastTransaction(id, params):
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     RPCConnector.request(RPC_CORE_ENDPOINT, id, SEND_RAW_TRANSACTION_METHOD, [params[RAW_TRANSACTION]])
-    
+
     return {}

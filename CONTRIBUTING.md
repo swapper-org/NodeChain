@@ -41,6 +41,10 @@ Check out the [README](https://github.com/swapper-org/NodeChain/blob/master/READ
 #### Implement your fix or feature
 At this point, you're ready to make your changes! Feel free to ask for help, everyone is a beginner at first.
 
+#### Run lint and tests
+
+Before submitting a pull request, make sure your changes don't break any functionality of the project. Check out the [README](https://github.com/swapper-org/NodeChain/blob/master/README.md) to see how can you do it.
+
 #### Make a Pull Request
 At this point, you should switch back to your staging branch and make sure it's up to date with NodeChain's staging branch:
 ```sh

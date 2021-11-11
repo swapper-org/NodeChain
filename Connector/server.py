@@ -1,15 +1,15 @@
 #!/usr/bin/python3
+import aiohttp
+from aiohttp import web
+import importlib
 import json
 import os
-from webapp import WebApp
-from aiohttp import web
-import aiohttp
-from wsutils.serverwebsocket import ServerWebSocket
+from logger import logger
 from rpcutils import rpcutils, errorhandler as rpcErrorHandler
+from wsutils.serverwebsocket import ServerWebSocket
 from wsutils import wsutils
 from wsutils.subscriptionshandler import SubcriptionsHandler
-import importlib
-from logger import logger
+from webapp import WebApp
 
 logger.printInfo(f"Loading connector for {os.environ['COIN']}")
 importlib.__import__(os.environ['COIN'].lower())
@@ -63,7 +63,7 @@ async def rpcServerHandler(request):
 
 
 async def websocketServerHandler(request):
-    
+
     ws = ServerWebSocket()
     await ws.websocket.prepare(request)
 
@@ -79,17 +79,17 @@ async def websocketServerHandler(request):
                 logger.printInfo(f"New WS request received: {reqParsed}")
 
                 if reqParsed[rpcutils.METHOD] == "close":
-                    logger.printInfo(f"Closing WS connection with client")
+                    logger.printInfo("Closing WS connection with client")
                     await ws.websocket.close()
 
                 elif reqParsed[rpcutils.METHOD] not in wsutils.webSocketMethods:
                     logger.printError(f"WS Method not supported for {os.environ['COIN']}")
                     raise rpcErrorHandler.BadRequestError(f"WS Method not supported for {os.environ['COIN']}")
-                    
+
                 else:
 
                     payload = wsutils.webSocketMethods[reqParsed[rpcutils.METHOD]](ws, reqParsed[rpcutils.ID], reqParsed[rpcutils.PARAMS])
-                    
+
                     response = rpcutils.generateRPCResultResponse(
                         reqParsed[rpcutils.ID],
                         payload
@@ -119,19 +119,22 @@ async def websocketServerHandler(request):
                 response
             )
         )
-        
+
     SubcriptionsHandler.removeClient(ws)
     return ws
 
 
-if __name__ == '__main__':
-
+def runServer():
     app = WebApp()
     app.add_routes([web.post('/rpc', rpcServerHandler)])
     app.add_routes([web.get('/ws', websocketServerHandler)])
 
     for webSocket in wsutils.webSockets:
         webSocket()
-    
+
     logger.printInfo("Starting connector")
     web.run_app(app, port=80)
+
+
+if __name__ == '__main__':
+    runServer()

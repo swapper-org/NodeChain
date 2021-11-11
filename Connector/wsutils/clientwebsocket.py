@@ -1,5 +1,6 @@
 from aiohttp import ClientSession
 
+
 class ClientWebSocket(ClientSession):
 
     def __init__(self, url):

@@ -6,25 +6,18 @@ services:
       -p=8545 -h=0.0.0.0 -m="piece effort bind that embrace enrich remind powder sudden patient legend group"
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
+    ports:
+      - 8545:8545
 
   connector:
-    build: ../../Connector
+    build: ../../.
     environment:
       COIN: ETH
       STAGE: ${STAGE}
       PORT: ${PORT}
     image: connector
     restart: on-failure
-    depends_on:
-      - ethereumgo
-  
-  nginx:
-    image: nginx
-    volumes:
-      - ${NGINX_CONFIG_PATH}:/etc/nginx/nginx.conf
-      - ${CERT_PATH}:/etc/nginx/certs
     ports:
       - ${PORT}:80
-      - ${SSL_PORT}:443
     depends_on:
       - ethereumgo

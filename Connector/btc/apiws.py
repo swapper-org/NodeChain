@@ -38,15 +38,14 @@ def subscribeAddressBalance(ws, id, params):
 
 @wsutils.webSocketMethod
 def unsubscribeAddressBalance(ws, id, params):
-    
+
     logger.printInfo(f"Executing WS method unsubscribeAddressBalance with id {id} and params {params}")
-    
+
     requestSchema = utils.getWSRequestMethodSchema(UNSUBSCRIBE_ADDRESS_BALANCE)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-
 
     unsubscribeResponse = SubcriptionsHandler.unsubscribe(params[ADDRESS], ws)
 
