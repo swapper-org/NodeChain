@@ -42,8 +42,7 @@ def queryPort(question):
 
 def queryPath(coin, stage):
     try:
-        path = input("Please choose the directory to save blockchain data " +
-                     f"(/srv/swapper-node/{coin}_{stage}): ")
+        path = input(f"Please choose the directory to save blockchain data (/srv/swapper-node/{coin}_{stage}): ")
     except SyntaxError:
         path = f"/srv/swapper-node/{coin}_{stage}"
     if not path:

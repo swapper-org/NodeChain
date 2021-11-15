@@ -16,7 +16,7 @@ def subscribeAddressBalance(ws, id, params):
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
-    
+
     return SubcriptionsHandler.subscribe(
         utils.ensureHash(params[ADDRESS]),
         ws

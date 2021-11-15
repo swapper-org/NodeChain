@@ -50,7 +50,7 @@ def searchAddressesIntoBlock(data):
     if not SubcriptionsHandler.coinInAddressSubscription():
         logger.printWarning("Coin not available in subscriptions handler")
         return
-    
+
     if not SubcriptionsHandler.getSubscriptionsAvailable():
         logger.printWarning("There are no addresses subscribed for")
         return
@@ -61,7 +61,7 @@ def searchAddressesIntoBlock(data):
     except Exception as e:
         logger.printError(f"Payload is not JSON message. Error: {e}")
         raise rpcErrorHandler.BadRequestError(f"Payload is not JSON message. Error: {e}")
-    
+
     params = reqParsed[rpcConstants.PARAMS]
     blockNumber = params[rpcConstants.RESULT][NUMBER]
 

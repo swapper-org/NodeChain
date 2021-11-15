@@ -30,9 +30,9 @@ async def bitcoinCallback(request):
     messageLoaded = json.loads(requestBody)
 
     if not SubcriptionsHandler.coinInAddressSubscription():
-       logger.printWarning("There are no subscribers")
-       return
-    
+        logger.printWarning("There are no subscribers")
+        return
+
     clients = SubcriptionsHandler.getAddressClients(messageLoaded[ADDRESS])
 
     if SubcriptionsHandler.addressHasClients(messageLoaded[ADDRESS]):
@@ -49,7 +49,7 @@ async def bitcoinCallback(request):
             await client.websocket.send_str(
                 json.dumps(
                     rpcutils.generateRPCResultResponse(
-                        id, 
+                        id,
                         response
                     )
                 )
