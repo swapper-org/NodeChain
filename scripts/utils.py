@@ -55,12 +55,11 @@ def queryCerts(certs):
         try:
             sys.stdout.write("WARN: Please note that you need to have the files swapper_cert.key and swapper_cert.crt in "
                              "the certificates directory.\n")
-            path = input("Please choose the path of the certs " +
-                         f"(/etc/ssl/certs): ")
+            path = input("Please choose the path of the certs (/etc/ssl/certs): ")
         except SyntaxError:
-            path = f"/etc/ssl/certs"
+            path = "/etc/ssl/certs"
         if not path:
-            path = f"/etc/ssl/certs"
+            path = "/etc/ssl/certs"
     else:
         path = certs
     return path
@@ -129,7 +128,7 @@ def signalHandler(sig, frame):
 
 
 def getVersion():
-    os.chdir(f"../Connector/")
+    os.chdir("../Connector/")
     f = open('config.json')
     data = json.load(f)
     return data['version']

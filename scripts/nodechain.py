@@ -8,7 +8,7 @@ import signal
 
 def setup(coin, stage):
     os.chdir(f"../docker-compose/{stage}")
-    print("Starting " + f"{coin}_{stage}_api node...")
+    print(f"Starting {coin}_{stage}_api node...")
     sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{stage}_api", "up", "--build", "-d"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
     err = sp.communicate()
@@ -22,7 +22,7 @@ def setup(coin, stage):
 
 def stop(coin, stage):
     os.chdir(f"../docker-compose/{stage}")
-    print("Stopping " + f"{coin}_{stage}_api node...")
+    print(f"Stopping {coin}_{stage}_api node...")
     sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{stage}_api", "down"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
     err = sp.communicate()
