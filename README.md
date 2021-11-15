@@ -23,7 +23,6 @@ This repository contains all the code related to the RPC and WS APIs, including 
 
 <hr>
 
-
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
@@ -36,113 +35,77 @@ See deployment for notes on how to deploy the project on a live system.
 - [Python3](https://www.python.org/downloads/)
 - [Pip](https://pypi.org/project/pip/)
 
-
-### Development stage
-This environment is intended for the development and contribution of the project.
-Blockchains used are created locally (*regtest, ganache,...*) facilitating the development and waiting times in block mining.
+## Running NodeChain
 
 1. Follow the [CONTRIBUTING.md](https://github.com/swapper-org/NodeChain/blob/master/CONTRIBUTING.md) guidelines to clone
-the repository.
+   the repository.
 
 2. Navigate to `/scripts` and install the requirements:
+
 ```sh
 ~$ pip install -r "requirements.txt"
 ```
 
 3. Run the script to build any API:
+
 ```sh
-~$ python3 buildapi.py
+~$ python3 nodechain.py
 ```
 
 4. Follow the steps of the script:
-   - Choose "Development" environment.
+   - Choose an environment.
    - Choose an API to build.
    - Choose a port where you want to build the API.
    - Choose a path where you want to store the Blockchain.
    - Choose a port where you want to bind SSL port.
-   - Choose if you want to add SSL to your node. 
+   - Choose if you want to add SSL to your node.
 
 _(To activate SSL note that you need to have the files `swapper_cert.key` and `swapper_cert.crt` in the certificates directory)_
 
+### Flags
 
-## Deployment
-
-### Testnet stage
-
-**_IMPORTANT: To work with full nodes in development mode, You need to have the blockchain synchronized for its use. If the testnet blockchain is not synchronized locally, some features might not work._**
-
-1. Clone the project in your computer or your server
+You can also run NodeChain from command line without using the UI. You can get more information running:
 
 ```sh
-~$ git clone https://github.com/swappermarket/NodeChain.git
+~$ python3 nodechain.py -h
 ```
-
-2. Navigate to `/scripts` and install the requirements:
-
-```sh
-~$ pip install -r "requirements.txt"
-```
-
-3. Run the script to build any API:
-```sh
-~$ python3 buildapi.py
-```
-
-4. Follow the steps of the script:
-    - Choose "Testnet" environment.
-    - Choose an API to build
-    - Choose a port where you want to build the API
-    - Choose a path where you want to store the Blockchain
-    - Choose a port where you want to bind SSL port
-    - Choose if you want to add SSL to your node.
-
-_(To activate SSL note that you need to have the files `swapper_cert.key` and `swapper_cert.crt` in the certificates directory)_
-
-
-### Mainnet stage
-
-1. Clone the project in your computer or your server
-
-```sh
-~$ git clone https://github.com/swappermarket/NodeChain.git
-```
-
-2. Navigate to `/scripts` and install the requirements:
-
-```sh
-~$ pip install -r "requirements.txt"
-```
-
-3. Run the script to build any API:
-```sh
-~$ python3 buildapi.py
-```
-
-4. Follow the steps of the script:
-    - Choose "Mainnet" environment.
-    - Choose an API to build
-    - Choose a port where you want to build the API
-    - Choose a path where you want to store the Blockchain
-    - Choose a port where you want to bind SSL port
-    - Choose if you want to add SSL to your node.
-
-_(To activate SSL note that you need to have the files `swapper_cert.key` and `swapper_cert.crt` in the certificates directory)_
-
-**IMPORTANT: You must use a different port for each API**
 
 ## Stop nodes
 
 1. Navigate to `/scripts` and run the script to stop any running API:
+
 ```sh
-~$ python3 buildapi.py
+~$ python3 nodechain.py
 ```
+
 2. Choose the environment to show running nodes
 3. Choose the API you want to stop.
 
 ## Usage
+
 NodeChain uses the JSON RPC protocol for API requests. The API provides the following endpoints:
+
 - `https://<URL-SERVER>:<PORT>/rpc` for RPC requests.
 - `wss://<URL-SERVER>:<PORT>/ws` for real time requests.
+
+## Environments
+
+### Development stage
+
+This environment is intended for the development and contribution of the project.
+Blockchains used are created locally (_regtest, ganache,..._) facilitating the development and waiting times in block mining.
+
+### Testnet stage
+
+This environment is used to interact with any test network.
+
+**_IMPORTANT: To work with full nodes in testnet mode, You need to have the blockchain synchronized for its use. If the testnet blockchain is not synchronized locally, some features might not work._**
+
+### Mainnet stage
+
+This environment is intended for real cases. You will be able to interact with any mainnet of any blockchain. Be aware that transactions may cost real fees if you use this environment.
+
+**_IMPORTANT: You must use a different port for each API_**
 
 ## Test
 
@@ -210,25 +173,31 @@ _**Note**: When running test remotely, CircleCI will execute all the jobs define
 
 
 ## Contributing
+
 Please read [Contribution Guidelines](https://github.com/swapper-org/NodeChain/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Docs
+
 We use [Swagger](https://swagger.io/) for docs.
 All the documentation concerning Nodechain is available at [NodeChain Docs](https://docs.nodechain.swapper.market)
 
 All changes to the documentation must be made in the [NodeChain-docs](https://github.com/swapper-org/NodeChain-docs) repository.
 
 ## Version
+
 Please read [Contribution Guidelines](https://github.com/swapper-org/NodeChain/blob/master/CONTRIBUTING.md) for details on our versioning system. For the version available, see the [tags on this repository](https://github.com/swapper-org/NodeChain/releases).
 
 ## License
+
 This software is licensed under the MIT License. See [LICENSE](LICENSE) for the full details.
 
 ## Motivation and Vision
+
 The main goal of the project is to give the user an easy way to be able to build their own blockchain nodes without external services, either in built on their own local machines or on production servers.
 We believe in decentralizing the world and work to make it easily accessible to everyone.
 
 ## Related projects
+
 - [Electrum](https://github.com/spesmilo/electrum)
 - [ElectrumX](https://github.com/spesmilo/electrumx)
 - [Electron Cash](https://github.com/Electron-Cash/Electron-Cash)

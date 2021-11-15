@@ -5,12 +5,10 @@ import docker
 import utils
 import signal
 
-FNULL = open(os.devnull, 'w')
-
 
 def setup(coin, stage):
     os.chdir(f"../docker-compose/{stage}")
-    print("Starting " + f"{coin}_{stage}_api node...")
+    print(f"Starting {coin}_{stage}_api node...")
     sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{stage}_api", "up", "--build", "-d"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
     err = sp.communicate()
@@ -24,7 +22,7 @@ def setup(coin, stage):
 
 def stop(coin, stage):
     os.chdir(f"../docker-compose/{stage}")
-    print("Stopping " + f"{coin}_{stage}_api node...")
+    print(f"Stopping {coin}_{stage}_api node...")
     sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{stage}_api", "down"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
     err = sp.communicate()
@@ -90,51 +88,77 @@ def checkStatus():
         getUsedPort(os.environ["COIN"].lower(), os.environ["STAGE"].lower())
         stop(os.environ["COIN"].lower(), os.environ["STAGE"].lower())
     else:
-        os.environ["PORT"] = utils.queryPort("Port to start: ")
-        os.environ["BLOCKCHAIN_PATH"] = utils.queryPath(
-            os.environ["COIN"].lower(), os.environ["STAGE"].lower())
-        os.environ["SSL_PORT"] = utils.queryPort("Port to start (SSL): ")
-        utils.askSSL()
+        if args.port:
+            os.environ["PORT"] = args.port
+        else:
+            os.environ["PORT"] = utils.queryPort("Port to start: ")
+
+        if args.blockchain_path:
+            os.environ["BLOCKCHAIN_PATH"] = args.blockchain_path
+        else:
+            os.environ["BLOCKCHAIN_PATH"] = utils.queryPath(
+                os.environ["COIN"].lower(), os.environ["STAGE"].lower())
+
+        if args.ssl_port:
+            os.environ["SSL_PORT"] = args.ssl_port
+        else:
+            os.environ["SSL_PORT"] = utils.queryPort("Port to start (SSL): ")
+
+        utils.askSSL(args.config, args.certs)
         setup(os.environ["COIN"].lower(), os.environ["STAGE"].lower())
 
 
 def apiChoice(coin):
-    os.environ["COIN"] = coin.upper()
+    os.environ["COIN"] = coin.lower()
     checkStatus()
 
 
 def stageChoice(stage):
-    os.environ["STAGE"] = stage.upper()
+    os.environ["STAGE"] = stage.lower()
     apiMenu()
 
 
 def apiMenu():
-    menu = utils.fillMenu(listApis, apiChoice, exitSetup)
-    utils.showSubtitle("BLOCKCHAIN SELECTION")
-    for key in sorted(menu.keys()):
-        if (menu[key][0] + "_{stage}".format(stage=os.environ["STAGE"].lower())) in listRunningApis():
-            print("[RUNNING]" + "\t" + key + "." + menu[key][0])
-        else:
-            print("[OFF]" + "\t" + key + "." + menu[key][0])
+    apis = listApis()
+    if args.token and args.token in apis:
+        os.environ["COIN"] = args.token
+        checkStatus()
+    else:
+        menu = utils.fillMenu(listApis, apiChoice, exitSetup)
+        utils.showSubtitle("BLOCKCHAIN SELECTION")
+        for key in sorted(menu.keys()):
+            if (menu[key][0] + "_{stage}".format(stage=os.environ["STAGE"].lower())) in listRunningApis():
+                print("[RUNNING]" + "\t" + key + "." + menu[key][0])
+            else:
+                print("[OFF]" + "\t" + key + "." + menu[key][0])
 
-    ans = input(
-        "Please pick a node to start/stop (1-{options}): ".format(options=(len(listApis()) + 1)))
-    menu.get(ans, [None, invalid])[1](menu[ans][0].upper())
+        ans = input(
+            "Please pick a node to start/stop (1-{options}): ".format(options=(len(listApis()) + 1)))
+        menu.get(ans, [None, invalid])[1](menu[ans][0].upper())
 
 
 def stageMenu():
-    menu = utils.fillMenu(listStages, stageChoice, exitSetup)
-    utils.showSubtitle("ENVIRONMENT SELECTION")
-    for key in sorted(menu.keys()):
-        print(key + "." + menu[key][0])
+    if args.network:
+        os.environ["STAGE"] = args.network.lower()
+        apiMenu()
+    else:
+        menu = utils.fillMenu(listStages, stageChoice, exitSetup)
+        utils.showSubtitle("ENVIRONMENT SELECTION")
+        for key in sorted(menu.keys()):
+            print(key + "." + menu[key][0])
 
-    stage = input("Please choose the environment that you want to use to build up/stop the node(1-{options}): ".format(
-        options=(len(listStages()) + 1)))
-    menu.get(stage, [None, invalid])[1](menu[stage][0].upper())
+        stage = input("Please choose the environment that you want to use to build up/stop the node(1-{options}): ".format(
+            options=(len(listStages()) + 1)))
+        menu.get(stage, [None, invalid])[1](menu[stage][0].upper())
 
 
-signal.signal(signal.SIGINT, utils.signalHandler)
-client = docker.from_env()
-utils.showMainTitle()
+if __name__ == "__main__":
+    args = utils.argumentHandler()
+    FNULL = open(os.devnull, 'w')
 
-stageMenu()
+    signal.signal(signal.SIGINT, utils.signalHandler)
+    client = docker.from_env()
+
+    utils.showMainTitle()
+
+    stageMenu()
