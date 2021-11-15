@@ -7,7 +7,9 @@ When contributing to NodeChain, please first discuss the change you wish to make
 Please note we have a code of conduct, please follow it in all your interactions with the project.
 
 ## Your First Contribution
+
 If this is your first time contributing to the project, and you don't want to commit, there are other tasks you can do to be a hero:
+
 - Review a [Pull Request](https://github.com/swapper-org/NodeChain/pulls).
 - Fix an [Issue](https://github.com/swapper-org/NodeChain/issues).
 - Update the [docs](https://docs.nodechain.swapper.market).
@@ -18,42 +20,58 @@ If this is your first time contributing to the project, and you don't want to co
 ## Contributing to development
 
 ### Issue Process
+
 Have you noticed any **bugs** or have any **feature** requests? You can submit any request [here](https://github.com/swapper-org/NodeChain/issues/new).
 
 It's generally best if you get confirmation of your bug or approval for your feature request this way before starting to code.
 
 ### Pull Request Process
+
 We use forking to contributing the project.
 
 For more information, you can check this [Git guide](https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project) about forking.
 
-#### Fork & Create a branch 
+#### Fork & Create a branch
+
 If this is something you think you can fix, improve or add, then [fork NodeChain](https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project) and create a branch with a descriptive name.
 
 A good branch name would be (where issue **#123** is the issue you're working on):
+
 ```sh
 git checkout -b 123-support-bitcoin-cash-rpc-api
 ```
+
 #### Get your project running
-Before you start coding, you need to test if your project is running in your machine. 
+
+Before you start coding, you need to test if your project is running in your machine.
 Check out the [README](https://github.com/swapper-org/NodeChain/blob/master/README.md) to warm up and set up the project.
 
 #### Implement your fix or feature
+
 At this point, you're ready to make your changes! Feel free to ask for help, everyone is a beginner at first.
 
+#### Run lint and tests
+
+Before submitting a pull request, make sure your changes don't break any functionality of the project. Check out the [README](https://github.com/swapper-org/NodeChain/blob/master/README.md) to see how can you do it.
+
 #### Make a Pull Request
+
 At this point, you should switch back to your staging branch and make sure it's up to date with NodeChain's staging branch:
+
 ```sh
 git remote add upstream git@github.com:swapper-org/NodeChain.git
 git checkout staging
 git pull upstream staging
 ```
+
 Then update your feature branch from your local copy of staging, and push it!
+
 ```sh
 git checkout 123-support-bitcoin-cash-rpc-api
 git rebase staging
 git push --set-upstream origin 123-support-bitcoin-cash-rpc-api
 ```
+
 Finally, go to GitHub and make a [Pull Request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request) 😄
 
 #### Keeping your Pull Request updated
@@ -61,13 +79,15 @@ Finally, go to GitHub and make a [Pull Request](https://docs.github.com/en/githu
 If a maintainer asks you to "rebase" your PR, they're saying that a lot of code has changed, and that you need to update your branch so it's easier to merge.
 
 To learn more about rebasing in Git, there are a lot of good resources as [Github docs](https://docs.github.com/en/github/getting-started-with-github/about-git-rebase) or [Git-SCM docs](https://git-scm.com/book/en/v2/Git-Branching-Rebasing), but here's the suggested workflow:
+
 ```sh
 git checkout 123-support-bitcoin-cash-rpc-api
 git pull --rebase upstream staging
-git push --force-with-lease 123-support-bitcoin-cash-rpc-api
+git push --force-with-lease origin 123-support-bitcoin-cash-rpc-api
 ```
 
 ### Merging a PR (maintainers only)
+
 A PR can only be merged into staging by a maintainer if:
 
 - It is passing CI.
@@ -76,6 +96,7 @@ A PR can only be merged into staging by a maintainer if:
 - It is up to date with current staging.
 
 A PR can only be merged from staging into master by a maintainer if:
+
 - It is passing CI.
 - It is approved to move to the next production version by the rest of the maintainers.
 - It has the documentation up to date.
@@ -84,8 +105,9 @@ A PR can only be merged from staging into master by a maintainer if:
 Any maintainer is allowed to merge a PR if all of these conditions are met.
 
 ### Releases (maintainers only)
+
 Currently, NodeChain is using a versioning based on two digits (**vX.Y**).
-Where **"X"** is **Production stage** version (master branch) and **"Y"** is **Staging/Test stage** version (staging branch). 
+Where **"X"** is **Production stage** version (master branch) and **"Y"** is **Staging/Test stage** version (staging branch).
 
 This may change for minor changes This may change for minor changes and hotfixes, where a three-digit versioning will be used (**vX.Y.Z**).
 Where **"Z"** is **Staging stage** version with the **hotfix** (staging branch)
@@ -93,10 +115,12 @@ Where **"Z"** is **Staging stage** version with the **hotfix** (staging branch)
 This may change and improve in the future.
 
 ## Contributing to documentation
+
 Our Swagger documentation is in the [NodeChain docs](https://github.com/swapper-org/NodeChain-docs) repository.
 It is divided by **master branch versions**.
 
 ### Fork and create branch
+
 If our branch **#123** in NodeChain repository is making any changes in the documentation, then [fork NodeChain docs](https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project) and create a branch with the same name.
 
 ```sh
@@ -104,21 +128,27 @@ git checkout -b 123-support-bitcoin-cash-rpc-api
 ```
 
 ### Make the changes
+
 Now you can make any necessary changes in the documentation, remember to ask for help if you need it!
 
 ### Make a Pull Request
+
 At this point, you should switch back to your staging branch and make sure it's up to date with NodeChain-docs's staging branch:
+
 ```sh
 git remote add upstream git@github.com:swapper-org/NodeChain-docs.git
 git checkout staging
 git pull upstream staging
 ```
+
 Then update your feature branch from your local copy of staging, and push it!
+
 ```sh
 git checkout 123-support-bitcoin-cash-rpc-api
 git rebase staging
 git push --set-upstream origin 123-support-bitcoin-cash-rpc-api
 ```
+
 Finally, go to GitHub and make a [Pull Request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request) 😄
 
 ### Link your docs PR to the main PR
@@ -131,6 +161,7 @@ There is a section called "Related PR or Docs PR" to paste it!
 If a maintainer asks you to "rebase" your PR, they're saying that a lot of code has changed, and that you need to update your branch so it's easier to merge.
 
 To learn more about rebasing in Git, there are a lot of good resources as [Github docs](https://docs.github.com/en/github/getting-started-with-github/about-git-rebase) or [Git-SCM docs](https://git-scm.com/book/en/v2/Git-Branching-Rebasing), but here's the suggested workflow:
+
 ```sh
 git checkout 123-support-bitcoin-cash-rpc-api
 git pull --rebase upstream staging
@@ -212,4 +243,4 @@ Violating these terms may lead to a permanent ban.
 
 This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/), version 2.0, available at https://www.contributor-covenant.org/version/2/0/code_of_conduct.html.
 
-Some text is adapted from the [Contributing guidelines of Active Admin](https://github.com/activeadmin/activeadmin/blob/master/CONTRIBUTING.md). Thanks for this amazing guide! 
+Some text is adapted from the [Contributing guidelines of Active Admin](https://github.com/activeadmin/activeadmin/blob/master/CONTRIBUTING.md). Thanks for this amazing guide!

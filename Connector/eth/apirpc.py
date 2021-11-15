@@ -141,8 +141,7 @@ def getTransaction(id, params):
 
     if transaction is None:
         logger.printWarning("Could not get transaction from node")
-        raise rpcerrorhandler.BadRequestError(
-            "Could not get transaction from node")
+        raise rpcerrorhandler.BadRequestError("Could not get transaction from node")
 
     inputs = []
     outputs = []

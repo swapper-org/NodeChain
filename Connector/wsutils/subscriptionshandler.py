@@ -10,10 +10,9 @@ COIN = os.environ["COIN"]
 
 class SubcriptionsHandler():
 
-
     @staticmethod
     def subscribe(address, client):
-        
+
         logger.printInfo(f"Client trying to subscribe to address {address}")
         if COIN not in ADDRESSES_SUBSCRIBED:
             logger.printInfo(f"Creating subscriptions for {COIN}")
@@ -25,7 +24,7 @@ class SubcriptionsHandler():
             addressesByCoin[address] = []
             addressesByCoin[address].append(client)
             client.addAddress(address)
-            
+
             logger.printInfo(f"Client successfully subscribed to address ${address}")
 
             return {
@@ -37,17 +36,16 @@ class SubcriptionsHandler():
             client.addAddress(address)
 
             logger.printInfo(f"Client successfully subscribed to address ${address}")
-    
+
             return {
                 SUBSCRIBED: True
             }
-        
+
         logger.printInfo(f"Client already subscribed to address ${address}")
 
         return {
             SUBSCRIBED: False
         }
-
 
     @staticmethod
     def unsubscribe(address, client):
@@ -82,7 +80,6 @@ class SubcriptionsHandler():
             UNSUBSCRIBED: True
         }
 
-
     @staticmethod
     def removeClient(client):
 
@@ -102,7 +99,6 @@ class SubcriptionsHandler():
         client.clean()
         return
 
-
     @staticmethod
     def clean(addressesByCoin, address):
 
@@ -113,25 +109,21 @@ class SubcriptionsHandler():
 
         return
 
-
     @staticmethod
     def coinInAddressSubscription():
         return COIN in ADDRESSES_SUBSCRIBED
-    
 
     @staticmethod
     def getSubscriptionsAvailable():
         return ADDRESSES_SUBSCRIBED[COIN]
-    
 
     @staticmethod
     def getAddressClients(address):
 
         if SubcriptionsHandler.coinInAddressSubscription() and SubcriptionsHandler.addressHasClients(address):
             return ADDRESSES_SUBSCRIBED[COIN][address]
-        
+
         return []
-    
 
     @staticmethod
     def addressHasClients(address):
