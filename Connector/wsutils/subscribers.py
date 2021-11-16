@@ -1,7 +1,7 @@
 import abc
+from aiohttp import web
 import uuid
 from logger import logger
-import threading
 import time
 from random import randint
 
@@ -21,22 +21,27 @@ class Subscriber():
 
     def __init__(self):
         self.subscriberID = uuid.uuid4()
-        self.topicsSubscribed = []
+        self._topicsSubscribed = []
+        self.websocket = web.WebSocketResponse(heartbeat=60)
+
+    @property
+    def topicsSubscribed(self):
+        return self._topicsSubscribed
 
     def subscribeToTopic(self, broker, topic):
-        if topic not in self.topicsSubscribed:
+        if topic not in self._topicsSubscribed:
             broker.attach(self, topic)
 
     def unsubscribeFromTopic(self, broker, topic):
-        if topic in self.topicsSubscribed:
+        if topic in self._topicsSubscribed:
             broker.detach(self, topic)
 
     def onClose(self, broker):
-        broker.remove()
+        broker.removeSubscriber(self)
 
 
 class WSSubscriber(Subscriber):
-    
+
     def onMessage(self, topic, message):
         time.sleep(randint(1, 3))
         logger.printInfo(f"New message for WS Subscriber {self.subscriberID} for topic [{topic}]: {message}")

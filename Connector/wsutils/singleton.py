@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 class Singleton(type):
 
     _instances = {}
