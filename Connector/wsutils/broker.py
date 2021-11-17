@@ -89,11 +89,11 @@ class Broker(object, metaclass=Singleton):
             logger.printWarning("Trying to remove unknown subscriber class")
             return
 
-        for topic in subscriber.topics:
+        for topic in subscriber.topicsSubscribed:
             self.detach(subscriber, topic)
 
-    def getChildrenTopics(self, topic):
-        return [topicSubscription for topicSubscription in self.topicSubscriptions if (topic + TOPIC_SEPARATOR) in topicSubscription]
+    def isTopic(self, topic):
+        return topic in self.topicSubscriptions
 
 
 def _notifySubscriber(subscriber, topic, message):

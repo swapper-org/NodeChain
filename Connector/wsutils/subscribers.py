@@ -4,6 +4,7 @@ import uuid
 from logger import logger
 import time
 from random import randint
+import json
 
 
 class SubscriberInterface(metaclass=abc.ABCMeta):
@@ -13,7 +14,7 @@ class SubscriberInterface(metaclass=abc.ABCMeta):
             (hasattr(subclass, "subscribeToTopic") and callable(subclass.subscribeToTopic)) and
             (hasattr(subclass, "unsubscribeFromTopic") and callable(subclass.unsubscribeFromTopic)) and
             (hasattr(subclass, "onMessage") and callable(subclass.onMessage)) and
-            (hasattr(subclass, "onClose") and callable(subclass.onMessage))
+            (hasattr(subclass, "closeConnection") and callable(subclass.onMessage))
         )
 
 
@@ -22,7 +23,6 @@ class Subscriber():
     def __init__(self):
         self.subscriberID = uuid.uuid4()
         self._topicsSubscribed = []
-        self.websocket = web.WebSocketResponse(heartbeat=60)
 
     @property
     def topicsSubscribed(self):
@@ -36,16 +36,31 @@ class Subscriber():
         if topic in self._topicsSubscribed:
             broker.detach(self, topic)
 
-    def onClose(self, broker):
+    def closeConnection(self, broker):
         broker.removeSubscriber(self)
 
 
 class WSSubscriber(Subscriber):
 
+    def __init__(self):
+        super().__init__()
+        self.websocket = web.WebSocketResponse(heartbeat=60)
+
     def onMessage(self, topic, message):
         time.sleep(randint(1, 3))
         logger.printInfo(f"New message for WS Subscriber {self.subscriberID} for topic [{topic}]: {message}")
         return message, topic
+
+    async def closeConnection(self, broker):
+        super().closeConnection(broker)
+        await self.websocket.close()
+
+    async def sendMessage(self, message):
+        await self.websocket.send_str(
+            json.dumps(
+                message
+            )
+        )
 
 
 class TestSubscriber(Subscriber):
