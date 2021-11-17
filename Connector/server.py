@@ -9,6 +9,8 @@ from rpcutils import rpcutils, errorhandler as rpcErrorHandler
 from wsutils.serverwebsocket import ServerWebSocket
 from wsutils import wsutils
 from wsutils.subscriptionshandler import SubcriptionsHandler
+from wsutils.subscribers import WSSubscriber
+from wsutils.broker import Broker
 from webapp import WebApp
 
 logger.printInfo(f"Loading connector for {os.environ['COIN']}")
@@ -64,14 +66,14 @@ async def rpcServerHandler(request):
 
 async def websocketServerHandler(request):
 
-    ws = ServerWebSocket()
-    await ws.websocket.prepare(request)
+    wsSubscriber = WSSubscriber()
+    await wsSubscriber.websocket.prepare(request)
 
     reqParsed = None
 
     try:
 
-        async for msg in ws.websocket:
+        async for msg in wsSubscriber.websocket:
 
             if msg.type == aiohttp.WSMsgType.TEXT:
 
@@ -79,8 +81,14 @@ async def websocketServerHandler(request):
                 logger.printInfo(f"New WS request received: {reqParsed}")
 
                 if reqParsed[rpcutils.METHOD] == "close":
-                    logger.printInfo("Closing WS connection with client")
-                    await ws.websocket.close()
+                    await wsSubscriber.sendMessage(
+                        rpcutils.generateRPCResultResponse(
+                            reqParsed[rpcutils.ID] if reqParsed is not None else rpcutils.UNKNOWN_RPC_REQUEST_ID,
+                            "Closing connection with server"
+                        )
+                    )
+                    await wsSubscriber.closeConnection(Broker())
+                    logger.printInfo("Exiting from WS loop")
 
                 elif reqParsed[rpcutils.METHOD] not in wsutils.webSocketMethods:
                     logger.printError(f"WS Method not supported for {os.environ['COIN']}")
@@ -88,23 +96,21 @@ async def websocketServerHandler(request):
 
                 else:
 
-                    payload = wsutils.webSocketMethods[reqParsed[rpcutils.METHOD]](ws, reqParsed[rpcutils.ID], reqParsed[rpcutils.PARAMS])
-
+                    payload = wsutils.webSocketMethods[reqParsed[rpcutils.METHOD]](wsSubscriber, reqParsed[rpcutils.ID], reqParsed[rpcutils.PARAMS])
                     response = rpcutils.generateRPCResultResponse(
                         reqParsed[rpcutils.ID],
                         payload
                     )
+
                     logger.printInfo(f"Sending WS response to requestor: {response}")
 
-                    await ws.websocket.send_str(
-                        json.dumps(
-                            response
-                        )
+                    await wsSubscriber.sendMessage(
+                        json.dumps(response)
                     )
 
             elif msg.type == aiohttp.WSMsgType.ERROR:
-                logger.printError('WS connection closed with exception %s' % ws.websocket.exception())
-                raise rpcErrorHandler.InternalServerError('WS connection closed with exception %s' % ws.websocket.exception())
+                logger.printError('WS connection closed with exception %s' % wsSubscriber.websocket.exception())
+                raise rpcErrorHandler.InternalServerError('WS connection closed with exception %s' % wsSubscriber.websocket.exception())
 
     except rpcErrorHandler.Error as e:
 
@@ -112,16 +118,16 @@ async def websocketServerHandler(request):
             reqParsed[rpcutils.ID] if reqParsed is not None else rpcutils.UNKNOWN_RPC_REQUEST_ID,
             e.jsonEncode()
         )
+
         logger.printError(f"Sending RPC response to requestor: {response}")
 
-        await ws.websocket.send_str(
+        await wsSubscriber.sendMessage(
             json.dumps(
                 response
             )
         )
 
-    SubcriptionsHandler.removeClient(ws)
-    return ws
+    return wsSubscriber.websocket
 
 
 def runServer():

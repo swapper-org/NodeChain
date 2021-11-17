@@ -1,16 +1,19 @@
+#!/usr/bin/python3
+from aiohttp import web
+import json
+import random
+import socket
+import sys
+from logger import logger
+from rpcutils import rpcutils
+from wsutils import wsutils
+from wsutils.broker import Broker
+from wsutils import topics
+from wsutils.publishers import Publisher
+from webapp import WebApp
 from .constants import *
 from .connector import BITCOIN_CALLBACK_PATH, ELECTRUM_NAME
-from wsutils import wsutils
-from wsutils.subscriptionshandler import SubcriptionsHandler
-from rpcutils import rpcutils
 from . import apirpc
-from webapp import WebApp
-from aiohttp import web
-import random
-import sys
-import socket
-import json
-from logger import logger
 
 
 @wsutils.webSocket
@@ -27,30 +30,30 @@ async def bitcoinCallback(request):
 
     requestBody = await request.read()
 
+    broker = Broker()
     messageLoaded = json.loads(requestBody)
 
-    if not SubcriptionsHandler.coinInAddressSubscription():
+    addrBalanceTopic = topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + messageLoaded[ADDRESS]
+    if not broker.isTopic(addrBalanceTopic):
         logger.printWarning("There are no subscribers")
         return
 
-    clients = SubcriptionsHandler.getAddressClients(messageLoaded[ADDRESS])
+    id = random.randint(1, sys.maxsize)
+    response = apirpc.getAddressBalance(
+        id,
+        {
+            ADDRESS: messageLoaded[ADDRESS]
+        }
+    )
 
-    if SubcriptionsHandler.addressHasClients(messageLoaded[ADDRESS]):
-
-        id = random.randint(1, sys.maxsize)
-        response = apirpc.getAddressBalance(
-            id,
-            {
-                ADDRESS: messageLoaded[ADDRESS]
-            }
-        )
-
-        for client in clients:
-            await client.websocket.send_str(
-                json.dumps(
-                    rpcutils.generateRPCResultResponse(
-                        id,
-                        response
-                    )
-                )
+    addrBalancePub = Publisher()
+    addrBalancePub.publish(
+        broker,
+        addrBalanceTopic,
+        json.dumps(
+            rpcutils.generateRPCResultResponse(
+                id,
+                response
             )
+        )
+    )
