@@ -5,6 +5,7 @@ from logger import logger
 import time
 from random import randint
 import json
+import asyncio
 
 
 class SubscriberInterface(metaclass=abc.ABCMeta):
@@ -29,12 +30,10 @@ class Subscriber():
         return self._topicsSubscribed
 
     def subscribeToTopic(self, broker, topic):
-        if topic not in self._topicsSubscribed:
-            broker.attach(self, topic)
+        return broker.attach(self, topic)
 
     def unsubscribeFromTopic(self, broker, topic):
-        if topic in self._topicsSubscribed:
-            broker.detach(self, topic)
+        return broker.detach(self, topic)
 
     def closeConnection(self, broker):
         broker.removeSubscriber(self)
@@ -47,8 +46,11 @@ class WSSubscriber(Subscriber):
         self.websocket = web.WebSocketResponse(heartbeat=60)
 
     def onMessage(self, topic, message):
-        time.sleep(randint(1, 3))
         logger.printInfo(f"New message for WS Subscriber {self.subscriberID} for topic [{topic}]: {message}")
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(notify(self.websocket, message))
+        self.sendMessage(message)
         return message, topic
 
     async def closeConnection(self, broker):
@@ -61,6 +63,14 @@ class WSSubscriber(Subscriber):
                 message
             )
         )
+
+
+async def notify(ws, message):
+    await ws.send_str(
+        json.dumps(
+            message
+        )
+    )
 
 
 class TestSubscriber(Subscriber):

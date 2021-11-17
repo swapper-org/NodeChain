@@ -50,10 +50,8 @@ async def bitcoinCallback(request):
     addrBalancePub.publish(
         broker,
         addrBalanceTopic,
-        json.dumps(
-            rpcutils.generateRPCResultResponse(
-                id,
-                response
-            )
+        rpcutils.generateRPCResultResponse(
+            id,
+            response
         )
     )

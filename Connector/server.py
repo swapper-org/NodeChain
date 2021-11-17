@@ -84,7 +84,7 @@ async def websocketServerHandler(request):
                     await wsSubscriber.sendMessage(
                         rpcutils.generateRPCResultResponse(
                             reqParsed[rpcutils.ID] if reqParsed is not None else rpcutils.UNKNOWN_RPC_REQUEST_ID,
-                            "Closing connection with server"
+                            "Connection closed with server"
                         )
                     )
                     await wsSubscriber.closeConnection(Broker())
@@ -104,9 +104,7 @@ async def websocketServerHandler(request):
 
                     logger.printInfo(f"Sending WS response to requestor: {response}")
 
-                    await wsSubscriber.sendMessage(
-                        json.dumps(response)
-                    )
+                    await wsSubscriber.sendMessage(response)
 
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 logger.printError('WS connection closed with exception %s' % wsSubscriber.websocket.exception())
@@ -121,11 +119,7 @@ async def websocketServerHandler(request):
 
         logger.printError(f"Sending RPC response to requestor: {response}")
 
-        await wsSubscriber.sendMessage(
-            json.dumps(
-                response
-            )
-        )
+        await wsSubscriber.sendMessage(response)
 
     return wsSubscriber.websocket
 
