@@ -24,7 +24,7 @@ class Broker(object, metaclass=Singleton):
             }
 
         if topic not in self.topicSubscriptions:
-            self.topicSubscriptions[topic] = [subscriber]
+            self.topicSubscriptions[topic] = []
 
         if subscriber not in self.topicSubscriptions[topic]:
             logger.printInfo(f"Subscriber {subscriber.subscriberID} atached successfully to topic [{topic}]")
