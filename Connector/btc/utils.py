@@ -1,6 +1,6 @@
 #!/usr/bin/python3
-from .constants import *
 from decimal import Decimal
+from .constants import *
 
 
 def convertToSatoshi(strAmount):

@@ -6,9 +6,8 @@ import socket
 import sys
 from logger import logger
 from rpcutils import rpcutils
-from wsutils import wsutils
+from wsutils import wsutils, topics
 from wsutils.broker import Broker
-from wsutils import topics
 from wsutils.publishers import Publisher
 from webapp import WebApp
 from .constants import *

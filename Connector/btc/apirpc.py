@@ -1,9 +1,10 @@
-from .constants import *
-from .connector import RPC_ELECTRUM_ENDPOINT, RPC_CORE_ENDPOINT
+#!/usr/bin/python3
+from logger import logger
 from rpcutils import rpcutils, errorhandler as rpcerrorhandler
 from rpcutils.rpcconnector import RPCConnector
 from . import utils
-from logger import logger
+from .constants import *
+from .connector import RPC_ELECTRUM_ENDPOINT, RPC_CORE_ENDPOINT
 
 
 @rpcutils.rpcMethod
