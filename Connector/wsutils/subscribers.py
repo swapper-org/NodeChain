@@ -30,9 +30,11 @@ class Subscriber():
         return self._topicsSubscribed
 
     def subscribeToTopic(self, broker, topic):
+        self._topicsSubscribed.append(topic)
         return broker.attach(self, topic)
 
     def unsubscribeFromTopic(self, broker, topic):
+        self._topicsSubscribed.remove(topic)
         return broker.detach(self, topic)
 
     def closeConnection(self, broker):
@@ -50,7 +52,6 @@ class WSSubscriber(Subscriber):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(notify(self.websocket, message))
-        self.sendMessage(message)
         return message, topic
 
     async def closeConnection(self, broker):
