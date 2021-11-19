@@ -1,11 +1,11 @@
+#!/usr/bin/python3
 import abc
+import asyncio
 from aiohttp import web
+import json
+from random import randint
 import uuid
 from logger import logger
-import time
-from random import randint
-import json
-import asyncio
 
 
 class SubscriberInterface(metaclass=abc.ABCMeta):
@@ -77,6 +77,5 @@ async def notify(ws, message):
 class TestSubscriber(Subscriber):
 
     def onMessage(self, topic, message):
-        time.sleep(randint(1, 3))
         logger.printInfo(f"New message for Test Subscriber {self.subscriberID} for topic [{topic}]: {message}")
         return message, topic
