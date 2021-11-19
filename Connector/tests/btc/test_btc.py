@@ -10,7 +10,7 @@ from logger import logger
 from rpcutils.rpcconnector import RPCConnector
 from rpcutils.rpcutils import RPCMethods
 from rpcutils.errorhandler import BadRequestError
-from wsutils.serverwebsocket import ServerWebSocket
+from wsutils.subscribers import TestSubscriber
 from wsutils.wsutils import webSocketMethods
 from wsutils.constants import *
 
@@ -43,7 +43,7 @@ privateKey1 = makeBitcoinCoreRequest("dumpprivkey", [address1])
 address2 = makeBitcoinCoreRequest("getnewaddress", [])
 minerAddress = makeBitcoinCoreRequest("getnewaddress", [])
 refundAddress1 = makeBitcoinCoreRequest("getnewaddress", [])
-serverWebSocket = ServerWebSocket()
+sub = TestSubscriber()
 
 mineBlocksToAddress(address1, 150)
 mineBlocksToAddress(address2, 150)
@@ -394,7 +394,7 @@ def testSubscribeAddressBalance():
         logger.printError("Method subscribeAddressBalance not loaded")
         assert False
 
-    got = webSocketMethods["subscribeAddressBalance"](serverWebSocket, 0, {
+    got = webSocketMethods["subscribeAddressBalance"](sub, 0, {
         ADDRESS: address1
     })
 
@@ -402,7 +402,7 @@ def testSubscribeAddressBalance():
         logger.printError(f"Error in subscribe to address balace. Expected: True Got: {got[SUBSCRIBED]}")
         assert False
 
-    got = webSocketMethods["subscribeAddressBalance"](serverWebSocket, 0, {
+    got = webSocketMethods["subscribeAddressBalance"](sub, 0, {
         ADDRESS: address1
     })
 
@@ -419,7 +419,7 @@ def testUnsubscribeAddressBalance():
         logger.printError("Method unsubscribeAddressBalance not loaded")
         assert False
 
-    got = webSocketMethods["unsubscribeAddressBalance"](serverWebSocket, 0, {
+    got = webSocketMethods["unsubscribeAddressBalance"](sub, 0, {
         ADDRESS: address1
     })
 
@@ -427,7 +427,7 @@ def testUnsubscribeAddressBalance():
         logger.printError(f"Error in unsubscribe to address balace. Expected: True Got: {got[UNSUBSCRIBED]}")
         assert False
 
-    got = webSocketMethods["unsubscribeAddressBalance"](serverWebSocket, 0, {
+    got = webSocketMethods["unsubscribeAddressBalance"](sub, 0, {
         ADDRESS: address1
     })
 
