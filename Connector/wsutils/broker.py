@@ -95,6 +95,9 @@ class Broker(object, metaclass=Singleton):
     def isTopic(self, topic):
         return topic in self.topicSubscriptions
 
+    def getSubTopics(self, topic):
+        return [topicSubscription[len(topic) + 1:] for topicSubscription in self.topicSubscriptions if topic in topicSubscription]
+
 
 def _notifySubscriber(subscriber, topic, message):
     subscriber.onMessage(topic, message)

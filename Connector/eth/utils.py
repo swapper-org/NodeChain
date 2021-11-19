@@ -80,6 +80,13 @@ def searchAddressesIntoBlock(data):
                 notifyThread.start()
 
 
+def isAdressInBlock(address, block):
+    for transaction in block[TRANSACTIONS]:
+        if address.lower() == transaction[FROM].lower() or address.lower() == transaction[TO].lower():
+            return True
+    return False
+
+
 def notifyHandler(args):
 
     loop = asyncio.new_event_loop()
