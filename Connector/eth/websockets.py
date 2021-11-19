@@ -1,22 +1,19 @@
-import threading
-import random
-import asyncio
-import sys
+#!/usr/bin/python3
 import aiohttp
+import asyncio
+import json
+import random
+import sys
+import threading
+from logger import logger
+from rpcutils import rpcutils, constants as rpcConstants, errorhandler as rpcErrorHandler
 from wsutils.clientwebsocket import ClientWebSocket
-from wsutils import wsutils
+from wsutils import wsutils, topics
 from wsutils.broker import Broker
 from wsutils.publishers import Publisher
-from wsutils import topics
-from rpcutils import constants as rpcConstants
-from rpcutils import rpcutils
-from . import apirpc
-from . import utils
+from . import apirpc, utils
 from .constants import *
 from .connector import WS_ENDPOINT
-from logger import logger
-from rpcutils import errorhandler as rpcErrorHandler
-import json
 
 
 @wsutils.webSocket

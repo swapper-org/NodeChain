@@ -1,12 +1,10 @@
 #!/usr/bin/python3
-from .constants import *
-from wsutils import wsutils
-from wsutils.broker import Broker
-from wsutils import topics
-from wsutils.subscriptionshandler import SubcriptionsHandler
-from rpcutils import rpcutils, errorhandler as rpcerrorhandler
-from . import utils
 from logger import logger
+from rpcutils import rpcutils, errorhandler as rpcerrorhandler
+from wsutils import wsutils, topics
+from wsutils.broker import Broker
+from .constants import *
+from . import utils
 
 
 @wsutils.webSocketMethod
