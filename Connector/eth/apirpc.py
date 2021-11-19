@@ -1,10 +1,11 @@
+#!/usr/bin/python3
+from httputils import httputils
+from logger import logger
+from rpcutils.rpcconnector import RPCConnector
+from rpcutils import rpcutils, errorhandler as rpcerrorhandler
 from .constants import *
 from .connector import RPC_ENDPOINT
-from rpcutils import rpcutils, errorhandler as rpcerrorhandler
-from rpcutils.rpcconnector import RPCConnector
 from . import utils
-from logger import logger
-from httputils import httputils
 
 
 @httputils.postMethod

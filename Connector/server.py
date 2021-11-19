@@ -6,12 +6,10 @@ import json
 import os
 from logger import logger
 from rpcutils import rpcutils, errorhandler as rpcErrorHandler
-from wsutils.serverwebsocket import ServerWebSocket
+from webapp import WebApp
 from wsutils import wsutils
-from wsutils.subscriptionshandler import SubcriptionsHandler
 from wsutils.subscribers import WSSubscriber
 from wsutils.broker import Broker
-from webapp import WebApp
 
 logger.printInfo(f"Loading connector for {os.environ['COIN']}")
 importlib.__import__(os.environ['COIN'].lower())
