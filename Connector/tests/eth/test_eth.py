@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import json
 import pytest
 import threading
@@ -9,16 +10,15 @@ from logger import logger
 from rpcutils.rpcutils import RPCMethods
 from rpcutils.rpcconnector import RPCConnector
 from wsutils.constants import *
-from wsutils.serverwebsocket import ServerWebSocket
 from wsutils.wsutils import webSocketMethods
-
+from wsutils.subscribers import TestSubscriber
 
 address1 = "0x625ACaEdeF812d2842eFd2Fb0294682A868455bd"
 privateKey1 = "0x6fa76995e9a39e852f893e8347c662453a5d517846d150bdf3ddf7601c4bc74c"
 
 address2 = "0x93261B4021dbd6200Df9B36B151f4ECF34889e94"
 
-serverWebSocket = ServerWebSocket()
+sub = TestSubscriber()
 
 
 @pytest.fixture
@@ -313,7 +313,7 @@ def testSubscribeAddressBalance():
         logger.printError("Method subscribeAddressBalance not loaded")
         assert False
 
-    got = webSocketMethods["subscribeAddressBalance"](serverWebSocket, 0, {
+    got = webSocketMethods["subscribeAddressBalance"](sub, 0, {
         ADDRESS: address1
     })
 
@@ -321,7 +321,7 @@ def testSubscribeAddressBalance():
         logger.printError(f"Error in subscribe to address balace. Expected: True Got: {got[SUBSCRIBED]}")
         assert False
 
-    got = webSocketMethods["subscribeAddressBalance"](serverWebSocket, 0, {
+    got = webSocketMethods["subscribeAddressBalance"](sub, 0, {
         ADDRESS: address1
     })
 
@@ -338,7 +338,7 @@ def testUnsubscribeAddressBalance():
         logger.printError("Method unsubscribeAddressBalance not loaded")
         assert False
 
-    got = webSocketMethods["unsubscribeAddressBalance"](serverWebSocket, 0, {
+    got = webSocketMethods["unsubscribeAddressBalance"](sub, 0, {
         ADDRESS: address1
     })
 
@@ -346,7 +346,7 @@ def testUnsubscribeAddressBalance():
         logger.printError(f"Error in unsubscribe to address balace. Expected: True Got: {got[UNSUBSCRIBED]}")
         assert False
 
-    got = webSocketMethods["unsubscribeAddressBalance"](serverWebSocket, 0, {
+    got = webSocketMethods["unsubscribeAddressBalance"](sub, 0, {
         ADDRESS: address1
     })
 
