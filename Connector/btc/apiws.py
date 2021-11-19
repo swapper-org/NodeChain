@@ -1,12 +1,11 @@
+#!/usr/bin/python3
+from logger import logger
+from wsutils import wsutils, topics
+from wsutils.broker import Broker
+from rpcutils import rpcutils, errorhandler as rpcerrorhandler
+from . import apirpc, utils
 from .constants import *
 from .connector import BITCOIN_CALLBACK_ENDPOINT
-from wsutils import wsutils
-from wsutils.broker import Broker
-from wsutils import topics
-from rpcutils import rpcutils, errorhandler as rpcerrorhandler
-from . import apirpc
-from . import utils
-from logger import logger
 
 
 @wsutils.webSocketMethod

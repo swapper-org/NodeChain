@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 GET_ADDRESS_HISTORY_METHOD = "getaddresshistory"
 GET_ADDRESS_BALANCE_METHOD = "getaddressbalance"
 GET_ADDRESS_UNSPENT_METHOD = "getaddressunspent"
