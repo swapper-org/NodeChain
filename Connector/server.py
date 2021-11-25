@@ -119,17 +119,27 @@ async def websocketServerHandler(request):
 
         await wsSubscriber.sendMessage(response)
 
+    finally:
+        logger.printInfo("Closing websocket")
+
     return wsSubscriber.websocket
 
 
+async def onShutdown(app):
+    logger.printInfo("Shutting down connector")
+    for closingHandler in wsutils.webSocketClosingHandlers:
+        await closingHandler()
+
+
 def runServer():
+
     app = WebApp()
     app.add_routes([web.post('/rpc', rpcServerHandler)])
     app.add_routes([web.get('/ws', websocketServerHandler)])
+    app.on_shutdown.append(onShutdown)
 
     for webSocket in wsutils.webSockets:
         webSocket()
-
     logger.printInfo("Starting connector")
     web.run_app(app, port=80)
 

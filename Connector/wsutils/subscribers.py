@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import abc
 import asyncio
-from aiohttp import web
+from aiohttp import web, WSCloseCode
 import json
 from random import randint
 import uuid
@@ -30,12 +30,12 @@ class Subscriber():
         return self._topicsSubscribed
 
     def subscribeToTopic(self, broker, topic):
-        self._topicsSubscribed.append(topic)
+        self._topicsSubscribed.append(topic.name)
         return broker.attach(self, topic)
 
-    def unsubscribeFromTopic(self, broker, topic):
-        self._topicsSubscribed.remove(topic)
-        return broker.detach(self, topic)
+    def unsubscribeFromTopic(self, broker, topicName):
+        self._topicsSubscribed.remove(topicName)
+        return broker.detach(self, topicName)
 
     def closeConnection(self, broker):
         broker.removeSubscriber(self)
@@ -47,16 +47,16 @@ class WSSubscriber(Subscriber):
         super().__init__()
         self.websocket = web.WebSocketResponse(heartbeat=60)
 
-    def onMessage(self, topic, message):
-        logger.printInfo(f"New message for WS Subscriber {self.subscriberID} for topic [{topic}]: {message}")
+    def onMessage(self, topicName, message):
+        logger.printInfo(f"New message for WS Subscriber {self.subscriberID} for topic [{topicName}]: {message}")
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(notify(self.websocket, message))
-        return message, topic
+        return message, topicName
 
     async def closeConnection(self, broker):
         super().closeConnection(broker)
-        await self.websocket.close()
+        await self.websocket.close(code=WSCloseCode.GOING_AWAY, message='Server shutdown')
 
     async def sendMessage(self, message):
         await self.websocket.send_str(
@@ -76,6 +76,6 @@ async def notify(ws, message):
 
 class TestSubscriber(Subscriber):
 
-    def onMessage(self, topic, message):
-        logger.printInfo(f"New message for Test Subscriber {self.subscriberID} for topic [{topic}]: {message}")
-        return message, topic
+    def onMessage(self, topicName, message):
+        logger.printInfo(f"New message for Test Subscriber {self.subscriberID} for topic [{topicName}]: {message}")
+        return message, topicName
