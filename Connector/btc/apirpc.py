@@ -54,8 +54,11 @@ def getAddressBalance(id, params):
                                         [params[ADDRESS]])
 
     response = {
-        CONFIRMED: utils.convertToSatoshi(connResponse[CONFIRMED]),
-        UNCONFIRMED: utils.convertToSatoshi(connResponse[UNCONFIRMED])
+        ADDRESS: params[ADDRESS],
+        BALANCE: {
+            CONFIRMED: utils.convertToSatoshi(connResponse[CONFIRMED]),
+            UNCONFIRMED: utils.convertToSatoshi(connResponse[UNCONFIRMED])
+        }
     }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
@@ -83,9 +86,14 @@ def getAddressesBalance(id, params):
 
     for address in params[ADDRESSES]:
 
-        addrBalance = getAddressBalance(id, {ADDRESS: address})
-
-        response.append({ADDRESS: address, BALANCE: addrBalance})
+        response.append(
+            getAddressBalance(
+                id,
+                {
+                    ADDRESS: address
+                }
+            )
+        )
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
