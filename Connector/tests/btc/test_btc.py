@@ -273,7 +273,7 @@ def testGetAddressBalance():
         ADDRESS: address1
     })
 
-    assert convertToSatoshi(expected[CONFIRMED]) == got[CONFIRMED] and convertToSatoshi(expected[UNCONFIRMED]) == got[UNCONFIRMED]
+    assert convertToSatoshi(expected[CONFIRMED]) == got[BALANCE][CONFIRMED] and convertToSatoshi(expected[UNCONFIRMED]) == got[BALANCE][UNCONFIRMED] and address1 == got[ADDRESS]
 
 
 def testGetAddressesBalance():
