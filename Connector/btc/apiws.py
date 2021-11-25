@@ -21,6 +21,7 @@ def subscribeAddressBalance(subscriber, id, params):
 
     broker = Broker()
     addrBalanceTopic = topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + params[ADDRESS]
+    topic = topics.Topic(addrBalanceTopic, utils.closeAddrBalanceTopic)
 
     if not broker.isTopic(addrBalanceTopic):
 
@@ -36,7 +37,7 @@ def subscribeAddressBalance(subscriber, id, params):
             logger.printError(f"Can not subscribe {params[ADDRESS]} to node")
             raise rpcerrorhandler.BadRequestError(f"Can not subscribe {params[ADDRESS]} to node")
 
-    return subscriber.subscribeToTopic(broker, addrBalanceTopic)
+    return subscriber.subscribeToTopic(broker, topic)
 
 
 @wsutils.webSocketMethod
