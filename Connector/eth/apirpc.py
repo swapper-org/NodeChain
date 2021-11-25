@@ -184,7 +184,12 @@ def getBlockByHash(id, params):
     block = RPCConnector.request(RPC_ENDPOINT, id, GET_BLOCK_BY_HASH_METHOD,
                                  [params[BLOCK_HASH], True])
 
-    response = {TRANSACTIONS: block[TRANSACTIONS]}
+    if block is None:
+        raise rpcerrorhandler.BadRequestError(f"Block with hash {params[BLOCK_HASH]} could not be retrieve from node")
+
+    response = {
+        TRANSACTIONS: block[TRANSACTIONS]
+    }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
@@ -321,7 +326,12 @@ def getBlockByNumber(id, params):
     block = RPCConnector.request(RPC_ENDPOINT, id, GET_BLOCK_BY_NUMBER_METHOD,
                                  [blockNumber, True])
 
-    response = {TRANSACTIONS: block[TRANSACTIONS]}
+    if block is None:
+        raise rpcerrorhandler.BadRequestError(f"Block number {blockNumber} could not be retrieve from node")
+
+    response = {
+        TRANSACTIONS: block[TRANSACTIONS]
+    }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
