@@ -18,7 +18,7 @@ def subscribeAddressBalance(subscriber, id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    return subscriber.subscribeToTopic(Broker(), topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + params[ADDRESS])
+    return subscriber.subscribeToTopic(Broker(), topics.Topic(topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + params[ADDRESS], utils.closingAddrBalanceTopic))
 
 
 @wsutils.webSocketMethod

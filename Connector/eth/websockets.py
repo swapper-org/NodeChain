@@ -112,3 +112,13 @@ def ethereumWSWorker(data):
                     balanceResponse
                 )
             )
+
+
+@wsutils.webSocketClosingHandler
+async def wsClosingHandler():
+
+    broker = Broker()
+
+    for topicName in broker.getTopicNameSubscriptions():
+        for subscriber in list(broker.getTopicSubscribers(topicName)):
+            await subscriber.closeConnection(broker)

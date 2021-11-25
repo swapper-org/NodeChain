@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from logger import logger
 from .constants import *
 
 
@@ -45,3 +46,7 @@ def isAdressInBlock(address, block):
 
 def getSyncPercentage(currentBlock, latestBlock):
     return (currentBlock * 100) / latestBlock
+
+
+def closingAddrBalanceTopic(topicName):
+    logger.printInfo(f"No need to handle topic [{topicName}] close")

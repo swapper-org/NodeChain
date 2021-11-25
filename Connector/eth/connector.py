@@ -1,4 +1,4 @@
-import os
+#!/usr/bin/python3
 
 RPC_ETHEREUM_PORT = 8545
 RPC_ETHEREUM_HOST = "ethereumgo"
