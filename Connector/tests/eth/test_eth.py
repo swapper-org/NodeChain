@@ -75,7 +75,7 @@ def testGetAddressBalance():
 
     got = RPCMethods["getAddressBalance"](0, {"address": address1})
 
-    assert got[CONFIRMED] == expectedPending and got[UNCONFIRMED] == (hex(int(expectedPending, 16) - int(expectedLatest, 16)))
+    assert got[CONFIRMED] == expectedPending and got[UNCONFIRMED] == (hex(int(expectedPending, 16) - int(expectedLatest, 16))) and address1 == got[ADDRESS]
 
 
 def testGetAddressesBalance():

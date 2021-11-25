@@ -28,8 +28,11 @@ def getAddressBalance(id, params):
         [utils.ensureHash(params[ADDRESS]), PENDING])
 
     response = {
-        CONFIRMED: connPending,
-        UNCONFIRMED: hex(int(connPending, 16) - int(connLatest, 16))
+        ADDRESS: params[ADDRESS],
+        BALANCE: {
+            CONFIRMED: connPending,
+            UNCONFIRMED: hex(int(connPending, 16) - int(connLatest, 16))
+        }
     }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
@@ -56,8 +59,14 @@ def getAddressesBalance(id, params):
     response = []
     for address in params[ADDRESSES]:
 
-        balance = getAddressBalance(id, {ADDRESS: address})
-        response.append({ADDRESS: address, BALANCE: balance})
+        response.append(
+            getAddressBalance(
+                id,
+                {
+                    ADDRESS: address
+                }
+            )
+        )
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
