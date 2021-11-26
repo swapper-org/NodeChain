@@ -1,33 +1,30 @@
-FROM debian:bullseye-slim
+# Usage: docker run --restart=always -v /var/data/blockchain-xmr:/root/.bitmonero -p 18080:18080 -p 18081:18081 --name=monerod -td kannix/monero-full-node
+FROM ubuntu:18.04 AS build
 
-ENV MONERO_VERSION=0.17.2.3
-ENV BITCOIN_DATA=/home/bitcoin/.bitcoin
-ENV PATH=/opt/bitcoin-${BITCOIN_VERSION}/bin:$PATH
-ENV BITCOIN_FILE_HASH_AMD64=8069012ad5e7b35f79e35e6ca71c2424efc54b61f6f93238b182981ba83f2311
-ENV PLATFORM=x86_64-linux-gnu
+ENV MONERO_VERSION=0.17.2.3 MONERO_SHA256=8069012ad5e7b35f79e35e6ca71c2424efc54b61f6f93238b182981ba83f2311
 
-RUN useradd -r bitcoin \
-  && apt-get update -y \
-  && apt-get install -y curl gosu \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get update && apt-get install -y curl bzip2
 
-RUN curl -SLO https://downloads.getmonero.org/cli/monero-gui-linux-x64-v${BITCOIN_VERSION}.tar.bz2 \
-  && echo "${BITCOIN_FILE_HASH_AMD64} bitcoin-${BITCOIN_VERSION}-${PLATFORM}.tar.gz" | sha256sum --check --status \
-  && if ! [ $? -eq 0 ]; then exit 1; fi \
-  && tar -xzf *.tar.gz -C /opt \
-  && rm *.tar.gz \
-  && rm -rf /opt/bitcoin-${BITCOIN_VERSION}/bin/bitcoin-qt
+WORKDIR /root
 
-COPY entrypoint.sh /entrypoint.sh
+RUN curl https://dlsrc.getmonero.org/cli/monero-linux-x64-v$MONERO_VERSION.tar.bz2 -O &&\
+  echo "$MONERO_SHA256  monero-linux-x64-v$MONERO_VERSION.tar.bz2" | sha256sum -c - &&\
+  tar -xvf monero-linux-x64-v$MONERO_VERSION.tar.bz2 &&\
+  rm monero-linux-x64-v$MONERO_VERSION.tar.bz2 &&\
+  cp ./monero-x86_64-linux-gnu-v$MONERO_VERSION/monerod . &&\
+  rm -r monero-*
 
-VOLUME ["/home/bitcoin/.bitcoin"]
+FROM ubuntu:18.04
 
-EXPOSE 8332 8333 18332 18333 18443 18444 38333 38332
+RUN useradd -ms /bin/bash monero && mkdir -p /home/monero/.bitmonero && chown -R monero:monero /home/monero/.bitmonero
+USER monero
+WORKDIR /home/monero
 
-RUN chmod +x entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+COPY --chown=monero:monero --from=build /root/monerod /home/monero/monerod
 
-RUN bitcoind -version | grep "Bitcoin Core version v${BITCOIN_VERSION}"
+VOLUME /home/monero/.bitmonero
 
-CMD ["bitcoind"]
+EXPOSE 18080 18081
+
+ENTRYPOINT ["./monerod"]
+CMD ["--non-interactive", "--restricted-rpc", "--rpc-bind-ip=0.0.0.0", "--confirm-external-bind", "--enable-dns-blocklist", "--out-peers=16"]
