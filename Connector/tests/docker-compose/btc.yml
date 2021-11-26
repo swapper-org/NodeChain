@@ -39,13 +39,3 @@ services:
       TESTNET: 1
     ports:
       - 30000:30000
-
-  connector:
-    build: ../../.
-    environment:
-      COIN: BTC
-      STAGE: ${STAGE}
-      PORT: ${PORT}
-    image: connector
-    ports:
-      - ${PORT}:80
