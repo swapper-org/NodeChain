@@ -21,7 +21,9 @@ jobs:
             pip3 install -r scripts/requirements.txt
       - run: 
           name: Check Lint
-          command: flake8 --statistics
+          command: |
+            source venv/bin/activate
+            flake8 --statistics
       - run: 
           name: Deploy ETH development nodes
           command: |
@@ -38,6 +40,7 @@ jobs:
       - run:
           name: Run ETH Connector tests
           command: |
+            source venv/bin/activate
             cd Connector && python -m pytest -c tests/eth/pytest_eth.ini -s --cov=eth/ --cov=logger/ --cov=rpcutils/ --cov=wsutils/ tests/eth
     
   btctest:
@@ -61,7 +64,9 @@ jobs:
             pip3 install -r scripts/requirements.txt
       - run: 
           name: Check Lint
-          command: flake8 --statistics
+          command: |
+            source venv/bin/activate
+            flake8 --statistics
       - run: 
           name: Deploy BTC development nodes
           command: |
@@ -84,6 +89,7 @@ jobs:
       - run:
           name: Run BTC tests
           command: |
+            source venv/bin/activate
             cd Connector && python -m pytest -c tests/btc/pytest_btc.ini -s --cov=btc/ --cov=logger/ --cov=rpcutils/ --cov=wsutils/ tests/btc
 workflows:
   version: 2
