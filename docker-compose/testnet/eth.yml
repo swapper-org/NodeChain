@@ -2,7 +2,7 @@ version: "3"
 services:
   ethereumgo:
     image: ethereum/client-go:latest
-    command: --http --http.addr=ethereumgo --ropsten --cache=1024 --http.port=8545 --syncmode=full --gcmode=archive --ws --ws.addr=ethereumgo --ws.port=8546 --ws.origins=connector
+    command: --http --http.addr=ethereumgo --ropsten --cache=1024 --http.port=8545 --syncmode=full --gcmode=archive --ws --ws.addr=ethereumgo --ws.port=8546 --ws.origins=connector --http.vhosts=ethereumgo
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
 
@@ -13,6 +13,8 @@ services:
       STAGE: ${STAGE}
       PORT: ${PORT}
     image: connector
+    depends_on:
+      - ethereumgo
 
   nginx:
     image: nginx
@@ -22,3 +24,5 @@ services:
     ports:
       - ${PORT}:80
       - ${SSL_PORT}:443
+    depends_on:
+      - connector

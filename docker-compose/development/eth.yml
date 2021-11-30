@@ -2,8 +2,7 @@ version: "3"
 services:
   ethereumgo:
     image: trufflesuite/ganache-cli
-    command:
-      -p=8545 -h=0.0.0.0 -m="piece effort bind that embrace enrich remind powder sudden patient legend group"
+    command: -p=8545 -h=0.0.0.0 -m="piece effort bind that embrace enrich remind powder sudden patient legend group"
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
 
@@ -27,4 +26,4 @@ services:
       - ${PORT}:80
       - ${SSL_PORT}:443
     depends_on:
-      - ethereumgo
+      - connector

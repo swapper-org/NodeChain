@@ -9,6 +9,8 @@ GET_TRANSACTION_METHOD = "gettransaction"
 DECODE_RAW_TRANSACTION_METHOD = "decoderawtransaction"
 SEND_RAW_TRANSACTION_METHOD = "sendrawtransaction"
 NOTIFY_METHOD = "notify"
+GET_BLOCKCHAIN_INFO = "getblockchaininfo"
+SYNCING = "syncing"
 
 VERBOSITY_LESS_MODE = 0
 VERBOSITY_DEFAULT_MODE = 1
@@ -55,6 +57,13 @@ CONFIRMATIONS = "confirmations"
 PENDING = "pending"
 CALLBACK_ENDPOINT = "callBackEndpoint"
 SUCCESS = "success"
+CURRENT_BLOCK_INDEX = "currentBlockIndex"
+CURRENT_BLOCK = "currentBlock"
+HIGHEST_BLOCK = "highestBlock"
+SYNC_PERCENTAGE = "syncPercentage"
+VERIFICATION_PROGRESS = "verificationprogress"
+BLOCKS = "blocks"
+HEADERS = "headers"
 
 RPC_JSON_SCHEMA_FOLDER = "btc/rpcschemas/"
 WS_JSON_SCHEMA_FOLDER = "btc/wsschemas/"
