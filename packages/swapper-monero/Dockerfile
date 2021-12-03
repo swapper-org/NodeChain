@@ -1,5 +1,5 @@
 # Usage: docker run --restart=always -v /var/data/blockchain-xmr:/root/.bitmonero -p 18080:18080 -p 18081:18081 --name=monerod -td kannix/monero-full-node
-FROM ubuntu:18.04 AS build
+FROM debian:bullseye-slim AS build
 
 ENV MONERO_VERSION=0.17.2.3 MONERO_SHA256=8069012ad5e7b35f79e35e6ca71c2424efc54b61f6f93238b182981ba83f2311
 
@@ -14,7 +14,7 @@ RUN curl https://dlsrc.getmonero.org/cli/monero-linux-x64-v$MONERO_VERSION.tar.b
   cp ./monero-x86_64-linux-gnu-v$MONERO_VERSION/monerod . &&\
   rm -r monero-*
 
-FROM ubuntu:18.04
+FROM debian:bullseye-slim
 
 RUN useradd -ms /bin/bash monero && mkdir -p /home/monero/.bitmonero && chown -R monero:monero /home/monero/.bitmonero
 USER monero
@@ -26,5 +26,15 @@ VOLUME /home/monero/.bitmonero
 
 EXPOSE 18080 18081
 
+
+COPY --chown=monero:monero entrypoint.sh ./entrypoint.sh
+RUN chmod +x entrypoint.sh
+ENTRYPOINT ["/home/monero/entrypoint.sh"]
+
 ENTRYPOINT ["./monerod"]
-CMD ["--non-interactive", "--restricted-rpc", "--rpc-bind-ip=0.0.0.0", "--confirm-external-bind", "--enable-dns-blocklist", "--out-peers=16"]
+CMD ["--p2p-bind-ip=0.0.0.0", \
+		"--p2p-bind-port=18080", \
+		"--rpc-bind-ip=0.0.0.0", \
+		"--rpc-bind-port=18081", \
+		"--non-interactive", \
+		"--confirm-external-bind" ]
