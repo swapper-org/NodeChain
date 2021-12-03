@@ -3,7 +3,7 @@ FROM debian:bullseye-slim AS build
 
 ENV MONERO_VERSION=0.17.2.3 MONERO_SHA256=8069012ad5e7b35f79e35e6ca71c2424efc54b61f6f93238b182981ba83f2311
 
-RUN apt-get update && apt-get install -y curl bzip2
+RUN apt-get update && apt-get install -y curl bzip2 gosu
 
 WORKDIR /root
 
@@ -24,7 +24,7 @@ COPY --chown=monero:monero --from=build /root/monerod /home/monero/monerod
 
 VOLUME /home/monero/.bitmonero
 
-EXPOSE 18080 18081
+EXPOSE 18080 18081 38080 38081 
 
 
 COPY --chown=monero:monero entrypoint.sh ./entrypoint.sh
@@ -32,9 +32,3 @@ RUN chmod +x entrypoint.sh
 ENTRYPOINT ["/home/monero/entrypoint.sh"]
 
 ENTRYPOINT ["./monerod"]
-CMD ["--p2p-bind-ip=0.0.0.0", \
-		"--p2p-bind-port=18080", \
-		"--rpc-bind-ip=0.0.0.0", \
-		"--rpc-bind-port=18081", \
-		"--non-interactive", \
-		"--confirm-external-bind" ]

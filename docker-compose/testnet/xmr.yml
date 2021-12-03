@@ -1,0 +1,30 @@
+version: "3"
+services:
+  monerod:
+    build: ../../packages/swapper-monerod
+    image: monerod
+    command: --stagenet --p2p-bind-ip=0.0.0.0 --p2p-bind-port=38080 --rpc-bind-ip=0.0.0.0 --rpc-bind-port=38081 --non-interactive --confirm-external-bind
+    volumes:
+      - ${BLOCKCHAIN_PATH}/bitmonero:/home/monero/.bitmonero
+    user: "${UID}:${GID}"
+
+  connector:
+    build: ../../Connector
+    environment:
+      COIN: XMR
+      STAGE: ${STAGE}
+      PORT: ${PORT}
+    image: connector
+    depends_on:
+      - monerod
+
+  nginx:
+    image: nginx
+    volumes:
+      - ${NGINX_CONFIG_PATH}:/etc/nginx/nginx.conf
+      - ${CERT_PATH}:/etc/nginx/certs
+    ports:
+      - ${PORT}:80
+      - ${SSL_PORT}:443
+    depends_on:
+      - connector
