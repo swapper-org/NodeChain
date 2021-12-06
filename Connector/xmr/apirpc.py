@@ -17,26 +17,28 @@ def syncing(id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    blockchainInfo = RPCConnector.request(RPC_ENDPOINT, id,
-                                          GET_SYNC_INFO, None)
+    blockchainInfo = RPCConnector.request(RPC_ENDPOINT, id, GET_INFO, None)
 
     if blockchainInfo is None:
         logger.printWarning("Could not get blockchain info from node")
-        raise rpcerrorhandler.BadRequestError(
-            "Could not get blockchain info from node")
+        raise rpcerrorhandler.BadRequestError("Could not get blockchain info from node")
 
-    # if blockchainInfo[BLOCKS] != blockchainInfo[HEADERS]:
-    #     response = {
-    #         SYNCING: True,
-    #         SYNC_PERCENTAGE:
-    #         f'{str(blockchainInfo[VERIFICATION_PROGRESS]*100)}%',
-    #         CURRENT_BLOCK_INDEX: blockchainInfo[BLOCKS],
-    #         LATEST_BLOCK_INDEX: blockchainInfo[HEADERS],
-    #     }
-    # else:
-    #     response = {SYNCING: False}
+    if not blockchainInfo[SYNCHRONIZED]:
+        syncInfo = RPCConnector.request(RPC_ENDPOINT, id, GET_SYNC_INFO, None)
 
-    response = {SYNCING: blockchainInfo}
+        if syncInfo is None:
+            logger.printWarning("Could not get syncing info from node")
+            raise rpcerrorhandler.BadRequestError("Could not get syncing info from node")
+
+        response = {
+            SYNCING: True,
+            SYNC_PERCENTAGE:
+            f'{str(syncInfo[HEIGHT] / syncInfo[TARGET_HEIGHT] * 100)}%',
+            CURRENT_BLOCK_INDEX: str(syncInfo[HEIGHT]),
+            LATEST_BLOCK_INDEX: str(syncInfo[TARGET_HEIGHT]),
+        }
+    else:
+        response = {SYNCING: False}
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
