@@ -1,7 +1,7 @@
 version: "3"
 services:
   bitcoincore:
-    build: ../../packages/swapper-bitcoin-core
+    build: ../../packages/nodechain-bitcoin-core
     image: bitcoincore
     command: -rpcuser=swapper -rpcpassword=swapper -server=1 -rpcallowip=0.0.0.0/0 -rpcbind=bitcoincore -txindex=1 -testnet -rpcport=8332
     volumes:
@@ -21,7 +21,7 @@ services:
       - ${BLOCKCHAIN_PATH}/electrumx:/data
 
   electrum:
-    build: ../../packages/swapper-electrum
+    build: ../../packages/nodechain-electrum
     image: electrum
     environment:
       TESTNET: 1

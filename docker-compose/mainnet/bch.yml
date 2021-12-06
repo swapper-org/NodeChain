@@ -19,7 +19,7 @@ services:
       - ${BLOCKCHAIN_PATH}/electrumx:/data
 
   electrum:
-    build: ../../packages/swapper-electron-cash
+    build: ../../packages/nodechain-electron-cash
     image: electrum
 
   connector:

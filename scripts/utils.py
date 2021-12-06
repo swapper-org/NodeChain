@@ -42,18 +42,18 @@ def queryPort(question):
 
 def queryPath(coin, stage):
     try:
-        path = input(f"Please choose the directory to save blockchain data (/srv/swapper-node/{coin}_{stage}): ")
+        path = input(f"Please choose the directory to save blockchain data (/srv/nodechain-node/{coin}_{stage}): ")
     except SyntaxError:
-        path = f"/srv/swapper-node/{coin}_{stage}"
+        path = f"/srv/nodechain-node/{coin}_{stage}"
     if not path:
-        path = f"/srv/swapper-node/{coin}_{stage}"
+        path = f"/srv/nodechain-node/{coin}_{stage}"
     return path
 
 
 def queryCerts(certs):
     if not certs:
         try:
-            sys.stdout.write("WARN: Please note that you need to have the files swapper_cert.key and swapper_cert.crt in "
+            sys.stdout.write("WARN: Please note that you need to have the files nodechain_cert.key and nodechain_cert.crt in "
                              "the certificates directory.\n")
             path = input("Please choose the path of the certs (/etc/ssl/certs): ")
         except SyntaxError:
@@ -71,12 +71,12 @@ def askSSL(config, certs):
             if queryYesNo("Do you want to activate SSL? ", "no"):
                 path = queryCerts(certs)
 
-                if os.path.isdir(path) and "swapper_cert.key" in os.listdir(path) and "swapper_cert.crt" in os.listdir(path):
+                if os.path.isdir(path) and "nodechain_cert.key" in os.listdir(path) and "nodechain_cert.crt" in os.listdir(path):
                     os.environ["CERT_PATH"] = path
                     os.environ["NGINX_CONFIG_PATH"] = "../../nginx/ssl.conf"
                     return
                 else:
-                    sys.stdout.write("You need to have the files swapper_cert.key and swapper_cert.crt in the "
+                    sys.stdout.write("You need to have the files nodechain_cert.key and nodechain_cert.crt in the "
                                      "certificates directory. \n")
             else:
                 os.environ["NGINX_CONFIG_PATH"] = "../../nginx/nginx.conf"
@@ -85,7 +85,7 @@ def askSSL(config, certs):
     elif config:
         while True:
             path = queryCerts(certs)
-            if os.path.isdir(path) and "swapper_cert.key" in os.listdir(path) and "swapper_cert.crt" in os.listdir(path):
+            if os.path.isdir(path) and "nodechain_cert.key" in os.listdir(path) and "nodechain_cert.crt" in os.listdir(path):
                 os.environ["CERT_PATH"] = path
                 os.environ["NGINX_CONFIG_PATH"] = "../../nginx/ssl.conf"
                 return
