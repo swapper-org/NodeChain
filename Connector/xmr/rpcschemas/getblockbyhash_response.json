@@ -1,0 +1,70 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "",
+    "description": "",
+    "type": "object",
+    "properties": {
+        "blob": {
+            "type": "string"
+        },
+        "block_header": {
+            "type": "object",
+            "properties": {
+                "block_size": {
+                    "type": "integer"
+                },
+                "depth": {
+                    "type": "integer"
+                },
+                "difficulty": {
+                    "type": "integer"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "integer"
+                },
+                "major_version": {
+                    "type": "integer"
+                },
+                "minor_version": {
+                    "type": "integer"
+                },
+                "nonce": {
+                    "type": "integer"
+                },
+                "num_txes": {
+                    "type": "integer"
+                },
+                "orphan_status": {
+                    "type": "boolean"
+                },
+                "prev_hash": {
+                    "type": "string"
+                },
+                "reward": {
+                    "type": "integer"
+                },
+                "timestamp": {
+                    "type": "integer"
+                }
+            }
+        },
+        "credits": {
+            "type": "integer"
+        },
+        "json": {
+            "type": "string"
+        },
+        "miner_tx_hash": {
+            "type": "string"
+        },
+        "status": {
+            "type": "string"
+        },
+        "untrusted": {
+            "type": "boolean"
+        }
+    }
+}
