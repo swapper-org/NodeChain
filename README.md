@@ -60,7 +60,7 @@ See deployment for notes on how to deploy the project on a live system.
    - Choose a port where you want to bind SSL port.
    - Choose if you want to add SSL to your node.
 
-_(To activate SSL note that you need to have the files `swapper_cert.key` and `swapper_cert.crt` in the certificates directory)_
+_(To activate SSL note that you need to have the files `nodechain_cert.key` and `nodechain_cert.crt` in the certificates directory)_
 
 ### Flags
 
@@ -109,7 +109,6 @@ This environment is intended for real cases. You will be able to interact with a
 
 ## Test
 
-
 We use [Flake8](https://flake8.pycqa.org/en/latest/) for linting and [PyTest](https://docs.pytest.org/en/6.2.x/) for testing.
 
 ### Lint
@@ -151,9 +150,9 @@ You can do the local testing manually:
 1. Lint the project using the instructions above.
 
 2. Use the `scripts/buildapi.py` script to launch NodeChain in development network locally and select the token you want to test
- 
-3. Run tests inside the Connector docker image with the following command where you have to replace ${TOKEN} by the token symbol you are testing in lower case 
- 
+
+3. Run tests inside the Connector docker image with the following command where you have to replace ${TOKEN} by the token symbol you are testing in lower case
+
 ```sh
 docker exec -it ${TOKEN}_development_api_connector_1 bash -c "cd Connector && python -m pytest -c tests/${TOKEN}/pytest_${TOKEN}.ini -s --cov=${TOKEN}/ --cov=logger/ --cov=rpcutils/ --cov=wsutils/ tests/${TOKEN}"
 ```
@@ -170,7 +169,6 @@ Follow the steps for CircleCI remote testing
 4. Push the code to GitHub and tests will be automatically executed
 
 _**Note**: When running test remotely, CircleCI will execute all the jobs defined in the `.circleci/config.yml`_
-
 
 ## Contributing
 

@@ -1,10 +1,9 @@
 version: "3"
 services:
   bitcoincore:
-    build: ../../../packages/swapper-bitcoin-core
+    build: ../../../packages/nodechain-bitcoin-core
     image: bitcoincore
-    command:
-      -rpcuser=swapper
+    command: -rpcuser=swapper
       -rpcpassword=swapper
       -server=1
       -rpcallowip=0.0.0.0/0
@@ -34,7 +33,7 @@ services:
       - ${BLOCKCHAIN_PATH}/electrumx:/data
 
   electrum:
-    build: ../../../packages/swapper-electrum-regtest
+    build: ../../../packages/nodechain-electrum-regtest
     image: electrum
     environment:
       TESTNET: 1
