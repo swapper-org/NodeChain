@@ -4,8 +4,10 @@ from .rpcutils import rpcMethod
 from .errorhandler import InternalServerError
 from .constants import *
 from logger import logger
+from httputils import httputils
 
 
+@httputils.getMethod
 @rpcMethod
 def getVersion(id, params):
 
