@@ -4,8 +4,10 @@ from rpcutils import rpcutils, errorhandler as rpcerrorhandler
 from rpcutils.rpcconnector import RPCConnector
 from . import utils
 from logger import logger
+from httputils import httputils
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getAddressBalance(id, params):
 
@@ -38,6 +40,7 @@ def getAddressBalance(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getAddressesBalance(id, params):
 
@@ -65,6 +68,7 @@ def getAddressesBalance(id, params):
     return response
 
 
+@httputils.getMethod
 @rpcutils.rpcMethod
 def getHeight(id, params):
 
@@ -93,6 +97,7 @@ def getHeight(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def broadcastTransaction(id, params):
 
@@ -122,6 +127,7 @@ def broadcastTransaction(id, params):
 """ Data Structure: Transaction trie. Records transaction request vectors. """
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getTransaction(id, params):
 
@@ -158,6 +164,7 @@ def getTransaction(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getBlockByHash(id, params):
 
@@ -183,6 +190,7 @@ def getBlockByHash(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getTransactionCount(id, params):
 
@@ -212,6 +220,7 @@ def getTransactionCount(id, params):
     return response
 
 
+@httputils.getMethod
 @rpcutils.rpcMethod
 def getGasPrice(id, params):
 
@@ -235,6 +244,7 @@ def getGasPrice(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def estimateGas(id, params):
 
@@ -265,6 +275,7 @@ contains information that is only available once a transaction has been executed
 "cumulativeGasUsed", "contractAddress", "logs" and "logsBloom" """
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getTransactionReceipt(id, params):
 
@@ -290,6 +301,7 @@ def getTransactionReceipt(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getBlockByNumber(id, params):
 
@@ -320,6 +332,7 @@ def getBlockByNumber(id, params):
     return response
 
 
+@httputils.getMethod
 @rpcutils.rpcMethod
 def syncing(id, params):
 
