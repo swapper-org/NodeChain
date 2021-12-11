@@ -41,7 +41,7 @@ jobs:
           name: Run ETH Connector tests
           command: |
             source venv/bin/activate
-            cd Connector && python -m pytest -c tests/eth/pytest_eth.ini -s --cov=eth/ --cov=logger/ --cov=rpcutils/ --cov=wsutils/ tests/eth
+            cd Connector && python -m pytest -c tests/eth/pytest_eth.ini -s --cov=eth/ tests/eth
     
   btctest:
     machine:
@@ -90,7 +90,7 @@ jobs:
           name: Run BTC tests
           command: |
             source venv/bin/activate
-            cd Connector && python -m pytest -c tests/btc/pytest_btc.ini -s --cov=btc/ --cov=logger/ --cov=rpcutils/ --cov=wsutils/ tests/btc
+            cd Connector && python -m pytest -c tests/btc/pytest_btc.ini -s --cov=btc/ tests/btc
 workflows:
   version: 2
   tests:
