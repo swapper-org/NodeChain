@@ -5,7 +5,7 @@ import random
 import socket
 import sys
 from logger import logger
-from rpcutils import rpcutils
+from rpcutils import rpcutils, errorhandler as rpcerrorhandler
 from wsutils import wsutils, topics
 from wsutils.broker import Broker
 from wsutils.publishers import Publisher
@@ -27,12 +27,14 @@ async def bitcoinCallback(request):
     if request.remote != socket.gethostbyname(ELECTRUM_NAME):
         return
 
-    requestBody = await request.read()
+    try:
+        messageLoaded = json.loads(await request.read())
+    except Exception as e:
+        raise rpcerrorhandler.InternalServerError(f"Payload from {ELECTRUM_NAME} is not JSON message: {e}")
 
     broker = Broker()
-    messageLoaded = json.loads(requestBody)
-
     addrBalanceTopic = topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + messageLoaded[ADDRESS]
+
     if not broker.isTopic(addrBalanceTopic):
         logger.printWarning("There are no subscribers")
         return
