@@ -80,7 +80,7 @@ class Broker(object, metaclass=Singleton):
 
             for subscriber in self.topicSubscriptions[topicName][SUBSCRIBERS]:
 
-                subscriberNotificationThread = threading.Thread(target=_notifySubscriber, args=(subscriber, topicName, message))
+                subscriberNotificationThread = threading.Thread(target=_notifySubscriber, args=(subscriber, topicName, message), daemon=True)
                 subscriberNotificationThread.start()
 
     def removeSubscriber(self, subscriber):
