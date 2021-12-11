@@ -3,7 +3,6 @@ import abc
 import asyncio
 from aiohttp import web, WSCloseCode
 import json
-from random import randint
 import uuid
 from logger import logger
 
@@ -19,7 +18,7 @@ class SubscriberInterface(metaclass=abc.ABCMeta):
         )
 
 
-class Subscriber():
+class Subscriber:
 
     def __init__(self):
         self.subscriberID = uuid.uuid4()
@@ -56,7 +55,7 @@ class WSSubscriber(Subscriber):
 
     async def closeConnection(self, broker):
         super().closeConnection(broker)
-        await self.websocket.close(code=WSCloseCode.GOING_AWAY, message='Server shutdown')
+        await self.websocket.close(code=WSCloseCode.GOING_AWAY, message="Server shutdown".encode())
 
     async def sendMessage(self, message):
         await self.websocket.send_str(
@@ -74,8 +73,19 @@ async def notify(ws, message):
     )
 
 
-class TestSubscriber(Subscriber):
+class DummySubscriber(Subscriber):
 
     def onMessage(self, topicName, message):
-        logger.printInfo(f"New message for Test Subscriber {self.subscriberID} for topic [{topicName}]: {message}")
+        logger.printInfo(f"New message for Dummy Subscriber {self.subscriberID} for topic [{topicName}]: {message}")
         return message, topicName
+
+
+class ListenerSubscriber(Subscriber):
+
+    def __init__(self):
+        super().__init__()
+        self.messageReceived = False
+
+    def onMessage(self, topicName, message):
+        logger.printInfo(f"New message for Listener Subscriber {self.subscriberID} for topic [{topicName}]: {message}")
+        self.messageReceived = True
