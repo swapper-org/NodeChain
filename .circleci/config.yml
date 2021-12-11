@@ -81,7 +81,7 @@ jobs:
           name: Allow access to ports
           command: |
             sleep 5 && nc -vz localhost 8332
-            sleep 5 && nc -vz localhost 3000
+            #sleep 5 && nc -vz localhost 3000
       - run:
           name: BitcoinCore set up
           command: |
