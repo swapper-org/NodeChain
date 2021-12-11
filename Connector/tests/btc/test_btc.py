@@ -1,8 +1,7 @@
+#!/usr/bin/python3
 from decimal import Decimal
 import pytest
-import threading
 import json
-import server
 from btc.connector import RPC_CORE_ENDPOINT, RPC_ELECTRUM_ENDPOINT
 from btc.constants import *
 from btc.utils import convertToSatoshi
@@ -10,7 +9,7 @@ from logger import logger
 from rpcutils.rpcconnector import RPCConnector
 from rpcutils.rpcutils import RPCMethods
 from rpcutils.errorhandler import BadRequestError
-from wsutils.subscribers import TestSubscriber
+from wsutils.subscribers import ListenerSubscriber
 from wsutils.wsutils import webSocketMethods
 from wsutils.constants import *
 
@@ -43,17 +42,9 @@ privateKey1 = makeBitcoinCoreRequest("dumpprivkey", [address1])
 address2 = makeBitcoinCoreRequest("getnewaddress", [])
 minerAddress = makeBitcoinCoreRequest("getnewaddress", [])
 refundAddress1 = makeBitcoinCoreRequest("getnewaddress", [])
-sub = TestSubscriber()
-
+sub = ListenerSubscriber()
 mineBlocksToAddress(address1, 150)
 mineBlocksToAddress(address2, 150)
-
-
-@pytest.fixture
-def app():
-    serverThread = threading.Thread(server.runServer)
-    serverThread.start()
-    return
 
 
 def sendTransaction(fromAddress, toAddress, amount):
