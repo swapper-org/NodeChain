@@ -21,5 +21,5 @@ def getVersion(id, params):
         raise InternalServerError(str(e))
 
     return {
-        VERSION: config[VERSION] if VERSION in config else "Unknown"
+        VERSION: config[VERSION] if VERSION in config else UNKNOWN
     }
