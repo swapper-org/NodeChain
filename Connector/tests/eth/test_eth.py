@@ -1,31 +1,26 @@
 #!/usr/bin/python3
 import json
 import pytest
-import threading
+import time
 from web3 import Web3
-import server
 from eth.connector import RPC_ENDPOINT
 from eth.constants import *
 from logger import logger
 from rpcutils.rpcutils import RPCMethods
 from rpcutils.rpcconnector import RPCConnector
 from wsutils.constants import *
-from wsutils.wsutils import webSocketMethods
-from wsutils.subscribers import TestSubscriber
+from wsutils.wsutils import webSocketMethods, webSockets
+from wsutils.subscribers import ListenerSubscriber
+
+for webSocket in webSockets:
+    webSocket()
 
 address1 = "0x625ACaEdeF812d2842eFd2Fb0294682A868455bd"
 privateKey1 = "0x6fa76995e9a39e852f893e8347c662453a5d517846d150bdf3ddf7601c4bc74c"
 
 address2 = "0x93261B4021dbd6200Df9B36B151f4ECF34889e94"
 
-sub = TestSubscriber()
-
-
-@pytest.fixture
-def app():
-    serverThread = threading.Thread(server.runServer)
-    serverThread.start()
-    return
+sub = ListenerSubscriber()
 
 
 def makeTransaction(address1=address1, address2=address2, value=1, gas=2000000):
@@ -330,6 +325,20 @@ def testSubscribeAddressBalance():
         assert False
 
     assert True
+
+
+def testAdressBalanceWS():
+
+    attemps = 3
+    numAttemps = 0
+    makeTransaction(address1=address1, address2=address2)
+
+    while not sub.messageReceived and numAttemps < attemps:
+        numAttemps += 1
+        logger.printWarning(f"Subscriber {sub.subscriberID} did not receive message at {numAttemps} attemp")
+        time.sleep(1)
+
+    assert sub.messageReceived
 
 
 def testUnsubscribeAddressBalance():
