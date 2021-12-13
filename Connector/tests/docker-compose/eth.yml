@@ -8,16 +8,3 @@ services:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
     ports:
       - 8545:8545
-
-  connector:
-    build: ../../.
-    environment:
-      COIN: ETH
-      STAGE: ${STAGE}
-      PORT: ${PORT}
-    image: connector
-    restart: on-failure
-    ports:
-      - ${PORT}:80
-    depends_on:
-      - ethereumgo

@@ -1,10 +1,11 @@
+#!/usr/bin/python3
+from httputils import httputils
+from logger import logger
+from rpcutils.rpcconnector import RPCConnector
+from rpcutils import rpcutils, errorhandler as rpcerrorhandler
 from .constants import *
 from .connector import RPC_ENDPOINT
-from rpcutils import rpcutils, errorhandler as rpcerrorhandler
-from rpcutils.rpcconnector import RPCConnector
 from . import utils
-from logger import logger
-from httputils import httputils
 
 
 @httputils.postMethod
@@ -29,8 +30,11 @@ def getAddressBalance(id, params):
         [utils.ensureHash(params[ADDRESS]), PENDING])
 
     response = {
-        CONFIRMED: connPending,
-        UNCONFIRMED: hex(int(connPending, 16) - int(connLatest, 16))
+        ADDRESS: params[ADDRESS],
+        BALANCE: {
+            CONFIRMED: connPending,
+            UNCONFIRMED: hex(int(connPending, 16) - int(connLatest, 16))
+        }
     }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
@@ -58,8 +62,14 @@ def getAddressesBalance(id, params):
     response = []
     for address in params[ADDRESSES]:
 
-        balance = getAddressBalance(id, {ADDRESS: address})
-        response.append({ADDRESS: address, BALANCE: balance})
+        response.append(
+            getAddressBalance(
+                id,
+                {
+                    ADDRESS: address
+                }
+            )
+        )
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
@@ -181,7 +191,12 @@ def getBlockByHash(id, params):
     block = RPCConnector.request(RPC_ENDPOINT, id, GET_BLOCK_BY_HASH_METHOD,
                                  [params[BLOCK_HASH], True])
 
-    response = {TRANSACTIONS: block[TRANSACTIONS]}
+    if block is None:
+        raise rpcerrorhandler.BadRequestError(f"Block with hash {params[BLOCK_HASH]} could not be retrieve from node")
+
+    response = {
+        TRANSACTIONS: block[TRANSACTIONS]
+    }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
@@ -323,7 +338,12 @@ def getBlockByNumber(id, params):
     block = RPCConnector.request(RPC_ENDPOINT, id, GET_BLOCK_BY_NUMBER_METHOD,
                                  [blockNumber, True])
 
-    response = {TRANSACTIONS: block[TRANSACTIONS]}
+    if block is None:
+        raise rpcerrorhandler.BadRequestError(f"Block number {blockNumber} could not be retrieve from node")
+
+    response = {
+        TRANSACTIONS: block[TRANSACTIONS]
+    }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:

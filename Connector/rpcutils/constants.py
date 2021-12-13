@@ -11,6 +11,7 @@ RESULT = "result"
 JSON_CONTENT_TYPE = "application/json"
 VERSION = "version"
 CONFIG_JSON = "config.json"
+UNKNOWN = "Unknown"
 BAD_REQUEST_CODE = 400
 INTERNAL_SERVER_ERROR_CODE = 500
 METHOD_NOT_ALLOWED_CODE = 405

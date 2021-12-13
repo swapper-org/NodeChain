@@ -1,6 +1,4 @@
-import os
-
-
+#!/usr/bin/python3
 RPC_CORE_HOST = "bitcoincore"
 RPC_CORE_PORT = 8332
 RPC_CORE_USER = "swapper"

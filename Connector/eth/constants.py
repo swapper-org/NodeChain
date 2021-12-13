@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 GET_BALANCE_METHOD = "eth_getBalance"
 GET_BLOCK_BY_NUMBER_METHOD = "eth_getBlockByNumber"
 GET_BLOCK_BY_HASH_METHOD = "eth_getBlockByHash"

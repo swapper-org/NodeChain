@@ -1,1 +1,1 @@
-from . import rpcutils, globalrpc
+from . import rpcutils

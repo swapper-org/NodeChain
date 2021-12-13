@@ -1,16 +1,18 @@
+#!/usr/bin/python3
+from aiohttp import web
+import json
+import random
+import socket
+import sys
+from logger import logger
+from rpcutils import rpcutils, errorhandler as rpcerrorhandler
+from wsutils import wsutils, topics
+from wsutils.broker import Broker
+from wsutils.publishers import Publisher
+from webapp import WebApp
 from .constants import *
 from .connector import BITCOIN_CALLBACK_PATH, ELECTRUM_NAME
-from wsutils import wsutils
-from wsutils.subscriptionshandler import SubcriptionsHandler
-from rpcutils import rpcutils
 from . import apirpc
-from webapp import WebApp
-from aiohttp import web
-import random
-import sys
-import socket
-import json
-from logger import logger
 
 
 @wsutils.webSocket
@@ -25,32 +27,42 @@ async def bitcoinCallback(request):
     if request.remote != socket.gethostbyname(ELECTRUM_NAME):
         return
 
-    requestBody = await request.read()
+    try:
+        messageLoaded = json.loads(await request.read())
+    except Exception as e:
+        raise rpcerrorhandler.InternalServerError(f"Payload from {ELECTRUM_NAME} is not JSON message: {e}")
 
-    messageLoaded = json.loads(requestBody)
+    broker = Broker()
+    addrBalanceTopic = topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + messageLoaded[ADDRESS]
 
-    if not SubcriptionsHandler.coinInAddressSubscription():
+    if not broker.isTopic(addrBalanceTopic):
         logger.printWarning("There are no subscribers")
         return
 
-    clients = SubcriptionsHandler.getAddressClients(messageLoaded[ADDRESS])
+    id = random.randint(1, sys.maxsize)
+    response = apirpc.getAddressBalance(
+        id,
+        {
+            ADDRESS: messageLoaded[ADDRESS]
+        }
+    )
 
-    if SubcriptionsHandler.addressHasClients(messageLoaded[ADDRESS]):
-
-        id = random.randint(1, sys.maxsize)
-        response = apirpc.getAddressBalance(
+    addrBalancePub = Publisher()
+    addrBalancePub.publish(
+        broker,
+        addrBalanceTopic,
+        rpcutils.generateRPCResultResponse(
             id,
-            {
-                ADDRESS: messageLoaded[ADDRESS]
-            }
+            response
         )
+    )
 
-        for client in clients:
-            await client.websocket.send_str(
-                json.dumps(
-                    rpcutils.generateRPCResultResponse(
-                        id,
-                        response
-                    )
-                )
-            )
+
+@wsutils.webSocketClosingHandler
+async def wsClosingHandler():
+
+    broker = Broker()
+
+    for topicName in broker.getTopicNameSubscriptions():
+        for subscriber in list(broker.getTopicSubscribers(topicName)):
+            await subscriber.closeConnection(broker)

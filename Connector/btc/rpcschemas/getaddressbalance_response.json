@@ -4,15 +4,27 @@
     "description": "",
     "type": "object",
     "properties": {
-        "confirmed": {
+        "address": {
             "type": "string"
         },
-        "unconfirmed": {
-            "type": "string"
+        "balance": {
+            "type": "object",
+            "properties": {
+                "confirmed": {
+                    "type": "string"
+                },
+                "unconfirmed": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "confirmed",
+                "unconfirmed"
+            ]
         }
     },
     "required": [
-        "confirmed",
-        "unconfirmed"
+        "address",
+        "balance"
     ]
 }
