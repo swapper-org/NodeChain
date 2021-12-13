@@ -1,21 +1,20 @@
 import json
 import os
-from .rpcutils import rpcMethod
-from .errorhandler import InternalServerError
-from .constants import *
-from logger import logger
 from httputils import httputils
+from rpcutils import rpcutils
+from rpcutils.errorhandler import InternalServerError
+from rpcutils.constants import *
+from logger import logger
 
 
 @httputils.getMethod
-@rpcMethod
+@rpcutils.rpcMethod
 def getVersion(id, params):
 
     logger.printInfo("Executing RPC method getVersion")
 
     try:
-        file = os.path.join(".", CONFIG_JSON)
-        with open(file, "r") as fp:
+        with open(CONFIG_JSON, "r") as fp:
             config = json.load(fp)
 
     except Exception as e:
