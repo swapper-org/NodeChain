@@ -4,8 +4,10 @@ from rpcutils import rpcutils, errorhandler as rpcerrorhandler
 from rpcutils.rpcconnector import RPCConnector
 from . import utils
 from logger import logger
+from httputils import httputils
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getAddressHistory(id, params):
 
@@ -35,6 +37,7 @@ def getAddressHistory(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getAddressBalance(id, params):
 
@@ -64,6 +67,7 @@ def getAddressBalance(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getAddressesBalance(id, params):
 
@@ -93,6 +97,7 @@ def getAddressesBalance(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getAddressUnspent(id, params):
 
@@ -131,6 +136,7 @@ def getAddressUnspent(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getBlockByHash(id, params):
 
@@ -151,6 +157,7 @@ def getBlockByHash(id, params):
     return block
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getBlockByNumber(id, params):
 
@@ -172,6 +179,7 @@ def getBlockByNumber(id, params):
     return getBlockByHash(id, {BLOCK_HASH: blockHash})
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getFeePerByte(id, params):
 
@@ -201,6 +209,7 @@ def getFeePerByte(id, params):
     return response
 
 
+@httputils.getMethod
 @rpcutils.rpcMethod
 def getHeight(id, params):
 
@@ -234,6 +243,7 @@ def getHeight(id, params):
 """Returns raw transaction (hex)"""
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getTransactionHex(id, params):
 
@@ -258,6 +268,7 @@ def getTransactionHex(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getTransaction(id, params):
 
@@ -279,6 +290,7 @@ def getTransaction(id, params):
     return transaction
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getTransactionCount(id, params):
 
@@ -311,6 +323,7 @@ def getTransactionCount(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def broadcastTransaction(id, params):
 
@@ -329,6 +342,7 @@ def broadcastTransaction(id, params):
     return {}
 
 
+@httputils.getMethod
 @rpcutils.rpcMethod
 def syncing(id, params):
 
