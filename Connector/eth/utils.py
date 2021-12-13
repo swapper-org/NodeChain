@@ -37,7 +37,7 @@ def getWSResponseMethodSchema(name):
     return WS_JSON_SCHEMA_FOLDER + name + SCHEMA_CHAR_SEPARATOR + RESPONSE + SCHEMA_EXTENSION
 
 
-def isAdressInBlock(address, block):
+def isAddressInBlock(address, block):
     for transaction in block[TRANSACTIONS]:
         if address.lower() == transaction[FROM].lower() or address.lower() == transaction[TO].lower():
             return True

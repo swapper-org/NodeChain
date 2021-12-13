@@ -94,7 +94,7 @@ def ethereumWSWorker(data):
     addrBalancePub = Publisher()
 
     for address in broker.getSubTopics(topics.ADDRESS_BALANCE_TOPIC):
-        if utils.isAdressInBlock(address, block):
+        if utils.isAddressInBlock(address, block):
 
             id = random.randint(1, sys.maxsize)
             balanceResponse = apirpc.getAddressBalance(
