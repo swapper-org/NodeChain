@@ -97,7 +97,8 @@ class Broker(object, metaclass=Singleton):
 
             if not self.topicHasSubscribers(topicName):
                 logger.printInfo(f"Calling closing func to topic [{topicName}]")
-                topicClosingFunc(topicName)
+                if topicClosingFunc is not None:
+                    topicClosingFunc(topicName)
 
     def isTopic(self, topicName):
         return topicName in self.topicSubscriptions

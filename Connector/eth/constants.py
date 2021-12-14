@@ -34,6 +34,8 @@ GET_TRANSACTION_RECEIPT = "gettransactionreceipt"
 SUBSCRIBE_ADDRESS_BALANCE = "subscribeaddressbalance"
 UNSUBSCRIBE_ADDRESS_BALANCE = "unsubscribeaddressbalance"
 SYNCING = "syncing"
+SUBSCRIBE_TO_NEW_BLOCK_MINED = "subscribetonewblockmined"
+UNSUBSCRIBE_TO_NEW_BLOCK_MINED = "unsubscribetonewblockmined"
 
 CONFIRMED = "confirmed"
 UNCONFIRMED = "unconfirmed"

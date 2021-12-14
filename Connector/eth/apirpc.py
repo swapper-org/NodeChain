@@ -194,15 +194,11 @@ def getBlockByHash(id, params):
     if block is None:
         raise rpcerrorhandler.BadRequestError(f"Block with hash {params[BLOCK_HASH]} could not be retrieve from node")
 
-    response = {
-        TRANSACTIONS: block[TRANSACTIONS]
-    }
-
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = rpcutils.validateJSONRPCSchema(block, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    return response
+    return block
 
 
 @httputils.postMethod
@@ -341,15 +337,11 @@ def getBlockByNumber(id, params):
     if block is None:
         raise rpcerrorhandler.BadRequestError(f"Block number {blockNumber} could not be retrieve from node")
 
-    response = {
-        TRANSACTIONS: block[TRANSACTIONS]
-    }
-
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = rpcutils.validateJSONRPCSchema(block, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    return response
+    return block
 
 
 @httputils.getMethod

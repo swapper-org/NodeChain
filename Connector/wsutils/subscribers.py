@@ -29,11 +29,13 @@ class Subscriber:
         return self._topicsSubscribed
 
     def subscribeToTopic(self, broker, topic):
-        self._topicsSubscribed.append(topic.name)
+        if topic.name not in self._topicsSubscribed:
+            self._topicsSubscribed.append(topic.name)
         return broker.attach(self, topic)
 
     def unsubscribeFromTopic(self, broker, topicName):
-        self._topicsSubscribed.remove(topicName)
+        if topicName in self._topicsSubscribed:
+            self._topicsSubscribed.remove(topicName)
         return broker.detach(self, topicName)
 
     def closeConnection(self, broker):

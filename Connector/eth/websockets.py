@@ -55,6 +55,8 @@ async def ethereumClientCallback(request):
 
         await session.send(payload)
 
+        # TODO: app["session.websocket"] append session.websocket for close handle on onShutdownMethod
+
         async for msg in session.websocket:
 
             if msg.type == aiohttp.WSMsgType.TEXT:
@@ -91,12 +93,21 @@ def ethereumWSWorker(data):
     )
 
     broker = Broker()
-    addrBalancePub = Publisher()
+    publisher = Publisher()
+    id = random.randint(1, sys.maxsize)
+
+    publisher.publish(
+        broker,
+        topics.NEW_BLOCK_MINED_TOPIC,
+        rpcutils.generateRPCResultResponse(
+            id,
+            block
+        )
+    )
 
     for address in broker.getSubTopics(topics.ADDRESS_BALANCE_TOPIC):
         if utils.isAddressInBlock(address, block):
 
-            id = random.randint(1, sys.maxsize)
             balanceResponse = apirpc.getAddressBalance(
                 id,
                 {
@@ -104,7 +115,7 @@ def ethereumWSWorker(data):
                 }
             )
 
-            addrBalancePub.publish(
+            publisher.publish(
                 broker,
                 topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + address,
                 rpcutils.generateRPCResultResponse(

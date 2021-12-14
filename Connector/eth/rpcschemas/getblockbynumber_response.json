@@ -4,7 +4,114 @@
     "description": "",
     "type": "object",
     "properties": {
+        "number": {
+            "type": "string"
+        },
+        "hash": {
+            "type": "string"
+        },
+        "parentHash": {
+            "type": "string"
+        },
+        "mixHash": {
+            "type": "string"
+        },
+        "nonce": {
+            "type": "string"
+        },
+        "sha3Uncles": {
+            "type": "string"
+        },
+        "logsBloom": {
+            "type": "string"
+        },
+        "transactionsRoot": {
+            "type": "string"
+        },
+        "stateRoot": {
+            "type": "string"
+        },
+        "receiptsRoot": {
+            "type": "string"
+        },
+        "miner": {
+            "type": "string"
+        },
+        "difficulty": {
+            "type": "string"
+        },
+        "totalDifficulty": {
+            "type": "string"
+        },
+        "extraData": {
+            "type": "string"
+        },
+        "size": {
+            "type": "string"
+        },
+        "gasLimit": {
+            "type": "string"
+        },
+        "gasUsed": {
+            "type": "string"
+        },
+        "timestamp": {
+            "type": "string"
+        },
         "transactions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "blockHash": {
+                        "type": "string"
+                    },
+                    "blockNumber": {
+                        "type": "string"
+                    },
+                    "from": {
+                        "type": "string"
+                    },
+                    "gas": {
+                        "type": "string"
+                    },
+                    "gasPrice": {
+                        "type": "string"
+                    },
+                    "hash": {
+                        "type": "string"
+                    },
+                    "input": {
+                        "type": "string"
+                    },
+                    "nonce": {
+                        "type": "string"
+                    },
+                    "r": {
+                        "type": "string"
+                    },
+                    "s": {
+                        "type": "string"
+                    },
+                    "to": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "transactionIndex": {
+                        "type": "string"
+                    },
+                    "v": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "uncles": {
             "type": "array",
             "items": {
                 "type": "object",
