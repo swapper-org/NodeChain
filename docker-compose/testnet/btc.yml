@@ -3,7 +3,15 @@ services:
   bitcoincore:
     build: ../../packages/nodechain-bitcoin-core
     image: bitcoincore
-    command: -rpcuser=swapper -rpcpassword=swapper -server=1 -rpcallowip=0.0.0.0/0 -rpcbind=bitcoincore -txindex=1 -testnet -rpcport=8332
+    command: -rpcuser=swapper 
+      -rpcpassword=swapper 
+      -server=1 
+      -rpcallowip=0.0.0.0/0 
+      -rpcbind=bitcoincore 
+      -txindex=1 
+      -testnet 
+      -rpcport=8332 
+      -zmqpubhashblock=tcp://0.0.0.0:28332
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
 

@@ -71,3 +71,31 @@ def unsubscribeAddressBalance(subscriber, id, params):
             raise rpcerrorhandler.BadRequestError(f"Can not unsubscribe {params[ADDRESS]} to node")
 
     return unsubscribeResponse
+
+
+@wsutils.webSocketMethod
+def subscribeToNewBlocks(subscriber, id, params):
+
+    logger.printInfo(f"Executing WS method subscribeToNewBlock with id {id} and params {params}")
+
+    requestSchema = utils.getWSRequestMethodSchema(SUBSCRIBE_TO_NEW_BLOCKS)
+
+    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    return subscriber.subscribeToTopic(Broker(), topics.Topic(topics.NEW_BLOCKS_TOPIC, None))
+
+
+@wsutils.webSocketMethod
+def unsubscribeFromNewBlocks(subscriber, id, params):
+
+    logger.printInfo(f"Executing WS method unsubscribeToNewBlockMine with id {id} and params {params}")
+
+    responseSchema = utils.getWSResponseMethodSchema(UNSUBSCRIBE_FROM_NEW_BLOCKS)
+
+    err = rpcutils.validateJSONRPCSchema(params, responseSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    return subscriber.unsubscribeFromTopic(Broker(), topics.NEW_BLOCKS_TOPIC)
