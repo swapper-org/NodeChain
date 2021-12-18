@@ -8,7 +8,7 @@ from . import utils
 
 
 @wsutils.webSocketMethod
-def subscribeAddressBalance(subscriber, id, params):
+def subscribeToAddressBalance(subscriber, id, params):
 
     logger.printInfo(f"Executing WS method subscribeAddressBalance with id {id} and params {params}")
 
@@ -22,7 +22,7 @@ def subscribeAddressBalance(subscriber, id, params):
 
 
 @wsutils.webSocketMethod
-def unsubscribeAddressBalance(subscriber, id, params):
+def unsubscribeFromAddressBalance(subscriber, id, params):
 
     logger.printInfo(f"Executing WS method unsubscribeAddressBalance with id {id} and params {params}")
 
