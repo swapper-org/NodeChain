@@ -36,28 +36,28 @@ def unsubscribeAddressBalance(subscriber, id, params):
 
 
 @wsutils.webSocketMethod
-def subscribeToNewBlockMined(subscriber, id, params):
+def subscribeToNewBlocks(subscriber, id, params):
 
     logger.printInfo(f"Executing WS method subscribeToNewBlock with id {id} and params {params}")
 
-    requestSchema = utils.getWSRequestMethodSchema(SUBSCRIBE_TO_NEW_BLOCK_MINED)
+    requestSchema = utils.getWSRequestMethodSchema(SUBSCRIBE_TO_NEW_BLOCKS)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    return subscriber.subscribeToTopic(Broker(), topics.Topic(topics.NEW_BLOCK_MINED_TOPIC, None))
+    return subscriber.subscribeToTopic(Broker(), topics.Topic(topics.NEW_BLOCKS_TOPIC, None))
 
 
 @wsutils.webSocketMethod
-def unsubscribeToNewBlockMined(subscriber, id, params):
+def unsubscribeFromNewBlocks(subscriber, id, params):
 
     logger.printInfo(f"Executing WS method unsubscribeToNewBlockMine with id {id} and params {params}")
 
-    requestSchema = utils.getWSRequestMethodSchema(UNSUBSCRIBE_TO_NEW_BLOCK_MINED)
+    requestSchema = utils.getWSRequestMethodSchema(UNSUBSCRIBE_FROM_NEW_BLOCKS)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    return subscriber.unsubscribeFromTopic(Broker(), topics.NEW_BLOCK_MINED_TOPIC)
+    return subscriber.unsubscribeFromTopic(Broker(), topics.NEW_BLOCKS_TOPIC)
