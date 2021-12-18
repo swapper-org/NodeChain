@@ -76,7 +76,7 @@ def unsubscribeAddressBalance(subscriber, id, params):
 @wsutils.webSocketMethod
 def subscribeToNewBlocks(subscriber, id, params):
 
-    logger.printInfo(f"Executing WS method subscribeToNewBlock with id {id} and params {params}")
+    logger.printInfo(f"Executing WS method subscribeToNewBlocks with id {id} and params {params}")
 
     requestSchema = utils.getWSRequestMethodSchema(SUBSCRIBE_TO_NEW_BLOCKS)
 
@@ -90,9 +90,9 @@ def subscribeToNewBlocks(subscriber, id, params):
 @wsutils.webSocketMethod
 def unsubscribeFromNewBlocks(subscriber, id, params):
 
-    logger.printInfo(f"Executing WS method unsubscribeToNewBlockMine with id {id} and params {params}")
+    logger.printInfo(f"Executing WS method unsubscribeFromNewBlocks with id {id} and params {params}")
 
-    responseSchema = utils.getWSResponseMethodSchema(UNSUBSCRIBE_FROM_NEW_BLOCKS)
+    responseSchema = utils.getWSRequestMethodSchema(UNSUBSCRIBE_FROM_NEW_BLOCKS)
 
     err = rpcutils.validateJSONRPCSchema(params, responseSchema)
     if err is not None:
