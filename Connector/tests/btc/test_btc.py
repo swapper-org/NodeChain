@@ -420,7 +420,7 @@ def testUnsubscribeFromAddressBalance():
         logger.printError(f"Error in unsubscribe from address balance. Expected: True Got: {got[UNSUBSCRIBED]}")
         assert False
 
-    got = webSocketMethods["unsubscribeAddressBalance"](sub, 0, {
+    got = webSocketMethods["unsubscribeFromAddressBalance"](sub, 0, {
         ADDRESS: address1
     })
 
