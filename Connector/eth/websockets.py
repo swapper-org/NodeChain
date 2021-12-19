@@ -11,6 +11,7 @@ from wsutils.clientwebsocket import ClientWebSocket
 from wsutils import wsutils, topics
 from wsutils.broker import Broker
 from wsutils.publishers import Publisher
+from webapp import WebApp
 from . import apirpc, utils
 from .constants import *
 from .connector import WS_ENDPOINT
@@ -36,6 +37,9 @@ async def ethereumClientCallback(request):
 
     async with ClientWebSocket(WS_ENDPOINT) as session:
 
+        app = WebApp()
+        app.addWSClientSession(session)
+
         logger.printInfo(f"Connecting to {WS_ENDPOINT}")
         await session.connect()
 
@@ -54,8 +58,6 @@ async def ethereumClientCallback(request):
         logger.printInfo(f"Making request {payload} to {WS_ENDPOINT}")
 
         await session.send(payload)
-
-        # TODO: app["session.websocket"] append session.websocket for close handle on onShutdownMethod
 
         async for msg in session.websocket:
 
@@ -139,6 +141,12 @@ def ethereumWSWorker(data):
 
 @wsutils.webSocketClosingHandler
 async def wsClosingHandler():
+
+    logger.printInfo("Closing opened connections")
+    app = WebApp()
+    await app.closeAllWSClientSessions()
+
+    logger.printInfo("Closing subscribers connections")
 
     broker = Broker()
 

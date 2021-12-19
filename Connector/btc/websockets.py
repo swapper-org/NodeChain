@@ -80,6 +80,8 @@ def newBlocksWSThread():
     zmqSocket.setsockopt_string(zmq.SUBSCRIBE, NEW_HASH_BLOCK_ZMQ_TOPIC)
     zmqSocket.connect(ZMQ_CORE_ENDPOINT)
 
+    app = WebApp()
+    app.addZMQSocket(zmqSocket)
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(newBlocksWorker(zmqSocket))
@@ -120,6 +122,13 @@ async def newBlocksWorker(zmqSocket):
 
 @wsutils.webSocketClosingHandler
 async def wsClosingHandler():
+
+    logger.printInfo("Closing ZMQ connections")
+
+    app = WebApp()
+    await app.closeAllZMQSocket()
+
+    logger.printInfo("Closing subscribers connections")
 
     broker = Broker()
 

@@ -15,7 +15,7 @@ class ClientWebSocket(ClientSession):
 
     async def close(self):
         """Close the WebSocket."""
-        await self.close()
+        await super().close()
 
     async def send(self, message):
         """Send a message to the WebSocket."""
