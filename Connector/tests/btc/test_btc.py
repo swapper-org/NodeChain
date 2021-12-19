@@ -11,8 +11,12 @@ from rpcutils.rpcconnector import RPCConnector
 from rpcutils.rpcutils import RPCMethods
 from rpcutils.errorhandler import BadRequestError
 from wsutils.subscribers import ListenerSubscriber
-from wsutils.wsutils import webSocketMethods
+from wsutils.wsutils import webSocketMethods, webSockets
 from wsutils.constants import *
+
+
+for webSocket in webSockets:
+    webSocket()
 
 
 def makeRequest(endpoint, method, params):
