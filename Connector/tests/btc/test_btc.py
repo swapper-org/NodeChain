@@ -2,6 +2,7 @@
 from decimal import Decimal
 import pytest
 import json
+import time
 from btc.connector import RPC_CORE_ENDPOINT, RPC_ELECTRUM_ENDPOINT
 from btc.constants import *
 from btc.utils import convertToSatoshi
@@ -43,6 +44,7 @@ address2 = makeBitcoinCoreRequest("getnewaddress", [])
 minerAddress = makeBitcoinCoreRequest("getnewaddress", [])
 refundAddress1 = makeBitcoinCoreRequest("getnewaddress", [])
 sub = ListenerSubscriber()
+newBlocksSub = ListenerSubscriber()
 mineBlocksToAddress(address1, 150)
 mineBlocksToAddress(address2, 150)
 
@@ -379,43 +381,43 @@ def testGetTransaction():
     assert json.dumps(expected, sort_keys=True) == json.dumps(got, sort_keys=True)
 
 
-def testSubscribeAddressBalance():
+def testSubscribeToAddressBalance():
 
-    if "subscribeAddressBalance" not in webSocketMethods:
-        logger.printError("Method subscribeAddressBalance not loaded")
+    if "subscribeToAddressBalance" not in webSocketMethods:
+        logger.printError("Method subscribeToAddressBalance not loaded")
         assert False
 
-    got = webSocketMethods["subscribeAddressBalance"](sub, 0, {
+    got = webSocketMethods["subscribeToAddressBalance"](sub, 0, {
         ADDRESS: address1
     })
 
     if not got[SUBSCRIBED]:
-        logger.printError(f"Error in subscribe to address balace. Expected: True Got: {got[SUBSCRIBED]}")
+        logger.printError(f"Error in subscribe to address balance. Expected: True Got: {got[SUBSCRIBED]}")
         assert False
 
-    got = webSocketMethods["subscribeAddressBalance"](sub, 0, {
+    got = webSocketMethods["subscribeToAddressBalance"](sub, 0, {
         ADDRESS: address1
     })
 
     if got[SUBSCRIBED]:
-        logger.printError(f"Error in subscribe to address balace. Expected: False Got: {got[SUBSCRIBED]}")
+        logger.printError(f"Error in subscribe to address balance. Expected: False Got: {got[SUBSCRIBED]}")
         assert False
 
     assert True
 
 
-def testUnsubscribeAddressBalance():
+def testUnsubscribeFromAddressBalance():
 
-    if "unsubscribeAddressBalance" not in webSocketMethods:
-        logger.printError("Method unsubscribeAddressBalance not loaded")
+    if "unsubscribeFromAddressBalance" not in webSocketMethods:
+        logger.printError("Method unsubscribeFromAddressBalance not loaded")
         assert False
 
-    got = webSocketMethods["unsubscribeAddressBalance"](sub, 0, {
+    got = webSocketMethods["unsubscribeFromAddressBalance"](sub, 0, {
         ADDRESS: address1
     })
 
     if not got[UNSUBSCRIBED]:
-        logger.printError(f"Error in unsubscribe to address balace. Expected: True Got: {got[UNSUBSCRIBED]}")
+        logger.printError(f"Error in unsubscribe from address balance. Expected: True Got: {got[UNSUBSCRIBED]}")
         assert False
 
     got = webSocketMethods["unsubscribeAddressBalance"](sub, 0, {
@@ -423,7 +425,63 @@ def testUnsubscribeAddressBalance():
     })
 
     if got[UNSUBSCRIBED]:
-        logger.printError(f"Error in unsubscribe to address balace. Expected: False Got: {got[UNSUBSCRIBED]}")
+        logger.printError(f"Error in unsubscribe from address balance. Expected: False Got: {got[UNSUBSCRIBED]}")
+        assert False
+
+    assert True
+
+
+def testSubscribeToNewBlocks():
+
+    if "subscribeToNewBlocks" not in webSocketMethods:
+        logger.printError("Method subscribeToNewBlocks not loaded")
+        assert False
+
+    got = webSocketMethods["subscribeToNewBlocks"](newBlocksSub, 0, {})
+
+    if not got[SUBSCRIBED]:
+        logger.printError(f"Error in subscribe to new blocks. Expected: True Got: {got[SUBSCRIBED]}")
+        assert False
+
+    got = webSocketMethods["subscribeToNewBlocks"](newBlocksSub, 0, {})
+
+    if got[SUBSCRIBED]:
+        logger.printError(f"Error in subscribe to new blocks. Expected: False Got: {got[SUBSCRIBED]}")
+        assert False
+
+    assert True
+
+
+def testNewBlocksWS():
+
+    attemps = 3
+    numAttemps = 0
+    mineBlocksToAddress(address1, 1)
+
+    while not newBlocksSub.messageReceived and numAttemps < attemps:
+        numAttemps += 1
+        logger.printWarning(f"Subscriber {newBlocksSub.subscriberID} did not receive message at {numAttemps} attemp")
+        time.sleep(1)
+
+    assert newBlocksSub.messageReceived
+
+
+def testUnsubscribeFromNewBlocks():
+
+    if "unsubscribeFromNewBlocks" not in webSocketMethods:
+        logger.printError("Method unsubscribeFromNewBlocks not loaded")
+        assert False
+
+    got = webSocketMethods["unsubscribeFromNewBlocks"](newBlocksSub, 0, {})
+
+    if not got[UNSUBSCRIBED]:
+        logger.printError(f"Error in unsubscribe from new blocks. Expected: True Got: {got[UNSUBSCRIBED]}")
+        assert False
+
+    got = webSocketMethods["unsubscribeFromNewBlocks"](newBlocksSub, 0, {})
+
+    if got[UNSUBSCRIBED]:
+        logger.printError(f"Error in unsubscribe from new blocks. Expected: False Got: {got[UNSUBSCRIBED]}")
         assert False
 
     assert True
