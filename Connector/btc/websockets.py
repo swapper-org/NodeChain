@@ -21,7 +21,7 @@ from . import apirpc
 
 
 @wsutils.webSocket
-def addressBalance():
+def addressBalanceWS():
     app = WebApp()
     logger.printInfo("Starting WS for address balance callback")
     app.add_routes([web.post(BITCOIN_CALLBACK_PATH, addressBalanceCallback)])
@@ -30,7 +30,7 @@ def addressBalance():
 @wsutils.webSocket
 def newBlockWS():
     logger.printInfo("Starting WS for new blocks")
-    thread = threading.Thread(target=newBlocksThread, daemon=True)
+    thread = threading.Thread(target=newBlocksWSThread, daemon=True)
     thread.start()
 
 
@@ -70,7 +70,7 @@ async def addressBalanceCallback(request):
     )
 
 
-def newBlocksThread():
+def newBlocksWSThread():
 
     logger.printInfo("Configuring ZMQ Socket")
 
@@ -100,16 +100,22 @@ async def newBlocksWorker(zmqSocket):
         if topic == NEW_HASH_BLOCK_ZMQ_TOPIC:
 
             blockHash = binascii.hexlify(message).decode("utf-8")
-            logger.printInfo(f"New message for [{str(topic)}]: {blockHash}")
+            logger.printInfo(f"New message for [{topic}]: {blockHash}")
 
-            block = apirpc.getBlockByHash(
-                random.randint(1, sys.maxsize),
-                {
-                    BLOCK_HASH: blockHash
-                }
-            )
+            try:
 
-            newBlockPub.publish(broker, topics.NEW_BLOCKS_TOPIC, block)
+                block = apirpc.getBlockByHash(
+                    random.randint(1, sys.maxsize),
+                    {
+                        BLOCK_HASH: blockHash
+                    }
+                )
+
+                newBlockPub.publish(broker, topics.NEW_BLOCKS_TOPIC, block)
+
+            except rpcerrorhandler.BadRequestError as err:
+                logger.printError(f"Error getting block {blockHash}: {err}")
+                newBlockPub.publish(broker, topics.NEW_BLOCKS_TOPIC, err.jsonEncode())
 
 
 @wsutils.webSocketClosingHandler

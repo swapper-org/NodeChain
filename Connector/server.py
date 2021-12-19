@@ -86,8 +86,8 @@ async def websocketServerHandler(request):
                             "Connection closed with server"
                         )
                     )
-                    await wsSubscriber.closeConnection(Broker())
                     logger.printInfo("Exiting from WS loop")
+                    break
 
                 elif reqParsed[rpcutils.METHOD] not in wsutils.webSocketMethods:
                     logger.printError(f"WS Method not supported for {os.environ['COIN']}")
@@ -121,6 +121,7 @@ async def websocketServerHandler(request):
         await wsSubscriber.sendMessage(response)
 
     finally:
+        await wsSubscriber.closeConnection(Broker())
         logger.printInfo("Closing websocket")
 
     return wsSubscriber.websocket

@@ -85,44 +85,56 @@ def ethereumWSWorker(data):
     blockNumber = params[rpcConstants.RESULT][NUMBER]
 
     logger.printInfo(f"Getting new block to check addresses subscribed for. Block number: {params[rpcConstants.RESULT][NUMBER]}")
-    block = apirpc.getBlockByNumber(
-        random.randint(1, sys.maxsize),
-        {
-            BLOCK_NUMBER: blockNumber
-        }
-    )
 
     broker = Broker()
     publisher = Publisher()
     id = random.randint(1, sys.maxsize)
 
-    publisher.publish(
-        broker,
-        topics.NEW_BLOCK_MINED_TOPIC,
-        rpcutils.generateRPCResultResponse(
-            id,
-            block
+    try:
+        block = apirpc.getBlockByNumber(
+            random.randint(1, sys.maxsize),
+            {
+                BLOCK_NUMBER: blockNumber
+            }
         )
-    )
+
+        publisher.publish(
+            broker,
+            topics.NEW_BLOCKS_TOPIC,
+            rpcutils.generateRPCResultResponse(
+                id,
+                block
+            )
+        )
+
+    except rpcErrorHandler.BadRequestError as err:
+        logger.printError(f"Can not get new block. {err}")
+        publisher.publish(broker, topics.NEW_BLOCKS_TOPIC, err.jsonEncode())
+        return
 
     for address in broker.getSubTopics(topics.ADDRESS_BALANCE_TOPIC):
         if utils.isAddressInBlock(address, block):
 
-            balanceResponse = apirpc.getAddressBalance(
-                id,
-                {
-                    ADDRESS: address
-                }
-            )
-
-            publisher.publish(
-                broker,
-                topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + address,
-                rpcutils.generateRPCResultResponse(
+            try:
+                balanceResponse = apirpc.getAddressBalance(
                     id,
-                    balanceResponse
+                    {
+                        ADDRESS: address
+                    }
                 )
-            )
+
+                publisher.publish(
+                    broker,
+                    topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + address,
+                    rpcutils.generateRPCResultResponse(
+                        id,
+                        balanceResponse
+                    )
+                )
+            except rpcErrorHandler.BadRequestError as err:
+                logger.printError(f"Can not get address balance for [{address}] {err}")
+                publisher.publish(broker, topics.NEW_BLOCKS_TOPIC, err.jsonEncode())
+                return
 
 
 @wsutils.webSocketClosingHandler

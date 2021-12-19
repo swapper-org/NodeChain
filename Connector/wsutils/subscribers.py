@@ -40,6 +40,7 @@ class Subscriber:
 
     def closeConnection(self, broker):
         broker.removeSubscriber(self)
+        self._topicsSubscribed = []
 
 
 class WSSubscriber(Subscriber):
