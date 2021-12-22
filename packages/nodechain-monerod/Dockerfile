@@ -24,7 +24,7 @@ COPY --chown=monero:monero --from=build /root/monerod /home/monero/monerod
 
 VOLUME /home/monero/.bitmonero
 
-EXPOSE 18080 18081 38080 38081 
+EXPOSE 18080 18081 18082 38080 38081
 
 
 COPY --chown=monero:monero entrypoint.sh ./entrypoint.sh
@@ -32,3 +32,5 @@ RUN chmod +x entrypoint.sh
 ENTRYPOINT ["/home/monero/entrypoint.sh"]
 
 ENTRYPOINT ["./monerod"]
+
+CMD ["monero-wallet-rpc"]

@@ -8,6 +8,17 @@ services:
       - ${BLOCKCHAIN_PATH}/bitmonero:/home/monero/.bitmonero
     user: "${UID}:${GID}"
 
+  wallet:
+    build: ../../packages/nodechain-monero-wallet
+    image: monero-wallet
+    command: --daemon-address=monerod:38081 --stagenet --disable-rpc-login --trusted-daemon --rpc-bind-port=38088 --non-interactive
+    volumes:
+      - ${BLOCKCHAIN_PATH}/bitmonero:/home/monero/.bitmonero
+    depends_on:
+      - monerod
+    ports:
+      - "60000:38088"
+
   connector:
     build: ../../Connector
     environment:
