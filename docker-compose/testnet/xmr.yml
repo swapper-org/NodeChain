@@ -3,15 +3,14 @@ services:
   monerod:
     build: ../../packages/nodechain-monerod
     image: monerod
-    command: --stagenet --p2p-bind-ip=0.0.0.0 --p2p-bind-port=38080 --rpc-bind-ip=0.0.0.0 --rpc-bind-port=38081 --non-interactive --confirm-external-bind
+    command: --stagenet --p2p-bind-ip=0.0.0.0 --p2p-bind-port=38080 --rpc-bind-ip=0.0.0.0 --rpc-bind-port=38081 --non-interactive --confirm-external-bind --prune-blockchain
     volumes:
       - ${BLOCKCHAIN_PATH}/bitmonero:/home/monero/.bitmonero
-    user: "${UID}:${GID}"
 
   wallet:
     build: ../../packages/nodechain-monero-wallet
     image: monero-wallet
-    command: --daemon-address=monerod:38081 --stagenet --disable-rpc-login --trusted-daemon --rpc-bind-port=38088 --non-interactive
+    command: --daemon-address=monerod:38081 --stagenet --disable-rpc-login --trusted-daemon --rpc-bind-port=38088 --non-interactive --log-level=4
     volumes:
       - ${BLOCKCHAIN_PATH}/bitmonero:/home/monero/.bitmonero
     depends_on:
