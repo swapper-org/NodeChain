@@ -10,7 +10,7 @@ services:
   wallet:
     build: ../../packages/nodechain-monero-wallet
     image: monero-wallet
-    command: --daemon-address=monerod:38081 --stagenet --disable-rpc-login --trusted-daemon --rpc-bind-port=38088 --non-interactive --log-level=4
+    command: --daemon-address=monerod:38081 --stagenet --disable-rpc-login --trusted-daemon --rpc-bind-port=38088 --rpc-bind-ip=0.0.0.0 --confirm-external-bind --non-interactive --log-level=4
     volumes:
       - ${BLOCKCHAIN_PATH}/bitmonero:/home/monero/.bitmonero
     depends_on:

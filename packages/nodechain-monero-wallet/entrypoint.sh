@@ -9,6 +9,7 @@ fi
 
 if [ $(echo "$1" | cut -c1) = "-" ] || [ "$1" = "monero-wallet-rpc" ]; then
   mkdir -p "$MONERO_DATA"
+  rm -rf "$MONERO_DATA/wallet-dir"
   mv "./wallet-dir" "$MONERO_DATA/wallet-dir"
   chmod 700 "$MONERO_DATA"
   chown -R monero "$MONERO_DATA"
