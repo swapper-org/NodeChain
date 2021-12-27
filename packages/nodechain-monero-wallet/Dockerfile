@@ -24,7 +24,7 @@ VOLUME ["/home/monero/.bitmonero"]
 # Expose required ports (both testnet & mainnet)
 EXPOSE 18088 28088 38088
 # Copy wallet directory
-COPY /wallet-dir /wallet-dir
+COPY wallet-dir /wallet-dir
 # Copy and define the entrypoint
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["sh", "/entrypoint.sh"]

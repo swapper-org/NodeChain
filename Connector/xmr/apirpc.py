@@ -1,6 +1,6 @@
 from httputils import httputils
 from .constants import *
-from .connector import RPC_ENDPOINT
+from .connector import RPC_MONEROD_ENDPOINT, RPC_WALLET_ENDPOINT, WALLET_NAME, WALLET_PASSWORD
 from rpcutils import rpcutils, errorhandler as rpcerrorhandler
 from rpcutils.rpcconnector import RPCConnector
 from . import utils
@@ -18,7 +18,7 @@ def getFeePerByte(id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    fee = RPCConnector.request(RPC_ENDPOINT, id, GET_FEE_ESTIMATE_METHOD, None)
+    fee = RPCConnector.request(RPC_MONEROD_ENDPOINT, id, GET_FEE_ESTIMATE_METHOD, None)
 
     if fee is None:
         logger.printWarning("Could not get fee info from node")
@@ -51,7 +51,7 @@ def getBlockByNumber(id, params):
     except Exception as err:
         raise rpcerrorhandler.BadRequestError(str(err))
 
-    block = RPCConnector.request(RPC_ENDPOINT, id, GET_BLOCK_METHOD, [blockNumber])
+    block = RPCConnector.request(RPC_MONEROD_ENDPOINT, id, GET_BLOCK_METHOD, [blockNumber])
 
     if block is None:
         logger.printWarning("Could not get block info from node")
@@ -75,7 +75,7 @@ def getBlockByHash(id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    block = RPCConnector.request(RPC_ENDPOINT, id, GET_BLOCK_METHOD, [params[BLOCK_HASH]])
+    block = RPCConnector.request(RPC_MONEROD_ENDPOINT, id, GET_BLOCK_METHOD, [params[BLOCK_HASH]])
 
     if block is None:
         logger.printWarning("Could not get block info from node")
@@ -99,7 +99,7 @@ def getHeight(id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    blockchainInfo = RPCConnector.request(RPC_ENDPOINT, id, GET_INFO_METHOD, None)
+    blockchainInfo = RPCConnector.request(RPC_MONEROD_ENDPOINT, id, GET_INFO_METHOD, None)
 
     if blockchainInfo is None:
         logger.printWarning("Could not get latest blockchain info from node")
@@ -117,24 +117,44 @@ def getHeight(id, params):
     return response
 
 
-# @rpcutils.rpcMethod
-# def checkTxProof(id, params):
-#     logger.printInfo(f"Executing RPC method checkTxProof with id {id} and params {params}")
+@httputils.postMethod
+@rpcutils.rpcMethod
+def checkTxProof(id, params):
+    logger.printInfo(f"Executing RPC method checkTxProof with id {id} and params {params}")
 
-#     requestSchema, responseSchema = utils.getMethodSchemas(CHECK_TX_PROOF)
+    requestSchema, responseSchema = utils.getMethodSchemas(CHECK_TX_PROOF)
 
-#     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
-#     if err is not None:
-#         raise rpcerrorhandler.BadRequestError(err.message)
+    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
 
-#     blockchainInfo = RPCConnector.request(RPC_ENDPOINT, id, GET_INFO_METHOD, None)
+    # TODO: Esto devuelve un "error" en lugar de un "result" si falla.
+    RPCConnector.request(RPC_WALLET_ENDPOINT, id, OPEN_WALLET_METHOD, params[WALLET_NAME, WALLET_PASSWORD])
 
-#     if blockchainInfo is None:
-#         logger.printWarning("Could not get blockchain info from node")
-#         raise rpcerrorhandler.BadRequestError("Could not get blockchain info from node")
+    # TODO: Check optional arguments
+    txProof = RPCConnector.request(RPC_WALLET_ENDPOINT, id, CHECK_TX_PROOF_METHOD, params[TX_ID, ADDRESS, MESSAGE, SIGNATURE])
 
+    if txProof is None:
+        logger.printWarning("Could not get any transaction proof info from node")
+        raise rpcerrorhandler.BadRequestError("Could not get any transaction proof info from node")
 
-#     return response
+    if txProof[PROVEN] == "false":
+        logger.printWarning(f"Transaction {txProof[TX_ID]} can't be proven")
+        response = {
+            PROVEN: False
+        }
+
+    response = {
+        CONFIRMATIONS: txProof[CONFIRMATIONS],
+        PROVEN: True,
+        AMOUNT: txProof[RECEIVED]
+    }
+
+    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    return response
 
 
 # @rpcutils.rpcMethod
@@ -163,14 +183,14 @@ def syncing(id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    blockchainInfo = RPCConnector.request(RPC_ENDPOINT, id, GET_INFO_METHOD, None)
+    blockchainInfo = RPCConnector.request(RPC_MONEROD_ENDPOINT, id, GET_INFO_METHOD, None)
 
     if blockchainInfo is None:
         logger.printWarning("Could not get blockchain info from node")
         raise rpcerrorhandler.BadRequestError("Could not get blockchain info from node")
 
     if not blockchainInfo[SYNCHRONIZED]:
-        syncInfo = RPCConnector.request(RPC_ENDPOINT, id, GET_SYNC_INFO_METHOD, None)
+        syncInfo = RPCConnector.request(RPC_MONEROD_ENDPOINT, id, GET_SYNC_INFO_METHOD, None)
 
         if syncInfo is None:
             logger.printWarning("Could not get syncing info from node")
