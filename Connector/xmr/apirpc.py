@@ -1,3 +1,4 @@
+from httputils import httputils
 from .constants import *
 from .connector import RPC_ENDPOINT
 from rpcutils import rpcutils, errorhandler as rpcerrorhandler
@@ -6,44 +7,7 @@ from . import utils
 from logger import logger
 
 
-# @rpcutils.rpcMethod
-# def getAddressBalance(id, params):
-#     logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")
-
-#     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_BALANCE)
-
-#     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
-#     if err is not None:
-#         raise rpcerrorhandler.BadRequestError(err.message)
-
-#     blockchainInfo = RPCConnector.request(RPC_ENDPOINT, id, GET_INFO, None)
-
-#     if blockchainInfo is None:
-#         logger.printWarning("Could not get blockchain info from node")
-#         raise rpcerrorhandler.BadRequestError("Could not get blockchain info from node")
-
-#     return response
-
-
-# @rpcutils.rpcMethod
-# def getAddressesBalance(id, params):
-#     logger.printInfo(f"Executing RPC method getAddressesBalance with id {id} and params {params}")
-
-#     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_BALANCE)
-
-#     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
-#     if err is not None:
-#         raise rpcerrorhandler.BadRequestError(err.message)
-
-#     blockchainInfo = RPCConnector.request(RPC_ENDPOINT, id, GET_INFO, None)
-
-#     if blockchainInfo is None:
-#         logger.printWarning("Could not get blockchain info from node")
-#         raise rpcerrorhandler.BadRequestError("Could not get blockchain info from node")
-
-#     return response
-
-
+@httputils.getMethod
 @rpcutils.rpcMethod
 def getFeePerByte(id, params):
     logger.printInfo(f"Executing RPC method getFeePerByte with id {id} and params {params}")
@@ -71,6 +35,7 @@ def getFeePerByte(id, params):
     return response
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getBlockByNumber(id, params):
     logger.printInfo(f"Executing RPC method getBlockByNumber with id {id} and params {params}")
@@ -99,6 +64,7 @@ def getBlockByNumber(id, params):
     return block
 
 
+@httputils.postMethod
 @rpcutils.rpcMethod
 def getBlockByHash(id, params):
     logger.printInfo(f"Executing RPC method getBlockByHash with id {id} and params {params}")
@@ -122,25 +88,7 @@ def getBlockByHash(id, params):
     return block
 
 
-# @rpcutils.rpcMethod
-# def getTransaction(id, params):
-#     logger.printInfo(f"Executing RPC method getTransaction with id {id} and params {params}")
-
-#     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION)
-
-#     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
-#     if err is not None:
-#         raise rpcerrorhandler.BadRequestError(err.message)
-
-#     blockchainInfo = RPCConnector.request(RPC_ENDPOINT, id, GET_INFO_METHOD, None)
-
-#     if blockchainInfo is None:
-#         logger.printWarning("Could not get blockchain info from node")
-#         raise rpcerrorhandler.BadRequestError("Could not get blockchain info from node")
-
-#     return response
-
-
+@httputils.getMethod
 @rpcutils.rpcMethod
 def getHeight(id, params):
     logger.printInfo(f"Executing RPC method getHeight with id {id} and params {params}")
@@ -204,6 +152,7 @@ def getHeight(id, params):
 #     return response
 
 
+@httputils.getMethod
 @rpcutils.rpcMethod
 def syncing(id, params):
     logger.printInfo(f"Executing RPC method syncing with id {id} and params {params}")
