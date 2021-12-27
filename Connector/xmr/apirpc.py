@@ -119,6 +119,37 @@ def getHeight(id, params):
 
 @httputils.postMethod
 @rpcutils.rpcMethod
+def getTxProof(id, params):
+    logger.printInfo(f"Executing RPC method getTxProof with id {id} and params {params}")
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_TX_PROOF)
+
+    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    logger.printInfo(f"Trying to open the wallet {WALLET_NAME}")
+    RPCConnector.request(RPC_WALLET_ENDPOINT, id, OPEN_WALLET_METHOD, WALLET_NAME, WALLET_PASSWORD)
+
+    sign = RPCConnector.request(RPC_WALLET_ENDPOINT, id, GET_TX_PROOF_METHOD, params[TX_ID], params[ADDRESS], params[MESSAGE])
+
+    if sign is None:
+        logger.printWarning(f"Could not get any signature from transaction id {params[TX_ID]}")
+        raise rpcerrorhandler.BadRequestError(f"Could not get any signature from transaction id {params[TX_ID]}")
+
+    response = {
+        SIGNATURE: sign[SIGNATURE]
+    }
+
+    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    return response
+
+
+@httputils.postMethod
+@rpcutils.rpcMethod
 def checkTxProof(id, params):
     logger.printInfo(f"Executing RPC method checkTxProof with id {id} and params {params}")
 
@@ -128,11 +159,10 @@ def checkTxProof(id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    # TODO: Esto devuelve un "error" en lugar de un "result" si falla.
-    RPCConnector.request(RPC_WALLET_ENDPOINT, id, OPEN_WALLET_METHOD, params[WALLET_NAME, WALLET_PASSWORD])
+    logger.printInfo(f"Trying to open the wallet {WALLET_NAME}")
+    RPCConnector.request(RPC_WALLET_ENDPOINT, id, OPEN_WALLET_METHOD, WALLET_NAME, WALLET_PASSWORD)
 
-    # TODO: Check optional arguments
-    txProof = RPCConnector.request(RPC_WALLET_ENDPOINT, id, CHECK_TX_PROOF_METHOD, params[TX_ID, ADDRESS, MESSAGE, SIGNATURE])
+    txProof = RPCConnector.request(RPC_WALLET_ENDPOINT, id, CHECK_TX_PROOF_METHOD, params[TX_ID], params[ADDRESS], params[MESSAGE], params[SIGNATURE])
 
     if txProof is None:
         logger.printWarning("Could not get any transaction proof info from node")
@@ -157,19 +187,72 @@ def checkTxProof(id, params):
     return response
 
 
-# @rpcutils.rpcMethod
-# def checkSpendProof(id, params):
-#     logger.printInfo(f"Executing RPC method checkSpendProof with id {id} and params {params}")
+@httputils.postMethod
+@rpcutils.rpcMethod
+def getSpendProof(id, params):
+    logger.printInfo(f"Executing RPC method getSpendProof with id {id} and params {params}")
 
-#     requestSchema, responseSchema = utils.getMethodSchemas(CHECK_SPEND_PROOF)
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_SPEND_PROOF)
 
-#     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
-#     if err is not None:
-#         raise rpcerrorhandler.BadRequestError(err.message)
+    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
 
-#     blockchainInfo = RPCConnector.request(RPC_ENDPOINT, id, GET_INFO_METHOD, None)
+    logger.printInfo(f"Trying to open the wallet {WALLET_NAME}")
+    RPCConnector.request(RPC_WALLET_ENDPOINT, id, OPEN_WALLET_METHOD, WALLET_NAME, WALLET_PASSWORD)
 
-#     return response
+    sign = RPCConnector.request(RPC_WALLET_ENDPOINT, id, GET_SPEND_PROOF_METHOD, params[TX_ID], params[MESSAGE])
+
+    if sign is None:
+        logger.printWarning(f"Could not generate any signature from transaction id {params[TX_ID]} to proof the spend")
+        raise rpcerrorhandler.BadRequestError(f"Could not generate any signature from transaction id {params[TX_ID]} to proof the spend")
+
+    response = {
+        SIGNATURE: sign[SIGNATURE]
+    }
+
+    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    return response
+
+
+@httputils.postMethod
+@rpcutils.rpcMethod
+def checkSpendProof(id, params):
+    logger.printInfo(f"Executing RPC method checkSpendProof with id {id} and params {params}")
+
+    requestSchema, responseSchema = utils.getMethodSchemas(CHECK_SPEND_PROOF)
+
+    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    logger.printInfo(f"Trying to open the wallet {WALLET_NAME}")
+    RPCConnector.request(RPC_WALLET_ENDPOINT, id, OPEN_WALLET_METHOD, WALLET_NAME, WALLET_PASSWORD)
+
+    txProof = RPCConnector.request(RPC_WALLET_ENDPOINT, id, CHECK_SPEND_PROOF_METHOD, params[TX_ID], params[MESSAGE], params[SIGNATURE])
+
+    if txProof is None:
+        logger.printWarning("Could not get any spend proof info from node")
+        raise rpcerrorhandler.BadRequestError("Could not get any spend proof info from node")
+
+    if txProof[PROVEN] == "false":
+        logger.printWarning("Spent can't be proven")
+        response = {
+            PROVEN: False
+        }
+
+    response = {
+        PROVEN: True
+    }
+
+    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    return response
 
 
 @httputils.getMethod

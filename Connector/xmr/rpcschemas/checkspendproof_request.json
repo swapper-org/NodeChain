@@ -7,9 +7,6 @@
       "txid" : {
           "type": "string"
       },
-      "address": {
-          "type": "string"
-      },
       "message": {
           "type": "string"
       },
@@ -19,7 +16,6 @@
   },
   "required": [
       "txid",
-      "address",
       "message",
       "signature"
   ]

@@ -12,15 +12,11 @@
       },
       "message": {
           "type": "string"
-      },
-      "signature": {
-          "type": "string"
       }
   },
   "required": [
       "txid",
       "address",
-      "message",
-      "signature"
+      "message"
   ]
 }
