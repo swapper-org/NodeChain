@@ -11,10 +11,10 @@
             "type": "string"
         },
         "currentBlock":{
-            "type": "string"
+            "type": "integer"
         },
         "latestBlock":{
-            "type": "string"
+            "type": "integer"
         }
     },
     "required": [

@@ -5,7 +5,7 @@
     "type": "object",
     "properties": {
         "feePerByte" : {
-            "type" : "string"
+            "type" : "integer"
         }
     },
     "required": [
