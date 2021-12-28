@@ -157,7 +157,7 @@ def testGetBlock():
         assert False
 
     gotByNumber = RPCMethods["getBlockByNumber"](0, {
-        BLOCK_NUMBER: str(blockNumber)
+        BLOCK_NUMBER: blockNumber
     })
 
     if not json.dumps(expectedBlock, sort_keys=True) == json.dumps(gotByNumber, sort_keys=True):
@@ -192,10 +192,10 @@ def testGetFeePerByte():
     confirmations = 2
     expected = makeBitcoinCoreRequest(ESTIMATE_SMART_FEE_METHOD, [confirmations])
     got = RPCMethods["getFeePerByte"](0, {
-        CONFIRMATIONS: str(confirmations)
+        CONFIRMATIONS: confirmations
     })
 
-    assert str(expected[FEE_RATE]) == str(float((Decimal(got[FEE_PER_BYTE]) / 100000000)))
+    assert expected[FEE_RATE] == float((Decimal(got[FEE_PER_BYTE]) / 100000000))
 
 
 def testBroadcastTransaction():
@@ -327,7 +327,7 @@ def testGetTransactionCount():
         if tx[HEIGHT] == 0:
             pendingCount += 1
 
-    assert got[TRANSACTION_COUNT] == str(pendingCount) if pending else str(len(expected) - pendingCount)
+    assert got[TRANSACTION_COUNT] == pendingCount if pending else (len(expected) - pendingCount)
 
 
 def testGetAddressUnspent():
@@ -351,9 +351,9 @@ def testGetAddressUnspent():
                 VOUT: str(tx[TX_POS_SNAKE_CASE]),
                 STATUS: {
                     CONFIRMED: tx[HEIGHT] != 0,
-                    BLOCK_HEIGHT: str(tx[HEIGHT])
+                    BLOCK_HEIGHT: tx[HEIGHT]
                 },
-                VALUE: str(tx[VALUE])
+                VALUE: tx[VALUE]
             }
         )
 
