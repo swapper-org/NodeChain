@@ -50,3 +50,7 @@ def getSyncPercentage(currentBlock, latestBlock):
 
 def closingAddrBalanceTopic(topicName):
     logger.printInfo(f"No need to handle topic [{topicName}] close")
+
+
+def toWei(amount):
+    return int(amount, 16)

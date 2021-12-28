@@ -32,8 +32,8 @@ def getAddressBalance(id, params):
     response = {
         ADDRESS: params[ADDRESS],
         BALANCE: {
-            CONFIRMED: connPending,
-            UNCONFIRMED: hex(int(connPending, 16) - int(connLatest, 16))
+            CONFIRMED: utils.toWei(connPending),
+            UNCONFIRMED: utils.toWei(connPending) - utils.toWei(connLatest, 16)
         }
     }
 
@@ -96,7 +96,7 @@ def getHeight(id, params):
                                       [LATEST, True])
 
     response = {
-        LATEST_BLOCK_INDEX: latestHash[NUMBER],
+        LATEST_BLOCK_INDEX: int(latestHash[NUMBER], 16),
         LATEST_BLOCK_HASH: latestHash[HASH]
     }
 
@@ -162,8 +162,8 @@ def getTransaction(id, params):
     inputs = []
     outputs = []
 
-    inputs.append({ADDRESS: transaction[FROM], AMOUNT: transaction[VALUE]})
-    outputs.append({ADDRESS: transaction[TO], AMOUNT: transaction[VALUE]})
+    inputs.append({ADDRESS: transaction[FROM], AMOUNT: int(transaction[VALUE], 16)})
+    outputs.append({ADDRESS: transaction[TO], AMOUNT: int(transaction[VALUE], 16)})
 
     response = {TRANSACTION: transaction, INPUTS: inputs, OUTPUTS: outputs}
 
@@ -226,7 +226,7 @@ def getTransactionCount(id, params):
                                      PENDING if params[PENDING] else LATEST
                                  ])
 
-    response = {TRANSACTION_COUNT: count}
+    response = {TRANSACTION_COUNT: int(count, 16)}
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
@@ -250,7 +250,7 @@ def getGasPrice(id, params):
 
     gas = RPCConnector.request(RPC_ENDPOINT, id, GET_GAS_PRICE_METHOD, None)
 
-    response = {GAS_PRICE: gas}
+    response = {GAS_PRICE: utils.toWei(gas)}
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
@@ -275,7 +275,7 @@ def estimateGas(id, params):
     gas = RPCConnector.request(RPC_ENDPOINT, id, ESTIMATE_GAS_METHOD,
                                [params[TX]])
 
-    response = {ESTIMATED_GAS: gas}
+    response = {ESTIMATED_GAS: utils.toWei(gas)}
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
@@ -330,7 +330,9 @@ def getBlockByNumber(id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    if not params[BLOCK_NUMBER].startswith('0x'):
+    if isinstance(params[BLOCK_NUMBER], int):
+        blockNumber = hex(params[BLOCK_NUMBER])
+    elif not params[BLOCK_NUMBER].startswith('0x'):
         blockNumber = hex(int(params[BLOCK_NUMBER]))
     else:
         blockNumber = params[BLOCK_NUMBER]
