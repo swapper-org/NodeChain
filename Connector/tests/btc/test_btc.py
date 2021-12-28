@@ -348,7 +348,7 @@ def testGetAddressUnspent():
         txs.append(
             {
                 TX_HASH: tx[TX_HASH_SNAKE_CASE],
-                VOUT: str(tx[TX_POS_SNAKE_CASE]),
+                VOUT: tx[TX_POS_SNAKE_CASE],
                 STATUS: {
                     CONFIRMED: tx[HEIGHT] != 0,
                     BLOCK_HEIGHT: tx[HEIGHT]
