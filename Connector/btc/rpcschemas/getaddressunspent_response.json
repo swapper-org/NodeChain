@@ -10,7 +10,7 @@
                 "type": "string"
             },
             "vout": {
-                "type": "string"
+                "type": "integer"
             },
             "status": {
                 "type": "object",
