@@ -131,7 +131,7 @@ def getTxProof(id, params):
     logger.printInfo(f"Trying to open the wallet {WALLET_NAME}")
     RPCConnector.request(RPC_WALLET_ENDPOINT, id, OPEN_WALLET_METHOD, WALLET_NAME, WALLET_PASSWORD)
 
-    sign = RPCConnector.request(RPC_WALLET_ENDPOINT, id, GET_TX_PROOF_METHOD, params[TX_ID], params[ADDRESS], params[MESSAGE])
+    sign = RPCConnector.request(RPC_WALLET_ENDPOINT, id, GET_TX_PROOF_METHOD, [params[TX_ID], params[ADDRESS], params[MESSAGE]])
 
     if sign is None:
         logger.printWarning(f"Could not get any signature from transaction id {params[TX_ID]}")
@@ -162,7 +162,7 @@ def checkTxProof(id, params):
     logger.printInfo(f"Trying to open the wallet {WALLET_NAME}")
     RPCConnector.request(RPC_WALLET_ENDPOINT, id, OPEN_WALLET_METHOD, WALLET_NAME, WALLET_PASSWORD)
 
-    txProof = RPCConnector.request(RPC_WALLET_ENDPOINT, id, CHECK_TX_PROOF_METHOD, params[TX_ID], params[ADDRESS], params[MESSAGE], params[SIGNATURE])
+    txProof = RPCConnector.request(RPC_WALLET_ENDPOINT, id, CHECK_TX_PROOF_METHOD, [params[TX_ID], params[ADDRESS], params[MESSAGE], params[SIGNATURE]])
 
     if txProof is None:
         logger.printWarning("Could not get any transaction proof info from node")
@@ -201,7 +201,7 @@ def getSpendProof(id, params):
     logger.printInfo(f"Trying to open the wallet {WALLET_NAME}")
     RPCConnector.request(RPC_WALLET_ENDPOINT, id, OPEN_WALLET_METHOD, WALLET_NAME, WALLET_PASSWORD)
 
-    sign = RPCConnector.request(RPC_WALLET_ENDPOINT, id, GET_SPEND_PROOF_METHOD, params[TX_ID], params[MESSAGE])
+    sign = RPCConnector.request(RPC_WALLET_ENDPOINT, id, GET_SPEND_PROOF_METHOD, [params[TX_ID], params[MESSAGE]])
 
     if sign is None:
         logger.printWarning(f"Could not generate any signature from transaction id {params[TX_ID]} to proof the spend")
@@ -232,7 +232,7 @@ def checkSpendProof(id, params):
     logger.printInfo(f"Trying to open the wallet {WALLET_NAME}")
     RPCConnector.request(RPC_WALLET_ENDPOINT, id, OPEN_WALLET_METHOD, WALLET_NAME, WALLET_PASSWORD)
 
-    txProof = RPCConnector.request(RPC_WALLET_ENDPOINT, id, CHECK_SPEND_PROOF_METHOD, params[TX_ID], params[MESSAGE], params[SIGNATURE])
+    txProof = RPCConnector.request(RPC_WALLET_ENDPOINT, id, CHECK_SPEND_PROOF_METHOD, [params[TX_ID], params[MESSAGE], params[SIGNATURE]])
 
     if txProof is None:
         logger.printWarning("Could not get any spend proof info from node")
