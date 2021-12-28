@@ -63,7 +63,7 @@
                         "type": "string"
                     },
                     "amount": {
-                        "type": "string"
+                        "type": "integer"
                     }
                 }
             }
@@ -80,7 +80,7 @@
                         ]
                     },
                     "amount": {
-                        "type": "string"
+                        "type": "integer"
                     }
                 }
             }
