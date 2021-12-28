@@ -19,7 +19,7 @@
                         "type": "boolean"
                     },
                     "blockHeight": {
-                        "type": "string"
+                        "type": "integer"
                     }
                 },
                 "required": [
@@ -28,7 +28,7 @@
                 ]
             },
             "value": {
-                "type" : "string"
+                "type" : "integer"
             }
         },
         "required": [

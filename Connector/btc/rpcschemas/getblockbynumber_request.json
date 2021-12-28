@@ -5,7 +5,7 @@
     "type": "object",
     "properties": {
         "blockNumber" : {
-            "type": "string"
+            "type": "integer"
         }
     },
     "required": [

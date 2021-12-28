@@ -131,9 +131,9 @@ def getAddressUnspent(id, params):
             VOUT: str(tx[TX_POS_SNAKE_CASE]),
             STATUS: {
                 CONFIRMED: tx[HEIGHT] != 0,
-                BLOCK_HEIGHT: str(tx[HEIGHT])
+                BLOCK_HEIGHT: tx[HEIGHT]
             },
-            VALUE: str(tx[VALUE])
+            VALUE: tx[VALUE]
         })
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
@@ -178,12 +178,7 @@ def getBlockByNumber(id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    try:
-        blockNumber = int(params[BLOCK_NUMBER], base=10)
-    except Exception as err:
-        raise rpcerrorhandler.BadRequestError(str(err))
-
-    blockHash = RPCConnector.request(RPC_CORE_ENDPOINT, id, GET_BLOCK_HASH_METHOD, [blockNumber])
+    blockHash = RPCConnector.request(RPC_CORE_ENDPOINT, id, GET_BLOCK_HASH_METHOD, [params[BLOCK_NUMBER]])
 
     return getBlockByHash(id, {BLOCK_HASH: blockHash})
 
@@ -201,14 +196,9 @@ def getFeePerByte(id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    try:
-        confirmations = int(params[CONFIRMATIONS], base=10)
-    except ValueError as err:
-        raise rpcerrorhandler.BadRequestError(str(err))
-
     feePerByte = RPCConnector.request(RPC_CORE_ENDPOINT, id,
                                       ESTIMATE_SMART_FEE_METHOD,
-                                      [confirmations])
+                                      [params[CONFIRMATIONS]])
 
     if FEE_RATE not in feePerByte:
         logger.printError(f"Response without {FEE_RATE}. No feerate found")
@@ -331,7 +321,7 @@ def getTransactionCount(id, params):
 
     response = {
         TRANSACTION_COUNT:
-        str(pending) if params[PENDING] else str(len(txs) - pending)
+        pending if params[PENDING] else (len(txs) - pending)
     }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
