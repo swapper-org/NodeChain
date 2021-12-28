@@ -33,7 +33,7 @@ def getAddressBalance(id, params):
         ADDRESS: params[ADDRESS],
         BALANCE: {
             CONFIRMED: utils.toWei(connPending),
-            UNCONFIRMED: utils.toWei(connPending) - utils.toWei(connLatest, 16)
+            UNCONFIRMED: utils.toWei(connPending) - utils.toWei(connLatest)
         }
     }
 
