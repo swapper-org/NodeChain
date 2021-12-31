@@ -22,9 +22,11 @@ ENV PATH=/opt/monero-x86_64-linux-gnu-v${MONERO_VERSION}:$PATH
 # Mount volume
 VOLUME ["/home/monero/.bitmonero"]
 # Expose required ports (both testnet & mainnet)
-EXPOSE 18080 18081 28080 28081 38080 38081
+EXPOSE 18088 28088 38088
+# Copy wallet directory
+COPY wallet-dir /wallet-dir
 # Copy and define the entrypoint
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["sh", "/entrypoint.sh"]
 # Define the default command
-CMD ["monerod"]
+CMD ["monero-wallet-rpc"]

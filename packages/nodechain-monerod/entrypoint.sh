@@ -1,21 +1,21 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
-# if thrown flags immediately,
-# assume they want to run the blockchain daemon
-if [ "${1:0:1}" = '-' ]; then
-	set -- monerod "$@"
+if [ $(echo "$1" | cut -c1) = "-" ]; then
+  echo "$0: assuming arguments for monerod"
+
+  set -- monerod "$@"
 fi
 
-# if they are running the blockchain daemon,
-# make efficient use of memory
-if [ "$1" = 'monerod' ]; then
-	numa='numactl --interleave=all'
-	if $numa true &> /dev/null; then
-		set -- $numa "$@"
-	fi
-	exec "$@"
+if [ $(echo "$1" | cut -c1) = "-" ] || [ "$1" = "monerod" ]; then
+  mkdir -p "$MONERO_DATA"
+  chmod 700 "$MONERO_DATA"
+  chown -R monero "$MONERO_DATA"
+
+  echo "$0: setting data directory to $MONERO_DATA"
+
+  set -- "$@" --data-dir="$MONERO_DATA" # --non-interactive --config-file="$MONERO_DATA/monerod.conf"
 fi
 
-# otherwise, don't get in their way
+echo
 exec "$@"
