@@ -89,7 +89,7 @@ NOTIFY = "notify"
 NEW_HASH_BLOCK_ZMQ_TOPIC = "hashblock"
 NEW_RAW_BLOCK_ZMQ_TOPIC = "rawblock"
 
-SUBSCRIBE_ADDRESS_BALANCE = "subscribeatoddressbalance"
+SUBSCRIBE_ADDRESS_BALANCE = "subscribetoaddressbalance"
 UNSUBSCRIBE_ADDRESS_BALANCE = "unsubscribefromaddressbalance"
 SUBSCRIBE_TO_NEW_BLOCKS = "subscribetonewblocks"
 UNSUBSCRIBE_FROM_NEW_BLOCKS = "unsubscribefromnewblocks"
