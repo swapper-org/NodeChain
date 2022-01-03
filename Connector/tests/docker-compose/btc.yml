@@ -14,10 +14,12 @@ services:
       -rpcport=8332
       -deprecatedrpc=generate
       -fallbackfee=0.0001
+      -zmqpubhashblock=tcp://0.0.0.0:28332
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
     ports:
       - 8332:8332
+      - 28332:28332
 
   electrumx:
     image: lukechilds/electrumx
