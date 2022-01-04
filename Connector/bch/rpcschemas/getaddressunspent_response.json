@@ -10,7 +10,7 @@
                 "type": "string"
             },
             "vout": {
-                "type": "string"
+                "type": "integer"
             },
             "status": {
                 "type": "object",
@@ -19,7 +19,7 @@
                         "type": "boolean"
                     },
                     "blockHeight": {
-                        "type": "string"
+                        "type": "integer"
                     }
                 },
                 "required": [
@@ -28,7 +28,7 @@
                 ]
             },
             "value": {
-                "type" : "string"
+                "type" : "integer"
             }
         },
         "required": [

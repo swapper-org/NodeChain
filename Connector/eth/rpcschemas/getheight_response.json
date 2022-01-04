@@ -5,7 +5,7 @@
     "type": "object",
     "properties": {
         "latestBlockIndex": {
-            "type": "string"
+            "type": "integer"
         },
         "latestBlockHash"  : {
             "type" : "string"
