@@ -2,8 +2,8 @@ FROM python:3
 
 WORKDIR /usr/src/app
 
-ENV ELECTRON_VERSION=4.2.4
-ENV ELECTRON_FILE_HASH=2754d3177f05d08e77622a9cc8966153d290d8a8a816db9da309aaafcb09792c
+ENV ELECTRON_VERSION=4.2.6
+ENV ELECTRON_FILE_HASH=3fbcb81c8efc005450595cbff975e44ebb77473e2b14ca27f6863efbf96b2f91
 
 #Download electron cash
 RUN wget -O Electron-Cash-${ELECTRON_VERSION} https://github.com/Electron-Cash/Electron-Cash/releases/download/${ELECTRON_VERSION}/Electron-Cash-${ELECTRON_VERSION}.tar.gz \
