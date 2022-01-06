@@ -33,8 +33,6 @@ services:
     image: electrum
     environment:
       TESTNET: 1
-    ports:
-      - 30000:30000
 
   connector:
     build: ../../Connector
