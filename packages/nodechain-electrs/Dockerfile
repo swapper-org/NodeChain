@@ -15,8 +15,14 @@ FROM debian:stable-slim
 
 WORKDIR /build
 
+ENV ELECTRS_COMMAND=/build/electrs
+ENV ELECTRS_DATA=/build/.electrs
+ENV BITCOIN_DATA=/home/bitcoin/.bitcoin
+
 COPY --from=builder /electrs/target/release/electrs /build
+COPY entrypoint.sh ./
+RUN chmod +x entrypoint.sh
 
-STOPSIGNAL SIGINT
+EXPOSE 50001
 
-ENTRYPOINT ["/build/electrs"]
+ENTRYPOINT ["/build/entrypoint.sh"]
