@@ -42,7 +42,10 @@ async def rpcServerHandler(request):
             text=json.dumps(
                 response
             ),
-            content_type=rpcutils.JSON_CONTENT_TYPE
+            content_type=rpcutils.JSON_CONTENT_TYPE,
+            headers={
+                "Access-Control-Allow-Origin": "*"
+            }
         )
 
     except rpcErrorHandler.Error as e:
@@ -59,7 +62,10 @@ async def rpcServerHandler(request):
                 response
             ),
             content_type=rpcutils.JSON_CONTENT_TYPE,
-            status=e.code
+            status=e.code,
+            headers={
+                "Access-Control-Allow-Origin": "*"
+            }
         )
 
 
