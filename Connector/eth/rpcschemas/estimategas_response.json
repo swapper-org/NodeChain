@@ -5,7 +5,7 @@
     "type": "object",
     "properties": {
         "estimatedGas": {
-            "type": "integer"
+            "type": "string"
         }
     },
     "required": [

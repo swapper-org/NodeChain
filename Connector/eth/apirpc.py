@@ -32,8 +32,8 @@ def getAddressBalance(id, params):
     response = {
         ADDRESS: params[ADDRESS],
         BALANCE: {
-            CONFIRMED: utils.toWei(connPending),
-            UNCONFIRMED: utils.toWei(connPending) - utils.toWei(connLatest)
+            CONFIRMED: str(utils.toWei(connPending)),
+            UNCONFIRMED: str(utils.toWei(connPending) - utils.toWei(connLatest))
         }
     }
 
@@ -96,7 +96,7 @@ def getHeight(id, params):
                                       [LATEST, True])
 
     response = {
-        LATEST_BLOCK_INDEX: int(latestHash[NUMBER], 16),
+        LATEST_BLOCK_INDEX: str(int(latestHash[NUMBER], 16)),
         LATEST_BLOCK_HASH: latestHash[HASH]
     }
 
@@ -162,8 +162,8 @@ def getTransaction(id, params):
     inputs = []
     outputs = []
 
-    inputs.append({ADDRESS: transaction[FROM], AMOUNT: int(transaction[VALUE], 16)})
-    outputs.append({ADDRESS: transaction[TO], AMOUNT: int(transaction[VALUE], 16)})
+    inputs.append({ADDRESS: transaction[FROM], AMOUNT: str(int(transaction[VALUE], 16))})
+    outputs.append({ADDRESS: transaction[TO], AMOUNT: str(int(transaction[VALUE], 16))})
 
     response = {TRANSACTION: transaction, INPUTS: inputs, OUTPUTS: outputs}
 
@@ -246,7 +246,7 @@ def getGasPrice(id, params):
 
     gas = RPCConnector.request(RPC_ENDPOINT, id, GET_GAS_PRICE_METHOD, None)
 
-    response = {GAS_PRICE: utils.toWei(gas)}
+    response = {GAS_PRICE: str(utils.toWei(gas))}
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
@@ -271,7 +271,7 @@ def estimateGas(id, params):
     gas = RPCConnector.request(RPC_ENDPOINT, id, ESTIMATE_GAS_METHOD,
                                [params[TX]])
 
-    response = {ESTIMATED_GAS: utils.toWei(gas)}
+    response = {ESTIMATED_GAS: str(utils.toWei(gas))}
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
@@ -374,8 +374,8 @@ def syncing(id, params):
         response = {
             SYNCING: True,
             SYNC_PERCENTAGE: f"{syncPercentage}%",
-            CURRENT_BLOCK_INDEX: int(sync[CURRENT_BLOCK], 16),
-            LATEST_BLOCK_INDEX: int(sync[HIGHEST_BLOCK], 16),
+            CURRENT_BLOCK_INDEX: str(int(sync[CURRENT_BLOCK], 16)),
+            LATEST_BLOCK_INDEX: str(int(sync[HIGHEST_BLOCK], 16)),
         }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
