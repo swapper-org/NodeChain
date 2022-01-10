@@ -100,7 +100,7 @@ def testGetAddressesBalance():
 
             if gotBalance[ADDRESS] == address:
                 found = True
-                if not (gotBalance[BALANCE][CONFIRMED] == int(expectedPending, 16) and gotBalance[BALANCE][UNCONFIRMED] == (int(expectedPending, 16) - int(expectedLatest, 16))):
+                if not (gotBalance[BALANCE][CONFIRMED] == str(int(expectedPending, 16)) and gotBalance[BALANCE][UNCONFIRMED] == str(int(expectedPending, 16) - int(expectedLatest, 16))):
                     logger.printError(f"Error validating {address}")
                     assert False
         if not found:
