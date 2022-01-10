@@ -129,12 +129,12 @@ def getAddressUnspent(id, params):
 
         response.append({
             TX_HASH: tx[TX_HASH_SNAKE_CASE],
-            VOUT: tx[TX_POS_SNAKE_CASE],
+            VOUT: str(tx[TX_POS_SNAKE_CASE]),
             STATUS: {
                 CONFIRMED: tx[HEIGHT] != 0,
-                BLOCK_HEIGHT: tx[HEIGHT]
+                BLOCK_HEIGHT: str(tx[HEIGHT])
             },
-            VALUE: tx[VALUE]
+            VALUE: str(tx[VALUE])
         })
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
@@ -227,7 +227,7 @@ def getHeight(id, params):
                                            [latestBlockHeight])
 
     response = {
-        LATEST_BLOCK_INDEX: latestBlockHeight,
+        LATEST_BLOCK_INDEX: str(latestBlockHeight),
         LATEST_BLOCK_HASH: latestBlockHash
     }
 
@@ -311,7 +311,7 @@ def getTransactionCount(id, params):
 
     response = {
         TRANSACTION_COUNT:
-        pending if params[PENDING] else (len(txs) - pending)
+        str(pending) if params[PENDING] else str(len(txs) - pending)
     }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
@@ -365,8 +365,8 @@ def syncing(id, params):
             SYNCING: True,
             SYNC_PERCENTAGE:
             f'{str(blockchainInfo[VERIFICATION_PROGRESS]*100)}%',
-            CURRENT_BLOCK_INDEX: blockchainInfo[BLOCKS],
-            LATEST_BLOCK_INDEX: blockchainInfo[HEADERS],
+            CURRENT_BLOCK_INDEX: str(blockchainInfo[BLOCKS]),
+            LATEST_BLOCK_INDEX: str(blockchainInfo[HEADERS]),
         }
     else:
         response = {SYNCING: False}
