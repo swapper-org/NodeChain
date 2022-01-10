@@ -184,7 +184,7 @@ def testGetHeight():
 
     got = RPCMethods["getHeight"](0, {})
 
-    assert got[LATEST_BLOCK_INDEX] == expectedHeight and got[LATEST_BLOCK_HASH] == expectedHash
+    assert got[LATEST_BLOCK_INDEX] == str(expectedHeight) and got[LATEST_BLOCK_HASH] == expectedHash
 
 
 def testGetFeePerByte():
