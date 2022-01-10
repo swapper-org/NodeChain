@@ -24,7 +24,7 @@ services:
     environment:
       TESTNET: 1
       DAEMON_RPC_URL: bitcoincore:8332
-      ELECTRUM_RPC_URL: localhost:50001
+      ELECTRUM_RPC_URL: localhost:60001
     volumes:
       - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
 
@@ -33,6 +33,8 @@ services:
     image: electrum
     environment:
       TESTNET: 1
+    ports:
+      - 30000:30000
 
   connector:
     build: ../../Connector

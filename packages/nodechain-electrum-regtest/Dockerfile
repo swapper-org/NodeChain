@@ -17,7 +17,7 @@ RUN apt-get update \
 
 #Expose ports
 EXPOSE 30000
-ENV REGTEST=$TESTNET
+ENV REGTEST=$REGTEST
 
 #Run app
 COPY entrypoint.sh ./

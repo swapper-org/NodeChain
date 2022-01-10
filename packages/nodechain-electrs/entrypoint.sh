@@ -4,6 +4,10 @@ if [[ -n "${TESTNET}" ]]; then
   electrs_args="--network testnet"
 fi
 
+if [[ -n "${REGTEST}" ]]; then
+  electrs_args="--network regtest"
+fi
+
 if [ $(echo "$1" | cut -c1) = "-" ]; then
   echo "$0: assuming arguments for electrs"
 

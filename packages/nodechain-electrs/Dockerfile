@@ -23,6 +23,6 @@ COPY --from=builder /electrs/target/release/electrs /build
 COPY entrypoint.sh ./
 RUN chmod +x entrypoint.sh
 
-EXPOSE 50001
+EXPOSE 50001 60001 60401
 
 ENTRYPOINT ["/build/entrypoint.sh"]
