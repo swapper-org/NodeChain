@@ -236,7 +236,7 @@ def testGetTransactionCount():
     })
     expected = makeEtherumgoRequest(GET_TRANSACTION_COUNT_METHOD, [address1, PENDING])
 
-    assert got[TRANSACTION_COUNT] == int(expected, 16)
+    assert got[TRANSACTION_COUNT] == str(int(expected, 16))
 
 
 def testGetBlock():

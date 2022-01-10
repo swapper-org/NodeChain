@@ -222,7 +222,7 @@ def getTransactionCount(id, params):
                                      PENDING if params[PENDING] else LATEST
                                  ])
 
-    response = {TRANSACTION_COUNT: int(count, 16)}
+    response = {TRANSACTION_COUNT: str(int(count, 16))}
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
