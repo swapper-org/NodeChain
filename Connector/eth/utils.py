@@ -54,3 +54,7 @@ def closingAddrBalanceTopic(topicName):
 
 def toWei(amount):
     return int(amount, 16)
+
+
+def toHex(amount):
+    return hex(amount)
