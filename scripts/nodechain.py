@@ -4,6 +4,8 @@ import subprocess
 import docker
 import utils
 import signal
+import sys
+import argparse
 
 
 def setup(coin, stage):
@@ -38,10 +40,6 @@ def stop(coin, stage):
 def exitSetup(coin=None):
     print("Exiting gracefully, goodbye!")
     raise SystemExit
-
-
-def invalid():
-    print("INVALID CHOICE!")
 
 
 def checkIfRunning(coin, stage):
@@ -134,7 +132,7 @@ def apiMenu():
 
         ans = input(
             "Please pick a node to start/stop (1-{options}): ".format(options=(len(listApis()) + 1)))
-        menu.get(ans, [None, invalid])[1](menu[ans][0].upper())
+        menu.get(ans, [None, utils.invalid])[1](menu[ans][0].upper())
 
 
 def stageMenu():
@@ -149,16 +147,79 @@ def stageMenu():
 
         stage = input("Please choose the environment that you want to use to build up/stop the node(1-{options}): ".format(
             options=(len(listStages()) + 1)))
-        menu.get(stage, [None, invalid])[1](menu[stage][0].upper())
+        menu.get(stage, [None, utils.invalid])[1](menu[stage][0].upper())
+
+
+def argumentHandler():
+    version = utils.getVersion()
+
+    parser = argparse.ArgumentParser(
+        description='Nodechain allows the user to build and manage their own nodes natively without having to rely on external services.',
+        prog="Nodechain")
+    parser.add_argument('-t', '--token', action="store",
+                        dest='token', help="symbol of the token", default=None)
+    parser.add_argument('-n', '--network', action="store", dest='network',
+                        help="network where to set up the blockchain", choices=['mainnet', 'testnet', 'development'], default=None)
+    parser.add_argument('-p', '--port', action="store", dest='port',
+                        help="port to start the node", default=None)
+    parser.add_argument('-sp', '--sslport', action="store",
+                        dest='ssl_port', help="ssl port", default=None)
+    parser.add_argument('-b', '--blockchain', action="store", dest='blockchain_path',
+                        help="path to store blockchain files", default=None)
+    parser.add_argument('--ssl', action="store_true",
+                        dest='config', help="ssl config", default=False)
+    parser.add_argument('-c', '--cert', action="store",
+                        dest='certs', help="path to certs", default=None)
+    parser.add_argument('-v', '--version', action="version",
+                        version=f"NodeChain version {version}", help="software version", default=None)
+
+    # Create group to start and stop all apis at the same time
+    all = argparse.ArgumentParser(add_help=False)
+    all.add_argument('-a', '--all', action='store', dest="network", choices=['mainnet', 'testnet', 'development'], help='Network where to set up the blockchain', default=None)
+
+    # Add subparsers to handle verbs
+    sp = parser.add_subparsers()
+    spStart = sp.add_parser('start', parents=[all], description='Starts the daemon if it is not currently running.', help='Starts %(prog)s daemon')
+    spStop = sp.add_parser('stop', parents=[all], description='Stops the daemon if it is currently running.', help='Stops %(prog)s daemon')
+    spStatus = sp.add_parser('status', description='Displays information about the nodes', help='Status of %(prog)s daemon')
+
+    # Hook subparsers up to handle start, stop and status
+    spStart.set_defaults(func=startTest)
+    spStop.set_defaults(func=stopTest)
+    spStatus.set_defaults(func=status)  # TODO: Change to GUI
+
+    args = parser.parse_args()
+    args.func(args)
+
+    return args
+
+
+def startTest(args):
+    if args.all:
+        print("start all apis")
+    else:
+        print("starting")
+
+
+def stopTest(args):
+    if args.all:
+        print("stop all apis")
+    else:
+        print("stoping")
+
+
+def status(args):
+    print("status")
 
 
 if __name__ == "__main__":
-    args = utils.argumentHandler()
+    args = argumentHandler()
+    print(args)
     FNULL = open(os.devnull, 'w')
 
     signal.signal(signal.SIGINT, utils.signalHandler)
     client = docker.from_env()
 
-    utils.showMainTitle()
+    # utils.showMainTitle()
 
-    stageMenu()
+    # stageMenu()

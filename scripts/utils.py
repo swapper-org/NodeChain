@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import sys
 import os
-import argparse
 import json
 
 
@@ -134,40 +133,5 @@ def getVersion():
     return data['version']
 
 
-def argumentHandler():
-    version = getVersion()
-
-    parser = argparse.ArgumentParser(
-        description='Nodechain allows the user to build and manage their own nodes natively without having to rely on external services.', prog="python3 nodechain.py")
-    parser.add_argument('-t', '--token', action="store",
-                        dest='token', help="symbol of the token", default=None)
-    parser.add_argument('-n', '--network', action="store", dest='network',
-                        help="network where to set up the blockchain", choices=['mainnet', 'testnet', 'development'], default=None)
-    parser.add_argument('-p', '--port', action="store", dest='port',
-                        help="port to start the node", default=None)
-    parser.add_argument('-sp', '--sslport', action="store",
-                        dest='ssl_port', help="ssl port", default=None)
-    parser.add_argument('-b', '--blockchain', action="store", dest='blockchain_path',
-                        help="path to store blockchain files", default=None)
-    parser.add_argument('--ssl', action="store_true",
-                        dest='config', help="ssl config", default=None)
-    parser.add_argument('--no-ssl', action="store_false",
-                        dest='config', help="no ssl config", default=None)
-    parser.add_argument('-c', '--cert', action="store",
-                        dest='certs', help="path to certs", default=None)
-    parser.add_argument('-v', '--version', action="version",
-                        version=f"NodeChain version {version}", help="software version", default=None)
-
-    subparsers = parser.add_subparsers(help="Script handling")
-
-    subparsers.add_parser('start', help="Start any NodeChain API")
-
-    subparsers.add_parser('stop', help="Stop any NodeChain API")
-
-    if len(sys.argv) == 1:
-        parser.print_help()
-        parser.exit()
-
-    args = parser.parse_args()
-
-    return args
+def invalid():
+    print("INVALID CHOICE!")
