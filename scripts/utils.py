@@ -158,6 +158,16 @@ def argumentHandler():
     parser.add_argument('-v', '--version', action="version",
                         version=f"NodeChain version {version}", help="software version", default=None)
 
+    subparsers = parser.add_subparsers(help="Script handling")
+
+    subparsers.add_parser('start', help="Start any NodeChain API")
+
+    subparsers.add_parser('stop', help="Stop any NodeChain API")
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        parser.exit()
+
     args = parser.parse_args()
 
     return args
