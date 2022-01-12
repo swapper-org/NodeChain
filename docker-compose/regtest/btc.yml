@@ -31,9 +31,6 @@ services:
       ELECTRUM_RPC_URL: 0.0.0.0:60401
     volumes:
       - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
-    ports:
-      - "60401:60401"
-
 
   electrum:
     build: ../../packages/nodechain-electrum-regtest

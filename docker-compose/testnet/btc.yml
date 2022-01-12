@@ -31,10 +31,10 @@ services:
   electrum:
     build: ../../packages/nodechain-electrum
     image: electrum
+    depends_on:
+      - electrs
     environment:
       TESTNET: 1
-    ports:
-      - 30000:30000
 
   connector:
     build: ../../Connector
