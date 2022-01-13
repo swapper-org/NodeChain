@@ -9,20 +9,6 @@ import argparse
 import json
 
 
-def stop(coin, network):
-    os.chdir(f"../docker-compose/{network}")
-    print(f"Stopping {coin}_{network}_api node...")
-    sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{network}_api", "down"],
-                          stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
-    err = sp.communicate()
-    if sp.returncode == 0:
-        print(f"{coin}_{network}_api node stopped")
-    else:
-        print(f"An error occurred while trying to start {coin}_{network}_api:")
-        print("\n")
-        print(err[1].decode("ascii"))
-
-
 # "coin" argument is never used. Is declared to prevent errors
 def exitSetup(coin=None):
     print("Exiting gracefully, goodbye!")
@@ -59,10 +45,11 @@ def bindUsedPort(coin, network):
 def checkStatus():
     if checkIfRunning(os.environ["COIN"].lower(), os.environ["NETWORK"].lower()):
         bindUsedPort(os.environ["COIN"].lower(), os.environ["NETWORK"].lower())
-        stop(os.environ["COIN"].lower(), os.environ["NETWORK"].lower())
+        # stop(os.environ["COIN"].lower(), os.environ["NETWORK"].lower())
     else:
         # utils.queries()
-        setup(os.environ["COIN"].lower(), os.environ["NETWORK"].lower())
+        # setup(os.environ["COIN"].lower(), os.environ["NETWORK"].lower())
+        print("")
 
 
 def argumentHandler():
@@ -100,7 +87,7 @@ def argumentHandler():
 
     # Hook subparsers up to handle start, stop and status
     spStart.set_defaults(func=start)
-    spStop.set_defaults(func=stopTest)
+    spStop.set_defaults(func=stop)
     spStatus.set_defaults(func=status)  # TODO: Change to GUI
 
     args = parser.parse_args()
@@ -126,7 +113,7 @@ def start(args):
         startApi(token, network)
 
 
-def stopTest(args):
+def stop(args):
     if args.all:
         print("stop all apis")
     else:
@@ -239,16 +226,18 @@ def startApi(token, network):
         print(err[1].decode("ascii"))
 
 
-def setup(coin, network):
-    os.chdir(f"../docker-compose/{network}")
-    print(f"Starting {coin}_{network}_api node...")
-    sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{network}_api", "up", "--build", "-d"],
+def stopApi(token, network):
+    path = getDockerComposePath(token, network)
+
+    os.chdir(path)
+    print(f"Stopping {token}_{network}_api node...")
+    sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}_{network}_api", "down"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
     err = sp.communicate()
     if sp.returncode == 0:
-        print(f"{coin}_{network}_api node started")
+        print(f"{token}_{network}_api node stopped")
     else:
-        print(f"An error occurred while trying to start {coin}_{network}_api:")
+        print(f"An error occurred while trying to start {token}_{network}_api:")
         print("\n")
         print(err[1].decode("ascii"))
 
