@@ -37,6 +37,7 @@ def configQueries(args, token, network):
     else:
         os.environ["BLOCKCHAIN_PATH"] = queryPath(token, network)
 
+    # In the future this only works for the connector setup
     if args.ssl_port:
         os.environ["SSL_PORT"] = args.ssl_port
     else:
@@ -142,7 +143,7 @@ def invalid():
 
 def listTokens():
     tokens = []
-    with open('../.config.json') as f:
+    with open('../.availableCoins.json') as f:
         data = json.load(f)
         for api in data:
             tokens.append(api["token"])
@@ -150,7 +151,7 @@ def listTokens():
 
 
 def getTokenFromCoin(coin):
-    with open('../.config.json') as f:
+    with open('../.availableCoins.json') as f:
         data = json.load(f)
         for api in data:
             if api["name"] == coin:

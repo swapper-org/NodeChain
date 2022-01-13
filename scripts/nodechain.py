@@ -9,20 +9,6 @@ import argparse
 import json
 
 
-def setup(coin, network):
-    os.chdir(f"../docker-compose/{network}")
-    print(f"Starting {coin}_{network}_api node...")
-    sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{network}_api", "up", "--build", "-d"],
-                          stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
-    err = sp.communicate()
-    if sp.returncode == 0:
-        print(f"{coin}_{network}_api node started")
-    else:
-        print(f"An error occurred while trying to start {coin}_{network}_api:")
-        print("\n")
-        print(err[1].decode("ascii"))
-
-
 def stop(coin, network):
     os.chdir(f"../docker-compose/{network}")
     print(f"Stopping {coin}_{network}_api node...")
@@ -137,6 +123,7 @@ def start(args):
         token = coinMenu(args)
         network = networkMenu(args, token)
         utils.configQueries(args, token, network)
+        startApi(token, network)
 
 
 def stopTest(args):
@@ -224,13 +211,46 @@ def networkChoice(network):
     print(f"Network elegida {network}")
 
 
-def startApi(token, network):
-    coins = []
+def getDockerComposePath(token, network):
+    networks = listAvailableNetworksByToken(token)
+    if network not in networks:
+        print(f"Can't find {token} in {network}")
+        return
+
     with open('../.availableCoins.json') as f:
         data = json.load(f)
         for api in data:
-            coins.append(api["name"])
-    return coins
+            if api["token"] == token:
+                return api["networks"][network]["dockerComposePath"]
+
+
+def startApi(token, network):
+    path = getDockerComposePath(token, network)
+
+    os.chdir(path)
+    sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}_{network}_api", "up", "--build", "-d"],
+                          stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
+    err = sp.communicate()
+    if sp.returncode == 0:
+        print(f"{token}_{network}_api node started")
+    else:
+        print(f"An error occurred while trying to start {token}_{network}_api:")
+        print("\n")
+        print(err[1].decode("ascii"))
+
+
+def setup(coin, network):
+    os.chdir(f"../docker-compose/{network}")
+    print(f"Starting {coin}_{network}_api node...")
+    sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{network}_api", "up", "--build", "-d"],
+                          stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
+    err = sp.communicate()
+    if sp.returncode == 0:
+        print(f"{coin}_{network}_api node started")
+    else:
+        print(f"An error occurred while trying to start {coin}_{network}_api:")
+        print("\n")
+        print(err[1].decode("ascii"))
 
 
 if __name__ == "__main__":
