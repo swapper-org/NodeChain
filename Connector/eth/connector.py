@@ -7,7 +7,7 @@ RPC_ETHEREUM_HOST = "ethereumgo"
 
 RPC_ENDPOINT = "http://{}:{}".format(RPC_ETHEREUM_HOST, RPC_ETHEREUM_PORT)
 
-if os.getenv("STAGE", "development") != "development":
+if os.getenv("NETWORK", "development") != "development":
     WS_ETHEREUM_PORT = 8546
 else:
     WS_ETHEREUM_PORT = 8545

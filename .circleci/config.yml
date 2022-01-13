@@ -4,7 +4,7 @@ jobs:
     machine:
       image: ubuntu-1604:202007-01
     environment:
-      STAGE: development
+      NETWORK: development
       PORT: 80
       SSL_PORT: 443
       NGINX_CONFIG_PATH: ../../nginx/nginx.conf
@@ -47,7 +47,7 @@ jobs:
     machine:
       image: ubuntu-1604:202007-01
     environment:
-      STAGE: development
+      NETWORK: development
       PORT: 80
       SSL_PORT: 443
       NGINX_CONFIG_PATH: ../../nginx/nginx.conf
