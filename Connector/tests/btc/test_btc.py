@@ -184,7 +184,7 @@ def testGetHeight():
 
     got = RPCMethods["getHeight"](0, {})
 
-    assert got[LATEST_BLOCK_INDEX] == expectedHeight and got[LATEST_BLOCK_HASH] == expectedHash
+    assert got[LATEST_BLOCK_INDEX] == str(expectedHeight) and got[LATEST_BLOCK_HASH] == expectedHash
 
 
 def testGetFeePerByte():
@@ -201,7 +201,7 @@ def testGetFeePerByte():
         CONFIRMATIONS: confirmations
     })
 
-    assert expected[FEE_RATE] == float((Decimal(got[FEE_PER_BYTE]) / 100000000))
+    assert str(expected[FEE_RATE]) == str(float((Decimal(got[FEE_PER_BYTE]) / 100000000)))
 
 
 def testBroadcastTransaction():
@@ -333,7 +333,7 @@ def testGetTransactionCount():
         if tx[HEIGHT] == 0:
             pendingCount += 1
 
-    assert got[TRANSACTION_COUNT] == pendingCount if pending else (len(expected) - pendingCount)
+    assert got[TRANSACTION_COUNT] == str(pendingCount) if pending else str(len(expected) - pendingCount)
 
 
 def testGetAddressUnspent():
@@ -354,12 +354,12 @@ def testGetAddressUnspent():
         txs.append(
             {
                 TX_HASH: tx[TX_HASH_SNAKE_CASE],
-                VOUT: tx[TX_POS_SNAKE_CASE],
+                VOUT: str(tx[TX_POS_SNAKE_CASE]),
                 STATUS: {
                     CONFIRMED: tx[HEIGHT] != 0,
-                    BLOCK_HEIGHT: tx[HEIGHT]
+                    BLOCK_HEIGHT: str(tx[HEIGHT])
                 },
-                VALUE: tx[VALUE]
+                VALUE: str(tx[VALUE])
             }
         )
 

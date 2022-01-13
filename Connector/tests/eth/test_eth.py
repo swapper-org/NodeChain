@@ -71,7 +71,7 @@ def testGetAddressBalance():
 
     got = RPCMethods["getAddressBalance"](0, {"address": address1})
 
-    assert got[BALANCE][CONFIRMED] == int(expectedPending, 16) and got[BALANCE][UNCONFIRMED] == (int(expectedPending, 16) - int(expectedLatest, 16)) and address1 == got[ADDRESS]
+    assert got[BALANCE][CONFIRMED] == str(int(expectedPending, 16)) and got[BALANCE][UNCONFIRMED] == str(int(expectedPending, 16) - int(expectedLatest, 16)) and address1 == got[ADDRESS]
 
 
 def testGetAddressesBalance():
@@ -100,7 +100,7 @@ def testGetAddressesBalance():
 
             if gotBalance[ADDRESS] == address:
                 found = True
-                if not (gotBalance[BALANCE][CONFIRMED] == int(expectedPending, 16) and gotBalance[BALANCE][UNCONFIRMED] == (int(expectedPending, 16) - int(expectedLatest, 16))):
+                if not (gotBalance[BALANCE][CONFIRMED] == str(int(expectedPending, 16)) and gotBalance[BALANCE][UNCONFIRMED] == str(int(expectedPending, 16) - int(expectedLatest, 16))):
                     logger.printError(f"Error validating {address}")
                     assert False
         if not found:
@@ -123,7 +123,7 @@ def testGetHeight():
         [LATEST, True]
     )
 
-    assert int(expected[NUMBER], 16) == got[LATEST_BLOCK_INDEX] and expected[HASH] == got[LATEST_BLOCK_HASH]
+    assert str(int(expected[NUMBER], 16)) == got[LATEST_BLOCK_INDEX] and expected[HASH] == got[LATEST_BLOCK_HASH]
 
 
 def testGetTransaction():
@@ -148,12 +148,12 @@ def testGetTransaction():
             logger.printError("Transaction data not correct")
             assert False
     for input in got[INPUTS]:
-        if input[ADDRESS] != expected[FROM] or input[AMOUNT] != int(expected[VALUE], 16):
+        if input[ADDRESS] != expected[FROM] or input[AMOUNT] != str(int(expected[VALUE], 16)):
             logger.printError(f"Transaction input not correct. Output address: {input[ADDRESS]} Expected: {expected[FROM]} Output ampount: {input[AMOUNT]} Expected: {expected[VALUE]}")
             assert False
 
     for output in got[OUTPUTS]:
-        if output[ADDRESS] != expected[TO] or output[AMOUNT] != int(expected[VALUE], 16):
+        if output[ADDRESS] != expected[TO] or output[AMOUNT] != str(int(expected[VALUE], 16)):
             logger.printError(f"Transaction output not correct. Output address: {output[ADDRESS]} Expected: {expected[TO]} Output ampount: {output[AMOUNT]} Expected: {expected[VALUE]}")
             assert False
 
@@ -183,7 +183,7 @@ def testEstimateGas():
     })
     expected = makeEtherumgoRequest(ESTIMATE_GAS_METHOD, [tx])
 
-    assert got[ESTIMATED_GAS] == int(expected, 16)
+    assert got[ESTIMATED_GAS] == str(int(expected, 16))
 
 
 def testGetGasPrice():
@@ -200,7 +200,7 @@ def testGetGasPrice():
         None
     )
 
-    assert int(expected, 16) == got[GAS_PRICE]
+    assert str(int(expected, 16)) == got[GAS_PRICE]
 
 
 def testGetTransactionReceipt():
@@ -236,7 +236,7 @@ def testGetTransactionCount():
     })
     expected = makeEtherumgoRequest(GET_TRANSACTION_COUNT_METHOD, [address1, PENDING])
 
-    assert got[TRANSACTION_COUNT] == int(expected, 16)
+    assert got[TRANSACTION_COUNT] == str(int(expected, 16))
 
 
 def testGetBlock():

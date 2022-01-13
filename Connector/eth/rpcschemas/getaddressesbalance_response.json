@@ -13,10 +13,10 @@
                 "type": "object",
                 "properties": {
                     "confirmed": {
-                        "type": "integer"
+                        "type": "string"
                     },
                     "unconfirmed": {
-                        "type": "integer"
+                        "type": "string"
                     }
                 },
                 "required": [

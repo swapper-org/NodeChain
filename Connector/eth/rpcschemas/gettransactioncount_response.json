@@ -5,7 +5,7 @@
     "type": "object",
     "properties": {
         "transactionCount" : {
-            "type" : "integer"
+            "type" : "string"
         }
     },
     "required": [

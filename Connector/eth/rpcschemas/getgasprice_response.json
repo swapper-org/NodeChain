@@ -5,7 +5,7 @@
     "type": "object",
     "properties": {
         "gasPrice": {
-            "type": "integer"
+            "type": "string"
         }
     },
     "required": [

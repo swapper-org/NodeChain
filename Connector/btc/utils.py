@@ -10,7 +10,7 @@ from . import apirpc
 
 
 def convertToSatoshi(strAmount):
-    return int(Decimal(strAmount) * 100000000)
+    return str(Decimal(strAmount) * 100000000)
 
 
 def getMethodSchemas(name):
