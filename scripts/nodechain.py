@@ -137,7 +137,6 @@ def start(args):
         token = coinMenu(args)
         network = networkMenu(args, token)
         utils.configQueries(args, token, network)
-    print(os.environ)
 
 
 def stopTest(args):
@@ -160,7 +159,7 @@ def status(args):
 
 def listAvailableCoins():
     coins = []
-    with open('../.config.json') as f:
+    with open('../.availableCoins.json') as f:
         data = json.load(f)
         for api in data:
             coins.append(api["name"])
@@ -168,7 +167,7 @@ def listAvailableCoins():
 
 
 def listAvailableNetworksByToken(token):
-    with open('../.config.json') as f:
+    with open('../.availableCoins.json') as f:
         data = json.load(f)
         for api in data:
             if api["token"] == token:
@@ -215,7 +214,7 @@ def networkMenu(args, token):
 
 
 def blockchainChoice(coin):
-    os.environ["COIN"] = coin.lower()
+    os.environ["COIN"] = utils.getTokenFromCoin(coin.lower())
     print(f"Moneda elegida {coin}")
     # checkStatus()
 
@@ -223,6 +222,15 @@ def blockchainChoice(coin):
 def networkChoice(network):
     os.environ["NETWORK"] = network.lower()
     print(f"Network elegida {network}")
+
+
+def startApi(token, network):
+    coins = []
+    with open('../.availableCoins.json') as f:
+        data = json.load(f)
+        for api in data:
+            coins.append(api["name"])
+    return coins
 
 
 if __name__ == "__main__":
@@ -233,4 +241,3 @@ if __name__ == "__main__":
     client = docker.from_env()
 
     args = argumentHandler()
-    print(args)

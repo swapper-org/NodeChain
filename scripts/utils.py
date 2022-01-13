@@ -82,6 +82,7 @@ def queryCerts(certs):
     return path
 
 
+# This method will be expecting your nodechain_cert.key and nodechain_cert.crt
 def querySSL(config, certs):
     if config:
         while True:
