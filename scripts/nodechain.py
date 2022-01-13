@@ -58,14 +58,6 @@ def listRunningApis():
     return running
 
 
-def listApis():
-    composes = os.listdir(
-        "../docker-compose/{network}".format(network=os.environ["NETWORK"].lower()))
-
-    # Trim last 4 characters for every "coin.yml" to remove the ".yml" part
-    return [f[:-4] for f in composes]
-
-
 def listnetworks():
     return os.listdir("../docker-compose")
 
