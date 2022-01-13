@@ -164,19 +164,26 @@ def start(args):
         utils.showMainTitle()
         token = coinMenu(args)
         network = networkMenu(args, token)
-        print(token)
-        print(network)
+        utils.queryPath(token, network)
+        utils.querySSL(args.config, args.certs)
 
 
 def stopTest(args):
     if args.all:
         print("stop all apis")
     else:
-        print("stoping")
+        utils.showMainTitle()
+        token = coinMenu(args)
+        network = networkMenu(args, token)
+        print(token)
+        print(network)
 
 
 def status(args):
-    print("status")
+    utils.showMainTitle()
+    token = coinMenu(args)
+    network = networkMenu(args, token)
+    print(f"{token} on {network}")
 
 
 def listAvailableCoins():

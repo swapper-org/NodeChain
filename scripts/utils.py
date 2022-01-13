@@ -61,27 +61,12 @@ def queryCerts(certs):
             path = "/etc/ssl/certs"
     else:
         path = certs
+
     return path
 
 
-def askSSL(config, certs):
-    if config is None:
-        while True:
-            if queryYesNo("Do you want to activate SSL? ", "no"):
-                path = queryCerts(certs)
-
-                if os.path.isdir(path) and "nodechain_cert.key" in os.listdir(path) and "nodechain_cert.crt" in os.listdir(path):
-                    os.environ["CERT_PATH"] = path
-                    os.environ["NGINX_CONFIG_PATH"] = "../../nginx/ssl.conf"
-                    return
-                else:
-                    sys.stdout.write("You need to have the files nodechain_cert.key and nodechain_cert.crt in the "
-                                     "certificates directory. \n")
-            else:
-                os.environ["NGINX_CONFIG_PATH"] = "../../nginx/nginx.conf"
-                os.environ["CERT_PATH"] = "/etc/ssl/certs"
-                return
-    elif config:
+def querySSL(config, certs):
+    if config:
         while True:
             path = queryCerts(certs)
             if os.path.isdir(path) and "nodechain_cert.key" in os.listdir(path) and "nodechain_cert.crt" in os.listdir(path):
