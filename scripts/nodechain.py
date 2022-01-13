@@ -58,10 +58,6 @@ def listRunningApis():
     return running
 
 
-def listnetworks():
-    return os.listdir("../docker-compose")
-
-
 def bindUsedPort(coin, network):
     for container in client.containers.list():
         if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_{network}_api":
