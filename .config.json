@@ -1,77 +1,86 @@
 [
   {
     "name": "bitcoin",
-    "coin": "btc",
-    "regtest": {
-      "dockerComposePath": "./docker-compose/regtest/btc.yml",
-      "configurable": ["bitcoincoreRpc", "electrumRpc"]
+    "token": "btc",
+    "networks": {
+      "regtest": {
+        "dockerComposePath": "./docker-compose/regtest/btc.yml",
+        "configurable": [
+          "bitcoincoreRpc",
+          "electrumRpc",
+          "bitcoincorePort",
+          "electrumPort"
+        ]
+      },
+      "testnet": {
+        "dockerComposePath": "./docker-compose/testnet/btc.yml",
+        "configurable": [
+          "bitcoincoreRpc",
+          "electrumRpc",
+          "bitcoincorePort",
+          "electrumPort"
+        ]
+      },
+      "mainnet": {
+        "dockerComposePath": "./docker-compose/mainnet/btc.yml",
+        "configurable": [
+          "bitcoincoreRpc",
+          "electrumRpc",
+          "bitcoincorePort",
+          "electrumPort"
+        ]
+      }
     }
   },
   {
-    "name": "bitcoin",
-    "coin": "btc",
-    "stage": "regtest",
-    "dockerComposePath": "./docker-compose/regtest/btc.yml",
-    "configurable": ["bitcoincoreRpc", "electrumRpc"]
-  },
-  {
-    "name": "bitcoin",
-    "coin": "btc",
-    "stage": "testnet",
-    "dockerComposePath": "./docker-compose/testnet/btc.yml"
-  },
-  {
-    "name": "bitcoin",
-    "coin": "btc",
-    "stage": "mainnet",
-    "dockerComposePath": "./docker-compose/mainnet/btc.yml"
-  },
-  {
     "name": "ethereum",
-    "coin": "eth",
-    "stage": "regtest",
-    "dockerComposePath": "./docker-compose/regtest/eth.yml"
-  },
-  {
-    "name": "ethereum",
-    "coin": "eth",
-    "stage": "testnet",
-    "dockerComposePath": "./docker-compose/testnet/eth.yml"
-  },
-  {
-    "name": "ethereum",
-    "coin": "eth",
-    "stage": "mainnet",
-    "dockerComposePath": "./docker-compose/mainnet/eth.yml"
-  },
-  {
-    "name": "bitcoincash",
-    "coin": "bch",
-    "stage": "regtest",
-    "dockerComposePath": "./docker-compose/regtest/bch.yml"
-  },
-  {
-    "name": "bitcoincash",
-    "coin": "bch",
-    "stage": "testnet",
-    "dockerComposePath": "./docker-compose/testnet/bch.yml"
-  },
-  {
-    "name": "bitcoincash",
-    "coin": "bch",
-    "stage": "mainnet",
-    "dockerComposePath": "./docker-compose/mainnet/bch.yml"
-  },
-  {
-    "name": "ethereum",
-    "coin": "eth"
+    "token": "eth",
+    "networks": {
+      "regtest": {
+        "dockerComposePath": "./docker-compose/regtest/eth.yml",
+        "configurable": ["ethereumRpc", "ethereumPort", "ethereumWS"]
+      },
+      "testnet": {
+        "dockerComposePath": "./docker-compose/testnet/eth.yml",
+        "configurable": ["ethereumRpc", "ethereumPort", "ethereumWS"]
+      },
+      "mainnet": {
+        "dockerComposePath": "./docker-compose/mainnet/eth.yml",
+        "configurable": ["ethereumRpc", "ethereumPort", "ethereumWS"]
+      }
+    }
   },
   {
     "name": "bitcoin-cash",
-    "coin": "bch"
-  },
-  {
-    "name": "monero",
-    "coin": "xmr"
+    "token": "bch",
+    "networks": {
+      "regtest": {
+        "dockerComposePath": "./docker-compose/regtest/bch.yml",
+        "configurable": [
+          "bitcoincoreRpc",
+          "electrumRpc",
+          "bitcoincorePort",
+          "electrumPort"
+        ]
+      },
+      "testnet": {
+        "dockerComposePath": "./docker-compose/testnet/bch.yml",
+        "configurable": [
+          "bitcoincoreRpc",
+          "electrumRpc",
+          "bitcoincorePort",
+          "electrumPort"
+        ]
+      },
+      "mainnet": {
+        "dockerComposePath": "./docker-compose/mainnet/bch.yml",
+        "configurable": [
+          "bitcoincoreRpc",
+          "electrumRpc",
+          "bitcoincorePort",
+          "electrumPort"
+        ]
+      }
+    }
   }
 ]

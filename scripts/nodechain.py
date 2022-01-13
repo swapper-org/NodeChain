@@ -6,6 +6,7 @@ import utils
 import signal
 import sys
 import argparse
+import json
 
 
 def setup(coin, stage):
@@ -106,50 +107,6 @@ def checkStatus():
         setup(os.environ["COIN"].lower(), os.environ["STAGE"].lower())
 
 
-def apiChoice(coin):
-    os.environ["COIN"] = coin.lower()
-    checkStatus()
-
-
-def stageChoice(stage):
-    os.environ["STAGE"] = stage.lower()
-    apiMenu()
-
-
-def apiMenu():
-    apis = listApis()
-    if args.token and args.token in apis:
-        os.environ["COIN"] = args.token
-        checkStatus()
-    else:
-        menu = utils.fillMenu(listApis, apiChoice, exitSetup)
-        utils.showSubtitle("BLOCKCHAIN SELECTION")
-        for key in sorted(menu.keys()):
-            if (menu[key][0] + "_{stage}".format(stage=os.environ["STAGE"].lower())) in listRunningApis():
-                print("[RUNNING]" + "\t" + key + "." + menu[key][0])
-            else:
-                print("[OFF]" + "\t" + key + "." + menu[key][0])
-
-        ans = input(
-            "Please pick a node to start/stop (1-{options}): ".format(options=(len(listApis()) + 1)))
-        menu.get(ans, [None, utils.invalid])[1](menu[ans][0].upper())
-
-
-def stageMenu():
-    if args.network:
-        os.environ["STAGE"] = args.network.lower()
-        apiMenu()
-    else:
-        menu = utils.fillMenu(listStages, stageChoice, exitSetup)
-        utils.showSubtitle("ENVIRONMENT SELECTION")
-        for key in sorted(menu.keys()):
-            print(key + "." + menu[key][0])
-
-        stage = input("Please choose the environment that you want to use to build up/stop the node(1-{options}): ".format(
-            options=(len(listStages()) + 1)))
-        menu.get(stage, [None, utils.invalid])[1](menu[stage][0].upper())
-
-
 def argumentHandler():
     version = utils.getVersion()
 
@@ -175,7 +132,7 @@ def argumentHandler():
 
     # Create group to start and stop all apis at the same time
     all = argparse.ArgumentParser(add_help=False)
-    all.add_argument('-a', '--all', action='store', dest="network", choices=['mainnet', 'testnet', 'development'], help='Network where to set up the blockchain', default=None)
+    all.add_argument('-a', '--all', action='store', dest="all", choices=['mainnet', 'testnet', 'development'], help='Network where to set up the blockchain', default=None)
 
     # Add subparsers to handle verbs
     sp = parser.add_subparsers()
@@ -184,21 +141,31 @@ def argumentHandler():
     spStatus = sp.add_parser('status', description='Displays information about the nodes', help='Status of %(prog)s daemon')
 
     # Hook subparsers up to handle start, stop and status
-    spStart.set_defaults(func=startTest)
+    spStart.set_defaults(func=start)
     spStop.set_defaults(func=stopTest)
     spStatus.set_defaults(func=status)  # TODO: Change to GUI
 
     args = parser.parse_args()
-    args.func(args)
+
+    # Print help when no args
+    if len(sys.argv) == 1:
+        parser.print_help()
+        parser.exit()
+    else:
+        args.func(args)
 
     return args
 
 
-def startTest(args):
+def start(args):
     if args.all:
         print("start all apis")
     else:
-        print("starting")
+        utils.showMainTitle()
+        token = coinMenu(args)
+        network = networkMenu(args)
+        print(token)
+        print(network)
 
 
 def stopTest(args):
@@ -212,14 +179,79 @@ def status(args):
     print("status")
 
 
+def listAvailableCoins():
+    coins = []
+    with open('../.config.json') as f:
+        data = json.load(f)
+        for api in data:
+            coins.append(api["name"])
+    return coins
+
+
+def listAvailableNetworks(coin):
+    with open('../.config.json') as f:
+        data = json.load(f)
+        for api in data:
+            if api["name"] == coin:
+                return dict.keys(api["networks"])
+
+
+def coinMenu(args):
+    tokens = utils.listTokens()
+    if args.token and args.token in tokens:
+        os.environ["COIN"] = args.token
+        # checkStatus()
+        print(f"Argument -t {args.token}")
+    else:
+        menu = utils.fillMenu(listAvailableCoins, blockchainChoice, exitSetup)
+        utils.showSubtitle("BLOCKCHAIN SELECTION")
+        for key in sorted(menu.keys()):
+            print(key + "." + menu[key][0].capitalize())
+
+        coin = input("Please choose the blockchain that you want to use to build up/stop the node(1-{options}): ".format(
+            options=(len(listAvailableCoins()) + 1)))
+        menu.get(coin, [None, utils.invalid])[1](menu[coin][0])
+
+        # Return the coin if needed
+        return utils.getTokenFromCoin(menu[coin][0])  # TODO: CHECK
+
+
+def networkMenu(args):
+    if args.network:
+        os.environ["COIN"] = args.network
+        # checkStatus()
+        print(f"Argument -n {args.network}")
+    else:
+        menu = utils.fillMenu(listAvailableNetworks, networkChoice, exitSetup)
+        utils.showSubtitle("NETWORK SELECTION")
+        for key in sorted(menu.keys()):
+            print(key + "." + menu[key][0].capitalize())
+
+        network = input("Please choose the blockchain that you want to use to build up/stop the node(1-{options}): ".format(
+            options=(len(listAvailableNetworks()) + 1)))
+        menu.get(network, [None, utils.invalid])[1](menu[network][0])
+
+        # Return the coin if needed
+        return menu[network][0]  # TODO: CHECK
+
+
+def blockchainChoice(coin):
+    os.environ["COIN"] = coin.lower()
+    print(f"Moneda elegida {coin}")
+    # checkStatus()
+
+
+def networkChoice(network):
+    os.environ["STAGE"] = network.lower()
+    print(f"Network elegida {network}")
+
+
 if __name__ == "__main__":
-    args = argumentHandler()
-    print(args)
+
     FNULL = open(os.devnull, 'w')
 
     signal.signal(signal.SIGINT, utils.signalHandler)
     client = docker.from_env()
 
-    # utils.showMainTitle()
-
-    # stageMenu()
+    args = argumentHandler()
+    print(args)

@@ -135,3 +135,20 @@ def getVersion():
 
 def invalid():
     print("INVALID CHOICE!")
+
+
+def listTokens():
+    tokens = []
+    with open('../.config.json') as f:
+        data = json.load(f)
+        for api in data:
+            tokens.append(api["token"])
+    return tokens
+
+
+def getTokenFromCoin(coin):
+    with open('../.config.json') as f:
+        data = json.load(f)
+        for api in data:
+            if api["name"] == coin:
+                return api["token"]
