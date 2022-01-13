@@ -4,97 +4,138 @@
     "description": "",
     "type": "object",
     "properties": {
-        "txid": {
-            "type": "string"
-        },
-        "hash": {
-            "type": "string"
-        },
-        "version": {
-            "type": "integer"
-        },
-        "size": {
-            "type": "integer"
-        },
-        "vsize": {
-            "type": "integer"
-        },
-        "weight": {
-            "type": "integer"
-        },
-        "locktime": {
-            "type": "integer"
-        },
-        "hex": {
-            "type": "string"
-        },
-        "vin": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "coinbase": {
-                        "type": "string"
-                    },
-                    "sequence": {
-                        "type": "integer"
-                    },
-                    "txid": {
-                        "type": "string"
-                    },
-                    "vout": {
-                        "type": "integer"
-                    },
-                    "scriptSig": {
-                        "type": "object",
+        "transaction": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "properties": {
+                "blockHash": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "fee": {
+                    "type": "number"
+                },
+                "transfers": {
+                    "type": "array",
+                    "items": {
                         "properties": {
-                            "asm": {
+                            "from": {
                                 "type": "string"
                             },
-                            "hex": {
+                            "to": {
                                 "type": "string"
+                            },
+                            "fee": {
+                                "type": "number"
+                            },
+                            "amount": {
+                                "type": "number"
                             }
                         }
-                    },
-                    "txinwitness": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     }
-                }
-            }
-        },
-        "vout": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "value": {
-                        "type": "number"
-                    },
-                    "n": {
-                        "type": "integer"
-                    },
-                    "scriptPubKey": {
-                        "type": "object",
-                        "properties": {
-                            "asm": {
-                                "type": "string"
-                            },
-                            "hex": {
-                                "type": "string"
-                            },
-                            "reqSigs": {
-                                "type": "integer"
-                            },
-                            "type": {
-                                "type": "string"
-                            },
-                            "addresses": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
+                },
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "txid": {
+                            "type": "string"
+                        },
+                        "hash": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "integer"
+                        },
+                        "size": {
+                            "type": "integer"
+                        },
+                        "vsize": {
+                            "type": "integer"
+                        },
+                        "weight": {
+                            "type": "integer"
+                        },
+                        "locktime": {
+                            "type": "integer"
+                        },
+                        "hex": {
+                            "type": "string"
+                        },
+                        "vin": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "coinbase": {
+                                        "type": "string"
+                                    },
+                                    "sequence": {
+                                        "type": "integer"
+                                    },
+                                    "txid": {
+                                        "type": "string"
+                                    },
+                                    "vout": {
+                                        "type": "integer"
+                                    },
+                                    "scriptSig": {
+                                        "type": "object",
+                                        "properties": {
+                                            "asm": {
+                                                "type": "string"
+                                            },
+                                            "hex": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "txinwitness": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "vout": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "value": {
+                                        "type": "number"
+                                    },
+                                    "n": {
+                                        "type": "integer"
+                                    },
+                                    "scriptPubKey": {
+                                        "type": "object",
+                                        "properties": {
+                                            "asm": {
+                                                "type": "string"
+                                            },
+                                            "hex": {
+                                                "type": "string"
+                                            },
+                                            "reqSigs": {
+                                                "type": "integer"
+                                            },
+                                            "type": {
+                                                "type": "string"
+                                            },
+                                            "addresses": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

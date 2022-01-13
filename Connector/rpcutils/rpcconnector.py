@@ -42,6 +42,7 @@ class RPCConnector():
 
         if ERROR in response and response[ERROR] is not None:
             logger.printError(f"Exception occured in server: {response[ERROR]}")
-            raise errorhandler.BadRequestError(f"Exception occured in server: {response[ERROR]}")
+            # raise errorhandler.BadRequestError(f"Exception occured in server: {response[ERROR]}")
+            return response[ERROR]
 
         return response[RESULT]

@@ -286,14 +286,48 @@ def getTransaction(id, params):
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    transactionRaw = RPCConnector.request(RPC_ELECTRUM_ENDPOINT, id, GET_TRANSACTION_METHOD, [params[TX_HASH]])
-    transaction = RPCConnector.request(RPC_CORE_ENDPOINT, id, DECODE_RAW_TRANSACTION_METHOD, [transactionRaw])
+    # Parameters: TransactionId, include_watchonly, verbose
+    transaction = RPCConnector.request(RPC_CORE_ENDPOINT, id, GET_TRANSACTION_METHOD, [params[TX_HASH], True, True])
 
-    err = rpcutils.validateJSONRPCSchema(transaction, responseSchema)
+    if transaction is None or rpcutils.isRPCErrorResponse(transaction):
+        return {
+            "transaction": None
+        }
+
+    vinAddressBalances = {}
+    transactionAmount = 0
+    if "generated" not in transaction:
+        for vin in transaction["decoded"][VIN]:
+
+            inputTransaction = RPCConnector.request(RPC_CORE_ENDPOINT, id, GET_TRANSACTION_METHOD, [vin[TX_ID], True, True])
+
+            if inputTransaction is None or rpcutils.isRPCErrorResponse(transaction):
+                logger.printError(f"Can not find vin transaction with txid {vin[TX_ID]} for transaction with {params[TX_HASH]}")
+                return {
+                    "transaction": None
+                }
+            transactionAmount += inputTransaction["decoded"][VOUT][vin[VOUT]][VALUE]
+            vinAddressBalances[inputTransaction["decoded"][VOUT][vin[VOUT]][SCRIPT_PUB_KEY][ADDRESSES][0]] = inputTransaction["decoded"][VOUT][vin[VOUT]][VALUE]
+
+    response = {
+        "transaction": {
+            BLOCK_HASH: transaction["blockhash"] if transaction[CONFIRMATIONS] >= 1 else None,
+            "fee": -transaction["fee"] if "generated" not in transaction else 0,
+            "transfers": utils.parseBalancesToTransfers(
+                vinAddressBalances,
+                transaction["details"],
+                -transaction["fee"] if "generated" not in transaction else 0,
+                transactionAmount
+            ),
+            "data": transaction["decoded"]
+        }
+    }
+
+    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    return transaction
+    return response
 
 
 @httputils.postMethod

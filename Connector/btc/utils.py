@@ -58,3 +58,48 @@ def closeAddrBalanceTopic(topicName):
     if not response[SUCCESS]:
         logger.printError(f"Can not unsubscribe {topicName} to node")
         raise rpcerrorhandler.BadRequestError(f"Can not unsubscribe {topicName} to node")
+
+
+def parseBalancesToTransfers(vin, vout, fee, amount):
+
+    transfers = []
+    diff = 0
+
+    for utxo in vout:
+
+        if utxo["category"] == "send":
+
+            for address in list(vin.keys()):
+
+                voutAmount = -utxo[AMOUNT]
+                vinAmount = vin[address]
+
+                if vinAmount <= (voutAmount + diff):
+                    transfer = {
+                        "from": address,
+                        "to": utxo[ADDRESS],
+                        AMOUNT: vinAmount,
+                        "fee": round(vinAmount * fee / amount, BTC_PRECISION)
+                    }
+                    del vin[address]
+                else:
+                    transfer = {
+                        "from": address,
+                        "to": utxo[ADDRESS],
+                        AMOUNT: voutAmount,
+                        "fee": round(voutAmount * fee / amount, BTC_PRECISION)
+                    }
+
+                diff = diff + voutAmount - vinAmount
+                transfers.append(transfer)
+
+        if utxo["category"] in ["generate", "immature", "orphan"]:
+            transfers.append(
+                {
+                    "to": utxo[ADDRESS],
+                    "fee": 0,
+                    AMOUNT: utxo[AMOUNT]
+                }
+            )
+
+    return transfers
