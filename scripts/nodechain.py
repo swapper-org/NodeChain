@@ -163,7 +163,7 @@ def start(args):
     else:
         utils.showMainTitle()
         token = coinMenu(args)
-        network = networkMenu(args)
+        network = networkMenu(args, token)
         print(token)
         print(network)
 
@@ -188,11 +188,11 @@ def listAvailableCoins():
     return coins
 
 
-def listAvailableNetworks(coin):
+def listAvailableNetworksByToken(token):
     with open('../.config.json') as f:
         data = json.load(f)
         for api in data:
-            if api["name"] == coin:
+            if api["token"] == token:
                 return dict.keys(api["networks"])
 
 
@@ -216,19 +216,19 @@ def coinMenu(args):
         return utils.getTokenFromCoin(menu[coin][0])  # TODO: CHECK
 
 
-def networkMenu(args):
+def networkMenu(args, token):
     if args.network:
         os.environ["COIN"] = args.network
         # checkStatus()
         print(f"Argument -n {args.network}")
     else:
-        menu = utils.fillMenu(listAvailableNetworks, networkChoice, exitSetup)
+        menu = utils.fillMenu(lambda: listAvailableNetworksByToken(token), networkChoice, exitSetup)
         utils.showSubtitle("NETWORK SELECTION")
         for key in sorted(menu.keys()):
             print(key + "." + menu[key][0].capitalize())
 
         network = input("Please choose the blockchain that you want to use to build up/stop the node(1-{options}): ".format(
-            options=(len(listAvailableNetworks()) + 1)))
+            options=(len(listAvailableNetworksByToken(token)) + 1)))
         menu.get(network, [None, utils.invalid])[1](menu[network][0])
 
         # Return the coin if needed
