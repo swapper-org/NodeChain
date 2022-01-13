@@ -28,6 +28,23 @@ def queryYesNo(question, default="yes"):
                 "Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
+def configQueries(args, token, network):
+    # Connector port configuration. This line will be deprecated in the future
+    os.environ["PORT"] = args.port if args.port else queryPort("Port to start: ")
+
+    if args.blockchain_path:
+        os.environ["BLOCKCHAIN_PATH"] = args.blockchain_path
+    else:
+        os.environ["BLOCKCHAIN_PATH"] = queryPath(token, network)
+
+    if args.ssl_port:
+        os.environ["SSL_PORT"] = args.ssl_port
+    else:
+        os.environ["SSL_PORT"] = queryPort("Port to start (SSL): ")
+
+    querySSL(args.config, args.certs)
+
+
 def queryPort(question):
     while True:
         sys.stdout.write(question)
@@ -39,13 +56,13 @@ def queryPort(question):
             return port
 
 
-def queryPath(coin, stage):
+def queryPath(coin, network):
     try:
-        path = input(f"Please choose the directory to save blockchain data (/srv/nodechain-node/{coin}_{stage}): ")
+        path = input(f"Please choose the directory to save blockchain data (/srv/nodechain-node/{coin}_{network}): ")
     except SyntaxError:
-        path = f"/srv/nodechain-node/{coin}_{stage}"
+        path = f"/srv/nodechain-node/{coin}_{network}"
     if not path:
-        path = f"/srv/nodechain-node/{coin}_{stage}"
+        path = f"/srv/nodechain-node/{coin}_{network}"
     return path
 
 

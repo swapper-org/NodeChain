@@ -9,30 +9,30 @@ import argparse
 import json
 
 
-def setup(coin, stage):
-    os.chdir(f"../docker-compose/{stage}")
-    print(f"Starting {coin}_{stage}_api node...")
-    sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{stage}_api", "up", "--build", "-d"],
+def setup(coin, network):
+    os.chdir(f"../docker-compose/{network}")
+    print(f"Starting {coin}_{network}_api node...")
+    sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{network}_api", "up", "--build", "-d"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
     err = sp.communicate()
     if sp.returncode == 0:
-        print(f"{coin}_{stage}_api node started")
+        print(f"{coin}_{network}_api node started")
     else:
-        print(f"An error occurred while trying to start {coin}_{stage}_api:")
+        print(f"An error occurred while trying to start {coin}_{network}_api:")
         print("\n")
         print(err[1].decode("ascii"))
 
 
-def stop(coin, stage):
-    os.chdir(f"../docker-compose/{stage}")
-    print(f"Stopping {coin}_{stage}_api node...")
-    sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{stage}_api", "down"],
+def stop(coin, network):
+    os.chdir(f"../docker-compose/{network}")
+    print(f"Stopping {coin}_{network}_api node...")
+    sp = subprocess.Popen(["docker-compose", "-f", f"{coin}.yml", "-p", f"{coin}_{network}_api", "down"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
     err = sp.communicate()
     if sp.returncode == 0:
-        print(f"{coin}_{stage}_api node stopped")
+        print(f"{coin}_{network}_api node stopped")
     else:
-        print(f"An error occurred while trying to start {coin}_{stage}_api:")
+        print(f"An error occurred while trying to start {coin}_{network}_api:")
         print("\n")
         print(err[1].decode("ascii"))
 
@@ -43,9 +43,9 @@ def exitSetup(coin=None):
     raise SystemExit
 
 
-def checkIfRunning(coin, stage):
+def checkIfRunning(coin, network):
     for container in client.containers.list():
-        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_{stage}_api":
+        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_{network}_api":
             return True
 
 
@@ -60,19 +60,19 @@ def listRunningApis():
 
 def listApis():
     composes = os.listdir(
-        "../docker-compose/{stage}".format(stage=os.environ["STAGE"].lower()))
+        "../docker-compose/{network}".format(network=os.environ["NETWORK"].lower()))
 
     # Trim last 4 characters for every "coin.yml" to remove the ".yml" part
     return [f[:-4] for f in composes]
 
 
-def listStages():
+def listnetworks():
     return os.listdir("../docker-compose")
 
 
-def getUsedPort(coin, stage):
+def bindUsedPort(coin, network):
     for container in client.containers.list():
-        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_{stage}_api":
+        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_{network}_api":
             bindings = client.containers.get(
                 container.name).attrs["HostConfig"]["PortBindings"]
             if "80/tcp" in bindings:
@@ -83,28 +83,12 @@ def getUsedPort(coin, stage):
 
 
 def checkStatus():
-    if checkIfRunning(os.environ["COIN"].lower(), os.environ["STAGE"].lower()):
-        getUsedPort(os.environ["COIN"].lower(), os.environ["STAGE"].lower())
-        stop(os.environ["COIN"].lower(), os.environ["STAGE"].lower())
+    if checkIfRunning(os.environ["COIN"].lower(), os.environ["NETWORK"].lower()):
+        bindUsedPort(os.environ["COIN"].lower(), os.environ["NETWORK"].lower())
+        stop(os.environ["COIN"].lower(), os.environ["NETWORK"].lower())
     else:
-        if args.port:
-            os.environ["PORT"] = args.port
-        else:
-            os.environ["PORT"] = utils.queryPort("Port to start: ")
-
-        if args.blockchain_path:
-            os.environ["BLOCKCHAIN_PATH"] = args.blockchain_path
-        else:
-            os.environ["BLOCKCHAIN_PATH"] = utils.queryPath(
-                os.environ["COIN"].lower(), os.environ["STAGE"].lower())
-
-        if args.ssl_port:
-            os.environ["SSL_PORT"] = args.ssl_port
-        else:
-            os.environ["SSL_PORT"] = utils.queryPort("Port to start (SSL): ")
-
-        utils.askSSL(args.config, args.certs)
-        setup(os.environ["COIN"].lower(), os.environ["STAGE"].lower())
+        # utils.queries()
+        setup(os.environ["COIN"].lower(), os.environ["NETWORK"].lower())
 
 
 def argumentHandler():
@@ -164,8 +148,8 @@ def start(args):
         utils.showMainTitle()
         token = coinMenu(args)
         network = networkMenu(args, token)
-        utils.queryPath(token, network)
-        utils.querySSL(args.config, args.certs)
+        utils.configQueries(args, token, network)
+    print(os.environ)
 
 
 def stopTest(args):
@@ -208,7 +192,7 @@ def coinMenu(args):
     if args.token and args.token in tokens:
         os.environ["COIN"] = args.token
         # checkStatus()
-        print(f"Argument -t {args.token}")
+        return args.token
     else:
         menu = utils.fillMenu(listAvailableCoins, blockchainChoice, exitSetup)
         utils.showSubtitle("BLOCKCHAIN SELECTION")
@@ -225,16 +209,16 @@ def coinMenu(args):
 
 def networkMenu(args, token):
     if args.network:
-        os.environ["COIN"] = args.network
+        os.environ["NETWORK"] = args.network
         # checkStatus()
-        print(f"Argument -n {args.network}")
+        return args.network
     else:
         menu = utils.fillMenu(lambda: listAvailableNetworksByToken(token), networkChoice, exitSetup)
         utils.showSubtitle("NETWORK SELECTION")
         for key in sorted(menu.keys()):
             print(key + "." + menu[key][0].capitalize())
 
-        network = input("Please choose the blockchain that you want to use to build up/stop the node(1-{options}): ".format(
+        network = input("Please choose the network that you want to use (1-{options}): ".format(
             options=(len(listAvailableNetworksByToken(token)) + 1)))
         menu.get(network, [None, utils.invalid])[1](menu[network][0])
 
@@ -249,7 +233,7 @@ def blockchainChoice(coin):
 
 
 def networkChoice(network):
-    os.environ["STAGE"] = network.lower()
+    os.environ["NETWORK"] = network.lower()
     print(f"Network elegida {network}")
 
 

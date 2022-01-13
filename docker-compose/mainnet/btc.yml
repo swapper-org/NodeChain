@@ -34,7 +34,7 @@ services:
     build: ../../Connector
     environment:
       COIN: BTC
-      STAGE: ${STAGE}
+      NETWORK: ${NETWORK}
       PORT: ${PORT}
     image: connector
 

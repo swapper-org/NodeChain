@@ -10,13 +10,13 @@ services:
     build: ../../Connector
     environment:
       COIN: ETH
-      STAGE: ${STAGE}
+      NETWORK: ${NETWORK}
       PORT: ${PORT}
     image: connector
     restart: on-failure
     depends_on:
       - ethereumgo
-  
+
   nginx:
     image: nginx
     volumes:

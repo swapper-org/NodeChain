@@ -26,7 +26,7 @@ services:
     build: ../../Connector
     environment:
       COIN: BCH
-      STAGE: ${STAGE}
+      NETWORK: ${NETWORK}
     image: connector
 
   nginx:
