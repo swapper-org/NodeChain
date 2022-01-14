@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import aiohttp
+import aiohttp_cors
 from aiohttp import web
 import importlib
 import json
@@ -43,9 +44,6 @@ async def rpcServerHandler(request):
                 response
             ),
             content_type=rpcutils.JSON_CONTENT_TYPE,
-            headers={
-                "Access-Control-Allow-Origin": "*"
-            }
         )
 
     except rpcErrorHandler.Error as e:
@@ -63,9 +61,6 @@ async def rpcServerHandler(request):
             ),
             content_type=rpcutils.JSON_CONTENT_TYPE,
             status=e.code,
-            headers={
-                "Access-Control-Allow-Origin": "*"
-            }
         )
 
 
@@ -142,7 +137,15 @@ async def onShutdown(app):
 def runServer():
 
     app = WebApp()
+    cors = aiohttp_cors.setup(app, defaults={
+        "*": aiohttp_cors.ResourceOptions(
+            expose_headers="*",
+            allow_headers="*",
+        )
+    })
     app.add_routes([web.post('/rpc', rpcServerHandler)])
+    for route in list(app.router.routes()):
+        cors.add(route)
     app.add_routes([web.get('/ws', websocketServerHandler)])
     app.on_shutdown.append(onShutdown)
 

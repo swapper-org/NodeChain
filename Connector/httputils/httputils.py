@@ -28,9 +28,6 @@ def postMethod(function):
             return web.Response(
                 text=json.dumps(response),
                 content_type=rpcutils.JSON_CONTENT_TYPE,
-                headers={
-                    "Access-Control-Allow-Origin": "*"
-                }
             )
 
         except errorhandler.Error as e:
@@ -38,9 +35,6 @@ def postMethod(function):
                 text=json.dumps(e.jsonEncode()),
                 content_type=rpcutils.JSON_CONTENT_TYPE,
                 status=e.code,
-                headers={
-                    "Access-Control-Allow-Origin": "*"
-                }
             )
 
     app = WebApp()
@@ -69,9 +63,6 @@ def getMethod(function):
             return web.Response(
                 text=json.dumps(response),
                 content_type=rpcutils.JSON_CONTENT_TYPE,
-                headers={
-                    "Access-Control-Allow-Origin": "*"
-                }
             )
 
         except errorhandler.Error as e:
@@ -79,9 +70,6 @@ def getMethod(function):
                 text=json.dumps(e.jsonEncode()),
                 content_type=rpcutils.JSON_CONTENT_TYPE,
                 status=e.code,
-                headers={
-                    "Access-Control-Allow-Origin": "*"
-                }
             )
 
     app = WebApp()
