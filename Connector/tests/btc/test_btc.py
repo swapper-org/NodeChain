@@ -314,16 +314,54 @@ def testGetTransactionHex():
     assert expected == got[RAW_TRANSACTION]
 
 
-def testGetTransactionCount():
+def testGetAddressesTransactionCount():
 
-    if "getTransactionCount" not in RPCMethods:
-        logger.printError("getTransactionCount not loaded in RPCMethods")
+    if "getAddressesTransactionCount" not in RPCMethods:
+        logger.printError("getAddressesTransactionCount not loaded in RPCMethods")
+        assert False
+
+    addresses = {
+        ADDRESSES: [
+            {
+                ADDRESS: address1,
+                PENDING: True
+            },
+            {
+                ADDRESS: address2,
+                PENDING: False
+            }
+        ]
+    }
+
+    got = RPCMethods["getAddressesTransactionCount"](0, addresses)
+
+    for index, address in enumerate(addresses[ADDRESSES]):
+
+        expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address[ADDRESS]])
+
+        pendingCount = 0
+        for tx in expected:
+            if tx[HEIGHT] == 0:
+                pendingCount += 1
+
+        assert json.dumps(got[index], sort_keys=True) == json.dumps(
+            {
+                ADDRESS: address[ADDRESS],
+                TRANSACTION_COUNT: str(pendingCount) if address[PENDING] else str(len(expected) - pendingCount)
+            }
+        )
+
+
+def testGetAddressTransactionCount():
+
+    if "getAddressTransactionCount" not in RPCMethods:
+        logger.printError("getAddressTransactionCount not loaded in RPCMethods")
         assert False
 
     pending = True
 
     expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
-    got = RPCMethods["getTransactionCount"](0, {
+    got = RPCMethods["getAddressTransactionCount"](0, {
         ADDRESS: address1,
         PENDING: pending
     })
@@ -333,7 +371,12 @@ def testGetTransactionCount():
         if tx[HEIGHT] == 0:
             pendingCount += 1
 
-    assert got[TRANSACTION_COUNT] == str(pendingCount) if pending else str(len(expected) - pendingCount)
+    assert json.dumps(got, sort_keys=True) == json.dumps(
+        {
+            ADDRESS: address1,
+            TRANSACTION_COUNT: str(pendingCount) if pending else str(len(expected) - pendingCount)
+        }
+    )
 
 
 def testGetAddressUnspent():

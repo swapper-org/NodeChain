@@ -224,19 +224,60 @@ def testGetTransactionReceipt():
     assert True
 
 
-def testGetTransactionCount():
+def testGetAddressTransactionCount():
 
-    if "getTransactionCount" not in RPCMethods:
-        logger.printError("Method getTransactionCount not loaded")
+    if "getAddressTransactionCount" not in RPCMethods:
+        logger.printError("Method getAddressTransactionCount not loaded")
         assert False
 
-    got = RPCMethods["getTransactionCount"](0, {
+    got = RPCMethods["getAddressTransactionCount"](0, {
         ADDRESS: address1,
         PENDING: True
     })
+
     expected = makeEtherumgoRequest(GET_TRANSACTION_COUNT_METHOD, [address1, PENDING])
 
-    assert got[TRANSACTION_COUNT] == str(int(expected, 16))
+    assert json.dumps(got, sort_keys=True) == json.dumps(
+        {
+            ADDRESS: address1,
+            TRANSACTION_COUNT: str(int(expected, 16))
+        }, sort_keys=True)
+
+
+def testGetAddressesTransactionCount():
+
+    if "getAddressesTransactionCount" not in RPCMethods:
+        logger.printError("Method getAddressesTransactionCount not loaded")
+        assert False
+
+    addresses = {
+        ADDRESSES: [
+            {
+                ADDRESS: address1,
+                PENDING: True
+            },
+            {
+                ADDRESS: address2,
+                PENDING: False
+            }
+        ]
+    }
+
+    got = RPCMethods["getAddressesTransactionCount"](0, addresses)
+    print(got)
+    for index, address in enumerate(addresses[ADDRESSES]):
+
+        expected = makeEtherumgoRequest(GET_TRANSACTION_COUNT_METHOD,
+                                        [
+                                            address[ADDRESS],
+                                            PENDING if address[PENDING] else LATEST
+                                        ])
+
+        assert json.dumps(got[index], sort_keys=True) == json.dumps(
+            {
+                ADDRESS: address[ADDRESS],
+                TRANSACTION_COUNT: str(int(expected, 16))
+            }, sort_keys=True)
 
 
 def testGetBlock():
