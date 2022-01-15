@@ -31,6 +31,7 @@ def listRunningApis():
     return running
 
 
+# This method binds the used ports to the ENV variables to stop Connector and Nginx. TODO: this might use only to container and nginx containers in the future
 def bindUsedPort(coin, network):
     for container in client.containers.list():
         if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_{network}_api":
@@ -41,16 +42,6 @@ def bindUsedPort(coin, network):
             if "443/tcp" in bindings:
                 os.environ["SSL_PORT"] = bindings["443/tcp"][0]["HostPort"]
     return
-
-
-def checkStatus():
-    if checkIfRunning(os.environ["COIN"].lower(), os.environ["NETWORK"].lower()):
-        bindUsedPort(os.environ["COIN"].lower(), os.environ["NETWORK"].lower())
-        # stop(os.environ["COIN"].lower(), os.environ["NETWORK"].lower())
-    else:
-        # utils.queries()
-        # setup(os.environ["COIN"].lower(), os.environ["NETWORK"].lower())
-        print("")
 
 
 def argumentHandler():
@@ -123,8 +114,11 @@ def stop(args):
         utils.showMainTitle()
         token = coinMenu(args)
         network = networkMenu(args, token)
-        print(token)
-        print(network)
+        if not checkIfRunning(token, network):
+            print("Can't stop the api. Containers are not running")
+            return
+        bindUsedPort(token, network)
+        stopApi(token, network)
 
 
 def status(args):
@@ -156,32 +150,41 @@ def coinMenu(args):
     tokens = utils.listTokens()
     if args.token and args.token in tokens:
         os.environ["COIN"] = args.token
-        # checkStatus()
         return args.token
     else:
         menu = utils.fillMenu(listAvailableCoins, blockchainChoice, exitSignal)
         utils.showSubtitle("BLOCKCHAIN SELECTION")
-        for key in sorted(menu.keys()):
-            print(key + "." + menu[key][0].capitalize())
+        runningApis = listRunningApis()
+        for key in sorted(menu.keys())[:-1]:
+            if any(utils.getTokenFromCoin(menu[key][0]) in substring for substring in runningApis):
+                print("[RUNNING]" + "\t\t" + key + "." + menu[key][0].capitalize())
+            else:
+                print("[OFF]" + "\t\t" + key + "." + menu[key][0].capitalize())
+
+        print("\t\t" + str(len(sorted(menu.keys()))) + "." + menu[sorted(menu.keys())[-1]][0].capitalize())
 
         coin = input("Please choose the blockchain that you want to use to build up/stop the node(1-{options}): ".format(
             options=(len(listAvailableCoins()) + 1)))
         menu.get(coin, [None, utils.invalid])[1](menu[coin][0])
 
-        # Return the coin if needed
         return utils.getTokenFromCoin(menu[coin][0])  # TODO: CHECK
 
 
 def networkMenu(args, token):
     if args.network:
         os.environ["NETWORK"] = args.network
-        # checkStatus()
         return args.network
     else:
         menu = utils.fillMenu(lambda: listAvailableNetworksByToken(token), networkChoice, exitSignal)
         utils.showSubtitle("NETWORK SELECTION")
-        for key in sorted(menu.keys()):
-            print(key + "." + menu[key][0].capitalize())
+        runningApis = listRunningApis()
+        for key in sorted(menu.keys())[:-1]:
+            if f"{token}_{menu[key][0]}" in runningApis:
+                print("[RUNNING]" + "\t\t" + key + "." + menu[key][0].capitalize())
+            else:
+                print("[OFF]" + "\t\t" + key + "." + menu[key][0].capitalize())
+
+        print("\t\t" + str(len(sorted(menu.keys()))) + "." + menu[sorted(menu.keys())[-1]][0].capitalize())
 
         network = input("Please choose the network that you want to use (1-{options}): ".format(
             options=(len(listAvailableNetworksByToken(token)) + 1)))
@@ -193,13 +196,10 @@ def networkMenu(args, token):
 
 def blockchainChoice(coin):
     os.environ["COIN"] = utils.getTokenFromCoin(coin.lower())
-    print(f"Moneda elegida {coin}")
-    # checkStatus()
 
 
 def networkChoice(network):
     os.environ["NETWORK"] = network.lower()
-    print(f"Network elegida {network}")
 
 
 def getDockerComposePath(token, network):

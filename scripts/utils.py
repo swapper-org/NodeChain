@@ -131,7 +131,7 @@ def signalHandler(sig, frame):
 
 
 def getVersion():
-    f = open('./Connector/config.json')
+    f = open('../Connector/config.json')
     data = json.load(f)
     return data['version']
 
