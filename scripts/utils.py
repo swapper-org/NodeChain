@@ -131,8 +131,7 @@ def signalHandler(sig, frame):
 
 
 def getVersion():
-    os.chdir("../Connector/")
-    f = open('config.json')
+    f = open('./Connector/config.json')
     data = json.load(f)
     return data['version']
 
@@ -143,7 +142,7 @@ def invalid():
 
 def listTokens():
     tokens = []
-    with open('../.availableCoins.json') as f:
+    with open('.availableCoins.json') as f:
         data = json.load(f)
         for api in data:
             tokens.append(api["token"])
@@ -151,7 +150,7 @@ def listTokens():
 
 
 def getTokenFromCoin(coin):
-    with open('../.availableCoins.json') as f:
+    with open('.availableCoins.json') as f:
         data = json.load(f)
         for api in data:
             if api["name"] == coin:

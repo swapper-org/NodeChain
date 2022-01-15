@@ -7,10 +7,11 @@ import signal
 import sys
 import argparse
 import json
+from pathlib import Path
 
 
 # "coin" argument is never used. Is declared to prevent errors
-def exitSetup(coin=None):
+def exitSignal(coin=None):
     print("Exiting gracefully, goodbye!")
     raise SystemExit
 
@@ -103,6 +104,7 @@ def argumentHandler():
 
 
 def start(args):
+    os.chdir(ROOT_DIR)
     if args.all:
         print("start all apis")
     else:
@@ -114,6 +116,7 @@ def start(args):
 
 
 def stop(args):
+    os.chdir(ROOT_DIR)
     if args.all:
         print("stop all apis")
     else:
@@ -125,6 +128,7 @@ def stop(args):
 
 
 def status(args):
+    os.chdir(ROOT_DIR)
     utils.showMainTitle()
     token = coinMenu(args)
     network = networkMenu(args, token)
@@ -133,7 +137,7 @@ def status(args):
 
 def listAvailableCoins():
     coins = []
-    with open('../.availableCoins.json') as f:
+    with open('.availableCoins.json') as f:
         data = json.load(f)
         for api in data:
             coins.append(api["name"])
@@ -141,7 +145,7 @@ def listAvailableCoins():
 
 
 def listAvailableNetworksByToken(token):
-    with open('../.availableCoins.json') as f:
+    with open('.availableCoins.json') as f:
         data = json.load(f)
         for api in data:
             if api["token"] == token:
@@ -155,7 +159,7 @@ def coinMenu(args):
         # checkStatus()
         return args.token
     else:
-        menu = utils.fillMenu(listAvailableCoins, blockchainChoice, exitSetup)
+        menu = utils.fillMenu(listAvailableCoins, blockchainChoice, exitSignal)
         utils.showSubtitle("BLOCKCHAIN SELECTION")
         for key in sorted(menu.keys()):
             print(key + "." + menu[key][0].capitalize())
@@ -174,7 +178,7 @@ def networkMenu(args, token):
         # checkStatus()
         return args.network
     else:
-        menu = utils.fillMenu(lambda: listAvailableNetworksByToken(token), networkChoice, exitSetup)
+        menu = utils.fillMenu(lambda: listAvailableNetworksByToken(token), networkChoice, exitSignal)
         utils.showSubtitle("NETWORK SELECTION")
         for key in sorted(menu.keys()):
             print(key + "." + menu[key][0].capitalize())
@@ -199,24 +203,25 @@ def networkChoice(network):
 
 
 def getDockerComposePath(token, network):
-    networks = listAvailableNetworksByToken(token)
-    if network not in networks:
+    path = ""
+
+    if network not in listAvailableNetworksByToken(token):
         print(f"Can't find {token} in {network}")
         return
 
-    with open('../.availableCoins.json') as f:
+    with open('.availableCoins.json') as f:
         data = json.load(f)
         for api in data:
             if api["token"] == token:
-                return api["networks"][network]["dockerComposePath"]
+                path = Path(api["networks"][network]["dockerComposePath"])
+
+    return path.parent.absolute()
 
 
 def startApi(token, network):
     path = getDockerComposePath(token, network)
-
-    os.chdir(path)
     sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}_{network}_api", "up", "--build", "-d"],
-                          stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
+                          stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
     err = sp.communicate()
     if sp.returncode == 0:
         print(f"{token}_{network}_api node started")
@@ -224,15 +229,14 @@ def startApi(token, network):
         print(f"An error occurred while trying to start {token}_{network}_api:")
         print("\n")
         print(err[1].decode("ascii"))
+        raise SystemExit
 
 
 def stopApi(token, network):
     path = getDockerComposePath(token, network)
-
-    os.chdir(path)
     print(f"Stopping {token}_{network}_api node...")
     sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}_{network}_api", "down"],
-                          stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE)
+                          stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
     err = sp.communicate()
     if sp.returncode == 0:
         print(f"{token}_{network}_api node stopped")
@@ -245,6 +249,7 @@ def stopApi(token, network):
 if __name__ == "__main__":
 
     FNULL = open(os.devnull, 'w')
+    ROOT_DIR = os.path.dirname(os.path.abspath(os.path.join(__file__, os.pardir)))
 
     signal.signal(signal.SIGINT, utils.signalHandler)
     client = docker.from_env()
