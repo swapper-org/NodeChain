@@ -4,7 +4,7 @@ from .constants import *
 
 
 def convertToSatoshi(strAmount):
-    return str(Decimal(strAmount) * 100000000)
+    return str(int(Decimal(strAmount) * 100000000))
 
 
 def getMethodSchemas(name):

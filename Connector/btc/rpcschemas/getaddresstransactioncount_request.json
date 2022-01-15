@@ -4,11 +4,16 @@
     "description": "",
     "type": "object",
     "properties": {
-        "transactionCount" : {
-            "type" : "string"
+        "address": {
+            "type": "string"
+        },
+        "pending": {
+            "type": "boolean"
         }
     },
     "required": [
-        "transactionCount"
+        "address",
+        "pending"
     ]
 }
+

@@ -4,11 +4,15 @@
     "description": "",
     "type": "object",
     "properties": {
+        "address": {
+            "type": "string"
+        },
         "transactionCount" : {
             "type" : "string"
         }
     },
     "required": [
+        "address",
         "transactionCount"
     ]
 }

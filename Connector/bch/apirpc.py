@@ -290,12 +290,14 @@ def getTransaction(id, params):
 
 @httputils.postMethod
 @rpcutils.rpcMethod
-def getTransactionCount(id, params):
+def getAddressTransactionCount(id, params):
 
-    logger.printInfo(f"Executing RPC method getTransactionCount with id {id} and params {params}")
+    logger.printInfo(
+        f"Executing RPC method getAddressTransactionCount with id {id} and params {params}"
+    )
 
     requestSchema, responseSchema = utils.getMethodSchemas(
-        GET_TRANSACTION_COUNT)
+        GET_ADDRESS_TRANSACTION_COUNT)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
@@ -310,8 +312,8 @@ def getTransactionCount(id, params):
             pending += 1
 
     response = {
-        TRANSACTION_COUNT:
-        str(pending) if params[PENDING] else str(len(txs) - pending)
+        ADDRESS: params[ADDRESS],
+        TRANSACTION_COUNT: str(pending) if params[PENDING] else str(len(txs) - pending)
     }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
@@ -319,6 +321,34 @@ def getTransactionCount(id, params):
         raise rpcerrorhandler.BadRequestError(err.message)
 
     return response
+
+
+@httputils.postMethod
+@rpcutils.rpcMethod
+def getAddressesTransactionCount(id, params):
+
+    logger.printInfo(
+        f"Executing RPC method getAddressesTransactionCount with id {id} and params {params}"
+    )
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_TRANSACTION_COUNT)
+
+    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    transactionCounts = []
+
+    for address in params[ADDRESSES]:
+        transactionCounts.append(
+            getAddressTransactionCount(id, address)
+        )
+
+    err = rpcutils.validateJSONRPCSchema(transactionCounts, responseSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    return transactionCounts
 
 
 @httputils.postMethod

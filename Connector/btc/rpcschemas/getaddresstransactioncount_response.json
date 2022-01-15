@@ -2,17 +2,17 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "title": "",
     "description": "",
-    "type": "object",
     "properties": {
         "address": {
             "type": "string"
         },
-        "pending": {
-            "type": "boolean"
+        "transactionCount" : {
+            "type" : "string"
         }
     },
     "required": [
         "address",
-        "pending"
+        "transactionCount"
     ]
 }
+
