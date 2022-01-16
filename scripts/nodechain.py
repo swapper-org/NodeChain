@@ -96,8 +96,15 @@ def argumentHandler():
 
 def start(args):
     os.chdir(ROOT_DIR)
+    # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
     if args.all:
-        print("start all apis")
+        for token in listAvailableTokens():
+            if args.all in listAvailableNetworksByToken(token):
+                os.environ["COIN"] = token
+                os.environ["NETWORK"] = args.all
+                utils.queryPath(token, args.all)
+                print(f"Starting {token} en {args.all}...")
+                # startApi(token, args.all)
     else:
         utils.showMainTitle()
         token = coinMenu(args)
@@ -112,7 +119,16 @@ def start(args):
 def stop(args):
     os.chdir(ROOT_DIR)
     if args.all:
-        print("stop all apis")
+        for token in listAvailableTokens():
+            if args.all in listAvailableNetworksByToken(token):
+                os.environ["COIN"] = token
+                os.environ["NETWORK"] = args.all
+                if not checkIfRunning(token, args.all):
+                    print(f"Can't stop {token} in {args.all}. Containers are not running")
+                    continue
+                print(f"Stopping {token} en {args.all}...")
+                bindUsedPort(token, args.all)
+                # stopApi(token, args.all)
     else:
         utils.showMainTitle()
         token = coinMenu(args)
@@ -139,6 +155,15 @@ def listAvailableCoins():
         for api in data:
             coins.append(api["name"])
     return coins
+
+
+def listAvailableTokens():
+    tokens = []
+    with open('.availableCurrencies.json') as f:
+        data = json.load(f)
+        for api in data:
+            tokens.append(api["token"])
+    return tokens
 
 
 def listAvailableNetworksByToken(token):
