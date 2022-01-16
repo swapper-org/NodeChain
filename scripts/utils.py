@@ -4,6 +4,7 @@ import os
 import json
 
 
+# DEPRECATED
 def queryYesNo(question, default="yes"):
     valid = {"yes": True, "y": True, "ye": True,
              "no": False, "n": False}
@@ -142,15 +143,23 @@ def invalid():
 
 def listTokens():
     tokens = []
-    with open('.availableCoins.json') as f:
+    with open('.availableCurrencies.json') as f:
         data = json.load(f)
         for api in data:
             tokens.append(api["token"])
     return tokens
 
 
+def listServices(token, network):
+    with open('.availableCurrencies.json') as f:
+        data = json.load(f)
+        for api in data:
+            if api["token"] == token:
+                return api["networks"][network]["services"]
+
+
 def getTokenFromCoin(coin):
-    with open('.availableCoins.json') as f:
+    with open('.availableCurrencies.json') as f:
         data = json.load(f)
         for api in data:
             if api["name"] == coin:

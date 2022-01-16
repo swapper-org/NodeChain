@@ -129,12 +129,12 @@ def status(args):
     utils.showMainTitle()
     token = coinMenu(args)
     network = networkMenu(args, token)
-    print(f"{token} on {network}")
+    statusApi(token, network)
 
 
 def listAvailableCoins():
     coins = []
-    with open('.availableCoins.json') as f:
+    with open('.availableCurrencies.json') as f:
         data = json.load(f)
         for api in data:
             coins.append(api["name"])
@@ -142,7 +142,7 @@ def listAvailableCoins():
 
 
 def listAvailableNetworksByToken(token):
-    with open('.availableCoins.json') as f:
+    with open('.availableCurrencies.json') as f:
         data = json.load(f)
         for api in data:
             if api["token"] == token:
@@ -212,7 +212,7 @@ def getDockerComposePath(token, network):
         print(f"Can't find {token} in {network}")
         return
 
-    with open('.availableCoins.json') as f:
+    with open('.availableCurrencies.json') as f:
         data = json.load(f)
         for api in data:
             if api["token"] == token:
@@ -247,6 +247,19 @@ def stopApi(token, network):
         print(f"An error occurred while trying to start {token}_{network}_api:")
         print("\n")
         print(err[1].decode("ascii"))
+
+
+def statusApi(token, network):
+    print(f"Getting information of {token}_{network}_api containers...")
+    utils.showSubtitle(f"{token.upper()} {network.upper()} INFORMATION")
+    services = utils.listServices(token, network)
+    for container in client.containers.list():
+        dockerContainer = client.containers.get(container.name)
+        if "com.docker.compose.project" in dockerContainer.attrs["Config"]["Labels"] and dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{token}_{network}_api" and dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"] in services:
+            if dockerContainer.attrs["State"]["Status"] == 'running':
+                print("{}{}".format("[RUNNING]".ljust(15), str(dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"]).capitalize()))
+            else:
+                print("{}{}".format("[OFF]".ljust(15), str(dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"]).capitalize()))
 
 
 if __name__ == "__main__":
