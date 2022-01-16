@@ -22,7 +22,7 @@ services:
       - 28332:28332
 
   electrs:
-    build: ../../packages/nodechain-electrs
+    build: ../../../packages/nodechain-electrs
     image: electrs
     command: -v --timestamp
     depends_on:
