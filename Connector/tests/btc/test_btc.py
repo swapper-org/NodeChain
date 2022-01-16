@@ -35,7 +35,7 @@ def mineBlocksToAddress(address, numBlocks=1):
     return makeBitcoinCoreRequest("generatetoaddress", [numBlocks, address])
 
 
-wallet1Name = "wallet1"
+wallet1Name = "wallet2"
 try:
     makeBitcoinCoreRequest("loadwallet", [wallet1Name])
 except BadRequestError:
@@ -220,6 +220,18 @@ def testBroadcastTransaction():
         RAW_TRANSACTION: signedRawTransaction[HEX]
     })
 
+    adddressUtxos = makeBitcoinCoreRequest("listunspent", [1, 1000, [address1]])
+    adddresses = []
+
+    for utxo in adddressUtxos:
+        adddresses.append(utxo["address"])
+    
+    logger.printError(f"Addressess {adddresses}")
+
+    RPCMethods["getAddressesBalance"](0, {
+        ADDRESSES: adddresses
+    })
+
     blockMinedHash = mineBlocksToAddress(minerAddress, 1)[0]
     blockMined = makeBitcoinCoreRequest(GET_BLOCK_METHOD, [blockMinedHash, 2])
 
@@ -230,305 +242,305 @@ def testBroadcastTransaction():
     assert found
 
 
-def testGetAddressHistory():
+# def testGetAddressHistory():
 
-    if "getAddressHistory" not in RPCMethods:
-        logger.printError("getAddressHistory not loaded in RPCMethods")
-        assert False
+#     if "getAddressHistory" not in RPCMethods:
+#         logger.printError("getAddressHistory not loaded in RPCMethods")
+#         assert False
 
-    expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
+#     expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
 
-    got = RPCMethods["getAddressHistory"](0, {
-        ADDRESS: address1
-    })
+#     got = RPCMethods["getAddressHistory"](0, {
+#         ADDRESS: address1
+#     })
 
-    expectedTxHashes = {item[TX_HASH_SNAKE_CASE]: False for item in expected}
+#     expectedTxHashes = {item[TX_HASH_SNAKE_CASE]: False for item in expected}
 
-    for gotTxHash in got[TX_HASHES]:
-        if gotTxHash in expectedTxHashes:
-            expectedTxHashes[gotTxHash] = True
-        else:
-            logger.printError(f"Transaction {gotTxHash} not in expected txHashes {expectedTxHashes}")
-            assert False
+#     for gotTxHash in got[TX_HASHES]:
+#         if gotTxHash in expectedTxHashes:
+#             expectedTxHashes[gotTxHash] = True
+#         else:
+#             logger.printError(f"Transaction {gotTxHash} not in expected txHashes {expectedTxHashes}")
+#             assert False
 
-    for expectedTxHash in expectedTxHashes:
-        if not expectedTxHashes[expectedTxHash]:
-            logger.printError(f"Transaction {expectedTxHash} not in got txHashes {got[TX_HASHES]}")
-            assert False
+#     for expectedTxHash in expectedTxHashes:
+#         if not expectedTxHashes[expectedTxHash]:
+#             logger.printError(f"Transaction {expectedTxHash} not in got txHashes {got[TX_HASHES]}")
+#             assert False
 
-    assert True
+#     assert True
 
 
-def testGetAddressBalance():
+# def testGetAddressBalance():
 
-    if "getAddressBalance" not in RPCMethods:
-        logger.printError("getAddressBalance not loaded in RPCMethods")
-        assert False
+#     if "getAddressBalance" not in RPCMethods:
+#         logger.printError("getAddressBalance not loaded in RPCMethods")
+#         assert False
 
-    expected = makeElectrumRequest("getaddressbalance", [address1])
-    got = RPCMethods["getAddressBalance"](0, {
-        ADDRESS: address1
-    })
+#     expected = makeElectrumRequest("getaddressbalance", [address1])
+#     got = RPCMethods["getAddressBalance"](0, {
+#         ADDRESS: address1
+#     })
 
-    assert convertToSatoshi(expected[CONFIRMED]) == got[BALANCE][CONFIRMED] and convertToSatoshi(expected[UNCONFIRMED]) == got[BALANCE][UNCONFIRMED] and address1 == got[ADDRESS]
+#     assert convertToSatoshi(expected[CONFIRMED]) == got[BALANCE][CONFIRMED] and convertToSatoshi(expected[UNCONFIRMED]) == got[BALANCE][UNCONFIRMED] and address1 == got[ADDRESS]
 
 
-def testGetAddressesBalance():
+# def testGetAddressesBalance():
 
-    if "getAddressesBalance" not in RPCMethods:
-        logger.printError("getAddressesBalance not loaded in RPCMethods")
-        assert False
+#     if "getAddressesBalance" not in RPCMethods:
+#         logger.printError("getAddressesBalance not loaded in RPCMethods")
+#         assert False
 
-    addresses = [address1, address2]
+#     addresses = [address1, address2]
 
-    got = RPCMethods["getAddressesBalance"](0, {
-        ADDRESSES: addresses
-    })
+#     got = RPCMethods["getAddressesBalance"](0, {
+#         ADDRESSES: addresses
+#     })
 
-    for addressBalance in got:
+#     for addressBalance in got:
 
-        expected = makeElectrumRequest("getaddressbalance", [addressBalance[ADDRESS]])
+#         expected = makeElectrumRequest("getaddressbalance", [addressBalance[ADDRESS]])
 
-        if convertToSatoshi(expected[CONFIRMED]) != addressBalance[BALANCE][CONFIRMED] or convertToSatoshi(expected[UNCONFIRMED]) != addressBalance[BALANCE][UNCONFIRMED]:
-            logger.printError(f"Error getting balance for {addressBalance[ADDRESS]}. Expected: {expected}. Got: {addressBalance[BALANCE]}")
-            assert False
+#         if convertToSatoshi(expected[CONFIRMED]) != addressBalance[BALANCE][CONFIRMED] or convertToSatoshi(expected[UNCONFIRMED]) != addressBalance[BALANCE][UNCONFIRMED]:
+#             logger.printError(f"Error getting balance for {addressBalance[ADDRESS]}. Expected: {expected}. Got: {addressBalance[BALANCE]}")
+#             assert False
 
-    assert True
+#     assert True
 
 
-def testGetTransactionHex():
+# def testGetTransactionHex():
 
-    if "getTransactionHex" not in RPCMethods:
-        logger.printError("getTransactionHex not loaded in RPCMethods")
-        assert False
+#     if "getTransactionHex" not in RPCMethods:
+#         logger.printError("getTransactionHex not loaded in RPCMethods")
+#         assert False
 
-    addressHistory = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
-    txHash = addressHistory[0][TX_HASH_SNAKE_CASE]
+#     addressHistory = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
+#     txHash = addressHistory[0][TX_HASH_SNAKE_CASE]
 
-    expected = makeElectrumRequest(GET_TRANSACTION_METHOD, [txHash])
+#     expected = makeElectrumRequest(GET_TRANSACTION_METHOD, [txHash])
 
-    got = RPCMethods["getTransactionHex"](0, {
-        TX_HASH: txHash
-    })
+#     got = RPCMethods["getTransactionHex"](0, {
+#         TX_HASH: txHash
+#     })
 
-    assert expected == got[RAW_TRANSACTION]
+#     assert expected == got[RAW_TRANSACTION]
 
 
-def testGetAddressesTransactionCount():
+# def testGetAddressesTransactionCount():
 
-    if "getAddressesTransactionCount" not in RPCMethods:
-        logger.printError("getAddressesTransactionCount not loaded in RPCMethods")
-        assert False
+#     if "getAddressesTransactionCount" not in RPCMethods:
+#         logger.printError("getAddressesTransactionCount not loaded in RPCMethods")
+#         assert False
 
-    addresses = {
-        ADDRESSES: [
-            {
-                ADDRESS: address1,
-                PENDING: True
-            },
-            {
-                ADDRESS: address2,
-                PENDING: False
-            }
-        ]
-    }
+#     addresses = {
+#         ADDRESSES: [
+#             {
+#                 ADDRESS: address1,
+#                 PENDING: True
+#             },
+#             {
+#                 ADDRESS: address2,
+#                 PENDING: False
+#             }
+#         ]
+#     }
 
-    got = RPCMethods["getAddressesTransactionCount"](0, addresses)
+#     got = RPCMethods["getAddressesTransactionCount"](0, addresses)
 
-    for index, address in enumerate(addresses[ADDRESSES]):
+#     for index, address in enumerate(addresses[ADDRESSES]):
 
-        expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address[ADDRESS]])
+#         expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address[ADDRESS]])
 
-        pendingCount = 0
-        for tx in expected:
-            if tx[HEIGHT] == 0:
-                pendingCount += 1
+#         pendingCount = 0
+#         for tx in expected:
+#             if tx[HEIGHT] == 0:
+#                 pendingCount += 1
 
-        assert json.dumps(got[index], sort_keys=True) == json.dumps(
-            {
-                ADDRESS: address[ADDRESS],
-                TRANSACTION_COUNT: str(pendingCount) if address[PENDING] else str(len(expected) - pendingCount)
-            }
-        )
+#         assert json.dumps(got[index], sort_keys=True) == json.dumps(
+#             {
+#                 ADDRESS: address[ADDRESS],
+#                 TRANSACTION_COUNT: str(pendingCount) if address[PENDING] else str(len(expected) - pendingCount)
+#             }
+#         )
 
 
-def testGetAddressTransactionCount():
+# def testGetAddressTransactionCount():
 
-    if "getAddressTransactionCount" not in RPCMethods:
-        logger.printError("getAddressTransactionCount not loaded in RPCMethods")
-        assert False
+#     if "getAddressTransactionCount" not in RPCMethods:
+#         logger.printError("getAddressTransactionCount not loaded in RPCMethods")
+#         assert False
 
-    pending = True
+#     pending = True
 
-    expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
-    got = RPCMethods["getAddressTransactionCount"](0, {
-        ADDRESS: address1,
-        PENDING: pending
-    })
+#     expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
+#     got = RPCMethods["getAddressTransactionCount"](0, {
+#         ADDRESS: address1,
+#         PENDING: pending
+#     })
 
-    pendingCount = 0
-    for tx in expected:
-        if tx[HEIGHT] == 0:
-            pendingCount += 1
+#     pendingCount = 0
+#     for tx in expected:
+#         if tx[HEIGHT] == 0:
+#             pendingCount += 1
 
-    assert json.dumps(got, sort_keys=True) == json.dumps(
-        {
-            ADDRESS: address1,
-            TRANSACTION_COUNT: str(pendingCount) if pending else str(len(expected) - pendingCount)
-        }
-    )
+#     assert json.dumps(got, sort_keys=True) == json.dumps(
+#         {
+#             ADDRESS: address1,
+#             TRANSACTION_COUNT: str(pendingCount) if pending else str(len(expected) - pendingCount)
+#         }
+#     )
 
 
-def testGetAddressUnspent():
+# def testGetAddressUnspent():
 
-    if "getAddressUnspent" not in RPCMethods:
-        logger.printError("getAddressUnspent not loaded in RPCMethods")
-        assert False
+#     if "getAddressUnspent" not in RPCMethods:
+#         logger.printError("getAddressUnspent not loaded in RPCMethods")
+#         assert False
 
-    expected = makeElectrumRequest(GET_ADDRESS_UNSPENT_METHOD, [address1])
+#     expected = makeElectrumRequest(GET_ADDRESS_UNSPENT_METHOD, [address1])
 
-    got = RPCMethods["getAddressUnspent"](0, {
-        ADDRESS: address1
-    })
+#     got = RPCMethods["getAddressUnspent"](0, {
+#         ADDRESS: address1
+#     })
 
-    txs = []
+#     txs = []
 
-    for tx in expected:
-        txs.append(
-            {
-                TX_HASH: tx[TX_HASH_SNAKE_CASE],
-                VOUT: str(tx[TX_POS_SNAKE_CASE]),
-                STATUS: {
-                    CONFIRMED: tx[HEIGHT] != 0,
-                    BLOCK_HEIGHT: str(tx[HEIGHT])
-                },
-                VALUE: str(tx[VALUE])
-            }
-        )
+#     for tx in expected:
+#         txs.append(
+#             {
+#                 TX_HASH: tx[TX_HASH_SNAKE_CASE],
+#                 VOUT: str(tx[TX_POS_SNAKE_CASE]),
+#                 STATUS: {
+#                     CONFIRMED: tx[HEIGHT] != 0,
+#                     BLOCK_HEIGHT: str(tx[HEIGHT])
+#                 },
+#                 VALUE: str(tx[VALUE])
+#             }
+#         )
 
-    assert json.dumps(got, sort_keys=True) == json.dumps(txs, sort_keys=True)
+#     assert json.dumps(got, sort_keys=True) == json.dumps(txs, sort_keys=True)
 
 
-def testGetTransaction():
+# def testGetTransaction():
 
-    if "getTransaction" not in RPCMethods:
-        logger.printError("getTransaction not loaded in RPCMethods")
-        assert False
+#     if "getTransaction" not in RPCMethods:
+#         logger.printError("getTransaction not loaded in RPCMethods")
+#         assert False
 
-    addressHistory = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
-    txHash = addressHistory[0][TX_HASH_SNAKE_CASE]
+#     addressHistory = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
+#     txHash = addressHistory[0][TX_HASH_SNAKE_CASE]
 
-    rawTransaction = makeElectrumRequest(GET_TRANSACTION_METHOD, [txHash])
-    expected = makeBitcoinCoreRequest(DECODE_RAW_TRANSACTION_METHOD, [rawTransaction])
+#     rawTransaction = makeElectrumRequest(GET_TRANSACTION_METHOD, [txHash])
+#     expected = makeBitcoinCoreRequest(DECODE_RAW_TRANSACTION_METHOD, [rawTransaction])
 
-    got = RPCMethods["getTransaction"](0, {
-        TX_HASH: txHash
-    })
+#     got = RPCMethods["getTransaction"](0, {
+#         TX_HASH: txHash
+#     })
 
-    assert json.dumps(expected, sort_keys=True) == json.dumps(got, sort_keys=True)
+#     assert json.dumps(expected, sort_keys=True) == json.dumps(got, sort_keys=True)
 
 
-def testSubscribeToAddressBalance():
+# def testSubscribeToAddressBalance():
 
-    if "subscribeToAddressBalance" not in webSocketMethods:
-        logger.printError("Method subscribeToAddressBalance not loaded")
-        assert False
+#     if "subscribeToAddressBalance" not in webSocketMethods:
+#         logger.printError("Method subscribeToAddressBalance not loaded")
+#         assert False
 
-    got = webSocketMethods["subscribeToAddressBalance"](sub, 0, {
-        ADDRESS: address1
-    })
+#     got = webSocketMethods["subscribeToAddressBalance"](sub, 0, {
+#         ADDRESS: address1
+#     })
 
-    if not got[SUBSCRIBED]:
-        logger.printError(f"Error in subscribe to address balance. Expected: True Got: {got[SUBSCRIBED]}")
-        assert False
+#     if not got[SUBSCRIBED]:
+#         logger.printError(f"Error in subscribe to address balance. Expected: True Got: {got[SUBSCRIBED]}")
+#         assert False
 
-    got = webSocketMethods["subscribeToAddressBalance"](sub, 0, {
-        ADDRESS: address1
-    })
+#     got = webSocketMethods["subscribeToAddressBalance"](sub, 0, {
+#         ADDRESS: address1
+#     })
 
-    if got[SUBSCRIBED]:
-        logger.printError(f"Error in subscribe to address balance. Expected: False Got: {got[SUBSCRIBED]}")
-        assert False
+#     if got[SUBSCRIBED]:
+#         logger.printError(f"Error in subscribe to address balance. Expected: False Got: {got[SUBSCRIBED]}")
+#         assert False
 
-    assert True
+#     assert True
 
 
-def testUnsubscribeFromAddressBalance():
+# def testUnsubscribeFromAddressBalance():
 
-    if "unsubscribeFromAddressBalance" not in webSocketMethods:
-        logger.printError("Method unsubscribeFromAddressBalance not loaded")
-        assert False
+#     if "unsubscribeFromAddressBalance" not in webSocketMethods:
+#         logger.printError("Method unsubscribeFromAddressBalance not loaded")
+#         assert False
 
-    got = webSocketMethods["unsubscribeFromAddressBalance"](sub, 0, {
-        ADDRESS: address1
-    })
+#     got = webSocketMethods["unsubscribeFromAddressBalance"](sub, 0, {
+#         ADDRESS: address1
+#     })
 
-    if not got[UNSUBSCRIBED]:
-        logger.printError(f"Error in unsubscribe from address balance. Expected: True Got: {got[UNSUBSCRIBED]}")
-        assert False
+#     if not got[UNSUBSCRIBED]:
+#         logger.printError(f"Error in unsubscribe from address balance. Expected: True Got: {got[UNSUBSCRIBED]}")
+#         assert False
 
-    got = webSocketMethods["unsubscribeFromAddressBalance"](sub, 0, {
-        ADDRESS: address1
-    })
+#     got = webSocketMethods["unsubscribeFromAddressBalance"](sub, 0, {
+#         ADDRESS: address1
+#     })
 
-    if got[UNSUBSCRIBED]:
-        logger.printError(f"Error in unsubscribe from address balance. Expected: False Got: {got[UNSUBSCRIBED]}")
-        assert False
+#     if got[UNSUBSCRIBED]:
+#         logger.printError(f"Error in unsubscribe from address balance. Expected: False Got: {got[UNSUBSCRIBED]}")
+#         assert False
 
-    assert True
+#     assert True
 
 
-def testSubscribeToNewBlocks():
+# def testSubscribeToNewBlocks():
 
-    if "subscribeToNewBlocks" not in webSocketMethods:
-        logger.printError("Method subscribeToNewBlocks not loaded")
-        assert False
+#     if "subscribeToNewBlocks" not in webSocketMethods:
+#         logger.printError("Method subscribeToNewBlocks not loaded")
+#         assert False
 
-    got = webSocketMethods["subscribeToNewBlocks"](newBlocksSub, 0, {})
+#     got = webSocketMethods["subscribeToNewBlocks"](newBlocksSub, 0, {})
 
-    if not got[SUBSCRIBED]:
-        logger.printError(f"Error in subscribe to new blocks. Expected: True Got: {got[SUBSCRIBED]}")
-        assert False
+#     if not got[SUBSCRIBED]:
+#         logger.printError(f"Error in subscribe to new blocks. Expected: True Got: {got[SUBSCRIBED]}")
+#         assert False
 
-    got = webSocketMethods["subscribeToNewBlocks"](newBlocksSub, 0, {})
+#     got = webSocketMethods["subscribeToNewBlocks"](newBlocksSub, 0, {})
 
-    if got[SUBSCRIBED]:
-        logger.printError(f"Error in subscribe to new blocks. Expected: False Got: {got[SUBSCRIBED]}")
-        assert False
+#     if got[SUBSCRIBED]:
+#         logger.printError(f"Error in subscribe to new blocks. Expected: False Got: {got[SUBSCRIBED]}")
+#         assert False
 
-    assert True
+#     assert True
 
 
-def testNewBlocksWS():
+# def testNewBlocksWS():
 
-    attemps = 3
-    numAttemps = 0
-    mineBlocksToAddress(address1, 1)
+#     attemps = 3
+#     numAttemps = 0
+#     mineBlocksToAddress(address1, 1)
 
-    while not newBlocksSub.messageReceived and numAttemps < attemps:
-        numAttemps += 1
-        logger.printWarning(f"Subscriber {newBlocksSub.subscriberID} did not receive message at {numAttemps} attemp")
-        time.sleep(1)
+#     while not newBlocksSub.messageReceived and numAttemps < attemps:
+#         numAttemps += 1
+#         logger.printWarning(f"Subscriber {newBlocksSub.subscriberID} did not receive message at {numAttemps} attemp")
+#         time.sleep(1)
 
-    assert newBlocksSub.messageReceived
+#     assert newBlocksSub.messageReceived
 
 
-def testUnsubscribeFromNewBlocks():
+# def testUnsubscribeFromNewBlocks():
 
-    if "unsubscribeFromNewBlocks" not in webSocketMethods:
-        logger.printError("Method unsubscribeFromNewBlocks not loaded")
-        assert False
+#     if "unsubscribeFromNewBlocks" not in webSocketMethods:
+#         logger.printError("Method unsubscribeFromNewBlocks not loaded")
+#         assert False
 
-    got = webSocketMethods["unsubscribeFromNewBlocks"](newBlocksSub, 0, {})
+#     got = webSocketMethods["unsubscribeFromNewBlocks"](newBlocksSub, 0, {})
 
-    if not got[UNSUBSCRIBED]:
-        logger.printError(f"Error in unsubscribe from new blocks. Expected: True Got: {got[UNSUBSCRIBED]}")
-        assert False
+#     if not got[UNSUBSCRIBED]:
+#         logger.printError(f"Error in unsubscribe from new blocks. Expected: True Got: {got[UNSUBSCRIBED]}")
+#         assert False
 
-    got = webSocketMethods["unsubscribeFromNewBlocks"](newBlocksSub, 0, {})
+#     got = webSocketMethods["unsubscribeFromNewBlocks"](newBlocksSub, 0, {})
 
-    if got[UNSUBSCRIBED]:
-        logger.printError(f"Error in unsubscribe from new blocks. Expected: False Got: {got[UNSUBSCRIBED]}")
-        assert False
+#     if got[UNSUBSCRIBED]:
+#         logger.printError(f"Error in unsubscribe from new blocks. Expected: False Got: {got[UNSUBSCRIBED]}")
+#         assert False
 
-    assert True
+#     assert True
