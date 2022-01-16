@@ -53,7 +53,7 @@ def argumentHandler():
     parser.add_argument('-t', '--token', action="store",
                         dest='token', help="symbol of the token", default=None)
     parser.add_argument('-n', '--network', action="store", dest='network',
-                        help="network where to set up the blockchain", choices=['mainnet', 'testnet', 'development'], default=None)
+                        help="network where to set up the blockchain", choices=['mainnet', 'testnet', 'regtest'], default=None)
     parser.add_argument('-p', '--port', action="store", dest='port',
                         help="port to start the node", default=None)
     parser.add_argument('-sp', '--sslport', action="store",
@@ -69,7 +69,7 @@ def argumentHandler():
 
     # Create group to start and stop all apis at the same time
     all = argparse.ArgumentParser(add_help=False)
-    all.add_argument('-a', '--all', action='store', dest="all", choices=['mainnet', 'testnet', 'development'], help='Network where to set up the blockchain', default=None)
+    all.add_argument('-a', '--all', action='store', dest="all", choices=['mainnet', 'testnet', 'regtest'], help='Network where to set up the blockchain', default=None)
 
     # Add subparsers to handle verbs
     sp = parser.add_subparsers()
