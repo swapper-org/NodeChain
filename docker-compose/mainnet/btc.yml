@@ -22,9 +22,10 @@ services:
       - bitcoincore
     environment:
       DAEMON_RPC_URL: bitcoincore:8332
-      ELECTRUM_RPC_URL: localhost:50001
+      ELECTRUM_RPC_URL: 0.0.0.0:50001
     volumes:
       - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
+      - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
 
   electrum:
     build: ../../packages/nodechain-electrum
