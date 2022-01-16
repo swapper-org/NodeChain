@@ -10,6 +10,7 @@ services:
       -rpcbind=0.0.0.0
       -txindex=1
       -regtest=1
+      -prune=0
       -debug=1
       -rpcport=8332
       -deprecatedrpc=generate

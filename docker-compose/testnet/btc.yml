@@ -9,6 +9,7 @@ services:
       -rpcallowip=0.0.0.0/0
       -rpcbind=bitcoincore
       -txindex=1
+      -prune=0
       -testnet
       -rpcport=8332
       -zmqpubhashblock=tcp://0.0.0.0:28332
@@ -24,7 +25,7 @@ services:
     environment:
       TESTNET: 1
       DAEMON_RPC_URL: bitcoincore:8332
-      ELECTRUM_RPC_URL: 0.0.0.0:50001
+      ELECTRUM_RPC_URL: 0.0.0.0:60001
     volumes:
       - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
       - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
