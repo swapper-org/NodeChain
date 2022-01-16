@@ -157,11 +157,11 @@ def coinMenu(args):
         runningApis = listRunningApis()
         for key in sorted(menu.keys())[:-1]:
             if any(utils.getTokenFromCoin(menu[key][0]) in substring for substring in runningApis):
-                print("[RUNNING]" + "\t\t" + key + "." + menu[key][0].capitalize())
+                print("{}{}.{}".format("[RUNNING]", str(key).rjust(7), menu[key][0].capitalize()))
             else:
-                print("[OFF]" + "\t\t" + key + "." + menu[key][0].capitalize())
+                print("{}{}.{}".format("[OFF]", str(key).rjust(11), menu[key][0].capitalize()))
 
-        print("\t\t" + str(len(sorted(menu.keys()))) + "." + menu[sorted(menu.keys())[-1]][0].capitalize())
+        print("{}.{}".format(str(len(sorted(menu.keys()))).rjust(16), menu[sorted(menu.keys())[-1]][0].capitalize()))
 
         coin = input("Please choose the blockchain that you want to use to build up/stop the node(1-{options}): ".format(
             options=(len(listAvailableCoins()) + 1)))
@@ -180,11 +180,11 @@ def networkMenu(args, token):
         runningApis = listRunningApis()
         for key in sorted(menu.keys())[:-1]:
             if f"{token}_{menu[key][0]}" in runningApis:
-                print("[RUNNING]" + "\t\t" + key + "." + menu[key][0].capitalize())
+                print("{}{}.{}".format("[RUNNING]", str(key).rjust(7), menu[key][0].capitalize()))
             else:
-                print("[OFF]" + "\t\t" + key + "." + menu[key][0].capitalize())
+                print("{}{}.{}".format("[OFF]", str(key).rjust(11), menu[key][0].capitalize()))
 
-        print("\t\t" + str(len(sorted(menu.keys()))) + "." + menu[sorted(menu.keys())[-1]][0].capitalize())
+        print("{}.{}".format(str(len(sorted(menu.keys()))).rjust(16), menu[sorted(menu.keys())[-1]][0].capitalize()))
 
         network = input("Please choose the network that you want to use (1-{options}): ".format(
             options=(len(listAvailableNetworksByToken(token)) + 1)))
