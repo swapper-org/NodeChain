@@ -103,6 +103,9 @@ def start(args):
         token = coinMenu(args)
         network = networkMenu(args, token)
         utils.configQueries(args, token, network)
+        if checkIfRunning(token, network):
+            print(f"The API {token} in {network} network is already started.")
+            return
         startApi(token, network)
 
 
