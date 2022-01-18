@@ -5,7 +5,7 @@ import json
 import time
 from btc.connector import RPC_CORE_ENDPOINT, RPC_ELECTRUM_ENDPOINT
 from btc.constants import *
-from btc.utils import convertToSatoshi
+from btc.utils import convertToSatoshi, parseBalancesToTransfers
 from logger import logger
 from rpcutils.rpcconnector import RPCConnector
 from rpcutils.rpcutils import RPCMethods
@@ -41,6 +41,7 @@ try:
 except BadRequestError:
     if wallet1Name not in makeBitcoinCoreRequest("listwallets", []):
         makeBitcoinCoreRequest("createwallet", [wallet1Name])
+
 
 address1 = makeBitcoinCoreRequest("getnewaddress", [])
 privateKey1 = makeBitcoinCoreRequest("dumpprivkey", [address1])
@@ -210,7 +211,7 @@ def testBroadcastTransaction():
         logger.printError("broadcastTransaction not loaded in RPCMethods")
         assert False
 
-    signedRawTransaction, ok = createSignedRawTransaction(address1, address2, 115)
+    signedRawTransaction, ok = createSignedRawTransaction(address1, address2, 0.5)
 
     if not ok:
         logger.printError("Can not create transaction to broadcasts")
@@ -415,17 +416,40 @@ def testGetTransaction():
         logger.printError("getTransaction not loaded in RPCMethods")
         assert False
 
-    addressHistory = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
-    txHash = addressHistory[0][TX_HASH_SNAKE_CASE]
+    txHash, _ = sendTransaction(address1, address2, 0.25)
+    mineBlocksToAddress(minerAddress, 1)
 
-    rawTransaction = makeElectrumRequest(GET_TRANSACTION_METHOD, [txHash])
-    expected = makeBitcoinCoreRequest(DECODE_RAW_TRANSACTION_METHOD, [rawTransaction])
+    expected = makeBitcoinCoreRequest(GET_TRANSACTION_METHOD, [txHash, True, True])
 
     got = RPCMethods["getTransaction"](0, {
         TX_HASH: txHash
     })
 
-    assert json.dumps(expected, sort_keys=True) == json.dumps(got, sort_keys=True)
+    vins = {}
+    transactionAmount = 0
+    if "generated" not in expected:
+        for vin in expected["decoded"][VIN]:
+
+            inputTransaction = makeBitcoinCoreRequest(GET_TRANSACTION_METHOD, [vin[TX_ID], True, True])
+            value = inputTransaction["decoded"][VOUT][vin[VOUT]][VALUE]
+            address = inputTransaction["decoded"][VOUT][vin[VOUT]][SCRIPT_PUB_KEY][ADDRESSES][0]
+            transactionAmount += value
+            vins[address] = value
+
+    assert json.dumps(
+        {
+            "transaction": {
+                "data": expected["decoded"],
+                "fee": -expected["fee"],
+                BLOCK_HASH: expected["blockhash"],
+                "transfers": parseBalancesToTransfers(
+                    vins,
+                    expected["details"],
+                    -expected["fee"],
+                    transactionAmount
+                )
+            }
+        }, sort_keys=True) == json.dumps(got, sort_keys=True)
 
 
 def testSubscribeToAddressBalance():

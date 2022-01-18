@@ -157,15 +157,23 @@ def getTransaction(id, params):
 
     if transaction is None:
         logger.printWarning("Could not get transaction from node")
-        raise rpcerrorhandler.BadRequestError("Could not get transaction from node")
+        return {TRANSACTION: None}
 
-    inputs = []
-    outputs = []
-
-    inputs.append({ADDRESS: transaction[FROM], AMOUNT: str(int(transaction[VALUE], 16))})
-    outputs.append({ADDRESS: transaction[TO], AMOUNT: str(int(transaction[VALUE], 16))})
-
-    response = {TRANSACTION: transaction, INPUTS: inputs, OUTPUTS: outputs}
+    response = {
+        TRANSACTION: {
+            "fee": utils.toHex(utils.toWei(transaction[GAS_PRICE]) * utils.toWei(transaction["gas"])),
+            BLOCK_HASH: transaction[BLOCK_HASH],
+            "data": transaction,
+            "transfers": [
+                {
+                    FROM: transaction[FROM],
+                    TO: transaction[TO],
+                    AMOUNT: transaction[VALUE],
+                    "fee": utils.toHex(utils.toWei(transaction[GAS_PRICE]) * utils.toWei(transaction["gas"]))
+                }
+            ]
+        }
+    }
 
     err = rpcutils.validateJSONRPCSchema(response, responseSchema)
     if err is not None:

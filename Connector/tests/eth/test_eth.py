@@ -5,6 +5,7 @@ import time
 from web3 import Web3
 from eth.connector import RPC_ENDPOINT
 from eth.constants import *
+from eth import utils
 from logger import logger
 from rpcutils.rpcutils import RPCMethods
 from rpcutils.rpcconnector import RPCConnector
@@ -140,24 +141,15 @@ def testGetTransaction():
 
     expected = makeEtherumgoRequest(GET_TRANSACTION_BY_HASH_METHOD, [txHash.hex()])
 
-    for key in expected:
-        if key not in got[TRANSACTION]:
-            logger.printError(f"{key} not found in Connector response")
-            assert False
-        if got[TRANSACTION][key] != expected[key]:
-            logger.printError("Transaction data not correct")
-            assert False
-    for input in got[INPUTS]:
-        if input[ADDRESS] != expected[FROM] or input[AMOUNT] != str(int(expected[VALUE], 16)):
-            logger.printError(f"Transaction input not correct. Output address: {input[ADDRESS]} Expected: {expected[FROM]} Output ampount: {input[AMOUNT]} Expected: {expected[VALUE]}")
-            assert False
+    assert json.dumps(got[TRANSACTION]["data"], sort_keys=True) == json.dumps(expected, sort_keys=True)
+    assert got[TRANSACTION][BLOCK_HASH] == expected[BLOCK_HASH]
+    assert got[TRANSACTION]["fee"] == utils.toHex(utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
 
-    for output in got[OUTPUTS]:
-        if output[ADDRESS] != expected[TO] or output[AMOUNT] != str(int(expected[VALUE], 16)):
-            logger.printError(f"Transaction output not correct. Output address: {output[ADDRESS]} Expected: {expected[TO]} Output ampount: {output[AMOUNT]} Expected: {expected[VALUE]}")
-            assert False
-
-    assert True
+    for transfer in got[TRANSACTION]["transfers"]:
+        assert transfer[TO] == expected[TO]
+        assert transfer[FROM] == expected[FROM]
+        assert transfer[AMOUNT] == expected[VALUE]
+        assert transfer["fee"] == utils.toHex(utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
 
 
 def testEstimateGas():

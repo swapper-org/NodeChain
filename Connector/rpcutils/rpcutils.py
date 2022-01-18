@@ -93,3 +93,7 @@ def generateRPCErrorResponse(id, err):
             MESSAGE: err[MESSAGE]
         }
     }
+
+
+def isRPCErrorResponse(response):
+    return CODE in response or MESSAGE in response
