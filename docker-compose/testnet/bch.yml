@@ -29,7 +29,7 @@ services:
     build: ../../Connector
     environment:
       COIN: BCH
-      STAGE: ${STAGE}
+      NETWORK: ${NETWORK}
       PORT: ${PORT}
     image: connector
 

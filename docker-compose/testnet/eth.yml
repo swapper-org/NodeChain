@@ -10,7 +10,7 @@ services:
     build: ../../Connector
     environment:
       COIN: ETH
-      STAGE: ${STAGE}
+      NETWORK: ${NETWORK}
       PORT: ${PORT}
     image: connector
     depends_on:

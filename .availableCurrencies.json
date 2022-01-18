@@ -1,0 +1,95 @@
+[
+  {
+    "name": "bitcoin",
+    "token": "btc",
+    "networks": {
+      "regtest": {
+        "services": ["bitcoincore", "electrumx", "electrum"],
+        "dockerComposePath": "./docker-compose/regtest/btc.yml",
+        "configurable": [
+          "bitcoincoreRpc",
+          "electrumRpc",
+          "bitcoincorePort",
+          "electrumPort"
+        ]
+      },
+      "testnet": {
+        "services": ["bitcoincore", "electrumx", "electrum"],
+        "dockerComposePath": "./docker-compose/testnet/btc.yml",
+        "configurable": [
+          "bitcoincoreRpc",
+          "electrumRpc",
+          "bitcoincorePort",
+          "electrumPort"
+        ]
+      },
+      "mainnet": {
+        "services": ["bitcoincore", "electrumx", "electrum"],
+        "dockerComposePath": "./docker-compose/mainnet/btc.yml",
+        "configurable": [
+          "bitcoincoreRpc",
+          "electrumRpc",
+          "bitcoincorePort",
+          "electrumPort"
+        ]
+      }
+    }
+  },
+  {
+    "name": "ethereum",
+    "token": "eth",
+    "networks": {
+      "regtest": {
+        "services": ["ethereumgo"],
+        "dockerComposePath": "./docker-compose/regtest/eth.yml",
+        "configurable": ["ethereumRpc", "ethereumPort", "ethereumWS"]
+      },
+      "testnet": {
+        "services": ["ethereumgo"],
+        "dockerComposePath": "./docker-compose/testnet/eth.yml",
+        "configurable": ["ethereumRpc", "ethereumPort", "ethereumWS"]
+      },
+      "mainnet": {
+        "services": ["ethereumgo"],
+        "dockerComposePath": "./docker-compose/mainnet/eth.yml",
+        "configurable": ["ethereumRpc", "ethereumPort", "ethereumWS"]
+      }
+    }
+  },
+  {
+    "name": "bitcoin-cash",
+    "token": "bch",
+    "networks": {
+      "regtest": {
+        "services": ["bitcoincore", "electrumx", "electrum"],
+        "dockerComposePath": "./docker-compose/regtest/bch.yml",
+        "configurable": [
+          "bitcoincoreRpc",
+          "electrumRpc",
+          "bitcoincorePort",
+          "electrumPort"
+        ]
+      },
+      "testnet": {
+        "services": ["bitcoincore", "electrumx", "electrum"],
+        "dockerComposePath": "./docker-compose/testnet/bch.yml",
+        "configurable": [
+          "bitcoincoreRpc",
+          "electrumRpc",
+          "bitcoincorePort",
+          "electrumPort"
+        ]
+      },
+      "mainnet": {
+        "services": ["bitcoincore", "electrumx", "electrum"],
+        "dockerComposePath": "./docker-compose/mainnet/bch.yml",
+        "configurable": [
+          "bitcoincoreRpc",
+          "electrumRpc",
+          "bitcoincorePort",
+          "electrumPort"
+        ]
+      }
+    }
+  }
+]

@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 import sys
 import os
-import argparse
 import json
 
 
+# DEPRECATED
 def queryYesNo(question, default="yes"):
     valid = {"yes": True, "y": True, "ye": True,
              "no": False, "n": False}
@@ -29,6 +29,24 @@ def queryYesNo(question, default="yes"):
                 "Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
+def configQueries(args, token, network):
+    # Connector port configuration. This line will be deprecated in the future
+    os.environ["PORT"] = args.port if args.port else queryPort("Port to start: ")
+
+    if args.blockchain_path:
+        os.environ["BLOCKCHAIN_PATH"] = args.blockchain_path
+    else:
+        os.environ["BLOCKCHAIN_PATH"] = queryPath(token, network)
+
+    # In the future this only works for the connector setup
+    if args.ssl_port:
+        os.environ["SSL_PORT"] = args.ssl_port
+    else:
+        os.environ["SSL_PORT"] = queryPort("Port to start (SSL): ")
+
+    querySSL(args.config, args.certs)
+
+
 def queryPort(question):
     while True:
         sys.stdout.write(question)
@@ -40,13 +58,13 @@ def queryPort(question):
             return port
 
 
-def queryPath(coin, stage):
+def queryPath(coin, network):
     try:
-        path = input(f"Please choose the directory to save blockchain data (/srv/nodechain-node/{coin}_{stage}): ")
+        path = input(f"Please choose the directory to save blockchain data (/srv/nodechain-node/{coin}_{network}): ")
     except SyntaxError:
-        path = f"/srv/nodechain-node/{coin}_{stage}"
+        path = f"/srv/nodechain-node/{coin}_{network}"
     if not path:
-        path = f"/srv/nodechain-node/{coin}_{stage}"
+        path = f"/srv/nodechain-node/{coin}_{network}"
     return path
 
 
@@ -62,27 +80,13 @@ def queryCerts(certs):
             path = "/etc/ssl/certs"
     else:
         path = certs
+
     return path
 
 
-def askSSL(config, certs):
-    if config is None:
-        while True:
-            if queryYesNo("Do you want to activate SSL? ", "no"):
-                path = queryCerts(certs)
-
-                if os.path.isdir(path) and "nodechain_cert.key" in os.listdir(path) and "nodechain_cert.crt" in os.listdir(path):
-                    os.environ["CERT_PATH"] = path
-                    os.environ["NGINX_CONFIG_PATH"] = "../../nginx/ssl.conf"
-                    return
-                else:
-                    sys.stdout.write("You need to have the files nodechain_cert.key and nodechain_cert.crt in the "
-                                     "certificates directory. \n")
-            else:
-                os.environ["NGINX_CONFIG_PATH"] = "../../nginx/nginx.conf"
-                os.environ["CERT_PATH"] = "/etc/ssl/certs"
-                return
-    elif config:
+# This method will be expecting your nodechain_cert.key and nodechain_cert.crt
+def querySSL(config, certs):
+    if config:
         while True:
             path = queryCerts(certs)
             if os.path.isdir(path) and "nodechain_cert.key" in os.listdir(path) and "nodechain_cert.crt" in os.listdir(path):
@@ -128,36 +132,35 @@ def signalHandler(sig, frame):
 
 
 def getVersion():
-    os.chdir("../Connector/")
-    f = open('config.json')
+    f = open('../Connector/config.json')
     data = json.load(f)
     return data['version']
 
 
-def argumentHandler():
-    version = getVersion()
+def invalid():
+    print("INVALID CHOICE!")
 
-    parser = argparse.ArgumentParser(
-        description='Nodechain allows the user to build and manage their own nodes natively without having to rely on external services.', prog="python3 nodechain.py")
-    parser.add_argument('-t', '--token', action="store",
-                        dest='token', help="symbol of the token", default=None)
-    parser.add_argument('-n', '--network', action="store", dest='network',
-                        help="network where to set up the blockchain", choices=['mainnet', 'testnet', 'development'], default=None)
-    parser.add_argument('-p', '--port', action="store", dest='port',
-                        help="port to start the node", default=None)
-    parser.add_argument('-sp', '--sslport', action="store",
-                        dest='ssl_port', help="ssl port", default=None)
-    parser.add_argument('-b', '--blockchain', action="store", dest='blockchain_path',
-                        help="path to store blockchain files", default=None)
-    parser.add_argument('--ssl', action="store_true",
-                        dest='config', help="ssl config", default=None)
-    parser.add_argument('--no-ssl', action="store_false",
-                        dest='config', help="no ssl config", default=None)
-    parser.add_argument('-c', '--cert', action="store",
-                        dest='certs', help="path to certs", default=None)
-    parser.add_argument('-v', '--version', action="version",
-                        version=f"NodeChain version {version}", help="software version", default=None)
 
-    args = parser.parse_args()
+def listTokens():
+    tokens = []
+    with open('.availableCurrencies.json') as f:
+        data = json.load(f)
+        for api in data:
+            tokens.append(api["token"])
+    return tokens
 
-    return args
+
+def listServices(token, network):
+    with open('.availableCurrencies.json') as f:
+        data = json.load(f)
+        for api in data:
+            if api["token"] == token:
+                return api["networks"][network]["services"]
+
+
+def getTokenFromCoin(coin):
+    with open('.availableCurrencies.json') as f:
+        data = json.load(f)
+        for api in data:
+            if api["name"] == coin:
+                return api["token"]

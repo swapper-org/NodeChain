@@ -12,7 +12,7 @@ services:
     build: ../../Connector
     environment:
       COIN: XMR
-      STAGE: ${STAGE}
+      NETWORK: ${NETWORK}
       PORT: ${PORT}
     image: connector
     depends_on:

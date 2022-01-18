@@ -49,7 +49,7 @@ See deployment for notes on how to deploy the project on a live system.
 3. Run the script to build any API:
 
 ```sh
-~$ python3 nodechain.py
+~$ python3 nodechain.py start
 ```
 
 4. Follow the steps of the script:
@@ -75,11 +75,22 @@ You can also run NodeChain from command line without using the UI. You can get m
 1. Navigate to `/scripts` and run the script to stop any running API:
 
 ```sh
-~$ python3 nodechain.py
+~$ python3 nodechain.py stop
 ```
 
 2. Choose the environment to show running nodes
 3. Choose the API you want to stop.
+
+## Check API status
+
+1. Navigate to `/scripts` and run the script to stop any running API:
+
+```sh
+~$ python3 nodechain.py status
+```
+
+2. Choose the environment to show running nodes
+3. Choose the API you want to check.
 
 ## Usage
 
@@ -88,9 +99,13 @@ NodeChain uses the JSON RPC protocol for API requests. The API provides the foll
 - `https://<URL-SERVER>:<PORT>/rpc` for RPC requests.
 - `wss://<URL-SERVER>:<PORT>/ws` for real time requests.
 
+We also support REST API (HTTP)
+
+- GET / POST `https://<URL-SERVER>:<PORT>/<METHOD>` for HTTP requests
+
 ## Environments
 
-### Development stage
+### Regtest stage
 
 This environment is intended for the development and contribution of the project.
 Blockchains used are created locally (_regtest, ganache,..._) facilitating the development and waiting times in block mining.
@@ -149,12 +164,12 @@ You can do the local testing manually:
 
 1. Lint the project using the instructions above.
 
-2. Use the `scripts/buildapi.py` script to launch NodeChain in development network locally and select the token you want to test
+2. Use the `scripts/buildapi.py` script to launch NodeChain in regtest network locally and select the token you want to test
 
 3. Run tests inside the Connector docker image with the following command where you have to replace ${TOKEN} by the token symbol you are testing in lower case
 
 ```sh
-docker exec -it ${TOKEN}_development_api_connector_1 bash -c "cd Connector && python -m pytest -c tests/${TOKEN}/pytest_${TOKEN}.ini -s --cov=${TOKEN}/ --cov=logger/ --cov=rpcutils/ --cov=wsutils/ tests/${TOKEN}"
+docker exec -it ${TOKEN}_regtest_api_connector_1 bash -c "cd Connector && python -m pytest -c tests/${TOKEN}/pytest_${TOKEN}.ini -s --cov=${TOKEN}/ --cov=logger/ --cov=rpcutils/ --cov=wsutils/ tests/${TOKEN}"
 ```
 
 ### CircleCI testing

@@ -4,7 +4,7 @@ jobs:
     machine:
       image: ubuntu-1604:202007-01
     environment:
-      STAGE: development
+      NETWORK: regtest
       PORT: 80
       SSL_PORT: 443
       NGINX_CONFIG_PATH: ../../nginx/nginx.conf
@@ -25,9 +25,9 @@ jobs:
             source venv/bin/activate
             flake8 --statistics
       - run: 
-          name: Deploy ETH development nodes
+          name: Deploy ETH regtest nodes
           command: |
-            docker-compose -f Connector/tests/docker-compose/eth.yml -p eth_development_api up --build -d
+            docker-compose -f Connector/tests/docker-compose/eth.yml -p eth_regtest_api up --build -d
       - run:
           name: Add ethereumgo to /etc/hosts
           command: |
@@ -47,7 +47,7 @@ jobs:
     machine:
       image: ubuntu-1604:202007-01
     environment:
-      STAGE: development
+      NETWORK: regtest
       PORT: 80
       SSL_PORT: 443
       NGINX_CONFIG_PATH: ../../nginx/nginx.conf
@@ -68,9 +68,9 @@ jobs:
             source venv/bin/activate
             flake8 --statistics
       - run: 
-          name: Deploy BTC development nodes
+          name: Deploy BTC regtest nodes
           command: |
-            docker-compose -f Connector/tests/docker-compose/btc.yml -p btc_development_api up --build -d
+            docker-compose -f Connector/tests/docker-compose/btc.yml -p btc_regtest_api up --build -d
       - run:
           name: Add electrum and bitcoincore to /etc/hosts
           command: |
@@ -86,7 +86,7 @@ jobs:
       - run:
           name: BitcoinCore set up
           command: |
-            docker exec -it btc_development_api_bitcoincore_1 bash -c "rm -rf /home/bitcoin/.bitcoin/regtest/wallets/*"
+            docker exec -it btc_regtest_api_bitcoincore_1 bash -c "rm -rf /home/bitcoin/.bitcoin/regtest/wallets/*"
       - run:
           name: Run BTC tests
           command: |
