@@ -8,7 +8,8 @@ services:
       -server=1
       -rpcallowip=0.0.0.0/0
       -rpcbind=0.0.0.0
-      -txindex=1
+      -txindex=0
+      -prune=0
       -regtest=1
       -debug=1
       -rpcport=8332
@@ -18,24 +19,27 @@ services:
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
 
-  electrumx:
-    image: lukechilds/electrumx
+  electrs:
+    build: ../../packages/nodechain-electrs
+    image: electrs
+    command: -v --timestamp
+    depends_on:
+      - bitcoincore
     environment:
-      DAEMON_URL: http://swapper:swapper@bitcoincore:8332
-      COIN: BitcoinSegwit
-      PEER_DISCOVERY: "off"
-      SERVICES: tcp://:50001
-      COST_SOFT_LIMIT: 0 #Disable cost limitation so electrumx does not crash electrum during sync
-      COST_HARD_LIMIT: 0
-      NET: regtest
+      REGTEST: 1
+      DAEMON_RPC_URL: bitcoincore:8332
+      ELECTRUM_RPC_URL: 0.0.0.0:60401
     volumes:
-      - ${BLOCKCHAIN_PATH}/electrumx:/data
+      - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
+      - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
 
   electrum:
     build: ../../packages/nodechain-electrum-regtest
     image: electrum
+    depends_on:
+      - electrs
     environment:
-      TESTNET: 1
+      REGTEST: 1
 
   connector:
     build: ../../Connector
