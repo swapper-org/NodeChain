@@ -1,22 +1,14 @@
+#!/usr/bin/python
 from aiohttp import web
+from logger import logger
 
-
-class WebApp():
-
-    instance = None
-
-    def __new__(cls):
-
-        if not WebApp.instance:
-            WebApp.instance = App()
-
-        return WebApp.instance
+appModules = {}
 
 
 class App(web.Application):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, middlewares=()):
+        super().__init__(middlewares=middlewares)
         self.clientSessions = []
         self.zmqConnections = []
 
@@ -45,3 +37,16 @@ class App(web.Application):
     async def closeAllZMQSocket(self):
         for zmqConnection in list(self.zmqConnections):
             await self.closeWSClientSession(zmqConnection)
+
+
+def appModule(moduleAppPath):
+
+    def moduleWrapper(function):
+
+        if moduleAppPath in appModules:
+            logger.printWarning(f"Module {moduleAppPath} already registered")
+        else:
+            logger.printWarning(f"Registering {moduleAppPath} module")
+            appModules[moduleAppPath] = function()
+
+    return moduleWrapper

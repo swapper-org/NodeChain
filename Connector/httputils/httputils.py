@@ -1,87 +1,33 @@
 #!/usr/bin/python3
 import json
-import random
-import sys
 from logger import logger
-from webapp import WebApp
-from aiohttp import web
-from rpcutils import errorhandler, rpcutils
+from . import error
+import jsonschema
 
 
-def postMethod(function):
-
-    logger.printInfo(f"Registering new Post HTTP method {function.__name__}")
-
-    async def wrapper(request):
-
-        logger.printInfo(f"Executing HTTP method {function.__name__} over RPC")
-
-        try:
-
-            response = function(
-                random.randint(1, sys.maxsize),
-                parseHttpRequest(await request.read())
-            )
-
-            logger.printInfo(f"Sending response to requester: {response}")
-
-            return web.Response(
-                text=json.dumps(response),
-                content_type=rpcutils.JSON_CONTENT_TYPE,
-            )
-
-        except errorhandler.Error as e:
-            return web.Response(
-                text=json.dumps(e.jsonEncode()),
-                content_type=rpcutils.JSON_CONTENT_TYPE,
-                status=e.code,
-            )
-
-    app = WebApp()
-    app.add_routes([web.post(f"/{function.__name__}", wrapper)])
-
-    return function
-
-
-def getMethod(function):
-
-    logger.printInfo(f"Registering new Get HTTP method {function.__name__}")
-
-    async def wrapper(request):
-
-        logger.printInfo(f"Executing HTTP method {function.__name__} over RPC")
-
-        try:
-
-            response = function(
-                random.randint(1, sys.maxsize),
-                {}
-            )
-
-            logger.printInfo(f"Sending response to requester: {response}")
-
-            return web.Response(
-                text=json.dumps(response),
-                content_type=rpcutils.JSON_CONTENT_TYPE,
-            )
-
-        except errorhandler.Error as e:
-            return web.Response(
-                text=json.dumps(e.jsonEncode()),
-                content_type=rpcutils.JSON_CONTENT_TYPE,
-                status=e.code,
-            )
-
-    app = WebApp()
-    app.add_routes([web.get(f"/{function.__name__}", wrapper)])
-
-    return function
-
-
-def parseHttpRequest(request):
+def parseJSONRequest(request):
 
     try:
         return json.loads(request)
     except Exception as e:
         logger.printError(f"Payload is not JSON message: {e}")
-        raise errorhandler.BadRequestError(f"Payload is not JSON message: {e}")
+        raise error.BadRequestError(f"Payload is not JSON message: {e}")
+
+
+def validateJSONSchema(payload, schemaFile):
+
+    logger.printInfo(f"Validating JSON schema with {schemaFile}")
+
+    try:
+        with open(schemaFile) as file:
+            schema = json.load(file)
+            try:
+                jsonschema.validate(instance=payload, schema=schema)
+            except jsonschema.exceptions.ValidationError as err:
+                logger.printError(f"Error validation payload with schema: {err}")
+                return err
+    except FileNotFoundError as err:
+        logger.printError(f"Schema {schemaFile} not found: {err}")
+        raise error.InternalServerError(f"Schema {schemaFile} not found: {err}")
+
+    return None

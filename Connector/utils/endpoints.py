@@ -1,14 +1,10 @@
+#/usr/bin/python
 import json
-import os
-from httputils import httputils
-from rpcutils import rpcutils
-from rpcutils.errorhandler import InternalServerError
-from rpcutils.constants import *
+from rpcutils import errorhandler as rpcerrorhandler
 from logger import logger
+from .constants import *
 
 
-@httputils.getMethod
-@rpcutils.rpcMethod
 def getVersion(id, params):
 
     logger.printInfo("Executing RPC method getVersion")
@@ -19,8 +15,8 @@ def getVersion(id, params):
 
     except Exception as e:
         logger.printError(str(e))
-        raise InternalServerError(str(e))
+        raise rpcerrorhandler.InternalServerError(str(e))
 
     return {
-        VERSION: config[VERSION] if VERSION in config else UNKNOWN
+        VERSION: config[VERSION] if VERSION in config else "Unknown"
     }
