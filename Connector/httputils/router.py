@@ -1,10 +1,11 @@
 #!/usr/bin/python
 import asyncio
-import json
 from logger import logger
 from patterns import Singleton
 from utils import utils
 from . import error
+
+currenciesHandler = {}
 
 
 class Router(object, metaclass=Singleton.Singleton):
@@ -18,7 +19,7 @@ class Router(object, metaclass=Singleton.Singleton):
 
     def addCoin(self, coin, network, config):
 
-        if not self.isAvailableCurrency(coin):
+        if not utils.isAvailableCurrency(coin):
             logger.printError(f"Currency {coin} is not supported")
             raise error.BadRequestError(f"Currency {coin} is not supported")
 
@@ -27,18 +28,26 @@ class Router(object, metaclass=Singleton.Singleton):
                 logger.printError(f"Can not add {network} network for {coin} because it is already added")
                 return {
                     "success": False,
-                    "message": f"Can not add {network} networrk for {coin} because it is already added"
+                    "message": f"Can not add {network} network for {coin} because it is already added"
                 }
 
-        if not self.isAvailableNetworkForCurrency(coin, network):
+        if not utils.isAvailableNetworkForCurrency(coin, network):
             logger.printError(f"{network} network not supported for currency {coin}")
             return {
                 "success": False,
                 "message": f"{network} network not supported for currency {coin}"
             }
 
+        coinHandler = currenciesHandler[coin]
+        ok, err = coinHandler.addConfig(network=network, config=config)
+        if not ok:
+            return {
+                "success": False,
+                "message": err
+            }
+
         self._availableCoins[coin] = {
-            network: {}
+            network: True
         }
 
         return {
@@ -48,7 +57,7 @@ class Router(object, metaclass=Singleton.Singleton):
 
     def removeCoin(self, coin, network):
 
-        if not self.isAvailableCurrency(coin):
+        if not utils.isAvailableCurrency(coin):
             logger.printError(f"Currency {coin} is not supported")
             raise error.BadRequestError(f"Currency {coin} is not supported")
 
@@ -67,15 +76,18 @@ class Router(object, metaclass=Singleton.Singleton):
             }
 
         logger.printInfo(f"Removing {network} network for currency {coin}")
+
         del self._availableCoins[coin][network]
+        coinHandler = currenciesHandler[coin]
+        ok, err = coinHandler.removeConfig(network)
         return {
-            "success": True,
-            "message": f"{network} network removed for currency {coin}"
+            "success": ok,
+            "message": f"{network} network removed for currency {coin}" if ok else err
         }
 
     def getCoin(self, coin, network):
 
-        if not self.isAvailableCurrency(coin):
+        if not utils.isAvailableCurrency(coin):
             logger.printError(f"Currency {coin} is not supported")
             raise error.BadRequestError(f"Currency {coin} is not supported")
 
@@ -94,17 +106,26 @@ class Router(object, metaclass=Singleton.Singleton):
             }
 
         logger.printInfo(f"Returning configuration for {network} network for currency {coin}")
+
+        coinHandler = currenciesHandler[coin]
+        config, err = coinHandler.getConfig(network)
+        if err is not None:
+            return {
+                "success": False,
+                "message": err
+            }
+
         return {
             "success": True,
             "message": f"Config configuration for {network} network for currency {coin} retrieved successfully",
             "coin": coin,
             "network": network,
-            "config": self._availableCoins[coin][network]
+            "config": config
         }
 
     def updateCoin(self, coin, network, config):
 
-        if not self.isAvailableCurrency(coin):
+        if not utils.isAvailableCurrency(coin):
             logger.printError(f"Currency {coin} is not supported")
             raise error.BadRequestError(f"Currency {coin} is not supported")
 
@@ -123,44 +144,56 @@ class Router(object, metaclass=Singleton.Singleton):
             }
 
         logger.printInfo(f"Updating configuration for network {network} for currency {coin}")
-        self._availableCoins[coin] = {
-            network: {}
-        }
+
+        coinHandler = currenciesHandler[coin]
+        ok, err = coinHandler.updateConfig(network, config)
+
         return {
-            "success": True,
-            "message": f"Configuration for {network} network for currency {coin} updated successfully"
+            "success": ok,
+            "message": err if not ok else
+            f"Configuration for {network} network for currency {coin} updated successfully"
         }
 
-    def isAvailableCurrency(self, coin):
 
-        availaCurrenciesFile = utils.getAvailableCurrenciesFile()
+class CurrencyHandler:
 
-        try:
+    def __init__(self, handler):
+        self.handler = handler
 
-            with open(availaCurrenciesFile) as file:
-                config = json.load(file)
-                return coin in [conf["token"] for conf in config if "token" in conf]
+    def __call__(self, coin):
 
-        except FileNotFoundError as err:
-            logger.printError(f"File {availaCurrenciesFile} could not be found")
-            raise error.InternalServerError(f"File {availaCurrenciesFile} could not be found:{err}")
+        def addConfig(network, config):
+            pass
 
-    def isAvailableNetworkForCurrency(self, coin, network):
+        def getConfig(network):
+            pass
 
-        availaCurrenciesFile = utils.getAvailableCurrenciesFile()
+        def removeConfig(network):
+            pass
 
-        try:
+        def updateConfig(network, config):
+            pass
 
-            with open(availaCurrenciesFile) as file:
-                config = json.load(file)
+        async def handleRequest(request):
+            pass
 
-                for conf in config:
-                    if "token" in conf and conf["token"] == coin:
-                        if "networks" in conf:
-                            return network in conf["networks"]
+        self.handler.addConfig = addConfig \
+            if not hasattr(self.handler, "addConfig") or not callable(self.handler.addConfig) \
+            else self.handler.addConfig
+        self.handler.getConfig = getConfig \
+            if not hasattr(self.handler, "getConfig") or not callable(self.handler.getConfig) \
+            else self.handler.getConfig
+        self.handler.removeConfig = removeConfig \
+            if not hasattr(self.handler, "removeConfig") or not callable(self.handler.removeConfig) \
+            else self.handler.removeConfig
+        self.handler.updateConfig = updateConfig \
+            if not hasattr(self.handler, "updateConfig") or not callable(self.handler.updateConfig) \
+            else self.handler.updateConfig
+        self.handler.handleRequest = handleRequest \
+            if not hasattr(self.handler, "handleRequest") or not callable(self.handler.handleRequest) \
+            else self.handler.handleRequest
 
-            return False
+        obj = self.handler(coin)
+        currenciesHandler[coin] = obj
 
-        except FileNotFoundError as err:
-            logger.printError(f"File {availaCurrenciesFile} could not be found")
-            raise error.InternalServerError(f"File {availaCurrenciesFile} could not be found:{err}")
+        return obj
