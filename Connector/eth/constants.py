@@ -71,3 +71,6 @@ CURRENT_BLOCK_INDEX = "currentBlockIndex"
 CURRENT_BLOCK = "currentBlock"
 HIGHEST_BLOCK = "highestBlock"
 SYNC_PERCENTAGE = "syncPercentage"
+
+PACKAGE_NAME = "eth"
+DEFAULT_PKG_CONF = "defaultConf.json"
