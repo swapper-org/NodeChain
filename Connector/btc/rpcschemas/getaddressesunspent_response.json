@@ -9,7 +9,7 @@
           "address": {
             "type": "string"
           },
-          "utxos": {
+          "outputs": {
             "type": "array",
             "items": {
               "type": "object",
