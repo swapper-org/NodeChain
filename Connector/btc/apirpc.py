@@ -163,7 +163,7 @@ def getAddressesUnspent(id, params):
 
         response.append({
             ADDRESS: address,
-            OUTPUTS: getAddressesUnspent(
+            OUTPUTS: getAddressUnspent(
                 id,
                 {
                     ADDRESS: address
