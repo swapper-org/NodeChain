@@ -50,7 +50,7 @@
       },
       "required": [
           "address",
-          "balance"
+          "outputs"
       ]
   }
 }
