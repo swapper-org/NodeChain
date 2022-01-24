@@ -410,6 +410,40 @@ def testGetAddressUnspent():
     assert json.dumps(got, sort_keys=True) == json.dumps(txs, sort_keys=True)
 
 
+def testGetAddressesUnspent():
+
+    if "getAddressesUnspent" not in RPCMethods:
+        logger.printError("getAddressesUnspent not loaded in RPCMethods")
+        assert False
+
+    addresses = [address1, address2]
+
+    got = RPCMethods["getAddressesUnspent"](0, {
+        ADDRESSES: addresses
+    })
+
+    for addressUnspent in got:
+        txs = []
+        expected = makeElectrumRequest(GET_ADDRESS_UNSPENT_METHOD, addressUnspent[ADDRESS])
+        for tx in expected:
+            txs.append(
+                {
+                    TX_HASH: tx[TX_HASH_SNAKE_CASE],
+                    VOUT: str(tx[TX_POS_SNAKE_CASE]),
+                    STATUS: {
+                        CONFIRMED: tx[HEIGHT] != 0,
+                        BLOCK_HEIGHT: str(tx[HEIGHT])
+                    },
+                    VALUE: str(tx[VALUE])
+                }
+            )
+        if not (json.dumps(got, sort_keys=True) == json.dumps(txs, sort_keys=True)):
+            logger.printInfo(f"Error getting unspent transaction for {addressUnspent[ADDRESS]}. Expected: {expected}. Got: {addressUnspent[OUTPUTS]}")
+            assert False
+
+    assert True
+
+
 def testGetTransaction():
 
     if "getTransaction" not in RPCMethods:
