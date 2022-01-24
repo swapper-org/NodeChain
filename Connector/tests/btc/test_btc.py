@@ -423,8 +423,11 @@ def testGetAddressesUnspent():
     })
 
     for addressUnspent in got:
-        txs = []
+
         expected = makeElectrumRequest(GET_ADDRESS_UNSPENT_METHOD, addressUnspent[ADDRESS])
+
+        txs = []
+
         for tx in expected:
             txs.append(
                 {
@@ -437,7 +440,7 @@ def testGetAddressesUnspent():
                     VALUE: str(tx[VALUE])
                 }
             )
-        if not (json.dumps(got, sort_keys=True) == json.dumps(txs, sort_keys=True)):
+        if not (json.dumps(addressUnspent[OUTPUTS], sort_keys=True) == json.dumps(txs, sort_keys=True)):
             logger.printInfo(f"Error getting unspent transaction for {addressUnspent[ADDRESS]}. Expected: {expected}. Got: {addressUnspent[OUTPUTS]}")
             assert False
 
