@@ -1,4 +1,4 @@
-from . import errorhandler
+from . import error
 from .constants import *
 import requests
 from logger import logger
@@ -30,18 +30,18 @@ class RPCConnector():
 
         except Exception as e:
             logger.printError(f"Request to client could not be completed: {str(e)}")
-            raise errorhandler.BadRequestError(f"Request to client could not be completed: {str(e)}")
+            raise error.BadRequestError(f"Request to client could not be completed: {str(e)}")
 
         try:
             response = response.json()
         except Exception as e:
             logger.printError(f"Json in client response is not supported: {str(e)}")
-            raise errorhandler.InternalServerError(f"Json in client response is not supported: {str(e)}")
+            raise error.InternalServerError(f"Json in client response is not supported: {str(e)}")
 
         logger.printInfo(f"Response received from {endpoint}: {response}")
 
         if ERROR in response and response[ERROR] is not None:
             logger.printError(f"Exception occured in server: {response[ERROR]}")
-            raise errorhandler.BadRequestError(f"Exception occured in server: {response[ERROR]}")
+            raise error.BadRequestError(f"Exception occured in server: {response[ERROR]}")
 
         return response[RESULT]

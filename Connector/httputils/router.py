@@ -1,9 +1,11 @@
 #!/usr/bin/python
-import asyncio
+from aiohttp import web
+import json
 from logger import logger
 from patterns import Singleton
 from utils import utils
 from . import error
+from . import httputils
 
 currenciesHandler = {}
 
@@ -13,9 +15,31 @@ class Router(object, metaclass=Singleton.Singleton):
     def __init__(self):
         self._availableCoins = {}
 
-    @asyncio.coroutine
-    def doRoute(self, request):
-        pass
+    async def doRoute(self, request):
+
+        coin = request.match_info["coin"]
+        network = request.match_info["network"]
+        method = request.match_info["method"]
+
+        if coin not in self._availableCoins:
+            logger.printError(f"Currency {coin} has not been previously added")
+            raise error.NotFoundError(f"Currency {coin} has not been previously added")
+
+        if network not in self._availableCoins[coin]:
+            logger.printError(f"{network} network for {coin} has not been previously added")
+            raise error.NotFoundError(f"{network} network for {coin} has not been previously added")
+
+        coinHandler = currenciesHandler[coin]
+
+        response = await coinHandler.handleRequest(
+            network=network,
+            method=method,
+            request=httputils.parseJSONRequest(await request.read())
+        )
+
+        return web.Response(
+            text=json.dumps(response)
+        )
 
     def addCoin(self, coin, network, config):
 
@@ -174,7 +198,7 @@ class CurrencyHandler:
         def updateConfig(network, config):
             pass
 
-        async def handleRequest(request):
+        async def handleRequest(network, method, request):
             pass
 
         self.handler.addConfig = addConfig \

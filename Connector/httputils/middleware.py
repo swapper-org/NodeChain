@@ -10,7 +10,6 @@ from . import error
 async def jsonContentType(request, handler):
 
     response = await handler(request)
-    logger.printWarning(response.headers)
 
     response.headers["Content-Type"] = JSON_CONTENT_TYPE
 
