@@ -111,21 +111,15 @@ def start(args):
         utils.showMainTitle()
         token = coinMenu(args)
         if args.verbose:
-            logger.printInfo(f"Token selected: {token}")
+            logger.printInfo(f"Token selected: {token}", verbosity=args.verbose)
         network = networkMenu(args, token)
         if args.verbose:
-            logger.printInfo(f"Network selected: {network}")
+            logger.printInfo(f"Network selected: {network}", verbosity=args.verbose)
         utils.configQueries(args, token, network)
         if args.verbose:
-            port = os.getenv("PORT")
-            blockchainPath = os.getenv("BLOCKCHAIN_PATH")
-            sslPort = os.getenv("SSL_PORT")  # TODO: We might remove this in the future
-            logger.printInfo(f"Port: {port} | Blockchain Path: {blockchainPath} | SSL Port: {sslPort}")
+            logger.printEnvs()
         if checkIfRunning(token, network):
-            if args.verbose:
-                logger.printError(f"The API {token} in {network} network is already started.")
-            else:
-                print(f"The API {token} in {network} network is already started.")
+            logger.printError(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
             return
         startApi(token, network)
 
@@ -170,7 +164,7 @@ def status(args):
     network = networkMenu(args, token)
     if args.verbose:
             logger.printInfo(f"Network selected: {network}")
-    statusApi(token, network)
+    statusApi(args, token, network)
 
 
 def listAvailableCoins():
@@ -243,8 +237,7 @@ def networkMenu(args, token):
             options=(len(listAvailableNetworksByToken(token)) + 1)))
         menu.get(network, [None, utils.invalid])[1](menu[network][0])
 
-        # Return the coin if needed
-        return menu[network][0]  # TODO: CHECK
+        return menu[network][0]
 
 
 def blockchainChoice(coin):
@@ -271,8 +264,13 @@ def getDockerComposePath(token, network):
     return path.parent.absolute()
 
 
-def startApi(token, network):
+def startApi(args, token, network):
     path = getDockerComposePath(token, network)
+    logger.printInfo(f"Starting {token}_{network}_api node... This might take a while.")
+    if args.verbose:
+        logger.printEnvs()
+        logger.printInfo(f"Path to docker file: {path}", verbosity=args.verbose)
+
     sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}_{network}_api", "up", "--build", "-d"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
     err = sp.communicate()
@@ -285,9 +283,13 @@ def startApi(token, network):
         raise SystemExit
 
 
-def stopApi(token, network):
+def stopApi(args, token, network):
     path = getDockerComposePath(token, network)
-    print(f"Stopping {token}_{network}_api node...")
+    logger.printInfo(f"Stopping {token}_{network}_api node... This might take a while.", verbosity=args.verbose)
+    if args.verbose:
+        logger.printEnvs()
+        logger.printInfo(f"Path to docker file: {path}", verbosity=args.verbose)
+
     sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}_{network}_api", "down"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
     err = sp.communicate()
@@ -299,8 +301,11 @@ def stopApi(token, network):
         print(err[1].decode("ascii"))
 
 
-def statusApi(token, network):
-    print(f"Getting information of {token}_{network}_api containers...")
+def statusApi(args, token, network):
+    logger.printInfo(f"Getting information of {token}_{network}_api containers...", verbosity=args.verbose)
+    if args.verbose:
+        logger.printEnvs()
+
     utils.showSubtitle(f"{token.upper()} {network.upper()} INFORMATION")
     services = utils.listServices(token, network)
     for container in client.containers.list():
