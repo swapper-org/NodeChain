@@ -1,16 +1,15 @@
 #!/usr/bin/python3
-from httputils import httputils
-from logger import logger
+from httputils import httpmethod, httputils
+from rpcutils import rpcmethod, error
 from rpcutils.rpcconnector import RPCConnector
-from rpcutils import rpcutils, errorhandler as rpcerrorhandler
+from logger import logger
 from .constants import *
-from .connector import RPC_ENDPOINT
 from . import utils
 
 
-@httputils.postMethod
-@rpcutils.rpcMethod
-def getAddressBalance(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def getAddressBalance(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getAddressBalance with id {id} and params {params}"
@@ -18,128 +17,177 @@ def getAddressBalance(id, params):
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_BALANCE)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     connLatest = RPCConnector.request(
-        RPC_ENDPOINT, id, GET_BALANCE_METHOD,
-        [utils.ensureHash(params[ADDRESS]), LATEST])
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=GET_BALANCE_METHOD,
+        params=[
+            utils.ensureHash(params["address"]),
+            "latest"
+        ]
+    )
+
     connPending = RPCConnector.request(
-        RPC_ENDPOINT, id, GET_BALANCE_METHOD,
-        [utils.ensureHash(params[ADDRESS]), PENDING])
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=GET_BALANCE_METHOD,
+        params=[
+            utils.ensureHash(params["address"]),
+            "pending"
+        ]
+    )
 
     response = {
-        ADDRESS: params[ADDRESS],
-        BALANCE: {
-            CONFIRMED: str(utils.toWei(connPending)),
-            UNCONFIRMED: str(utils.toWei(connPending) - utils.toWei(connLatest))
+        "address": params["address"],
+        "balance": {
+            "confirmed": str(utils.toWei(connPending)),
+            "unconfirmed": str(utils.toWei(connPending) - utils.toWei(connLatest))
         }
     }
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
 
 
-@httputils.postMethod
-@rpcutils.rpcMethod
-def getAddressesBalance(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def getAddressesBalance(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getAddressesBalance with id {id} and params {params}"
     )
 
-    requestSchema, responseSchema = utils.getMethodSchemas(
-        GET_ADDRESSES_BALANCE)
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_BALANCE)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     response = []
-    for address in params[ADDRESSES]:
+    for address in params["addresses"]:
 
         response.append(
             getAddressBalance(
-                id,
-                {
-                    ADDRESS: address
-                }
+                id=id,
+                params={
+                    "address": address
+                },
+                config=config
             )
         )
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
 
 
-@httputils.getMethod
-@rpcutils.rpcMethod
-def getHeight(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def getHeight(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getHeight with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_HEIGHT)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    latestHash = RPCConnector.request(RPC_ENDPOINT, id,
-                                      GET_BLOCK_BY_NUMBER_METHOD,
-                                      [LATEST, True])
+    latestHash = RPCConnector.request(
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=GET_BLOCK_BY_NUMBER_METHOD,
+        params=[
+            "latest",
+            True
+        ]
+    )
 
     response = {
-        LATEST_BLOCK_INDEX: str(int(latestHash[NUMBER], 16)),
-        LATEST_BLOCK_HASH: latestHash[HASH]
+        "latestBlockIndex": str(int(latestHash["number"], 16)),
+        "latestBlockHash": latestHash["hash"]
     }
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
 
 
-@httputils.postMethod
-@rpcutils.rpcMethod
-def broadcastTransaction(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def broadcastTransaction(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method broadcastTransaction with id {id} and params {params}"
     )
 
-    requestSchema, responseSchema = utils.getMethodSchemas(
-        BROADCAST_TRANSACTION)
+    requestSchema, responseSchema = utils.getMethodSchemas(BROADCAST_TRANSACTION)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    transactionHash = RPCConnector.request(RPC_ENDPOINT, id,
-                                           SEND_RAW_TRANSACTION_METHOD,
-                                           [params[RAW_TRANSACTION]])
-    response = {BROADCASTED: transactionHash}
+    transactionHash = RPCConnector.request(
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=SEND_RAW_TRANSACTION_METHOD,
+        params=[
+            params["rawTransaction"]
+        ]
+    )
+    response = {"broadcasted": transactionHash}
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
 
 
-""" Data Structure: Transaction trie. Records transaction request vectors. """
+"""
+Data Structure: Transaction trie. Records transaction request vectors.
+"""
 
 
-@httputils.postMethod
-@rpcutils.rpcMethod
-def getTransaction(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def getTransaction(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getTransaction with id {id} and params {params}"
@@ -147,13 +195,21 @@ def getTransaction(id, params):
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    transaction = RPCConnector.request(RPC_ENDPOINT, id,
-                                       GET_TRANSACTION_BY_HASH_METHOD,
-                                       [params[TX_HASH]])
+    transaction = RPCConnector.request(
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=GET_TRANSACTION_BY_HASH_METHOD,
+        params=[
+            params["txHash"]
+        ]
+    )
 
     if transaction is None:
         logger.printWarning("Could not get transaction from node")
@@ -175,16 +231,19 @@ def getTransaction(id, params):
         }
     }
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
 
 
-@httputils.postMethod
-@rpcutils.rpcMethod
-def getBlockByHash(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def getBlockByHash(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getBlockByHash with id {id} and params {params}"
@@ -192,168 +251,236 @@ def getBlockByHash(id, params):
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_HASH)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    block = RPCConnector.request(RPC_ENDPOINT, id, GET_BLOCK_BY_HASH_METHOD,
-                                 [params[BLOCK_HASH], True])
+    block = RPCConnector.request(
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=GET_BLOCK_BY_HASH_METHOD,
+        params=[
+            params["blockHash"],
+            True
+        ]
+    )
 
     if block is None:
-        raise rpcerrorhandler.BadRequestError(f"Block with hash {params[BLOCK_HASH]} could not be retrieve from node")
+        raise error.RpcBadRequestError(
+            id=id,
+            message=f"Block with hash {params['blockHash']} could not be retrieve from node")
 
-    err = rpcutils.validateJSONRPCSchema(block, responseSchema)
+    err = httputils.validateJSONSchema(block, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return block
 
 
-@httputils.postMethod
-@rpcutils.rpcMethod
-def getAddressTransactionCount(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def getAddressTransactionCount(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getAddressTransactionCount with id {id} and params {params}"
     )
 
-    requestSchema, responseSchema = utils.getMethodSchemas(
-        GET_ADDRESS_TRANSACTION_COUNT)
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_TRANSACTION_COUNT)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    count = RPCConnector.request(RPC_ENDPOINT, id,
-                                 GET_TRANSACTION_COUNT_METHOD, [
-                                     utils.ensureHash(params[ADDRESS]),
-                                     PENDING if params[PENDING] else LATEST
-                                 ])
+    count = RPCConnector.request(
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=GET_TRANSACTION_COUNT_METHOD,
+        params=[
+            utils.ensureHash(params["address"]),
+            "pending" if params["pending"] else "latest"
+        ]
+    )
 
     response = {
-        ADDRESS: params[ADDRESS],
-        TRANSACTION_COUNT: str(int(count, 16))
+        "address": params["address"],
+        "transactionCount": str(int(count, 16))
     }
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
 
 
-@httputils.postMethod
-@rpcutils.rpcMethod
-def getAddressesTransactionCount(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def getAddressesTransactionCount(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getAddressesTransactionCount with id {id} and params {params}"
     )
 
-    requestSchema, responseSchema = utils.getMethodSchemas(
-        GET_ADDRESSES_TRANSACTION_COUNT)
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_TRANSACTION_COUNT)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
-
-    transactionCounts = []
-    for address in params[ADDRESSES]:
-        transactionCounts.append(
-            getAddressTransactionCount(id, address)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
         )
 
-    err = rpcutils.validateJSONRPCSchema(transactionCounts, responseSchema)
+    transactionCounts = []
+    for address in params["addresses"]:
+        transactionCounts.append(
+            getAddressTransactionCount(
+                id=id,
+                params=address,
+                config=config
+            )
+        )
+
+    err = httputils.validateJSONSchema(transactionCounts, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return transactionCounts
 
 
-@httputils.getMethod
-@rpcutils.rpcMethod
-def getGasPrice(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def getGasPrice(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getGasPrice with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_GAS_PRICE)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    gas = RPCConnector.request(RPC_ENDPOINT, id, GET_GAS_PRICE_METHOD, None)
+    gas = RPCConnector.request(
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=GET_GAS_PRICE_METHOD,
+        params=None
+    )
 
-    response = {GAS_PRICE: str(utils.toWei(gas))}
+    response = {"gasPrice": str(utils.toWei(gas))}
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
 
 
-@httputils.postMethod
-@rpcutils.rpcMethod
-def estimateGas(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def estimateGas(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method estimateGas with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(ESTIMATE_GAS)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    gas = RPCConnector.request(RPC_ENDPOINT, id, ESTIMATE_GAS_METHOD,
-                               [params[TX]])
+    gas = RPCConnector.request(
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=ESTIMATE_GAS_METHOD,
+        params=[
+            params["tx"]
+        ]
+    )
 
-    response = {ESTIMATED_GAS: str(utils.toWei(gas))}
+    response = {"estimatedGas": str(utils.toWei(gas))}
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
 
 
-""" Data Structure: Transaction receipt trie. Records the transaction outcome.
+"""
+Data Structure: Transaction receipt trie. Records the transaction outcome.
 Receipts stores information that results from executing the transaction. I.e: The transaction receipt
 contains information that is only available once a transaction has been executed in a block Adding
-"cumulativeGasUsed", "contractAddress", "logs" and "logsBloom" """
+"cumulativeGasUsed", "contractAddress", "logs" and "logsBloom"
+"""
 
 
-@httputils.postMethod
-@rpcutils.rpcMethod
-def getTransactionReceipt(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def getTransactionReceipt(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getTransactionReceipt with id {id} and params {params}"
     )
 
-    requestSchema, responseSchema = utils.getMethodSchemas(
-        GET_TRANSACTION_RECEIPT)
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION_RECEIPT)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    response = RPCConnector.request(RPC_ENDPOINT, id,
-                                    GET_TRANSACTION_RECEIPT_METHOD,
-                                    [params[TX_HASH]])
+    response = RPCConnector.request(
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=GET_TRANSACTION_RECEIPT_METHOD,
+        params=[
+            params["txHash"]
+        ]
+    )
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
 
 
-@httputils.postMethod
-@rpcutils.rpcMethod
-def getBlockByNumber(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def getBlockByNumber(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getBlockByNumber with id {id} and params {params}"
@@ -361,64 +488,91 @@ def getBlockByNumber(id, params):
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_NUMBER)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    if isinstance(params[BLOCK_NUMBER], int):
-        blockNumber = hex(params[BLOCK_NUMBER])
-    elif not params[BLOCK_NUMBER].startswith('0x'):
-        blockNumber = hex(int(params[BLOCK_NUMBER]))
+    if isinstance(params["blockNumber"], int):
+        blockNumber = hex(params["blockNumber"])
+    elif not params["blockNumber"].startswith('0x'):
+        blockNumber = hex(int(params["blockNumber"]))
     else:
-        blockNumber = params[BLOCK_NUMBER]
+        blockNumber = params["blockNumber"]
 
-    block = RPCConnector.request(RPC_ENDPOINT, id, GET_BLOCK_BY_NUMBER_METHOD,
-                                 [blockNumber, True])
+    block = RPCConnector.request(
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=GET_BLOCK_BY_NUMBER_METHOD,
+        params=[blockNumber, True]
+    )
 
     if block is None:
-        raise rpcerrorhandler.BadRequestError(f"Block number {blockNumber} could not be retrieve from node")
+        raise error.RpcBadRequestError(
+            id=id,
+            message=f"Block number {blockNumber} could not be retrieve from node"
+        )
 
-    err = rpcutils.validateJSONRPCSchema(block, responseSchema)
+    err = httputils.validateJSONSchema(block, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return block
 
 
-@httputils.getMethod
-@rpcutils.rpcMethod
-def syncing(id, params):
+@rpcmethod.rpcMethod(coin="eth")
+@httpmethod.postHttpMethod(coin="eth")
+def syncing(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method syncing with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(SYNCING)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    sync = RPCConnector.request(RPC_ENDPOINT, id, SYNCING_METHOD, None)
+    sync = RPCConnector.request(
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=SYNCING_METHOD,
+        params=None
+    )
+
     if sync is None:
         logger.printWarning("Could not get sync info from node")
-        raise rpcerrorhandler.BadRequestError(
-            "Could not get sync info from node")
+        raise error.RpcBadRequestError(
+            id=id,
+            message="Could not get sync info from node"
+        )
 
     if not sync:
-        response = {SYNCING: False}
+        response = {"syncing": False}
     else:
-        syncPercentage = utils.getSyncPercentage(int(sync[CURRENT_BLOCK], 16),
-                                                 int(sync[HIGHEST_BLOCK], 16))
+        syncPercentage = utils.getSyncPercentage(int(sync["currentBlock"], 16),
+                                                 int(sync["highestBlock"], 16))
 
         response = {
-            SYNCING: True,
-            SYNC_PERCENTAGE: f"{syncPercentage}%",
-            CURRENT_BLOCK_INDEX: str(int(sync[CURRENT_BLOCK], 16)),
-            LATEST_BLOCK_INDEX: str(int(sync[HIGHEST_BLOCK], 16)),
+            "syncing": True,
+            "syncPercentage": f"{syncPercentage}%",
+            "currentBlockIndex": str(int(sync["currentBlock"], 16)),
+            "latestBlockIndex": str(int(sync["highestBlock"], 16)),
         }
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
