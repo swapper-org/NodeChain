@@ -8,11 +8,12 @@ import sys
 import argparse
 import json
 from pathlib import Path
+import logger
 
 
 # "coin" argument is never used. Is declared to prevent errors
 def exitSignal(coin=None):
-    print("Exiting gracefully, goodbye!")
+    print(f"Exiting gracefully, goodbye!")
     raise SystemExit
 
 
@@ -64,8 +65,9 @@ def argumentHandler():
                         dest='config', help="ssl config", default=False)
     parser.add_argument('-c', '--cert', action="store",
                         dest='certs', help="path to certs", default=None)
-    parser.add_argument('-v', '--version', action="version",
+    parser.add_argument('-V', '--version', action="version",
                         version=f"NodeChain version {version}", help="software version", default=None)
+    parser.add_argument("-v", "--verbose", help="Increase output verbosity", action="store_true")
 
     # Create group to start and stop all apis at the same time
     all = argparse.ArgumentParser(add_help=False)
@@ -108,10 +110,22 @@ def start(args):
     else:
         utils.showMainTitle()
         token = coinMenu(args)
+        if args.verbose:
+            logger.printInfo(f"Token selected: {token}")
         network = networkMenu(args, token)
+        if args.verbose:
+            logger.printInfo(f"Network selected: {network}")
         utils.configQueries(args, token, network)
+        if args.verbose:
+            port = os.getenv("PORT")
+            blockchainPath = os.getenv("BLOCKCHAIN_PATH")
+            sslPort = os.getenv("SSL_PORT")  # TODO: We might remove this in the future
+            logger.printInfo(f"Port: {port} | Blockchain Path: {blockchainPath} | SSL Port: {sslPort}")
         if checkIfRunning(token, network):
-            print(f"The API {token} in {network} network is already started.")
+            if args.verbose:
+                logger.printError(f"The API {token} in {network} network is already started.")
+            else:
+                print(f"The API {token} in {network} network is already started.")
             return
         startApi(token, network)
 
@@ -132,9 +146,16 @@ def stop(args):
     else:
         utils.showMainTitle()
         token = coinMenu(args)
+        if args.verbose:
+            logger.printInfo(f"Token selected: {token}")
         network = networkMenu(args, token)
+        if args.verbose:
+            logger.printInfo(f"Network selected: {network}")
         if not checkIfRunning(token, network):
-            print("Can't stop the api. Containers are not running")
+            if args.verbose:
+                logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.")
+            else:
+                print(f"Can't stop the API {token} in {network}. Containers are not running.")
             return
         bindUsedPort(token, network)
         stopApi(token, network)
@@ -144,7 +165,11 @@ def status(args):
     os.chdir(ROOT_DIR)
     utils.showMainTitle()
     token = coinMenu(args)
+    if args.verbose:
+            logger.printInfo(f"Token selected: {token}")
     network = networkMenu(args, token)
+    if args.verbose:
+            logger.printInfo(f"Network selected: {network}")
     statusApi(token, network)
 
 
