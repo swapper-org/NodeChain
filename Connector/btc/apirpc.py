@@ -148,7 +148,7 @@ def getAddressUnspent(id, params):
 def getAddressesUnspent(id, params):
 
     logger.printInfo(
-        f"Executing RPC method getAddressBalance with id {id} and params {params}"
+        f"Executing RPC method getAddressesUnspent with id {id} and params {params}"
     )
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_UNSPENT)

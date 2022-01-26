@@ -423,8 +423,7 @@ def testGetAddressesUnspent():
     })
 
     for addressUnspent in got:
-
-        expected = makeElectrumRequest(GET_ADDRESS_UNSPENT_METHOD, addressUnspent[ADDRESS])
+        expected = makeElectrumRequest(GET_ADDRESS_UNSPENT_METHOD, [addressUnspent[ADDRESS]])
 
         txs = []
 
