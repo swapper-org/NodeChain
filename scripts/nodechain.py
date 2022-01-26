@@ -120,12 +120,10 @@ def start(args):
         if args.verbose:
             logger.printInfo(f"Network selected: {network}", verbosity=args.verbose)
         utils.configQueries(args, token, network)
-        if args.verbose:
-            logger.printEnvs()
         if checkIfRunning(token, network):
             logger.printError(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
             return
-        startApi(token, network)
+        startApi(args, token, network)
 
 
 def stop(args):
@@ -156,7 +154,7 @@ def stop(args):
             logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.", verbosity=args.verbose)
             return
         bindUsedPort(token, network)
-        stopApi(token, network)
+        stopApi(args, token, network)
 
 
 def status(args):
@@ -281,11 +279,10 @@ def startApi(args, token, network):
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
     err = sp.communicate()
     if sp.returncode == 0:
-        print(f"{token}_{network}_api node started")
+        logger.printInfo(f"{token}_{network}_api node started", verbosity=args.verbose)
     else:
-        print(f"An error occurred while trying to start {token}_{network}_api:")
-        print("\n")
-        print(err[1].decode("ascii"))
+        logger.printError(f"An error occurred while trying to start {token}_{network}_api: \n", verbosity=args.verbose)
+        logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
         raise SystemExit
 
 
@@ -300,11 +297,11 @@ def stopApi(args, token, network):
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
     err = sp.communicate()
     if sp.returncode == 0:
-        print(f"{token}_{network}_api node stopped")
+        logger.printInfo(f"{token}_{network}_api node stopped", verbosity=args.verbose)
     else:
-        print(f"An error occurred while trying to start {token}_{network}_api:")
-        print("\n")
-        print(err[1].decode("ascii"))
+        logger.printError(f"An error occurred while trying to stop {token}_{network}_api: \n", verbosity=args.verbose)
+        logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
+        raise SystemExit
 
 
 def statusApi(args, token, network):
