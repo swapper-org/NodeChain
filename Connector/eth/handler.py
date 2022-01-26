@@ -1,8 +1,11 @@
 #!/usr/bin/python
 from httputils.router import CurrencyHandler
+from rpcutils import rpcutils
 from utils import utils
 from logger import logger
 from .connector import Config
+from httputils import httpmethod
+from rpcutils import rpcmethod, error
 
 
 @CurrencyHandler
@@ -71,8 +74,24 @@ class Handler:
         )
         return True, None
 
-    def handleRequest(self, network, request):
-        pass
+    async def handleRequest(self, network, method, request):
+
+        if rpcutils.isRpcEnpointPath(method):
+            return rpcmethod.callMethod(
+                coin=self.coin,
+                request=request,
+                config=self.networksConfig[network]
+            )
+        else:
+            try:
+                return httpmethod.callMethod(
+                    coin=self.coin,
+                    method=method,
+                    request=request,
+                    config=self.networksConfig[network]
+                )
+            except error.RpcError as err:
+                raise err.parseToHttpError()
 
     @property
     def coin(self):
