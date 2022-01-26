@@ -98,6 +98,9 @@ def argumentHandler():
 
 def start(args):
     os.chdir(ROOT_DIR)
+    if args.verbose:
+        logger.printInfo(f"Working directory: {ROOT_DIR}", verbosity=args.verbose)
+
     # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
     if args.all:
         for token in listAvailableTokens():
@@ -105,7 +108,8 @@ def start(args):
                 os.environ["COIN"] = token
                 os.environ["NETWORK"] = args.all
                 utils.queryPath(token, args.all)
-                print(f"Starting {token} en {args.all}...")
+                if checkIfRunning(token, args.all):
+                    logger.printError(f"The API {token} in {args.all} network is already started.", verbosity=args.verbose)
                 # startApi(token, args.all)
     else:
         utils.showMainTitle()
@@ -126,15 +130,18 @@ def start(args):
 
 def stop(args):
     os.chdir(ROOT_DIR)
+    if args.verbose:
+        logger.printInfo(f"Working directory: {ROOT_DIR}", verbosity=args.verbose)
+
+    # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
     if args.all:
         for token in listAvailableTokens():
             if args.all in listAvailableNetworksByToken(token):
                 os.environ["COIN"] = token
                 os.environ["NETWORK"] = args.all
                 if not checkIfRunning(token, args.all):
-                    print(f"Can't stop {token} in {args.all}. Containers are not running")
+                    logger.printError(f"Can't stop {token} in {args.all}. Containers are not running", verbosity=args.verbose)
                     continue
-                print(f"Stopping {token} en {args.all}...")
                 bindUsedPort(token, args.all)
                 # stopApi(token, args.all)
     else:
@@ -146,10 +153,7 @@ def stop(args):
         if args.verbose:
             logger.printInfo(f"Network selected: {network}")
         if not checkIfRunning(token, network):
-            if args.verbose:
-                logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.")
-            else:
-                print(f"Can't stop the API {token} in {network}. Containers are not running.")
+            logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.", verbosity=args.verbose)
             return
         bindUsedPort(token, network)
         stopApi(token, network)
@@ -157,13 +161,15 @@ def stop(args):
 
 def status(args):
     os.chdir(ROOT_DIR)
+    if args.verbose:
+        logger.printInfo(f"Working directory: {ROOT_DIR}", verbosity=args.verbose)
     utils.showMainTitle()
     token = coinMenu(args)
     if args.verbose:
-            logger.printInfo(f"Token selected: {token}")
+        logger.printInfo(f"Token selected: {token}")
     network = networkMenu(args, token)
     if args.verbose:
-            logger.printInfo(f"Network selected: {network}")
+        logger.printInfo(f"Network selected: {network}")
     statusApi(args, token, network)
 
 
