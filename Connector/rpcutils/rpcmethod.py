@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from httputils import httputils
 from logger import logger
 from . import rpcutils
 from .constants import *
@@ -41,18 +42,20 @@ def rpcMethod(coin):
     return _rpcMethod
 
 
-def callMethod(coin, config, request):
+async def callMethod(coin, config, request):
 
-    payload = rpcutils.parseJsonRpcRequest(request)
+    payload = httputils.parseJSONRequest(await request.read())
+    rpcPayload = rpcutils.parseJsonRpcRequest(payload)
+
     if coin not in rpcMethods:
         raise error.RpcBadRequestError(
-            id=payload[ID],
+            id=rpcPayload[ID],
             message=f"Calling {coin} method when currency is not supported"
         )
-    if payload[METHOD] not in rpcMethods[coin]:
+    if rpcPayload[METHOD] not in rpcMethods[coin]:
         raise error.RpcBadRequestError(
-            id=payload[ID],
+            id=rpcPayload[ID],
             message=f"Calling unknown method aOperation for currency {coin}"
         )
 
-    return rpcMethods[coin][payload[METHOD]](payload, config)
+    return rpcMethods[coin][payload[METHOD]](rpcPayload, config)

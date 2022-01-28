@@ -5,18 +5,25 @@ import importlib
 from httputils import middleware
 from httputils.router import Router
 from httputils.app import App, appModules
+from httputils.constants import JSON_CONTENT_TYPE
 from rpcutils import middleware as rpcMiddleware
 from logger import logger
 from utils import utils
 
 
+async def onPrepare(request, response):
+
+    response.headers["Content-Type"] = JSON_CONTENT_TYPE
+
+
 def runServer():
 
     mainApp = App(middlewares=[
-        middleware.jsonContentType,
         middleware.errorHandler,
         rpcMiddleware.errorHandler
     ])
+
+    mainApp.on_response_prepare.append(onPrepare)
 
     modules = [
         "admin"
@@ -38,7 +45,8 @@ def runServer():
     router = Router()
     mainApp.add_routes(
         [
-            web.post("/{coin}/{network}/{method}", router.doRoute)
+            web.post("/{coin}/{network}/{method}", router.doRoute),
+            web.get("/{coin}/{network}/ws", router.doWsRoute)
         ]
     )
     cors = aiohttp_cors.setup(mainApp, defaults={
