@@ -29,13 +29,13 @@ class Broker(object, metaclass=Singleton):
             }
 
         if subscriber not in self.topicSubscriptions[topic.name][SUBSCRIBERS]:
-            logger.printInfo(f"Subscriber {subscriber.subscriberID} atached successfully to topic [{topic.name}]")
+            logger.printInfo(f"Subscriber {subscriber.subscriberID} attached successfully to topic [{topic.name}]")
             self.topicSubscriptions[topic.name][SUBSCRIBERS].append(subscriber)
             return {
                 SUBSCRIBED: True
             }
         else:
-            logger.printInfo(f"Subscriber {subscriber.subscriberID} already atached to topic [{topic.name}]")
+            logger.printInfo(f"Subscriber {subscriber.subscriberID} already attached to topic [{topic.name}]")
             return {
                 SUBSCRIBED: False
             }

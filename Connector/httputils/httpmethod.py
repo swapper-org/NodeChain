@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys
 import random
-from . import error
+from . import error, httputils
 from logger import logger
 
 postHttpMethods = {}
@@ -35,11 +35,13 @@ def postHttpMethod(coin):
     return _postHttpMethod
 
 
-def callMethod(coin, method, request, config):
+async def callMethod(coin, method, request, config):
+
+    payload = httputils.parseJSONRequest(await request.read())
 
     if coin not in postHttpMethods:
         raise error.BadRequestError(f"Calling {coin} method when currency is not supported")
     if method not in postHttpMethods[coin]:
         raise error.BadRequestError(f"Calling unknown method {method} for currency {coin}")
 
-    return postHttpMethods[coin][method](request, config)
+    return postHttpMethods[coin][method](payload, config)

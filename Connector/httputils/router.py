@@ -21,24 +21,37 @@ class Router(object, metaclass=Singleton.Singleton):
         network = request.match_info["network"]
         method = request.match_info["method"]
 
-        if coin not in self._availableCoins:
-            logger.printError(f"Currency {coin} has not been previously added")
-            raise error.NotFoundError(f"Currency {coin} has not been previously added")
-
-        if network not in self._availableCoins[coin]:
-            logger.printError(f"{network} network for {coin} has not been previously added")
-            raise error.NotFoundError(f"{network} network for {coin} has not been previously added")
+        self.checkIsAvailableRotue(
+            coin=coin,
+            network=network
+        )
 
         coinHandler = currenciesHandler[coin]
 
         response = await coinHandler.handleRequest(
             network=network,
             method=method,
-            request=httputils.parseJSONRequest(await request.read())
+            request=request
         )
 
         return web.Response(
             text=json.dumps(response)
+        )
+
+    async def doWsRoute(self, request):
+
+        coin = request.match_info["coin"]
+        network = request.match_info["network"]
+
+        self.checkIsAvailableRotue(
+            coin=coin,
+            network=network
+        )
+
+        coinHandler = currenciesHandler[coin]
+        return await coinHandler.handleWsRequest(
+            network=network,
+            request=request
         )
 
     def addCoin(self, coin, network, config):
@@ -178,6 +191,16 @@ class Router(object, metaclass=Singleton.Singleton):
             f"Configuration for {network} network for currency {coin} updated successfully"
         }
 
+    def checkIsAvailableRotue(self, coin, network):
+
+        if coin not in self._availableCoins:
+            logger.printError(f"Currency {coin} has not been previously added")
+            raise error.NotFoundError(f"Currency {coin} has not been previously added")
+
+        if network not in self._availableCoins[coin]:
+            logger.printError(f"{network} network for {coin} has not been previously added")
+            raise error.NotFoundError(f"{network} network for {coin} has not been previously added")
+
 
 class CurrencyHandler:
 
@@ -201,21 +224,32 @@ class CurrencyHandler:
         async def handleRequest(network, method, request):
             pass
 
+        async def handleWsRequest(network, request):
+            pass
+
         self.handler.addConfig = addConfig \
             if not hasattr(self.handler, "addConfig") or not callable(self.handler.addConfig) \
             else self.handler.addConfig
+
         self.handler.getConfig = getConfig \
             if not hasattr(self.handler, "getConfig") or not callable(self.handler.getConfig) \
             else self.handler.getConfig
+
         self.handler.removeConfig = removeConfig \
             if not hasattr(self.handler, "removeConfig") or not callable(self.handler.removeConfig) \
             else self.handler.removeConfig
+
         self.handler.updateConfig = updateConfig \
             if not hasattr(self.handler, "updateConfig") or not callable(self.handler.updateConfig) \
             else self.handler.updateConfig
+
         self.handler.handleRequest = handleRequest \
             if not hasattr(self.handler, "handleRequest") or not callable(self.handler.handleRequest) \
             else self.handler.handleRequest
+
+        self.handler.handleWsRequest = handleWsRequest \
+            if not hasattr(self.handler, "handleRequest") or not callable(self.handler.handleWsRequest) \
+            else self.handler.handleWsRequest
 
         obj = self.handler(coin)
         currenciesHandler[coin] = obj
