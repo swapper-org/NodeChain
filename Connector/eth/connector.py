@@ -4,12 +4,21 @@ from json import JSONEncoder
 
 class Config:
 
-    def __init__(self, config):
+    def __init__(self, networkName, config):
 
+        self._networkName = networkName
         self._protocol = config["protocol"]
         self._host = config["host"]
         self._rpcPort = config["rpcPort"]
         self._wsPort = config["wsPort"]
+
+    @property
+    def networkName(self):
+        return self._networkName
+
+    @networkName.setter
+    def networkName(self, value):
+        self._networkName = value
 
     @property
     def protocol(self):

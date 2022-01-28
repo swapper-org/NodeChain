@@ -1,63 +1,96 @@
 #!/usr/bin/python3
 from logger import logger
-from rpcutils import rpcutils, errorhandler as rpcerrorhandler
-from wsutils import wsutils, topics
+from httputils import httputils
+from rpcutils import error
+from wsutils import wsmethod, topics
 from wsutils.broker import Broker
 from .constants import *
 from . import utils
 
 
-@wsutils.webSocketMethod
-def subscribeToAddressBalance(subscriber, id, params):
+@wsmethod.wsMethod(coin=COIN_SYMBOL)
+def subscribeToAddressBalance(subscriber, id, params, network):
 
     logger.printInfo(f"Executing WS method subscribeAddressBalance with id {id} and params {params}")
 
     requestSchema = utils.getWSRequestMethodSchema(SUBSCRIBE_ADDRESS_BALANCE)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    return subscriber.subscribeToTopic(Broker(), topics.Topic(topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + params[ADDRESS], utils.closingAddrBalanceTopic))
+    return subscriber.subscribeToTopic(
+        broker=Broker(),
+        topic=topics.Topic(
+            name=f"{COIN_SYMBOL}{topics.TOPIC_SEPARATOR}{network}{topics.TOPIC_SEPARATOR}{topics.ADDRESS_BALANCE_TOPIC}"
+                 f"{topics.TOPIC_SEPARATOR}{params['address']}",
+            closingHandler=utils.closingAddrBalanceTopic
+        )
+    )
 
 
-@wsutils.webSocketMethod
-def unsubscribeFromAddressBalance(subscriber, id, params):
+@wsmethod.wsMethod(coin=COIN_SYMBOL)
+def unsubscribeFromAddressBalance(subscriber, id, params, network):
 
     logger.printInfo(f"Executing WS method unsubscribeAddressBalance with id {id} and params {params}")
 
     requestSchema = utils.getWSRequestMethodSchema(UNSUBSCRIBE_ADDRESS_BALANCE)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    return subscriber.unsubscribeFromTopic(Broker(), topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + params[ADDRESS])
+    return subscriber.unsubscribeFromTopic(
+        broker=Broker(),
+        topicName=f"{COIN_SYMBOL}{topics.TOPIC_SEPARATOR}{network}{topics.TOPIC_SEPARATOR}{topics.ADDRESS_BALANCE_TOPIC}"
+                  f"{topics.TOPIC_SEPARATOR}{params['address']}"
+    )
 
 
-@wsutils.webSocketMethod
-def subscribeToNewBlocks(subscriber, id, params):
+@wsmethod.wsMethod(coin=COIN_SYMBOL)
+def subscribeToNewBlocks(subscriber, id, params, network):
 
     logger.printInfo(f"Executing WS method subscribeToNewBlock with id {id} and params {params}")
 
     requestSchema = utils.getWSRequestMethodSchema(SUBSCRIBE_TO_NEW_BLOCKS)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    return subscriber.subscribeToTopic(Broker(), topics.Topic(topics.NEW_BLOCKS_TOPIC, None))
+    return subscriber.subscribeToTopic(
+        broker=Broker(),
+        topic=topics.Topic(
+            name=f"{COIN_SYMBOL}{topics.TOPIC_SEPARATOR}{network}{topics.TOPIC_SEPARATOR}{topics.NEW_BLOCKS_TOPIC}",
+            closingHandler=None
+        )
+    )
 
 
-@wsutils.webSocketMethod
-def unsubscribeFromNewBlocks(subscriber, id, params):
+@wsmethod.wsMethod(coin=COIN_SYMBOL)
+def unsubscribeFromNewBlocks(subscriber, id, params, network):
 
     logger.printInfo(f"Executing WS method unsubscribeToNewBlockMine with id {id} and params {params}")
 
     requestSchema = utils.getWSRequestMethodSchema(UNSUBSCRIBE_FROM_NEW_BLOCKS)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
-    return subscriber.unsubscribeFromTopic(Broker(), topics.NEW_BLOCKS_TOPIC)
+    return subscriber.unsubscribeFromTopic(
+        broker=Broker(),
+        topicName=f"{COIN_SYMBOL}{topics.TOPIC_SEPARATOR}{network}{topics.TOPIC_SEPARATOR}{topics.NEW_BLOCKS_TOPIC}"
+    )
