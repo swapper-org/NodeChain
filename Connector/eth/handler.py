@@ -1,11 +1,11 @@
 #!/usr/bin/python
 from httputils.router import CurrencyHandler
-from rpcutils import rpcutils
+from httputils import httpmethod
+from rpcutils import rpcutils, rpcmethod, error
+from wsutils import wsutils, wsmethod
 from utils import utils
 from logger import logger
 from .connector import Config
-from httputils import httpmethod
-from rpcutils import rpcmethod, error
 
 
 @CurrencyHandler
@@ -25,6 +25,7 @@ class Handler:
             return False, err
 
         self.networksConfig[network] = Config(
+            networkName=network,
             config={
                 "protocol": config["protocol"] if "protocol" in config else defaultConfig["protocol"],
                 "host": config["host"] if "host" in config else defaultConfig["host"],
@@ -65,6 +66,7 @@ class Handler:
             return False, err
 
         self.networksConfig[network] = Config(
+            networkName=network,
             config={
                 "protocol": config["protocol"] if "protocol" in config else defaultConfig["protocol"],
                 "host": config["host"] if "host" in config else defaultConfig["host"],
@@ -77,14 +79,14 @@ class Handler:
     async def handleRequest(self, network, method, request):
 
         if rpcutils.isRpcEnpointPath(method):
-            return rpcmethod.callMethod(
+            return await rpcmethod.callMethod(
                 coin=self.coin,
                 request=request,
                 config=self.networksConfig[network]
             )
         else:
             try:
-                return httpmethod.callMethod(
+                return await httpmethod.callMethod(
                     coin=self.coin,
                     method=method,
                     request=request,
@@ -92,6 +94,14 @@ class Handler:
                 )
             except error.RpcError as err:
                 raise err.parseToHttpError()
+
+    async def handleWsRequest(self, network, request):
+
+        return await wsmethod.callMethod(
+            coin=self.coin,
+            request=request,
+            config=self.networksConfig[network]
+        )
 
     @property
     def coin(self):

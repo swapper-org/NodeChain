@@ -7,8 +7,8 @@ from .constants import *
 from . import utils
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getAddressBalance(id, params, config):
 
     logger.printInfo(
@@ -62,8 +62,8 @@ def getAddressBalance(id, params, config):
     return response
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getAddressesBalance(id, params, config):
 
     logger.printInfo(
@@ -102,8 +102,8 @@ def getAddressesBalance(id, params, config):
     return response
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getHeight(id, params, config):
 
     logger.printInfo(
@@ -143,8 +143,8 @@ def getHeight(id, params, config):
     return response
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def broadcastTransaction(id, params, config):
 
     logger.printInfo(
@@ -185,8 +185,8 @@ Data Structure: Transaction trie. Records transaction request vectors.
 """
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getTransaction(id, params, config):
 
     logger.printInfo(
@@ -241,8 +241,8 @@ def getTransaction(id, params, config):
     return response
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getBlockByHash(id, params, config):
 
     logger.printInfo(
@@ -283,8 +283,8 @@ def getBlockByHash(id, params, config):
     return block
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getAddressTransactionCount(id, params, config):
 
     logger.printInfo(
@@ -325,8 +325,8 @@ def getAddressTransactionCount(id, params, config):
     return response
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getAddressesTransactionCount(id, params, config):
 
     logger.printInfo(
@@ -362,8 +362,8 @@ def getAddressesTransactionCount(id, params, config):
     return transactionCounts
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getGasPrice(id, params, config):
 
     logger.printInfo(
@@ -397,8 +397,8 @@ def getGasPrice(id, params, config):
     return response
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def estimateGas(id, params, config):
 
     logger.printInfo(
@@ -442,8 +442,8 @@ contains information that is only available once a transaction has been executed
 """
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getTransactionReceipt(id, params, config):
 
     logger.printInfo(
@@ -478,8 +478,8 @@ def getTransactionReceipt(id, params, config):
     return response
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getBlockByNumber(id, params, config):
 
     logger.printInfo(
@@ -525,8 +525,8 @@ def getBlockByNumber(id, params, config):
     return block
 
 
-@rpcmethod.rpcMethod(coin="eth")
-@httpmethod.postHttpMethod(coin="eth")
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def syncing(id, params, config):
 
     logger.printInfo(
