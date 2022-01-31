@@ -103,3 +103,10 @@ def parseBalancesToTransfers(vin, vout, fee, amount):
             )
 
     return transfers
+
+
+def sortUnspentOutputs(outputs):
+    try:
+        return int(outputs['status']['blockHeight'])
+    except KeyError:
+        return 0

@@ -5,7 +5,7 @@ import json
 import time
 from btc.connector import RPC_CORE_ENDPOINT, RPC_ELECTRUM_ENDPOINT
 from btc.constants import *
-from btc.utils import convertToSatoshi, parseBalancesToTransfers
+from btc.utils import convertToSatoshi, parseBalancesToTransfers, sortUnspentOutputs
 from logger import logger
 from rpcutils.rpcconnector import RPCConnector
 from rpcutils.rpcutils import RPCMethods
@@ -423,6 +423,7 @@ def testGetAddressesUnspent():
     })
 
     for addressUnspent in got:
+        addressUnspent[OUTPUTS].sort(key=sortUnspentOutputs, reverse=False)
         expected = makeElectrumRequest(GET_ADDRESS_UNSPENT_METHOD, [addressUnspent[ADDRESS]])
 
         txs = []
@@ -439,8 +440,9 @@ def testGetAddressesUnspent():
                     VALUE: str(tx[VALUE])
                 }
             )
+        txs.sort(key=sortUnspentOutputs, reverse=False)
         if not (json.dumps(addressUnspent[OUTPUTS], sort_keys=True) == json.dumps(txs, sort_keys=True)):
-            logger.printInfo(f"Error getting unspent transaction for {addressUnspent[ADDRESS]}. Expected: {expected}. Got: {addressUnspent[OUTPUTS]}")
+            logger.printError(f"Error getting unspent transaction for {addressUnspent[ADDRESS]}. Expected: {txs}. Got: {addressUnspent[OUTPUTS]}")
             assert False
 
     assert True
