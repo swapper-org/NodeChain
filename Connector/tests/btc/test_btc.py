@@ -217,7 +217,7 @@ def testBroadcastTransaction():
         logger.printError("Can not create transaction to broadcasts")
         assert False
 
-    RPCMethods["broadcastTransaction"](0, {
+    got = RPCMethods["broadcastTransaction"](0, {
         RAW_TRANSACTION: signedRawTransaction[HEX]
     })
 
@@ -226,8 +226,11 @@ def testBroadcastTransaction():
 
     found = signedRawTransaction[HEX] in [tx[HEX] for tx in blockMined[TX]]
 
+    logger.printWarning(f"Transaction ID from connector is: {got[BROADCASTED]}")
+
     if not found:
         logger.printError(f"Signed raw transaction {signedRawTransaction[HEX]} not found in last generated block {blockMinedHash}")
+        logger.printError(f"Transaction ID from connector is: {got[BROADCASTED]}")
     assert found
 
 
