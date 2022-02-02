@@ -383,23 +383,33 @@ def getAddressesTransactionCount(id, params):
     return transactionCounts
 
 
-@httputils.postMethod
-@rpcutils.rpcMethod
 def broadcastTransaction(id, params):
 
     logger.printInfo(
         f"Executing RPC method broadcastTransaction with id {id} and params {params}"
     )
 
-    requestSchema = utils.getRequestMethodSchema(BROADCAST_TRANSACTION)
+    requestSchema, responseSchema = utils.getMethodSchemas(BROADCAST_TRANSACTION)
 
     err = rpcutils.validateJSONRPCSchema(params, requestSchema)
     if err is not None:
         raise rpcerrorhandler.BadRequestError(err.message)
 
-    RPCConnector.request(RPC_CORE_ENDPOINT, id, SEND_RAW_TRANSACTION_METHOD, [params[RAW_TRANSACTION]])
+    hash = RPCConnector.request(RPC_CORE_ENDPOINT, id, SEND_RAW_TRANSACTION_METHOD, [params[RAW_TRANSACTION]])
 
-    return {}
+    if hash is None:
+        logger.printError(f"Transaction could not be broadcasted. Raw Transaction: {params[RAW_TRANSACTION]}")
+        raise rpcerrorhandler.BadRequestError("Transaction could not be broadcasted")
+
+    response = {
+        BROADCASTED: hash
+    }
+
+    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    return response
 
 
 @httputils.getMethod

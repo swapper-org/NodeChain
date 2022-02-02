@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-from cgitb import reset
 from httputils import httputils
 from logger import logger
 from rpcutils import rpcutils, errorhandler as rpcerrorhandler

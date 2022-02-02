@@ -65,6 +65,7 @@ SYNC_PERCENTAGE = "syncPercentage"
 VERIFICATION_PROGRESS = "verificationprogress"
 BLOCKS = "blocks"
 HEADERS = "headers"
+BROADCASTED = "broadcasted"
 
 RPC_JSON_SCHEMA_FOLDER = "bch/rpcschemas/"
 WS_JSON_SCHEMA_FOLDER = "bch/wsschemas/"
