@@ -107,6 +107,6 @@ def parseBalancesToTransfers(vin, vout, fee, amount):
 
 def sortUnspentOutputs(outputs):
     try:
-        return int(outputs['status']['blockHeight'])
+        return outputs['txHash']
     except KeyError:
-        return 0
+        return ''
