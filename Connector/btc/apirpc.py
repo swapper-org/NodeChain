@@ -27,10 +27,47 @@ def getAddressHistory(id, params, config):
         params=[params["address"]]
     )
 
-    response = {"txHashes": []}
+    response = {
+        "address": params["address"],
+        "txHashes": []
+    }
 
     for item in addrHistory:
         response["txHashes"].append(item["tx_hash"])
+
+    err = httputils.validateJSONSchema(response, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(err.message)
+
+    return response
+
+
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
+def getAddressesHistory(id, params, config):
+
+    logger.printInfo(
+        f"Executing RPC method getAddressesHistory with id {id} and params {params}"
+    )
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_HISTORY)
+
+    err = httputils.validateJSONSchema(params, requestSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(err.message)
+
+    response = []
+
+    for address in params["addresses"]:
+        response.append(
+            getAddressHistory(
+                id,
+                {
+                    "address": address
+                },
+                config=config
+            )
+        )
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:

@@ -263,6 +263,37 @@ def testGetAddressHistory():
     assert True
 
 
+def testGetAddressesHistory():
+
+    if "getAddressesHistory" not in RPCMethods:
+        logger.printError("getAddressesHistory not loaded in RPCMethods")
+        assert False
+
+    addresses = [address1, address2]
+
+    got = RPCMethods["getAddressesHistory"](0, {
+        ADDRESSES: addresses
+    })
+
+    for addressHistory in got:
+        expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [addressHistory[ADDRESS]])
+        expectedTxHashes = {item[TX_HASH_SNAKE_CASE]: False for item in expected}
+
+        for gotTxHash in addressHistory[TX_HASHES]:
+            if gotTxHash in expectedTxHashes:
+                expectedTxHashes[gotTxHash] = True
+            else:
+                logger.printError(f"Transaction {gotTxHash} not in expected txHashes {expectedTxHashes}")
+                assert False
+
+        for expectedTxHash in expectedTxHashes:
+            if not expectedTxHashes[expectedTxHash]:
+                logger.printError(f"Transaction {expectedTxHash} not in got txHashes {addressHistory[TX_HASHES]}")
+                assert False
+
+    assert True
+
+
 def testGetAddressBalance():
 
     if "getAddressBalance" not in RPCMethods:
