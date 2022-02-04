@@ -145,6 +145,41 @@ def getAddressUnspent(id, params):
 
 @httputils.postMethod
 @rpcutils.rpcMethod
+def getAddressesUnspent(id, params):
+
+    logger.printInfo(
+        f"Executing RPC method getAddressesUnspent with id {id} and params {params}"
+    )
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_UNSPENT)
+
+    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    response = []
+
+    for address in params[ADDRESSES]:
+
+        response.append({
+            ADDRESS: address,
+            OUTPUTS: getAddressUnspent(
+                id,
+                {
+                    ADDRESS: address
+                }
+            )
+        })
+
+    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    if err is not None:
+        raise rpcerrorhandler.BadRequestError(err.message)
+
+    return response
+
+
+@httputils.postMethod
+@rpcutils.rpcMethod
 def getBlockByHash(id, params):
 
     logger.printInfo(f"Executing RPC method getBlockByHash with id {id} and params {params}")

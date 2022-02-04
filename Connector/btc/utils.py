@@ -103,3 +103,10 @@ def parseBalancesToTransfers(vin, vout, fee, amount):
             )
 
     return transfers
+
+
+def sortUnspentOutputs(outputs):
+    try:
+        return outputs['txHash']
+    except KeyError:
+        return ''
