@@ -1,7 +1,6 @@
 import sys
 import os
 from datetime import datetime
-from tabnanny import verbose
 
 
 def printInfo(*argv, sep='', end='\n', file=sys.stdout, flush=True, verbosity=False):
