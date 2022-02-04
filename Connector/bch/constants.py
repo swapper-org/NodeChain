@@ -93,6 +93,7 @@ GET_TRANSACTION = "gettransaction"
 GET_ADDRESS_TRANSACTION_COUNT = "getaddresstransactioncount"
 GET_ADDRESSES_TRANSACTION_COUNT = "getaddressestransactioncount"
 GET_TRANSACTION_HEX = "gettransactionhex"
+GET_ADDRESSES_HISTORY = "getaddresseshistory"
 NOTIFY = "notify"
 
 SUBSCRIBE_ADDRESS_BALANCE = "subscribetoaddressbalance"

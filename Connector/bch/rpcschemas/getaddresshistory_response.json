@@ -4,6 +4,9 @@
     "description": "",
     "type": "object",
     "properties": {
+        "address": {
+            "type": "string"
+        },
         "txHashes": {
             "type" : "array",
             "items": {
@@ -12,6 +15,7 @@
         }
     },
     "required": [
+        "address",
         "txHashes"
     ]
 }
