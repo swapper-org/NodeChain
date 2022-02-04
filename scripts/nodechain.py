@@ -8,11 +8,12 @@ import sys
 import argparse
 import json
 from pathlib import Path
+import logger
 
 
 # "coin" argument is never used. Is declared to prevent errors
 def exitSignal(coin=None):
-    print("Exiting gracefully, goodbye!")
+    print(f"Exiting gracefully, goodbye!")
     raise SystemExit
 
 
@@ -64,8 +65,9 @@ def argumentHandler():
                         dest='config', help="ssl config", default=False)
     parser.add_argument('-c', '--cert', action="store",
                         dest='certs', help="path to certs", default=None)
-    parser.add_argument('-v', '--version', action="version",
+    parser.add_argument('-V', '--version', action="version",
                         version=f"NodeChain version {version}", help="software version", default=None)
+    parser.add_argument("-v", "--verbose", help="Increase output verbosity", action="store_true")
 
     # Create group to start and stop all apis at the same time
     all = argparse.ArgumentParser(add_help=False)
@@ -96,6 +98,9 @@ def argumentHandler():
 
 def start(args):
     os.chdir(ROOT_DIR)
+    if args.verbose:
+        logger.printInfo(f"Working directory: {ROOT_DIR}", verbosity=args.verbose)
+
     # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
     if args.all:
         for token in listAvailableTokens():
@@ -103,49 +108,67 @@ def start(args):
                 os.environ["COIN"] = token
                 os.environ["NETWORK"] = args.all
                 utils.queryPath(token, args.all)
-                print(f"Starting {token} en {args.all}...")
+                if checkIfRunning(token, args.all):
+                    logger.printError(f"The API {token} in {args.all} network is already started.", verbosity=args.verbose)
                 # startApi(token, args.all)
     else:
         utils.showMainTitle()
         token = coinMenu(args)
+        if args.verbose:
+            logger.printInfo(f"Token selected: {token}", verbosity=args.verbose)
         network = networkMenu(args, token)
+        if args.verbose:
+            logger.printInfo(f"Network selected: {network}", verbosity=args.verbose)
         utils.configQueries(args, token, network)
         if checkIfRunning(token, network):
-            print(f"The API {token} in {network} network is already started.")
+            logger.printError(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
             return
-        startApi(token, network)
+        startApi(args, token, network)
 
 
 def stop(args):
     os.chdir(ROOT_DIR)
+    if args.verbose:
+        logger.printInfo(f"Working directory: {ROOT_DIR}", verbosity=args.verbose)
+
+    # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
     if args.all:
         for token in listAvailableTokens():
             if args.all in listAvailableNetworksByToken(token):
                 os.environ["COIN"] = token
                 os.environ["NETWORK"] = args.all
                 if not checkIfRunning(token, args.all):
-                    print(f"Can't stop {token} in {args.all}. Containers are not running")
+                    logger.printError(f"Can't stop {token} in {args.all}. Containers are not running", verbosity=args.verbose)
                     continue
-                print(f"Stopping {token} en {args.all}...")
                 bindUsedPort(token, args.all)
                 # stopApi(token, args.all)
     else:
         utils.showMainTitle()
         token = coinMenu(args)
+        if args.verbose:
+            logger.printInfo(f"Token selected: {token}")
         network = networkMenu(args, token)
+        if args.verbose:
+            logger.printInfo(f"Network selected: {network}")
         if not checkIfRunning(token, network):
-            print("Can't stop the api. Containers are not running")
+            logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.", verbosity=args.verbose)
             return
         bindUsedPort(token, network)
-        stopApi(token, network)
+        stopApi(args, token, network)
 
 
 def status(args):
     os.chdir(ROOT_DIR)
+    if args.verbose:
+        logger.printInfo(f"Working directory: {ROOT_DIR}", verbosity=args.verbose)
     utils.showMainTitle()
     token = coinMenu(args)
+    if args.verbose:
+        logger.printInfo(f"Token selected: {token}")
     network = networkMenu(args, token)
-    statusApi(token, network)
+    if args.verbose:
+        logger.printInfo(f"Network selected: {network}")
+    statusApi(args, token, network)
 
 
 def listAvailableCoins():
@@ -218,8 +241,7 @@ def networkMenu(args, token):
             options=(len(listAvailableNetworksByToken(token)) + 1)))
         menu.get(network, [None, utils.invalid])[1](menu[network][0])
 
-        # Return the coin if needed
-        return menu[network][0]  # TODO: CHECK
+        return menu[network][0]
 
 
 def blockchainChoice(coin):
@@ -246,36 +268,47 @@ def getDockerComposePath(token, network):
     return path.parent.absolute()
 
 
-def startApi(token, network):
+def startApi(args, token, network):
     path = getDockerComposePath(token, network)
+    logger.printInfo(f"Starting {token}_{network}_api node... This might take a while.")
+    if args.verbose:
+        logger.printEnvs()
+        logger.printInfo(f"Path to docker file: {path}", verbosity=args.verbose)
+
     sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}_{network}_api", "up", "--build", "-d"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
     err = sp.communicate()
     if sp.returncode == 0:
-        print(f"{token}_{network}_api node started")
+        logger.printInfo(f"{token}_{network}_api node started", verbosity=args.verbose)
     else:
-        print(f"An error occurred while trying to start {token}_{network}_api:")
-        print("\n")
-        print(err[1].decode("ascii"))
+        logger.printError(f"An error occurred while trying to start {token}_{network}_api: \n", verbosity=args.verbose)
+        logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
         raise SystemExit
 
 
-def stopApi(token, network):
+def stopApi(args, token, network):
     path = getDockerComposePath(token, network)
-    print(f"Stopping {token}_{network}_api node...")
+    logger.printInfo(f"Stopping {token}_{network}_api node... This might take a while.", verbosity=args.verbose)
+    if args.verbose:
+        logger.printEnvs()
+        logger.printInfo(f"Path to docker file: {path}", verbosity=args.verbose)
+
     sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}_{network}_api", "down"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
     err = sp.communicate()
     if sp.returncode == 0:
-        print(f"{token}_{network}_api node stopped")
+        logger.printInfo(f"{token}_{network}_api node stopped", verbosity=args.verbose)
     else:
-        print(f"An error occurred while trying to start {token}_{network}_api:")
-        print("\n")
-        print(err[1].decode("ascii"))
+        logger.printError(f"An error occurred while trying to stop {token}_{network}_api: \n", verbosity=args.verbose)
+        logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
+        raise SystemExit
 
 
-def statusApi(token, network):
-    print(f"Getting information of {token}_{network}_api containers...")
+def statusApi(args, token, network):
+    logger.printInfo(f"Getting information of {token}_{network}_api containers...", verbosity=args.verbose)
+    if args.verbose:
+        logger.printEnvs()
+
     utils.showSubtitle(f"{token.upper()} {network.upper()} INFORMATION")
     services = utils.listServices(token, network)
     for container in client.containers.list():
