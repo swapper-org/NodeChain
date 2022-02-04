@@ -395,6 +395,8 @@ def testGetAddressUnspent():
         ADDRESS: address1
     })
 
+    got.sort(key=sortUnspentOutputs, reverse=False)
+
     txs = []
 
     for tx in expected:
@@ -409,6 +411,8 @@ def testGetAddressUnspent():
                 VALUE: str(tx[VALUE])
             }
         )
+
+    txs.sort(key=sortUnspentOutputs, reverse=False)
 
     assert json.dumps(got, sort_keys=True) == json.dumps(txs, sort_keys=True)
 
