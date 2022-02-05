@@ -13,6 +13,12 @@
                         "null"
                     ]
                 },
+                "blockNumber": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
                 "fee": {
                     "type": "string"
                 },
