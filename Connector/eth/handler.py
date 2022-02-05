@@ -2,9 +2,10 @@
 from httputils.router import CurrencyHandler
 from httputils import httpmethod
 from rpcutils import rpcutils, rpcmethod, error
-from wsutils import wsutils, wsmethod
+from wsutils import wsmethod, websocket
 from utils import utils
 from logger import logger
+from .websockets import WebSocket
 from .connector import Config
 
 
@@ -24,6 +25,8 @@ class Handler:
         if err is not None:
             return False, err
 
+        # TODO: Check error when host can not be found
+
         self.networksConfig[network] = Config(
             networkName=network,
             config={
@@ -33,9 +36,15 @@ class Handler:
                 "wsPort": config["wsPort"] if "wsPort" in config else defaultConfig["wsPort"]
             }
         )
-        return True, None
 
-        # TODO: Init websockets and everything related to the pkg
+        WebSocket(
+            coin=self.coin,
+            config=self.networksConfig[network]
+        )
+
+        websocket.startWebSockets(self.coin, self.networksConfig[network].networkName)
+
+        return True, None
 
     def getConfig(self, network):
 
@@ -45,17 +54,22 @@ class Handler:
 
         return self.networksConfig[network].jsonEncode(), None
 
-    def removeConfig(self, network):
+    async def removeConfig(self, network):
 
         if network not in self.networksConfig:
             logger.printError(f"Configuration {network} not added for {self.coin}")
             return False, f"Configuration {network} not added for {self.coin}"
 
-        del self.networksConfig[network]
-        return True, None
-        # TODO: Close websockets and everything related to the pkg
+        await websocket.stopWebSockets(coin=self.coin,
+                                       networkName=self.networksConfig[network].networkName)
 
-    def updateConfig(self, network, config):
+        del self.networksConfig[network]
+
+        # TODO: Close all topics for this currency and this network
+
+        return True, None
+
+    async def updateConfig(self, network, config):
 
         if network not in self.networksConfig:
             logger.printError(f"Configuration {network} not added for {self.coin}")
@@ -64,6 +78,10 @@ class Handler:
         defaultConfig, err = utils.loadDefaultPackageConf(self.coin)
         if err is not None:
             return False, err
+
+        await websocket.stopWebSockets(coin=self.coin,
+                                       networkName=self.networksConfig[network].networkName
+                                       )
 
         self.networksConfig[network] = Config(
             networkName=network,
@@ -74,6 +92,14 @@ class Handler:
                 "wsPort": config["wsPort"] if "wsPort" in config else defaultConfig["wsPort"]
             }
         )
+
+        WebSocket(
+            coin=self.coin,
+            config=self.networksConfig[network]
+        )
+
+        websocket.startWebSockets(self.coin, self.networksConfig[network].networkName)
+
         return True, None
 
     async def handleRequest(self, network, method, request):

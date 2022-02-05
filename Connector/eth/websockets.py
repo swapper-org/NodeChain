@@ -6,150 +6,186 @@ import random
 import sys
 import threading
 from logger import logger
-from rpcutils import rpcutils, constants as rpcConstants, errorhandler as rpcErrorHandler
+from rpcutils import rpcutils, constants as rpcConstants, error
 from wsutils.clientwebsocket import ClientWebSocket
-from wsutils import wsutils, topics
+from wsutils import topics, websocket
 from wsutils.broker import Broker
 from wsutils.publishers import Publisher
-from webapp import WebApp
 from . import apirpc, utils
 from .constants import *
-from .connector import WS_ENDPOINT
 
+@websocket.WebSocket
+class WebSocket:
 
-@wsutils.webSocket
-def ethereumWS():
+    def __init__(self, coin, config):
+        self._coin = coin
+        self._config = config
+        self._session = None
+        self._loop = None
 
-    logger.printInfo("Starting WS for Ethereum")
-    ethereumWSClient = threading.Thread(target=ethereumWSThread, args=("Eth daemon",), daemon=True)
-    ethereumWSClient.start()
+    def start(self):
 
+        logger.printInfo("Starting WS for Ethereum")
 
-def ethereumWSThread(args):
+        threading.Thread(
+            target=self.ethereumWSThread,
+            daemon=True
+        ).start()
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(ethereumClientCallback(args))
-    loop.close()
+    def ethereumWSThread(self):
 
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+        asyncio.ensure_future(self.ethereumClientCallback(), loop=self.loop)
+        self.loop.run_forever()
 
-async def ethereumClientCallback(request):
+    async def ethereumClientCallback(self):
 
-    async with ClientWebSocket(WS_ENDPOINT) as session:
+        while True:
+            async with ClientWebSocket(self.config.wsEndpoint) as session:
+                self.session = session
+                logger.printInfo(f"Connecting to {self.config.wsEndpoint}")
+                await session.connect()
 
-        app = WebApp()
-        app.addWSClientSession(session)
-
-        logger.printInfo(f"Connecting to {WS_ENDPOINT}")
-        await session.connect()
-
-        payload = {
-            rpcConstants.ID: random.randint(1, sys.maxsize),
-            rpcConstants.METHOD: SUBSCRIBE_METHOD,
-            rpcConstants.PARAMS: [
-                NEW_HEADS_SUBSCRIPTION,
-                {
-                    INCLUDE_TRANSACTIONS: True
+                payload = {
+                    rpcConstants.ID: random.randint(1, sys.maxsize),
+                    rpcConstants.METHOD: SUBSCRIBE_METHOD,
+                    rpcConstants.PARAMS: [
+                        NEW_HEADS_SUBSCRIPTION,
+                        {
+                            "includeTransactions": True
+                        }
+                    ]
                 }
-            ]
-        }
 
-        logger.printInfo(f"Subscribing to {NEW_HEADS_SUBSCRIPTION}")
-        logger.printInfo(f"Making request {payload} to {WS_ENDPOINT}")
+                logger.printInfo(f"Subscribing to {NEW_HEADS_SUBSCRIPTION}")
+                logger.printInfo(f"Making request {payload} to {self.config.wsEndpoint}")
 
-        await session.send(payload)
+                await session.send(payload)
 
-        async for msg in session.websocket:
+                closed = False
+                async for msg in session.websocket:
 
-            if msg.type == aiohttp.WSMsgType.TEXT:
+                    if msg.type == aiohttp.WSMsgType.TEXT:
 
-                if msg.data == 'close':
+                        logger.printInfo(
+                            f"Message received for {self.coin} websocket from {self.config.wsEndpoint}: {msg.data}")
+
+                        if msg.data == 'close':
+                            closed = True
+                            await session.close()
+
+                        else:
+                            try:
+                                payload = json.loads(msg.data)
+                                if rpcConstants.PARAMS in payload:
+
+                                    threading.Thread(
+                                        target=self.ethereumWSWorker,
+                                        args=(payload[rpcConstants.PARAMS],),
+                                        daemon=True
+                                    ).start()
+
+                                else:
+                                    logger.printError(f"No params in {self.coin} ws node message")
+                            except Exception as e:
+                                logger.printError(f"Payload is not JSON message: {e}")
+
+                    elif msg.type == aiohttp.WSMsgType.ERROR:
+                        break
+
+                if not closed:
                     await session.close()
 
-                elif rpcConstants.PARAMS in msg.data:
-                    addrSearcherThread = threading.Thread(target=ethereumWSWorker, args=(msg.data,), daemon=True)
-                    addrSearcherThread.start()
+    def ethereumWSWorker(self, params):
 
-            elif msg.type == aiohttp.WSMsgType.ERROR:
-                break
+        blockNumber = params[rpcConstants.RESULT]["number"]
 
+        logger.printInfo(f"Getting new block to check addresses subscribed for. Block number: "
+                         f"{params[rpcConstants.RESULT]['number']}")
 
-def ethereumWSWorker(data):
+        broker = Broker()
+        publisher = Publisher()
+        id = random.randint(1, sys.maxsize)
 
-    reqParsed = None
-    try:
-        reqParsed = json.loads(data)
-    except Exception as e:
-        logger.printError(f"Payload is not JSON message. Error: {e}")
-        raise rpcErrorHandler.BadRequestError(f"Payload is not JSON message. Error: {e}")
-
-    params = reqParsed[rpcConstants.PARAMS]
-    blockNumber = params[rpcConstants.RESULT][NUMBER]
-
-    logger.printInfo(f"Getting new block to check addresses subscribed for. Block number: {params[rpcConstants.RESULT][NUMBER]}")
-
-    broker = Broker()
-    publisher = Publisher()
-    id = random.randint(1, sys.maxsize)
-
-    try:
-        block = apirpc.getBlockByNumber(
-            random.randint(1, sys.maxsize),
-            {
-                BLOCK_NUMBER: blockNumber
-            }
-        )
-
-        publisher.publish(
-            broker,
-            topics.NEW_BLOCKS_TOPIC,
-            rpcutils.generateRPCResultResponse(
-                id,
-                block
+        try:
+            block = apirpc.getBlockByNumber(
+                random.randint(1, sys.maxsize),
+                {
+                    "blockNumber": blockNumber
+                },
+                self.config
             )
-        )
 
-    except rpcErrorHandler.BadRequestError as err:
-        logger.printError(f"Can not get new block. {err}")
-        publisher.publish(broker, topics.NEW_BLOCKS_TOPIC, err.jsonEncode())
-        return
-
-    for address in broker.getSubTopics(topics.ADDRESS_BALANCE_TOPIC):
-        if utils.isAddressInBlock(address, block):
-
-            try:
-                balanceResponse = apirpc.getAddressBalance(
+            publisher.publish(
+                broker=broker,
+                topic=f"{self.coin}{topics.TOPIC_SEPARATOR}"
+                      f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
+                      f"{topics.NEW_BLOCKS_TOPIC}",
+                message=rpcutils.generateRPCResultResponse(
                     id,
-                    {
-                        ADDRESS: address
-                    }
+                    block
                 )
+            )
 
-                publisher.publish(
-                    broker,
-                    topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + address,
-                    rpcutils.generateRPCResultResponse(
+        except error.RpcBadRequestError as err:
+            logger.printError(f"Can not get new block. {err}")
+            publisher.publish(broker, topics.NEW_BLOCKS_TOPIC, err.jsonEncode())
+            return
+
+        for address in broker.getSubTopics(f"{self.coin}{topics.TOPIC_SEPARATOR}"
+                                           f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
+                                           f"{topics.ADDRESS_BALANCE_TOPIC}"):
+
+            if utils.isAddressInBlock(address, block):
+
+                try:
+                    balanceResponse = apirpc.getAddressBalance(
                         id,
-                        balanceResponse
+                        {
+                            "address": address
+                        },
+                        self.config
                     )
-                )
-            except rpcErrorHandler.BadRequestError as err:
-                logger.printError(f"Can not get address balance for [{address}] {err}")
-                publisher.publish(broker, topics.NEW_BLOCKS_TOPIC, err.jsonEncode())
-                return
 
+                    publisher.publish(
+                        broker=broker,
+                        topic=f"{self.coin}{topics.TOPIC_SEPARATOR}{self.config.networkName}{topics.TOPIC_SEPARATOR}"
+                              f"{topics.ADDRESS_BALANCE_TOPIC}{topics.TOPIC_SEPARATOR}{address}",
+                        message=rpcutils.generateRPCResultResponse(
+                            id,
+                            balanceResponse
+                        )
+                    )
+                except error.RpcBadRequestError as err:
+                    logger.printError(f"Can not get address balance for [{address}] {err}")
+                    publisher.publish(broker, topics.NEW_BLOCKS_TOPIC, err.jsonEncode())
+                    return
 
-@wsutils.webSocketClosingHandler
-async def wsClosingHandler():
+    async def stop(self):
+        await self.session.close()
+        self.loop.stop()
 
-    logger.printInfo("Closing opened connections")
-    app = WebApp()
-    await app.closeAllWSClientSessions()
+    @property
+    def coin(self):
+        return self._coin
 
-    logger.printInfo("Closing subscribers connections")
+    @property
+    def config(self):
+        return self._config
 
-    broker = Broker()
+    @property
+    def session(self):
+        return self._session
 
-    for topicName in broker.getTopicNameSubscriptions():
-        for subscriber in list(broker.getTopicSubscribers(topicName)):
-            await subscriber.closeConnection(broker)
+    @session.setter
+    def session(self, value):
+        self._session = value
+
+    @property
+    def loop(self):
+        return self._loop
+
+    @loop.setter
+    def loop(self, value):
+        self._loop = value

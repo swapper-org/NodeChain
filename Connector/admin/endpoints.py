@@ -52,7 +52,7 @@ async def removeCoin(request):
         raise error.BadRequestError(message=err.message)
 
     router = Router()
-    response = router.removeCoin(
+    response = await router.removeCoin(
         coin=payload["coin"],
         network=payload["network"]
     )
@@ -106,7 +106,7 @@ async def updateCoin(request):
         raise error.BadRequestError(message=err.message)
 
     router = Router()
-    response = router.updateCoin(
+    response = await router.updateCoin(
         coin=payload["coin"],
         network=payload["network"],
         config=payload["config"]

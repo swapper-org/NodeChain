@@ -92,7 +92,7 @@ class Router(object, metaclass=Singleton.Singleton):
             "message": f"{network} network added for currency {coin}"
         }
 
-    def removeCoin(self, coin, network):
+    async def removeCoin(self, coin, network):
 
         if not utils.isAvailableCurrency(coin):
             logger.printError(f"Currency {coin} is not supported")
@@ -116,7 +116,7 @@ class Router(object, metaclass=Singleton.Singleton):
 
         del self._availableCoins[coin][network]
         coinHandler = currenciesHandler[coin]
-        ok, err = coinHandler.removeConfig(network)
+        ok, err = await coinHandler.removeConfig(network)
         return {
             "success": ok,
             "message": f"{network} network removed for currency {coin}" if ok else err
@@ -160,7 +160,7 @@ class Router(object, metaclass=Singleton.Singleton):
             "config": config
         }
 
-    def updateCoin(self, coin, network, config):
+    async def updateCoin(self, coin, network, config):
 
         if not utils.isAvailableCurrency(coin):
             logger.printError(f"Currency {coin} is not supported")
@@ -183,7 +183,7 @@ class Router(object, metaclass=Singleton.Singleton):
         logger.printInfo(f"Updating configuration for network {network} for currency {coin}")
 
         coinHandler = currenciesHandler[coin]
-        ok, err = coinHandler.updateConfig(network, config)
+        ok, err = await coinHandler.updateConfig(network, config)
 
         return {
             "success": ok,

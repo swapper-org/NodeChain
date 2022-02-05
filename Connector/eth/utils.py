@@ -38,8 +38,8 @@ def getWSResponseMethodSchema(name):
 
 
 def isAddressInBlock(address, block):
-    for transaction in block[TRANSACTIONS]:
-        if address.lower() == transaction[FROM].lower() or address.lower() == transaction[TO].lower():
+    for transaction in block["transactions"]:
+        if address.lower() == transaction["from"].lower() or address.lower() == transaction["to"].lower():
             return True
     return False
 

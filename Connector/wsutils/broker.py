@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import re
 import threading
 from logger import logger
 from .singleton import Singleton
@@ -104,7 +105,21 @@ class Broker(object, metaclass=Singleton):
         return topicName in self.topicSubscriptions
 
     def getSubTopics(self, topicName):
-        return [topicSubscription[len(topicName) + 1:] for topicSubscription in self.topicSubscriptions if topicName in topicSubscription]
+
+        subTopics = []
+
+        for topic in self.topicSubscriptions:
+            matches = re.finditer(f"{topicName}([a-z0-9A-Z/]+)", topic, re.MULTILINE)
+            found = False
+            for match in matches:
+                for group in match.groups():
+                    subTopics.append(group[1:])
+                    found = True
+                    break
+                if found:
+                    break
+
+        return subTopics
 
     def topicHasSubscribers(self, topicName):
         if topicName in self.topicSubscriptions:
