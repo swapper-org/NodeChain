@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 from aiohttp import ClientSession
+from logger import logger
 
 
 class ClientWebSocket(ClientSession):
@@ -21,7 +22,7 @@ class ClientWebSocket(ClientSession):
         """Send a message to the WebSocket."""
         assert self.websocket is not None, "You must connect first!"
         await self.websocket.send_json(message)
-        print("Sent:", message)
+        logger.printInfo(f"Sent: {message}")
 
     async def receive(self):
         """Receive one message from the WebSocket."""
@@ -34,6 +35,6 @@ class ClientWebSocket(ClientSession):
 
         while await self.websocket.receive():
             message = await self.receive()
-            print("Received:", message)
+            logger.printInfo(f"Received: {message}")
             if message == "Echo 9!":
                 break
