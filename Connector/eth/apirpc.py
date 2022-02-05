@@ -219,7 +219,7 @@ def getTransaction(id, params, config):
         "transaction": {
             "fee": str(utils.toWei(transaction["gasPrice"]) * utils.toWei(transaction["gas"])),
             "blockHash": transaction["blockHash"],
-            "blockNumber": transaction["blockNumber"],
+            "blockNumber": str(int(transaction["blockNumber"], 16)) if transaction["blockNumber"] is not None else None,
             "data": transaction,
             "transfers": [
                 {
