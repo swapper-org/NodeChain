@@ -217,15 +217,16 @@ def getTransaction(id, params, config):
 
     response = {
         "transaction": {
-            "fee": utils.toHex(utils.toWei(transaction["gasPrice"]) * utils.toWei(transaction["gas"])),
+            "fee": str(utils.toWei(transaction["gasPrice"]) * utils.toWei(transaction["gas"])),
             "blockHash": transaction["blockHash"],
+            "blockNumber": transaction["blockNumber"],
             "data": transaction,
             "transfers": [
                 {
                     "from": transaction["from"],
                     "to": transaction["to"],
-                    "amount": transaction["value"],
-                    "fee": utils.toHex(utils.toWei(transaction["gasPrice"]) * utils.toWei(transaction["gas"]))
+                    "amount": str(utils.toWei(transaction["value"])),
+                    "fee": str(utils.toWei(transaction["gasPrice"]) * utils.toWei(transaction["gas"]))
                 }
             ]
         }
