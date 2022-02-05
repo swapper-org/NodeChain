@@ -14,6 +14,7 @@ from wsutils.publishers import Publisher
 from . import apirpc, utils
 from .constants import *
 
+
 @websocket.WebSocket
 class WebSocket:
 
