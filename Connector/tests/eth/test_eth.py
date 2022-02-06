@@ -148,7 +148,7 @@ def testGetTransaction():
     for transfer in got[TRANSACTION]["transfers"]:
         assert transfer[TO] == expected[TO]
         assert transfer[FROM] == expected[FROM]
-        assert transfer[AMOUNT] == expected[VALUE]
+        assert transfer[AMOUNT] == str(utils.toWei(expected[VALUE]))
         assert transfer["fee"] == str(utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
 
 
