@@ -10,6 +10,9 @@
                 "null"
             ],
             "properties": {
+                "txHash": {
+                    "type": "string"
+                },
                 "blockHash": {
                     "type": [
                         "string",
