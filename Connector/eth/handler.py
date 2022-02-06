@@ -7,10 +7,12 @@ from utils import utils
 from logger import logger
 from .websockets import WebSocket
 from .connector import Config
+from .constants import COIN_SYMBOL
 
 
 @CurrencyHandler
 class Handler:
+
     def __init__(self, coin):
         self._coin = coin
         self._networksConfig = {}
@@ -146,4 +148,4 @@ class Handler:
         self._networksConfig = value
 
 
-Handler("eth")
+Handler(COIN_SYMBOL)
