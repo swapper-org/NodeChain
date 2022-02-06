@@ -61,10 +61,10 @@ class Config:
         return "{}://{}:{}".format(self.protocol, self.host, self.wsPort)
 
     def jsonEncode(self):
-        return ErrorEncoder().encode(self)
+        return ConfigEncoder().encode(self)
 
 
-class ErrorEncoder(JSONEncoder):
+class ConfigEncoder(JSONEncoder):
 
     def encode(self, o):
         return {
