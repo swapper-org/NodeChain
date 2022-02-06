@@ -143,13 +143,13 @@ def testGetTransaction():
 
     assert json.dumps(got[TRANSACTION]["data"], sort_keys=True) == json.dumps(expected, sort_keys=True)
     assert got[TRANSACTION][BLOCK_HASH] == expected[BLOCK_HASH]
-    assert got[TRANSACTION]["fee"] == utils.toHex(utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
+    assert got[TRANSACTION]["fee"] == utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"])
 
     for transfer in got[TRANSACTION]["transfers"]:
         assert transfer[TO] == expected[TO]
         assert transfer[FROM] == expected[FROM]
         assert transfer[AMOUNT] == expected[VALUE]
-        assert transfer["fee"] == utils.toHex(utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
+        assert transfer["fee"] == utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"])
 
 
 def testEstimateGas():
