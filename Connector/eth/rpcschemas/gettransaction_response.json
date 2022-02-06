@@ -7,6 +7,9 @@
         "transaction": {
             "type": "object",
             "properties": {
+                "txHash": {
+                    "type": "string"
+                },
                 "blockHash": {
                     "type": [
                         "string",
