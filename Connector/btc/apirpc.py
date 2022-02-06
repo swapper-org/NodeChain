@@ -429,9 +429,10 @@ def getTransaction(id, params, config):
 
         response = {
             "transaction": {
-                "blockHash": transaction["blockhash"] if transaction["confirmations"] >= 1 else None,
+                "txHash": params["txHash"],
+                "blockhash": transaction["blockhash"] if transaction["confirmations"] >= 1 else None,
                 "blockNumber": str(transaction["blockheight"]) if transaction["confirmations"] >= 1 else None,
-                "fee": str(-transaction["fee"]) if "generated" not in transaction else "0",
+                "fee": str(utils.convertToSatoshi(-transaction["fee"])) if "generated" not in transaction else "0",
                 "transfers": utils.parseBalancesToTransfers(
                     vinAddressBalances,
                     transaction["details"],

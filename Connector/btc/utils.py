@@ -78,16 +78,16 @@ def parseBalancesToTransfers(vin, vout, fee, amount):
                     transfer = {
                         "from": address,
                         "to": utxo["address"],
-                        "amount": str(vinAmount),
-                        "fee": str(round(vinAmount * fee / amount, BTC_PRECISION))
+                        "amount": str(convertToSatoshi(vinAmount)),
+                        "fee": str(convertToSatoshi(round(vinAmount * fee / amount, BTC_PRECISION)))
                     }
                     del vin[address]
                 else:
                     transfer = {
                         "from": address,
                         "to": utxo["address"],
-                        "amount": str(voutAmount),
-                        "fee": str(round(voutAmount * fee / amount, BTC_PRECISION))
+                        "amount": str(convertToSatoshi(voutAmount)),
+                        "fee": str(convertToSatoshi(round(voutAmount * fee / amount, BTC_PRECISION)))
                     }
 
                 diff = diff + voutAmount - vinAmount
@@ -98,7 +98,7 @@ def parseBalancesToTransfers(vin, vout, fee, amount):
                 {
                     "to": utxo["address"],
                     "fee": "0",
-                    "amount": str(utxo["amount"])
+                    "amount": str(convertToSatoshi(utxo["maount"]))
                 }
             )
 
