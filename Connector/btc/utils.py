@@ -3,7 +3,7 @@ from decimal import Decimal
 import random
 import sys
 from logger import logger
-from rpcutils import errorhandler as rpcerrorhandler
+from rpcutils import error as rpcerrorhandler
 from wsutils import topics
 from .constants import *
 from . import apirpc
@@ -43,19 +43,19 @@ def closeAddrBalanceTopic(topicName):
 
     if len(addrTopicSplitted) <= 1:
         logger.printError(f"Topic name [{topicName}] not valid for Address Balance WS")
-        raise rpcerrorhandler.InternalServerError(f"Can not unsubscribe {topicName} to node")
+        raise rpcerrorhandler.RpcInternalServerError(f"Can not unsubscribe {topicName} to node")
 
     id = random.randint(1, sys.maxsize)
 
     response = apirpc.notify(
         id,
         {
-            ADDRESS: addrTopicSplitted[1],
-            CALLBACK_ENDPOINT: ""
+            "success": addrTopicSplitted[1],
+            "callBackEndpoint": ""
         }
     )
 
-    if not response[SUCCESS]:
+    if not response["success"]:
         logger.printError(f"Can not unsubscribe {topicName} to node")
         raise rpcerrorhandler.BadRequestError(f"Can not unsubscribe {topicName} to node")
 

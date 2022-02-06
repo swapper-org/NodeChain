@@ -33,7 +33,7 @@ def runServer():
 
     # availableCurrencies = utils.getAvailableCurrencies()
 
-    availableCurrencies = ["eth"]
+    availableCurrencies = ["eth", "btc"]
     for module in (modules + availableCurrencies):
         importlib.__import__(module)
 
