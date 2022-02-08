@@ -1,0 +1,31 @@
+version: "3"
+services:
+  terrad:
+    build: ../../packages/nodechain-terrad
+    image: terrad
+    environment:
+      MAINNET: 1
+      NETWORK: columbus-5
+    volumes:
+      # - ${BLOCKCHAIN_PATH}/terrad:/root/.terra
+
+  # connector:
+  #   build: ../../Connector
+  #   environment:
+  #     COIN: LUNA
+  #     NETWORK: ${NETWORK}
+  #     PORT: ${PORT}
+  #   image: connector
+  #   depends_on:
+  #     - terrad
+
+  # nginx:
+  #   image: nginx
+  #   volumes:
+  #     - ${NGINX_CONFIG_PATH}:/etc/nginx/nginx.conf
+  #     - ${CERT_PATH}:/etc/nginx/certs
+  #   ports:
+  #     - ${PORT}:80
+  #     - ${SSL_PORT}:443
+  #   depends_on:
+  #     - connector
