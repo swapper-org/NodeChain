@@ -91,5 +91,21 @@
         ]
       }
     }
+  },
+  {
+    "name": "terra",
+    "token": "luna",
+    "networks": {
+      "testnet": {
+        "services": ["terrad"],
+        "dockerComposePath": "./docker-compose/testnet/luna.yml",
+        "configurable": []
+      },
+      "mainnet": {
+        "services": ["terrad"],
+        "dockerComposePath": "./docker-compose/mainnet/luna.yml",
+        "configurable": []
+      }
+    }
   }
 ]

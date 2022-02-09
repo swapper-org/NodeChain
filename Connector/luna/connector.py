@@ -1,0 +1,4 @@
+RPC_TERRAD_PORT = 1317
+RPC_TERRAD_HOST = "terrad"
+
+RPC_ENDPOINT = "http://{}:{}/".format(RPC_TERRAD_HOST, RPC_TERRAD_PORT)
