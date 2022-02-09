@@ -12,7 +12,7 @@ if [[ -n "${TESTNET}" ]]; then
 fi
 
 if [[ -n "${MAINNET}" ]]; then
-  wget https://columbus-genesis.s3.ap-northeast-1.amazonaws.com/${NETWORK}-genesis.json && cp genesis.json ~/.terra/config/genesis.json
+  wget https://columbus-genesis.s3.ap-northeast-1.amazonaws.com/${NETWORK}-genesis.json && cp ${NETWORK}-genesis.json ~/.terra/config/genesis.json
   wget https://network.terra.dev/addrbook.json -O ~/.terra/config/addrbook.json
   sed -i 's/minimum-gas-prices = "0uluna"/minimum-gas-prices = "0.01133uluna,0.15uusd,0.104938usdr,169.77ukrw,428.571umnt,0.125ueur,0.98ucny,16.37ujpy,0.11ugbp,10.88uinr,0.19ucad,0.14uchf,0.19uaud,0.2usgd,4.62uthb,1.25usek,1.25unok,0.9udkk,2180.0uidr,7.6uphp,1.17uhkd"/g' ~/.terra/config/app.toml
   sed -i 's/laddr = "tcp:\/\/127.0.0.1:26657"/laddr = "tcp:\/\/0.0.0.0:26657"/g' ~/.terra/config/config.toml
