@@ -18,6 +18,8 @@ services:
       -zmqpubhashblock=tcp://0.0.0.0:28332
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
+    environment:
+      NETWORK: ${NETWORK}
 
   electrs:
     build: ../../packages/nodechain-electrs
