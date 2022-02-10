@@ -8,12 +8,14 @@ from httputils.app import App, appModules
 from httputils.constants import JSON_CONTENT_TYPE
 from rpcutils import middleware as rpcMiddleware
 from logger import logger
-from utils import utils
+# from utils import utils
 
 
 async def onPrepare(request, response):
 
     response.headers["Content-Type"] = JSON_CONTENT_TYPE
+
+# TODO: Create onShutdown handler to close everything
 
 
 def runServer():
@@ -46,7 +48,8 @@ def runServer():
     mainApp.add_routes(
         [
             web.post("/{coin}/{network}/{method}", router.doRoute),
-            web.get("/{coin}/{network}/ws", router.doWsRoute)
+            web.get("/{coin}/{network}/ws", router.doWsRoute),
+            web.post("/{coin}/{network}/callback/{callbackName}", router.handleCallback)
         ]
     )
     cors = aiohttp_cors.setup(mainApp, defaults={
@@ -61,6 +64,7 @@ def runServer():
 
     logger.printInfo("Starting connector")
 
+    # TODO: Do not hardcode port
     web.run_app(mainApp, port=80)
 
 

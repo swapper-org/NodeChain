@@ -1,0 +1,58 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "",
+    "description": "",
+    "type": "object",
+    "properties": {
+        "bitcoincoreProtocol" : {
+            "type" : "string"
+        },
+        "bitcoincoreHost": {
+            "type": "string"
+        },
+        "bitcoincorePort": {
+            "type": "integer"
+        },
+        "bitcoincoreUser":{
+          "type": "string"
+        },
+        "bitcoincorePassword": {
+            "type": "string"
+        },
+        "bitcoincoreZmqProtocol": {
+            "type": "string"
+        },
+        "bitcoincoreZmqPort": {
+            "type": "integer"
+        },
+        "electrumProtocol": {
+            "type": "string"
+        },
+        "electrumHost": {
+            "type": "string"
+        },
+        "electrumPort": {
+            "type": "integer"
+        },
+        "electrumUser": {
+            "type": "string"
+        },
+        "electrumPassword": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "bitcoincoreProtocol",
+        "bitcoincoreHost",
+        "bitcoincorePort",
+        "bitcoincoreUser",
+        "bitcoincorePassword",
+        "bitcoincoreZmqProtocol",
+        "bitcoincoreZmqPort",
+        "electrumProtocol",
+        "electrumHost",
+        "electrumPort",
+        "electrumUser",
+        "electrumPassword"
+    ]
+}

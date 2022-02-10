@@ -5,7 +5,6 @@ from logger import logger
 from patterns import Singleton
 from utils import utils
 from . import error
-from . import httputils
 
 currenciesHandler = {}
 
@@ -21,7 +20,7 @@ class Router(object, metaclass=Singleton.Singleton):
         network = request.match_info["network"]
         method = request.match_info["method"]
 
-        self.checkIsAvailableRotue(
+        self.checkIsAvailableRoute(
             coin=coin,
             network=network
         )
@@ -43,7 +42,7 @@ class Router(object, metaclass=Singleton.Singleton):
         coin = request.match_info["coin"]
         network = request.match_info["network"]
 
-        self.checkIsAvailableRotue(
+        self.checkIsAvailableRoute(
             coin=coin,
             network=network
         )
@@ -52,6 +51,28 @@ class Router(object, metaclass=Singleton.Singleton):
         return await coinHandler.handleWsRequest(
             network=network,
             request=request
+        )
+
+    async def handleCallback(self, request):
+
+        coin = request.match_info["coin"]
+        network = request.match_info["network"]
+        callbackName = request.match_info["callbackName"]
+
+        self.checkIsAvailableRoute(
+            coin=coin,
+            network=network
+        )
+
+        coinHandler = currenciesHandler[coin]
+        response = await coinHandler.handleCallback(
+            network=network,
+            callbackName=callbackName,
+            request=request
+        )
+
+        return web.Response(
+            text=json.dumps(response)
         )
 
     def addCoin(self, coin, network, config):
@@ -117,6 +138,7 @@ class Router(object, metaclass=Singleton.Singleton):
         del self._availableCoins[coin][network]
         coinHandler = currenciesHandler[coin]
         ok, err = await coinHandler.removeConfig(network)
+
         return {
             "success": ok,
             "message": f"{network} network removed for currency {coin}" if ok else err
@@ -191,7 +213,7 @@ class Router(object, metaclass=Singleton.Singleton):
             f"Configuration for {network} network for currency {coin} updated successfully"
         }
 
-    def checkIsAvailableRotue(self, coin, network):
+    def checkIsAvailableRoute(self, coin, network):
 
         if coin not in self._availableCoins:
             logger.printError(f"Currency {coin} has not been previously added")
@@ -227,6 +249,9 @@ class CurrencyHandler:
         async def handleWsRequest(network, request):
             pass
 
+        def handleCallback(network, callbackName, request):
+            pass
+
         self.handler.addConfig = addConfig \
             if not hasattr(self.handler, "addConfig") or not callable(self.handler.addConfig) \
             else self.handler.addConfig
@@ -250,6 +275,10 @@ class CurrencyHandler:
         self.handler.handleWsRequest = handleWsRequest \
             if not hasattr(self.handler, "handleRequest") or not callable(self.handler.handleWsRequest) \
             else self.handler.handleWsRequest
+
+        self.handler.handleCallback = handleCallback \
+            if not hasattr(self.handler, "handleCallback") or not callable(self.handler.handleCallback) \
+            else self.handler.handleCallback
 
         obj = self.handler(coin)
         currenciesHandler[coin] = obj
