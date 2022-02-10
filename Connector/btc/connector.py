@@ -1,14 +1,13 @@
 #!/usr/bin/python3
 from json import JSONEncoder
 
-BITCOIN_CALLBACK_PATH = "/bitcoincallback"
-BITCOIN_CALLBACK_ENDPOINT = "http://{}:{}{}".format("connector", 80, BITCOIN_CALLBACK_PATH)
-ELECTRUM_NAME = "electrum"
-
 
 class Config:
 
     def __init__(self, networkName, config):
+
+        # TODO: Load here default config to avoid code reps
+
         self._networkName = networkName
         self._bitcoincoreProtocol = config["bitcoincoreProtocol"]
         self._bitcoincoreHost = config["bitcoincoreHost"]
@@ -22,6 +21,8 @@ class Config:
         self._electrumPort = config["electrumPort"]
         self._electrumUser = config["electrumUser"]
         self._electrumPassword = config["electrumPassword"]
+        self._bitcoincoreCallbackProtocol = config["bitcoincoreCallbackProtocol"]
+        self._bitcoincoreCallbackHost = config["bitcoincoreCallbackHost"]
 
     @property
     def networkName(self):
@@ -128,6 +129,22 @@ class Config:
         self._electrumPassword = value
 
     @property
+    def bitcoincoreCallbackProtocol(self):
+        return self._bitcoincoreCallbackProtocol
+
+    @bitcoincoreCallbackProtocol.setter
+    def bitcoincoreCallbackProtocol(self, value):
+        self._bitcoincoreCallbackProtocol = value
+
+    @property
+    def bitcoincoreCallbackHost(self):
+        return self._bitcoincoreCallbackHost
+
+    @bitcoincoreCallbackHost.setter
+    def bitcoincoreCallbackHost(self, value):
+        self.bitcoincoreCallbackHost = value
+
+    @property
     def bitcoincoreRpcEndpoint(self):
         return f"{self.bitcoincoreProtocol}://" \
                f"{self.bitcoincoreUser}:{self.bitcoincorePassword}@" \
@@ -142,7 +159,12 @@ class Config:
     @property
     def bitcoincoreZmqEndpoint(self):
         return f"{self.bitcoincoreZmqProtocol}://" \
-               f"{self.bitcoincoreHost}:{self.bitcoincorePort}"
+               f"{self.bitcoincoreHost}:{self.bitcoincoreZmqPort}"
+
+    @property
+    def bitcoinAddressCallbackHost(self):
+        return f"{self.bitcoincoreCallbackProtocol}://" \
+               f"{self.bitcoincoreCallbackHost}:80"
 
     def jsonEncode(self):
         return ConfigEncoder().encode(self)
@@ -158,6 +180,8 @@ class ConfigEncoder(JSONEncoder):
             "bitcoincorePassword": o.bitcoincorePassword,
             "bitcoincoreZmqProtocol": o.bitcoincoreZmqProtocol,
             "bitcoincoreZmqPort": o.bitcoincoreZmqPort,
+            "bitcoincoreCallbackProtocol": o.bitcoincoreCallbackProtocol,
+            "bitcoincoreCallbackHost": o.bitcoincoreCallbackHost,
             "electrumProtocol": o.electrumProtocol,
             "electrumHost": o.electrumHost,
             "electrumPort": o.electrumPort,

@@ -2,8 +2,10 @@
 from httputils.router import CurrencyHandler
 from httputils import httpmethod
 from rpcutils import rpcutils, rpcmethod, error
+from wsutils import wsmethod, websocket
 from logger import logger
 from utils import utils
+from .websockets import AddressBalanceWs, BlockWebSocket
 from .connector import Config
 from .constants import COIN_SYMBOL
 
@@ -42,6 +44,10 @@ class Handler:
                 else defaultConf["bitcoincoreZmqProtocol"],
                 "bitcoincoreZmqPort": config["bitcoincoreZmqPort"] if "bitcoincoreZmqPort" in config
                 else defaultConf["bitcoincoreZmqPort"],
+                "bitcoincoreCallbackProtocol": config["bitcoincoreCallbackProtocol"] if "bitcoincoreCallbackProtocol" in config
+                else defaultConf["bitcoincoreCallbackProtocol"],
+                "bitcoincoreCallbackHost": config["bitcoincoreCallbackHost"] if "bitcoincoreCallbackHost" in config
+                else defaultConf["bitcoincoreCallbackHost"],
                 "electrumProtocol": config["electrumProtocol"] if "electrumProtocol" in config
                 else defaultConf["electrumProtocol"],
                 "electrumHost": config["electrumHost"] if "electrumHost" in config
@@ -55,7 +61,19 @@ class Handler:
             }
         )
 
-        # TODO: Init websockets
+        AddressBalanceWs(
+            coin=self.coin,
+            config=self.networksConfig[network]
+        )
+        BlockWebSocket(
+            coin=self.coin,
+            config=self.networksConfig[network]
+        )
+
+        websocket.startWebSockets(
+            coin=self.coin,
+            networkName=network
+        )
 
         return True, None
 
@@ -75,9 +93,13 @@ class Handler:
 
         del self.networksConfig[network]
 
-        # TODO: Stop websockets
+        await websocket.stopWebSockets(
+            coin=self.coin,
+            networkName=network
+        )
 
-        return True, None
+        # TODO: Check why it is not possible to return None in async function
+        return True, ""
 
     async def updateConfig(self, network, config):
 
@@ -106,6 +128,10 @@ class Handler:
                 else defaultConf["bitcoincoreZmqProtocol"],
                 "bitcoincoreZmqPort": config["bitcoincoreZmqPort"] if "bitcoincoreZmqPort" in config
                 else defaultConf["bitcoincoreZmqPort"],
+                "bitcoincoreCallbackProtocol": config["bitcoincoreCallbackProtocol"] if "bitcoincoreCallbackProtocol" in config
+                else defaultConf["bitcoincoreCallbackProtocol"],
+                "bitcoincoreCallbackHost": config["bitcoincoreCallbackHost"] if "bitcoincoreCallbackHost" in config
+                else defaultConf["bitcoincoreCallbackHost"],
                 "electrumProtocol": config["electrumProtocol"] if "electrumProtocol" in config
                 else defaultConf["electrumProtocol"],
                 "electrumHost": config["electrumHost"] if "electrumHost" in config
@@ -119,7 +145,27 @@ class Handler:
             }
         )
 
-        return True, None
+        await websocket.stopWebSockets(
+            coin=self.coin,
+            networkName=network
+        )
+
+        AddressBalanceWs(
+            coin=self.coin,
+            config=self.networksConfig[network]
+        )
+        BlockWebSocket(
+            coin=self.coin,
+            config=self.networksConfig[network]
+        )
+
+        websocket.startWebSockets(
+            coin=self.coin,
+            networkName=network
+        )
+
+        # TODO: Check why it is not possible to return None in async function
+        return True, ""
 
     async def handleRequest(self, network, method, request):
 
@@ -141,7 +187,21 @@ class Handler:
                 raise err.parseToHttpError()
 
     async def handleWsRequest(self, network, request):
-        pass
+
+        return await wsmethod.callMethod(
+            coin=self.coin,
+            request=request,
+            config=self.networksConfig[network]
+        )
+
+    async def handleCallback(self, network, callbackName, request):
+
+        return await httpmethod.callCallbackMethod(
+            coin=self.coin,
+            callbackName=callbackName,
+            request=request,
+            config=self.networksConfig[network]
+        )
 
     @property
     def coin(self):

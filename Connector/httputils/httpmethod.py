@@ -1,10 +1,38 @@
 #!/usr/bin/python
 import sys
 import random
-from . import error, httputils
 from logger import logger
+from . import error, httputils
 
 postHttpMethods = {}
+callbackMethods = {}
+
+
+def callbackMethod(callbackName, coin):
+
+    def _callbackMethod(function):
+
+        def wrapper(request, config):
+
+            return function(
+                request=request,
+                config=config,
+                coin=coin
+            )
+
+        if coin not in callbackMethods:
+            logger.printInfo(f"Registering new callback method {callbackName} for currency {coin}")
+            callbackMethods[coin] = {callbackName: wrapper}
+
+        elif callbackName not in callbackMethods[coin]:
+            logger.printInfo(f"Registering new callback method {callbackName} for currency {coin}")
+            callbackMethods[coin][callbackName] = wrapper
+
+        else:
+            logger.printError(f"callback Method {callbackName} already registered for currency {coin}")
+
+        return function
+    return _callbackMethod
 
 
 def postHttpMethod(coin):
@@ -45,3 +73,15 @@ async def callMethod(coin, method, request, config):
         raise error.BadRequestError(f"Calling unknown method {method} for currency {coin}")
 
     return postHttpMethods[coin][method](payload, config)
+
+
+async def callCallbackMethod(coin, callbackName, request, config):
+
+    payload = httputils.parseJSONRequest(await request.read())
+
+    if coin not in callbackMethods:
+        raise error.BadRequestError(f"Calling {coin} method when currency is not supported")
+    if callbackName not in callbackMethods[coin]:
+        raise error.BadRequestError(f"Calling unknown method {callbackName} for currency {coin}")
+
+    return callbackMethods[coin][callbackName](payload, config)
