@@ -15,7 +15,7 @@ def wsMethod(coin):
 
         def wrapped(subscriber, rpcPayload, config):
 
-            return function(subscriber, rpcPayload[ID], rpcPayload[PARAMS], config.networkName)
+            return function(subscriber, rpcPayload[ID], rpcPayload[PARAMS], config)
 
         if coin not in wsMethods:
             logger.printInfo(f"Registering new JSON WS method {function.__name__} for currency {coin}")
