@@ -2,12 +2,12 @@
 import re
 import threading
 from logger import logger
-from .singleton import Singleton
+from patterns import Singleton
 from .subscribers import SubscriberInterface
 from .constants import *
 
 
-class Broker(object, metaclass=Singleton):
+class Broker(object, metaclass=Singleton.Singleton):
 
     def __init__(self):
 
