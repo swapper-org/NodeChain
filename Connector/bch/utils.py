@@ -30,22 +30,22 @@ def parseBalancesToTransfers(vin, vout, fee, amount):
 
             for address in list(vin.keys()):
 
-                voutAmount = -utxo[AMOUNT]
+                voutAmount = -utxo["amount"]
                 vinAmount = vin[address]
 
                 if vinAmount <= (voutAmount + diff):
                     transfer = {
                         "from": address,
-                        "to": utxo[ADDRESS],
-                        AMOUNT: vinAmount,
+                        "to": utxo["address"],
+                        "amount": vinAmount,
                         "fee": round(vinAmount * fee / amount, BTC_CASH_PRECISION)
                     }
                     del vin[address]
                 else:
                     transfer = {
                         "from": address,
-                        "to": utxo[ADDRESS],
-                        AMOUNT: voutAmount,
+                        "to": utxo["address"],
+                        "amount": voutAmount,
                         "fee": round(voutAmount * fee / amount, BTC_CASH_PRECISION)
                     }
 
@@ -55,9 +55,9 @@ def parseBalancesToTransfers(vin, vout, fee, amount):
         if utxo["category"] in ["generate", "immature", "orphan"]:
             transfers.append(
                 {
-                    "to": utxo[ADDRESS],
+                    "to": utxo["address"],
                     "fee": 0,
-                    AMOUNT: utxo[AMOUNT]
+                    "amount": utxo["amount"]
                 }
             )
 

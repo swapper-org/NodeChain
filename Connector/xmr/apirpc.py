@@ -36,7 +36,7 @@ def syncing(id, params, config):
             message="Could not get blockchain info from node"
         )
 
-    if not blockchainInfo[SYNCHRONIZED]:
+    if not blockchainInfo["synchronized"]:
         syncInfo = RPCConnector.request(
             endpoint=config.rpcEndpoint,
             id=id,
