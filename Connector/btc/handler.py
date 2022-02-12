@@ -4,9 +4,8 @@ from httputils import httpmethod
 from rpcutils import rpcutils, rpcmethod, error
 from wsutils import wsmethod, websocket
 from logger import logger
-from utils import utils
 from .websockets import AddressBalanceWs, BlockWebSocket
-from .connector import Config
+from .config import Config
 from .constants import COIN_SYMBOL
 
 
@@ -23,43 +22,19 @@ class Handler:
             logger.printError(f"Configuration {network} already added for {self.coin}")
             return False, f"Configuration {network} already added for {self.coin}"
 
-        defaultConf, err = utils.loadDefaultPackageConf(self.coin)
-        if err is not None:
-            return False, err
-
-        self.networksConfig[network] = Config(
-            networkName=network,
-            config={
-                "bitcoincoreProtocol": config["bitcoincoreProtocol"] if "bitcoincoreProtocol" in config
-                else defaultConf["bitcoincoreProtocol"],
-                "bitcoincoreHost": config["bitcoincoreHost"] if "bitcoincoreHost" in config
-                else defaultConf["bitcoincoreHost"],
-                "bitcoincorePort": config["bitcoincorePort"] if "bitcoincorePort" in config
-                else defaultConf["bitcoincorePort"],
-                "bitcoincoreUser": config["bitcoincoreUser"] if "bitcoincoreUser" in config
-                else defaultConf["bitcoincoreUser"],
-                "bitcoincorePassword": config["bitcoincorePassword"] if "bitcoincorePassword" in config
-                else defaultConf["bitcoincorePassword"],
-                "bitcoincoreZmqProtocol": config["bitcoincoreZmqProtocol"] if "bitcoincoreZmqProtocol" in config
-                else defaultConf["bitcoincoreZmqProtocol"],
-                "bitcoincoreZmqPort": config["bitcoincoreZmqPort"] if "bitcoincoreZmqPort" in config
-                else defaultConf["bitcoincoreZmqPort"],
-                "bitcoincoreCallbackProtocol": config["bitcoincoreCallbackProtocol"] if "bitcoincoreCallbackProtocol" in config
-                else defaultConf["bitcoincoreCallbackProtocol"],
-                "bitcoincoreCallbackHost": config["bitcoincoreCallbackHost"] if "bitcoincoreCallbackHost" in config
-                else defaultConf["bitcoincoreCallbackHost"],
-                "electrumProtocol": config["electrumProtocol"] if "electrumProtocol" in config
-                else defaultConf["electrumProtocol"],
-                "electrumHost": config["electrumHost"] if "electrumHost" in config
-                else defaultConf["electrumHost"],
-                "electrumPort": config["electrumPort"] if "electrumPort" in config
-                else defaultConf["electrumPort"],
-                "electrumUser": config["electrumUser"] if "electrumUser" in config
-                else defaultConf["electrumUser"],
-                "electrumPassword": config["electrumPassword"] if "electrumPassword" in config
-                else defaultConf["electrumPassword"]
-            }
+        pkgConfig = Config(
+            coin=self.coin,
+            networkName=network
         )
+
+        ok, err = pkgConfig.loadConfig(config=config)
+        if not ok:
+            logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
+            return ok, err
+
+        self.networksConfig[network] = pkgConfig
+
+        # TODO: Check WS error: With WS initiation, it is not possible to return None value
 
         AddressBalanceWs(
             coin=self.coin,
@@ -98,8 +73,7 @@ class Handler:
             networkName=network
         )
 
-        # TODO: Check why it is not possible to return None in async function
-        return True, ""
+        return True, None
 
     async def updateConfig(self, network, config):
 
@@ -107,43 +81,10 @@ class Handler:
             logger.printError(f"Configuration {network} not added for {self.coin}")
             return False, f"Configuration {network} not added for {self.coin}"
 
-        defaultConf, err = utils.loadDefaultPackageConf(self.coin)
-        if err is not None:
-            return False, err
-
-        self.networksConfig[network] = Config(
-            networkName=network,
-            config={
-                "bitcoincoreProtocol": config["bitcoincoreProtocol"] if "bitcoincoreProtocol" in config
-                else defaultConf["bitcoincoreProtocol"],
-                "bitcoincoreHost": config["bitcoincoreHost"] if "bitcoincoreHost" in config
-                else defaultConf["bitcoincoreHost"],
-                "bitcoincorePort": config["bitcoincorePort"] if "bitcoincorePort" in config
-                else defaultConf["bitcoincorePort"],
-                "bitcoincoreUser": config["bitcoincoreUser"] if "bitcoincoreUser" in config
-                else defaultConf["bitcoincoreUser"],
-                "bitcoincorePassword": config["bitcoincorePassword"] if "bitcoincorePassword" in config
-                else defaultConf["bitcoincorePassword"],
-                "bitcoincoreZmqProtocol": config["bitcoincoreZmqProtocol"] if "bitcoincoreZmqProtocol" in config
-                else defaultConf["bitcoincoreZmqProtocol"],
-                "bitcoincoreZmqPort": config["bitcoincoreZmqPort"] if "bitcoincoreZmqPort" in config
-                else defaultConf["bitcoincoreZmqPort"],
-                "bitcoincoreCallbackProtocol": config["bitcoincoreCallbackProtocol"] if "bitcoincoreCallbackProtocol" in config
-                else defaultConf["bitcoincoreCallbackProtocol"],
-                "bitcoincoreCallbackHost": config["bitcoincoreCallbackHost"] if "bitcoincoreCallbackHost" in config
-                else defaultConf["bitcoincoreCallbackHost"],
-                "electrumProtocol": config["electrumProtocol"] if "electrumProtocol" in config
-                else defaultConf["electrumProtocol"],
-                "electrumHost": config["electrumHost"] if "electrumHost" in config
-                else defaultConf["electrumHost"],
-                "electrumPort": config["electrumPort"] if "electrumPort" in config
-                else defaultConf["electrumPort"],
-                "electrumUser": config["electrumUser"] if "electrumUser" in config
-                else defaultConf["electrumUser"],
-                "electrumPassword": config["electrumPassword"] if "electrumPassword" in config
-                else defaultConf["electrumPassword"]
-            }
-        )
+        ok, err = self.networksConfig[network].loadConfig(config=config)
+        if not ok:
+            logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
+            return ok, err
 
         await websocket.stopWebSockets(
             coin=self.coin,
@@ -164,8 +105,7 @@ class Handler:
             networkName=network
         )
 
-        # TODO: Check why it is not possible to return None in async function
-        return True, ""
+        return True, None
 
     async def handleRequest(self, network, method, request):
 

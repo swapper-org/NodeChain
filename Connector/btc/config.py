@@ -1,28 +1,68 @@
 #!/usr/bin/python3
 from json import JSONEncoder
+from utils import utils
 
 
 class Config:
 
-    def __init__(self, networkName, config):
+    def __init__(self, coin, networkName):
 
-        # TODO: Load here default config to avoid code reps
-
+        self._coin = coin
         self._networkName = networkName
-        self._bitcoincoreProtocol = config["bitcoincoreProtocol"]
-        self._bitcoincoreHost = config["bitcoincoreHost"]
-        self._bitcoincorePort = config["bitcoincorePort"]
-        self._bitcoincoreUser = config["bitcoincoreUser"]
-        self._bitcoincorePassword = config["bitcoincorePassword"]
-        self._bitcoincoreZmqProtocol = config["bitcoincoreZmqProtocol"]
-        self._bitcoincoreZmqPort = config["bitcoincoreZmqPort"]
-        self._electrumProtocol = config["electrumProtocol"]
-        self._electrumHost = config["electrumHost"]
-        self._electrumPort = config["electrumPort"]
-        self._electrumUser = config["electrumUser"]
-        self._electrumPassword = config["electrumPassword"]
-        self._bitcoincoreCallbackProtocol = config["bitcoincoreCallbackProtocol"]
-        self._bitcoincoreCallbackHost = config["bitcoincoreCallbackHost"]
+
+        self._bitcoincoreProtocol = ""
+        self._bitcoincoreHost = ""
+        self._bitcoincorePort = 0
+        self._bitcoincoreUser = ""
+        self._bitcoincorePassword = ""
+        self._bitcoincoreZmqProtocol = ""
+        self._bitcoincoreZmqPort = 0
+        self._electrumProtocol = ""
+        self._electrumHost = ""
+        self._electrumPort = 0
+        self._electrumUser = ""
+        self._electrumPassword = ""
+        self._bitcoincoreCallbackProtocol = ""
+        self._bitcoincoreCallbackHost = ""
+
+    def loadConfig(self, config):
+
+        defaultConfig, err = utils.loadDefaultPackageConf(self.coin)
+        if err is not None:
+            return False, err
+
+        self.bitcoincoreProtocol = config["bitcoincoreProtocol"] if "bitcoincoreProtocol" in config \
+            else defaultConfig["bitcoincoreProtocol"]
+        self.bitcoincoreHost = config["bitcoincoreHost"] if "bitcoincoreHost" in config \
+            else defaultConfig["bitcoincoreHost"]
+        self.bitcoincorePort = config["bitcoincorePort"] if "bitcoincorePort" in config \
+            else defaultConfig["bitcoincorePort"]
+        self.bitcoincoreUser = config["bitcoincoreUser"] if "bitcoincoreUser" in config \
+            else defaultConfig["bitcoincoreUser"]
+        self.bitcoincorePassword = config["bitcoincorePassword"] if "bitcoincorePassword" in config \
+            else defaultConfig["bitcoincorePassword"]
+        self.bitcoincoreZmqProtocol = config["bitcoincoreZmqProtocol"] if "bitcoincoreZmqProtocol" in config \
+            else defaultConfig["bitcoincoreZmqProtocol"]
+        self.bitcoincoreZmqPort = config["bitcoincoreZmqPort"] if "bitcoincoreZmqPort" in config \
+            else defaultConfig["bitcoincoreZmqPort"]
+        self.electrumProtocol = config["electrumProtocol"] if "electrumProtocol" in config \
+            else defaultConfig["electrumProtocol"]
+        self.electrumHost = config["electrumHost"] if "electrumHost" in config else defaultConfig["electrumHost"]
+        self.electrumPort = config["electrumPort"] if "electrumPort" in config else defaultConfig["electrumPort"]
+        self.electrumUser = config["electrumUser"] if "electrumUser" in config else defaultConfig["electrumUser"]
+        self.electrumPassword = config["electrumPassword"] if "electrumPassword" in config \
+            else defaultConfig["electrumPassword"]
+        self.bitcoincoreCallbackProtocol = config["bitcoincoreCallbackProtocol"] \
+            if "bitcoincoreCallbackProtocol" in config \
+            else defaultConfig["bitcoincoreCallbackProtocol"]
+        self.bitcoincoreCallbackHost = config["bitcoincoreCallbackHost"] if "bitcoincoreCallbackHost" in config \
+            else defaultConfig["bitcoincoreCallbackHost"]
+
+        return True, None
+
+    @property
+    def coin(self):
+        return self._coin
 
     @property
     def networkName(self):
@@ -110,7 +150,7 @@ class Config:
 
     @electrumPort.setter
     def electrumPort(self, value):
-        self.electrumPort = value
+        self._electrumPort = value
 
     @property
     def electrumUser(self):
@@ -142,7 +182,7 @@ class Config:
 
     @bitcoincoreCallbackHost.setter
     def bitcoincoreCallbackHost(self, value):
-        self.bitcoincoreCallbackHost = value
+        self._bitcoincoreCallbackHost = value
 
     @property
     def bitcoincoreRpcEndpoint(self):
