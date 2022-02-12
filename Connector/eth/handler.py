@@ -3,10 +3,9 @@ from httputils.router import CurrencyHandler
 from httputils import httpmethod
 from rpcutils import rpcutils, rpcmethod, error
 from wsutils import wsmethod, websocket
-from utils import utils
 from logger import logger
 from .websockets import WebSocket
-from .connector import Config
+from .config import Config
 from .constants import COIN_SYMBOL
 
 
@@ -23,28 +22,26 @@ class Handler:
             logger.printError(f"Configuration {network} already added for {self.coin}")
             return False, f"Configuration {network} already added for {self.coin}"
 
-        defaultConfig, err = utils.loadDefaultPackageConf(self.coin)
-        if err is not None:
-            return False, err
-
-        # TODO: Check error when host can not be found
-
-        self.networksConfig[network] = Config(
-            networkName=network,
-            config={
-                "protocol": config["protocol"] if "protocol" in config else defaultConfig["protocol"],
-                "host": config["host"] if "host" in config else defaultConfig["host"],
-                "rpcPort": config["rpcPort"] if "rpcPort" in config else defaultConfig["rpcPort"],
-                "wsPort": config["wsPort"] if "wsPort" in config else defaultConfig["wsPort"]
-            }
+        pkgConfig = Config(
+            coin=self.coin,
+            networkName=network
         )
 
+        ok, err = pkgConfig.loadConfig(config=config)
+        if not ok:
+            logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
+            return ok, err
+
+        self.networksConfig[network] = pkgConfig
+
+        """
         WebSocket(
             coin=self.coin,
             config=self.networksConfig[network]
         )
 
-        websocket.startWebSockets(self.coin, self.networksConfig[network].networkName)
+        websocket.startWebSockets(self.coin, network)
+        """
 
         return True, None
 
@@ -62,8 +59,10 @@ class Handler:
             logger.printError(f"Configuration {network} not added for {self.coin}")
             return False, f"Configuration {network} not added for {self.coin}"
 
+        """
         await websocket.stopWebSockets(coin=self.coin,
-                                       networkName=self.networksConfig[network].networkName)
+                                       networkName=network)
+        """
 
         del self.networksConfig[network]
 
@@ -77,30 +76,26 @@ class Handler:
             logger.printError(f"Configuration {network} not added for {self.coin}")
             return False, f"Configuration {network} not added for {self.coin}"
 
-        defaultConfig, err = utils.loadDefaultPackageConf(self.coin)
-        if err is not None:
-            return False, err
-
         await websocket.stopWebSockets(coin=self.coin,
-                                       networkName=self.networksConfig[network].networkName
+                                       networkName=network
                                        )
 
-        self.networksConfig[network] = Config(
-            networkName=network,
-            config={
-                "protocol": config["protocol"] if "protocol" in config else defaultConfig["protocol"],
-                "host": config["host"] if "host" in config else defaultConfig["host"],
-                "rpcPort": config["rpcPort"] if "rpcPort" in config else defaultConfig["rpcPort"],
-                "wsPort": config["wsPort"] if "wsPort" in config else defaultConfig["wsPort"]
-            }
-        )
+        ok, err = self.networksConfig[network].loadConfig(config=config)
+        if not ok:
+            logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
+            return ok, err
 
+        """
         WebSocket(
             coin=self.coin,
             config=self.networksConfig[network]
         )
 
-        websocket.startWebSockets(self.coin, self.networksConfig[network].networkName)
+        websocket.startWebSockets(
+            coin=self.coin,
+            networkName=network
+        )
+        """
 
         return True, None
 

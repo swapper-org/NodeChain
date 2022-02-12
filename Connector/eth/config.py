@@ -1,16 +1,35 @@
 #!/usr/bin/python3
 from json import JSONEncoder
+from utils import utils
 
 
 class Config:
 
-    def __init__(self, networkName, config):
+    def __init__(self, coin, networkName):
 
+        self._coin = coin
         self._networkName = networkName
-        self._protocol = config["protocol"]
-        self._host = config["host"]
-        self._rpcPort = config["rpcPort"]
-        self._wsPort = config["wsPort"]
+        self._protocol = ""
+        self._host = ""
+        self._rpcPort = 0
+        self._wsPort = 0
+
+    def loadConfig(self, config):
+
+        defaultConfig, err = utils.loadDefaultPackageConf(self.coin)
+        if err is not None:
+            return False, err
+
+        self.protocol = config["protocol"] if "protocol" in config else defaultConfig["protocol"]
+        self.host = config["host"] if "host" in config else defaultConfig["host"]
+        self.rpcPort = config["rpcPort"] if "rpcPort" in config else defaultConfig["rpcPort"]
+        self.wsPort = config["wsPort"] if "wsPort" in config else defaultConfig["wsPort"]
+
+        return True, None
+
+    @property
+    def coin(self):
+        return self._coin
 
     @property
     def networkName(self):
