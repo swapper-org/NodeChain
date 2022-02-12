@@ -34,14 +34,12 @@ class Handler:
 
         self.networksConfig[network] = pkgConfig
 
-        """
         WebSocket(
             coin=self.coin,
             config=self.networksConfig[network]
         )
 
         websocket.startWebSockets(self.coin, network)
-        """
 
         return True, None
 
@@ -59,10 +57,8 @@ class Handler:
             logger.printError(f"Configuration {network} not added for {self.coin}")
             return False, f"Configuration {network} not added for {self.coin}"
 
-        """
         await websocket.stopWebSockets(coin=self.coin,
                                        networkName=network)
-        """
 
         del self.networksConfig[network]
 
@@ -85,7 +81,6 @@ class Handler:
             logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
             return ok, err
 
-        """
         WebSocket(
             coin=self.coin,
             config=self.networksConfig[network]
@@ -95,7 +90,6 @@ class Handler:
             coin=self.coin,
             networkName=network
         )
-        """
 
         return True, None
 
