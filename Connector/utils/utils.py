@@ -16,7 +16,7 @@ def getConfigProperty(propertyName):
         with open(CONFIG_JSON, "r") as fp:
             config = json.load(fp)
 
-            if "availableCurrenciesFile" not in config:
+            if propertyName not in config:
                 logger.printError(f"Configuration property {propertyName} could not be found")
                 raise error.InternalServerError(f"Configuration property {propertyName} could not be found")
             return config[propertyName]
