@@ -1,0 +1,12 @@
+{
+  "bitcoincoreProtocol": "http",
+  "bitcoincoreHost": "bitcoincore",
+  "bitcoincorePort": 8332,
+  "bitcoincoreUser": "swapper",
+  "bitcoincorePassword": "swapper",
+  "electrumCashProtocol": "http",
+  "electrumCashHost": "electrum",
+  "electrumCashPort": 30000,
+  "electrumCashUser": "swapper",
+  "electrumCashPassword": "swapper"
+}
