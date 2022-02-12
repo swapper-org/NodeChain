@@ -35,7 +35,7 @@ def runServer():
 
     # availableCurrencies = utils.getAvailableCurrencies()
 
-    availableCurrencies = ["eth", "btc", "xmr"]
+    availableCurrencies = ["eth", "btc", "xmr", "bch"]
 
     for module in (modules + availableCurrencies):
         importlib.__import__(module)
