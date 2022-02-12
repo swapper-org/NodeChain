@@ -22,6 +22,16 @@
         "bitcoincoreZmqProtocol": {
             "type": "string"
         },
+        "bitcoincoreCallbackProtocol": {
+            "type": "string",
+            "enum": [
+                "http",
+                "https"
+            ]
+        },
+        "bitcoincoreCallbackHost": {
+            "type": "string"
+        },
         "bitcoincoreZmqPort": {
             "type": "integer"
         },
