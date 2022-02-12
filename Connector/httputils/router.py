@@ -273,7 +273,7 @@ class CurrencyHandler:
             else self.handler.handleRequest
 
         self.handler.handleWsRequest = handleWsRequest \
-            if not hasattr(self.handler, "handleRequest") or not callable(self.handler.handleWsRequest) \
+            if not hasattr(self.handler, "handleWsRequest") or not callable(self.handler.handleWsRequest) \
             else self.handler.handleWsRequest
 
         self.handler.handleCallback = handleCallback \
