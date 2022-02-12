@@ -213,19 +213,19 @@ def getTransaction(id, params, config):
 
     if transaction is None:
         logger.printWarning("Could not get transaction from node")
-        return {TRANSACTION: None}
+        return {"transaction": None}
 
     response = {
-        TRANSACTION: {
-            "fee": utils.toHex(utils.toWei(transaction[GAS_PRICE]) * utils.toWei(transaction["gas"])),
-            BLOCK_HASH: transaction[BLOCK_HASH],
+        "transaction": {
+            "fee": utils.toHex(utils.toWei(transaction["gasPrice"]) * utils.toWei(transaction["gas"])),
+            "blockHash": transaction["blockHash"],
             "data": transaction,
             "transfers": [
                 {
-                    FROM: transaction[FROM],
-                    TO: transaction[TO],
-                    AMOUNT: transaction[VALUE],
-                    "fee": utils.toHex(utils.toWei(transaction[GAS_PRICE]) * utils.toWei(transaction["gas"]))
+                    "from": transaction["from"],
+                    "to": transaction["to"],
+                    "amount": transaction["value"],
+                    "fee": utils.toHex(utils.toWei(transaction["gasPrice"]) * utils.toWei(transaction["gas"]))
                 }
             ]
         }

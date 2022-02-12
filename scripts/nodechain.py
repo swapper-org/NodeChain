@@ -13,7 +13,7 @@ import logger
 
 # "coin" argument is never used. Is declared to prevent errors
 def exitSignal(coin=None):
-    print(f"Exiting gracefully, goodbye!")
+    print("Exiting gracefully, goodbye!")
     raise SystemExit
 
 

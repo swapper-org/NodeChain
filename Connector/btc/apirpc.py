@@ -145,9 +145,9 @@ def getAddressUnspent(id, params, config):
     return response
 
 
-@httputils.postMethod
-@rpcutils.rpcMethod
-def getAddressesUnspent(id, params):
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
+def getAddressesUnspent(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getAddressesUnspent with id {id} and params {params}"
@@ -155,27 +155,34 @@ def getAddressesUnspent(id, params):
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_UNSPENT)
 
-    err = rpcutils.validateJSONRPCSchema(params, requestSchema)
+    err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     response = []
 
-    for address in params[ADDRESSES]:
+    for address in params["addresses"]:
 
         response.append({
-            ADDRESS: address,
-            OUTPUTS: getAddressUnspent(
-                id,
-                {
-                    ADDRESS: address
-                }
+            "address": address,
+            "outputs": getAddressUnspent(
+                id=id,
+                params={
+                    "address": address
+                },
+                config=config
             )
         })
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
 
@@ -350,24 +357,42 @@ def getTransaction(id, params, config):
 
     try:
         # Parameters: TransactionId, include_watchonly, verbose
-        transaction = RPCConnector.request(RPC_CORE_ENDPOINT, id, GET_TRANSACTION_METHOD, [params[TX_HASH], True, True])
+        transaction = RPCConnector.request(
+            endpoint=config.bitcoincoreRpcEndpoint,
+            id=id,
+            method=GET_TRANSACTION_METHOD,
+            params=[
+                params["txHash"],
+                True,
+                True
+            ]
+        )
 
         vinAddressBalances = {}
         transactionAmount = 0
 
         if "generated" not in transaction:
 
-            for vin in transaction["decoded"][VIN]:
-                inputTransaction = RPCConnector.request(RPC_CORE_ENDPOINT, id, GET_TRANSACTION_METHOD, [vin[TX_ID], True, True])
+            for vin in transaction["decoded"]["vin"]:
+                inputTransaction = RPCConnector.request(
+                    endpoint=config.bitcoincoreRpcEndpoint,
+                    id=id,
+                    method=GET_TRANSACTION_METHOD,
+                    params=[
+                        vin["txid"],
+                        True,
+                        True
+                    ]
+                )
 
-                transactionAmount += inputTransaction["decoded"][VOUT][vin[VOUT]][VALUE]
-                address = inputTransaction["decoded"][VOUT][vin[VOUT]][SCRIPT_PUB_KEY][ADDRESSES][0]
-                value = inputTransaction["decoded"][VOUT][vin[VOUT]][VALUE]
+                transactionAmount += inputTransaction["decoded"]["vout"][vin["vout"]]["value"]
+                address = inputTransaction["decoded"]["vout"][vin["vout"]]["scriptPubKey"]["addresses"][0]
+                value = inputTransaction["decoded"]["vout"][vin["vout"]]["value"]
                 vinAddressBalances[address] = value
 
         response = {
             "transaction": {
-                BLOCK_HASH: transaction["blockhash"] if transaction[CONFIRMATIONS] >= 1 else None,
+                "blockHash": transaction["blockhash"] if transaction["confirmations"] >= 1 else None,
                 "fee": -transaction["fee"] if "generated" not in transaction else 0,
                 "transfers": utils.parseBalancesToTransfers(
                     vinAddressBalances,
@@ -379,13 +404,16 @@ def getTransaction(id, params, config):
             }
         }
 
-    except rpcerrorhandler.BadRequestError as err:
-        logger.printError(f"Transaction {params[TX_HASH]} could not be retrieve: {err}")
+    except error.RpcBadRequestError as err:
+        logger.printError(f"Transaction {params['txHash']} could not be retrieve: {err}")
         return {"transaction": None}
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
 
@@ -468,19 +496,26 @@ def broadcastTransaction(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(err.message)
 
-    hash = RPCConnector.request(RPC_CORE_ENDPOINT, id, SEND_RAW_TRANSACTION_METHOD, [params[RAW_TRANSACTION]])
+    hash = RPCConnector.request(
+        endpoint=config.bitcoincoreRpcEndpoint,
+        id=id,
+        method=SEND_RAW_TRANSACTION_METHOD,
+        params=[params["rawTransaction"]])
 
     if hash is None:
-        logger.printError(f"Transaction could not be broadcasted. Raw Transaction: {params[RAW_TRANSACTION]}")
-        raise rpcerrorhandler.BadRequestError("Transaction could not be broadcasted")
+        logger.printError(f"Transaction could not be broadcasted. Raw Transaction: {params['rawTransaction']}")
+        raise error.RpcBadRequestError("Transaction could not be broadcasted")
 
     response = {
-        BROADCASTED: hash
+        "broadcasted": hash
     }
 
-    err = rpcutils.validateJSONRPCSchema(response, responseSchema)
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise rpcerrorhandler.BadRequestError(err.message)
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
 
     return response
 

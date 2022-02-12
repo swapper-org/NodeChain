@@ -51,8 +51,7 @@ def runServer():
         [
             web.post("/{coin}/{network}/{method}", router.doRoute),
             web.get("/{coin}/{network}/ws", router.doWsRoute),
-            web.post("/{coin}/{network}/callback/{callbackName}", router.handleCallback),
-            web.get("/{method}", router.handleRequest)
+            web.post("/{coin}/{network}/callback/{callbackName}", router.handleCallback)
         ]
     )
     cors = aiohttp_cors.setup(mainApp, defaults={

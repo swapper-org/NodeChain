@@ -105,5 +105,7 @@ def generateRPCErrorResponse(id, err):
 
 def isRPCErrorResponse(response):
     return CODE in response or MESSAGE in response
+
+
 def isRpcEnpointPath(method):
     return method == RPC_ENDPOINT_PATH
