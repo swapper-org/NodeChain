@@ -52,7 +52,9 @@ class Broker(object, metaclass=Singleton.Singleton):
             }
 
         if topicName not in self.topicSubscriptions:
-            logger.printWarning(f"Trying to detach subscriber {subscriber.subscriberID} from unknown topic [{topicName}]")
+            logger.printWarning(
+                f"Trying to detach subscriber {subscriber.subscriberID} from unknown topic [{topicName}]"
+            )
             return {
                 UNSUBSCRIBED: False
             }
@@ -60,15 +62,23 @@ class Broker(object, metaclass=Singleton.Singleton):
             self.topicSubscriptions[topicName][SUBSCRIBERS].remove(subscriber)
             logger.printInfo(f"Subscriber {subscriber.subscriberID} detached from topic [{topicName}]")
 
-            if len(self.topicSubscriptions[topicName][SUBSCRIBERS]) == 0:
+            if not self.topicHasSubscribers(topicName=topicName):
+
                 logger.printWarning(f"No more subscribers for topic [{topicName}]")
+                topicClosingFunc = self.topicSubscriptions[topicName][CLOSING_TOPIC_FUNC]
+                logger.printInfo(f"Calling closing func to topic [{topicName}]")
+                if topicClosingFunc is not None:
+                    topicClosingFunc(topicName)
+
                 del self.topicSubscriptions[topicName]
 
             return {
                 UNSUBSCRIBED: True
             }
         else:
-            logger.printWarning(f"Subscriber {subscriber.subscriberID} can not be detached because it is not subscribed to topic [{topicName}]")
+            logger.printWarning(
+                f"Subscriber {subscriber.subscriberID} can not be detached because"
+                f" it is not subscribed to topic [{topicName}]")
             return {
                 UNSUBSCRIBED: False
             }
@@ -81,8 +91,11 @@ class Broker(object, metaclass=Singleton.Singleton):
 
             for subscriber in self.topicSubscriptions[topicName][SUBSCRIBERS]:
 
-                subscriberNotificationThread = threading.Thread(target=_notifySubscriber, args=(subscriber, topicName, message), daemon=True)
-                subscriberNotificationThread.start()
+                threading.Thread(
+                    target=_notifySubscriber,
+                    args=(subscriber, topicName, message),
+                    daemon=True
+                ).start()
 
     def removeSubscriber(self, subscriber):
 
@@ -93,13 +106,16 @@ class Broker(object, metaclass=Singleton.Singleton):
             return False
 
         for topicName in subscriber.topicsSubscribed:
-            topicClosingFunc = self.topicSubscriptions[topicName][CLOSING_TOPIC_FUNC]
             self.detach(subscriber, topicName)
 
-            if not self.topicHasSubscribers(topicName):
-                logger.printInfo(f"Calling closing func to topic [{topicName}]")
-                if topicClosingFunc is not None:
-                    topicClosingFunc(topicName)
+    def removeTopic(self, topicName):
+
+        if topicName not in self.topicSubscriptions:
+            logger.printWarning(f"Trying to remove unknown topic {topicName}. No subscribers removed")
+            return
+
+        for subscriber in list(self.topicSubscriptions[topicName][SUBSCRIBERS]):
+            self.detach(subscriber=subscriber, topicName=topicName)
 
     def isTopic(self, topicName):
         return topicName in self.topicSubscriptions
