@@ -2,10 +2,9 @@
 from httputils.router import CurrencyHandler
 from httputils import httpmethod
 from rpcutils import rpcutils, rpcmethod, error
-from wsutils import wsmethod, websocket
 from logger import logger
 from utils import utils
-from .connector import Config
+from .config import Config
 from .constants import COIN_SYMBOL
 
 
@@ -26,31 +25,17 @@ class Handler:
         if err is not None:
             return False, err
 
-        self.networksConfig[network] = Config(
-            networkName=network,
-            config={
-                "bitcoincoreProtocol": config["bitcoincoreProtocol"] if "bitcoincoreProtocol" in config
-                else defaultConf["bitcoincoreProtocol"],
-                "bitcoincoreHost": config["bitcoincoreHost"] if "bitcoincoreHost" in config
-                else defaultConf["bitcoincoreHost"],
-                "bitcoincorePort": config["bitcoincorePort"] if "bitcoincorePort" in config
-                else defaultConf["bitcoincorePort"],
-                "bitcoincoreUser": config["bitcoincoreUser"] if "bitcoincoreUser" in config
-                else defaultConf["bitcoincoreUser"],
-                "bitcoincorePassword": config["bitcoincorePassword"] if "bitcoincorePassword" in config
-                else defaultConf["bitcoincorePassword"],
-                "electrumCashProtocol": config["electrumCashProtocol"] if "electrumCashProtocol" in config
-                else defaultConf["electrumCashProtocol"],
-                "electrumCashHost": config["electrumCashHost"] if "electrumCashHost" in config
-                else defaultConf["electrumCashHost"],
-                "electrumCashPort": config["electrumCashPort"] if "electrumCashPort" in config
-                else defaultConf["electrumCashPort"],
-                "electrumCashUser": config["electrumCashUser"] if "electrumCashUser" in config
-                else defaultConf["electrumCashUser"],
-                "electrumCashPassword": config["electrumCashPassword"] if "electrumCashPassword" in config
-                else defaultConf["electrumCashPassword"]
-            }
+        pkgConfig = Config(
+            coin=self.coin,
+            networkName=network
         )
+
+        ok, err = pkgConfig.loadConfig(config=config)
+        if not ok:
+            logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
+            return ok, err
+
+        self.networksConfig[network] = pkgConfig
 
         return True, None
 
@@ -70,8 +55,7 @@ class Handler:
 
         del self.networksConfig[network]
 
-        # TODO: Check why it is not possible to return None in async function
-        return True, ""
+        return True, None
 
     async def updateConfig(self, network, config):
 
@@ -83,34 +67,12 @@ class Handler:
         if err is not None:
             return False, err
 
-        self.networksConfig[network] = Config(
-            networkName=network,
-            config={
-                "bitcoincoreProtocol": config["bitcoincoreProtocol"] if "bitcoincoreProtocol" in config
-                else defaultConf["bitcoincoreProtocol"],
-                "bitcoincoreHost": config["bitcoincoreHost"] if "bitcoincoreHost" in config
-                else defaultConf["bitcoincoreHost"],
-                "bitcoincorePort": config["bitcoincorePort"] if "bitcoincorePort" in config
-                else defaultConf["bitcoincorePort"],
-                "bitcoincoreUser": config["bitcoincoreUser"] if "bitcoincoreUser" in config
-                else defaultConf["bitcoincoreUser"],
-                "bitcoincorePassword": config["bitcoincorePassword"] if "bitcoincorePassword" in config
-                else defaultConf["bitcoincorePassword"],
-                "electrumCashProtocol": config["electrumCashProtocol"] if "electrumCashProtocol" in config
-                else defaultConf["electrumCashProtocol"],
-                "electrumCashHost": config["electrumCashHost"] if "electrumCashHost" in config
-                else defaultConf["electrumCashHost"],
-                "electrumCashPort": config["electrumCashPort"] if "electrumCashPort" in config
-                else defaultConf["electrumCashPort"],
-                "electrumCashUser": config["electrumCashUser"] if "electrumCashUser" in config
-                else defaultConf["electrumCashUser"],
-                "electrumCashPassword": config["electrumCashPassword"] if "electrumCashPassword" in config
-                else defaultConf["electrumCashPassword"]
-            }
-        )
+        ok, err = self.networksConfig[network].loadConfig(config=config)
+        if not ok:
+            logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
+            return ok, err
 
-        # TODO: Check why it is not possible to return None in async function
-        return True, ""
+        return True, None
 
     async def handleRequest(self, network, method, request):
 
