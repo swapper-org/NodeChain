@@ -46,7 +46,7 @@ class AddressBalanceWs:
                 config=self.config
             )
 
-    def stop(self):
+    async def stop(self):
 
         # TODO: Check this is working properly
         broker = Broker()
@@ -183,7 +183,7 @@ class BlockWebSocket:
                         message=err.jsonEncode()
                     )
 
-    def stop(self):
+    async def stop(self):
         self.loop.stop()
 
     @property

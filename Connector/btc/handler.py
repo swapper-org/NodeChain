@@ -34,12 +34,11 @@ class Handler:
 
         self.networksConfig[network] = pkgConfig
 
-        # TODO: Check WS error: With WS initiation, it is not possible to return None value
-
         AddressBalanceWs(
             coin=self.coin,
             config=self.networksConfig[network]
         )
+
         BlockWebSocket(
             coin=self.coin,
             config=self.networksConfig[network]
@@ -95,6 +94,7 @@ class Handler:
             coin=self.coin,
             config=self.networksConfig[network]
         )
+        
         BlockWebSocket(
             coin=self.coin,
             config=self.networksConfig[network]
