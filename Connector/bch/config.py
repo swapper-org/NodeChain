@@ -1,24 +1,57 @@
 #!/usr/bin/python3
 from json import JSONEncoder
+from utils import utils
 
 
 class Config:
 
-    def __init__(self, networkName, config):
-
-        # TODO: Load here default config to avoid code reps
+    def __init__(self, coin, networkName):
 
         self._networkName = networkName
-        self._bitcoincoreProtocol = config["bitcoincoreProtocol"]
-        self._bitcoincoreHost = config["bitcoincoreHost"]
-        self._bitcoincorePort = config["bitcoincorePort"]
-        self._bitcoincoreUser = config["bitcoincoreUser"]
-        self._bitcoincorePassword = config["bitcoincorePassword"]
-        self._electrumCashProtocol = config["electrumCashProtocol"]
-        self._electrumCashHost = config["electrumCashHost"]
-        self._electrumCashPort = config["electrumCashPort"]
-        self._electrumCashUser = config["electrumCashUser"]
-        self._electrumCashPassword = config["electrumCashPassword"]
+        self._coin = coin
+        self._bitcoincoreProtocol = ""
+        self._bitcoincoreHost = ""
+        self._bitcoincorePort = 0
+        self._bitcoincoreUser = ""
+        self._bitcoincorePassword = ""
+        self._electrumCashProtocol = ""
+        self._electrumCashHost = ""
+        self._electrumCashPort = 0
+        self._electrumCashUser = ""
+        self._electrumCashPassword = ""
+
+    def loadConfig(self, config):
+
+        defaultConfig, err = utils.loadDefaultPackageConf(self.coin)
+        if err is not None:
+            return False, err
+
+        self.bitcoincoreProtocol = config["bitcoincoreProtocol"] if "bitcoincoreProtocol" in config \
+            else defaultConfig["bitcoincoreProtocol"]
+        self.bitcoincoreHost = config["bitcoincoreHost"] if "bitcoincoreHost" in config \
+            else defaultConfig["bitcoincoreHost"]
+        self.bitcoincorePort = config["bitcoincorePort"] if "bitcoincorePort" in config \
+            else defaultConfig["bitcoincorePort"]
+        self.bitcoincoreUser = config["bitcoincoreUser"] if "bitcoincoreUser" in config \
+            else defaultConfig["bitcoincoreUser"]
+        self.bitcoincorePassword = config["bitcoincorePassword"] if "bitcoincorePassword" in config \
+            else defaultConfig["bitcoincorePassword"]
+        self.electrumCashProtocol = config["electrumCashProtocol"] if "electrumCashProtocol" in config \
+            else defaultConfig["electrumCashProtocol"]
+        self.electrumCashHost = config["electrumCashHost"] if "electrumCashHost" in config \
+            else defaultConfig["electrumCashHost"]
+        self.electrumCashPort = config["electrumCashPort"] if "electrumCashPort" in config \
+            else defaultConfig["electrumCashPort"]
+        self.electrumCashUser = config["electrumCashUser"] if "electrumCashUser" in config \
+            else defaultConfig["electrumCashUser"]
+        self.electrumCashPassword = config["electrumCashPassword"] if "electrumCashPassword" in config \
+            else defaultConfig["electrumCashPassword"]
+
+        return True, None
+
+    @property
+    def coin(self):
+        return self._coin
 
     @property
     def networkName(self):
@@ -90,7 +123,7 @@ class Config:
 
     @electrumCashPort.setter
     def electrumCashPort(self, value):
-        self.electrumCashPort = value
+        self._electrumCashPort = value
 
     @property
     def electrumCashUser(self):
