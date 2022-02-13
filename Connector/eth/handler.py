@@ -2,7 +2,8 @@
 from httputils.router import CurrencyHandler
 from httputils import httpmethod
 from rpcutils import rpcutils, rpcmethod, error
-from wsutils import wsmethod, websocket
+from wsutils import wsmethod, websocket, topics
+from wsutils.broker import Broker
 from logger import logger
 from .websockets import WebSocket
 from .config import Config
@@ -62,7 +63,11 @@ class Handler:
 
         del self.networksConfig[network]
 
-        # TODO: Close all topics for this currency and this network
+        broker = Broker()
+        pkgTopics = broker.getSubTopics(topicName=f"{self.coin}{topics.TOPIC_SEPARATOR}{network}")
+
+        for topic in list(pkgTopics):
+            broker.removeTopic(topic)
 
         return True, None
 

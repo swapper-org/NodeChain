@@ -2,7 +2,8 @@
 from httputils.router import CurrencyHandler
 from httputils import httpmethod
 from rpcutils import rpcutils, rpcmethod, error
-from wsutils import wsmethod, websocket
+from wsutils import wsmethod, websocket, topics
+from wsutils.broker import Broker
 from logger import logger
 from .websockets import AddressBalanceWs, BlockWebSocket
 from .config import Config
@@ -72,6 +73,12 @@ class Handler:
             networkName=network
         )
 
+        broker = Broker()
+        pkgTopics = broker.getSubTopics(topicName=f"{self.coin}{topics.TOPIC_SEPARATOR}{network}")
+
+        for topic in list(pkgTopics):
+            broker.removeTopic(topic)
+
         return True, None
 
     async def updateConfig(self, network, config):
@@ -94,7 +101,7 @@ class Handler:
             coin=self.coin,
             config=self.networksConfig[network]
         )
-        
+
         BlockWebSocket(
             coin=self.coin,
             config=self.networksConfig[network]
