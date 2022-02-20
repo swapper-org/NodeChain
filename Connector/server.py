@@ -7,6 +7,7 @@ from httputils.router import Router
 from httputils.app import App, appModules
 from httputils.constants import JSON_CONTENT_TYPE
 from rpcutils import middleware as rpcMiddleware
+from wsutils import broker
 from logger import logger
 # from utils import utils
 
@@ -15,7 +16,13 @@ async def onPrepare(request, response):
 
     response.headers["Content-Type"] = JSON_CONTENT_TYPE
 
-# TODO: Create onShutdown handler to close everything
+
+async def onShutdown(app):
+
+    logger.printInfo("Application is shutting down")
+
+    for subscriberID, sub in list(broker.Broker().subs.items()):
+        await sub.close(broker.Broker())
 
 
 def runServer():
@@ -26,6 +33,7 @@ def runServer():
     ])
 
     mainApp.on_response_prepare.append(onPrepare)
+    mainApp.on_shutdown.append(onShutdown)
 
     modules = [
         "admin",

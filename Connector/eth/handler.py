@@ -61,13 +61,14 @@ class Handler:
         await websocket.stopWebSockets(coin=self.coin,
                                        networkName=network)
 
-        del self.networksConfig[network]
-
         broker = Broker()
         pkgTopics = broker.getSubTopics(topicName=f"{self.coin}{topics.TOPIC_SEPARATOR}{network}")
 
         for topic in list(pkgTopics):
-            broker.removeTopic(topic)
+            for subscriber in list(broker.getTopicSubscribers(topic)):
+                subscriber.close(broker=broker)
+
+        del self.networksConfig[network]
 
         return True, None
 
