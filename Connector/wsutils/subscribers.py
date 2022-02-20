@@ -14,7 +14,7 @@ class SubscriberInterface(metaclass=abc.ABCMeta):
             (hasattr(subclass, "subscribeToTopic") and callable(subclass.subscribeToTopic)) and
             (hasattr(subclass, "unsubscribeFromTopic") and callable(subclass.unsubscribeFromTopic)) and
             (hasattr(subclass, "onMessage") and callable(subclass.onMessage)) and
-            (hasattr(subclass, "closeConnection") and callable(subclass.onMessage))
+            (hasattr(subclass, "close") and callable(subclass.close))
         )
 
 
@@ -38,9 +38,10 @@ class Subscriber:
             self._topicsSubscribed.remove(topicName)
         return broker.detach(self, topicName)
 
-    def closeConnection(self, broker):
-        broker.removeSubscriber(self)
-        self._topicsSubscribed = []
+    def close(self, broker):
+
+        for topicSubscribed in list(self._topicsSubscribed):
+            self.unsubscribeFromTopic(broker, topicSubscribed)
 
 
 class WSSubscriber(Subscriber):
@@ -56,9 +57,9 @@ class WSSubscriber(Subscriber):
         loop.run_until_complete(notify(self.websocket, message))
         return message, topicName
 
-    async def closeConnection(self, broker):
-        super().closeConnection(broker)
-        await self.websocket.close(code=WSCloseCode.GOING_AWAY, message="Server shutdown".encode())
+    async def close(self, broker):
+        super().close(broker)
+        await self.websocket.close(code=WSCloseCode.GOING_AWAY, message="Connection closed".encode())
 
     async def sendMessage(self, message):
         await self.websocket.send_str(

@@ -37,6 +37,7 @@ async def callMethod(coin, config, request):
 
     subscriber = subscribers.WSSubscriber()
     await subscriber.websocket.prepare(request=request)
+    broker.Broker().register(subscriber)
     payload = None
 
     try:
@@ -54,8 +55,7 @@ async def callMethod(coin, config, request):
                             "Connection closed with server"
                         )
                     )
-                    logger.printInfo("Exiting from WS loop")
-                    break
+                    await subscriber.close(broker.Broker())
 
                 elif coin not in wsMethods:
                     raise error.RpcBadRequestError(
@@ -99,6 +99,7 @@ async def callMethod(coin, config, request):
         logger.printError(f"Sending RPC error response to requester: {response}")
 
         await subscriber.sendMessage(response)
+        await subscriber.close(broker.Broker())
 
     except httpError.Error as err:
         response = rpcutils.generateRPCResultResponse(
@@ -109,9 +110,8 @@ async def callMethod(coin, config, request):
         logger.printError(f"Sending RPC http response to requester: {response}")
 
         await subscriber.sendMessage(response)
-
+        await subscriber.close(broker.Broker())
     finally:
-        await subscriber.closeConnection(broker.Broker())
-        logger.printInfo("Closing websocket")
+        broker.Broker().unregister(subscriber)
 
     return subscriber.websocket

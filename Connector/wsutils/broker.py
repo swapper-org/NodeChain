@@ -12,6 +12,15 @@ class Broker(object, metaclass=Singleton.Singleton):
     def __init__(self):
 
         self.topicSubscriptions = {}  # Topic -> {"Subs":[Sub1, Sub2], "ClosingFunc":func}
+        self.subs = {}
+
+    def register(self, subscriber):
+        logger.printInfo(f"New subscriber with id [{subscriber.subscriberID}] registered")
+        self.subs[subscriber.subscriberID] = subscriber
+
+    def unregister(self, subscriber):
+        logger.printInfo(f"Subscriber with id [{subscriber.subscriberID}] unregistered")
+        del self.subs[subscriber.subscriberID]
 
     def attach(self, subscriber, topic):
 
@@ -108,14 +117,7 @@ class Broker(object, metaclass=Singleton.Singleton):
         for topicName in subscriber.topicsSubscribed:
             self.detach(subscriber, topicName)
 
-    def removeTopic(self, topicName):
-
-        if topicName not in self.topicSubscriptions:
-            logger.printWarning(f"Trying to remove unknown topic {topicName}. No subscribers removed")
-            return
-
-        for subscriber in list(self.topicSubscriptions[topicName][SUBSCRIBERS]):
-            self.detach(subscriber=subscriber, topicName=topicName)
+        return True
 
     def isTopic(self, topicName):
         return topicName in self.topicSubscriptions
