@@ -173,7 +173,7 @@ class Router(object, metaclass=Singleton.Singleton):
 
         return {
             "success": True,
-            "message": f"Config configuration for {network} network for currency {coin} retrieved successfully",
+            "message": f"Configuration for {network} network for currency {coin} retrieved successfully",
             "coin": coin,
             "network": network,
             "config": config

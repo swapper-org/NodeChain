@@ -8,12 +8,7 @@
             "type": "string"
         },
         "network": {
-            "type": "string",
-            "enum": [
-                "mainnet",
-                "testnet",
-                "regtest"
-            ]
+            "type": "string"
         },
         "config": {
             "type": "object"
