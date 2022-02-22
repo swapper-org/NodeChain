@@ -21,11 +21,6 @@ jobs:
             pip3 install -r Connector/requirements.txt
             pip3 install -r scripts/requirements.txt
       - run: 
-          name: Check Lint
-          command: |
-            source venv/bin/activate
-            flake8 --statistics
-      - run: 
           name: Deploy ETH regtest nodes
           command: |
             docker-compose -f Connector/tests/docker-compose/eth.yml -p eth_regtest_api up --build -d
@@ -64,11 +59,6 @@ jobs:
             source venv/bin/activate
             pip3 install -r Connector/requirements.txt
             pip3 install -r scripts/requirements.txt
-      - run: 
-          name: Check Lint
-          command: |
-            source venv/bin/activate
-            flake8 --statistics
       - run: 
           name: Deploy BTC regtest nodes
           command: |
