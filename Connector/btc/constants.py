@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+COIN_SYMBOL = "btc"
+
 GET_ADDRESS_HISTORY_METHOD = "getaddresshistory"
 GET_ADDRESS_BALANCE_METHOD = "getaddressbalance"
 GET_ADDRESS_UNSPENT_METHOD = "getaddressunspent"
@@ -19,6 +21,9 @@ VERBOSITY_LESS_MODE = 0
 VERBOSITY_DEFAULT_MODE = 1
 VERBOSITY_MORE_MODE = 2
 
+ADDR_BALANCE_CALLBACK_NAME = "addressBalance"
+
+"""
 TX_HASH = "txHash"
 TX_HASH_SNAKE_CASE = "tx_hash"
 TX_HASHES = "txHashes"
@@ -68,6 +73,7 @@ VERIFICATION_PROGRESS = "verificationprogress"
 BLOCKS = "blocks"
 HEADERS = "headers"
 BROADCASTED = "broadcasted"
+"""
 
 RPC_JSON_SCHEMA_FOLDER = "btc/rpcschemas/"
 WS_JSON_SCHEMA_FOLDER = "btc/wsschemas/"

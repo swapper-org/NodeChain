@@ -1,16 +1,26 @@
 #!/usr/bin/python3
+import re
 import threading
 from logger import logger
-from .singleton import Singleton
+from patterns import Singleton
 from .subscribers import SubscriberInterface
 from .constants import *
 
 
-class Broker(object, metaclass=Singleton):
+class Broker(object, metaclass=Singleton.Singleton):
 
     def __init__(self):
 
         self.topicSubscriptions = {}  # Topic -> {"Subs":[Sub1, Sub2], "ClosingFunc":func}
+        self.subs = {}
+
+    def register(self, subscriber):
+        logger.printInfo(f"New subscriber with id [{subscriber.subscriberID}] registered")
+        self.subs[subscriber.subscriberID] = subscriber
+
+    def unregister(self, subscriber):
+        logger.printInfo(f"Subscriber with id [{subscriber.subscriberID}] unregistered")
+        del self.subs[subscriber.subscriberID]
 
     def attach(self, subscriber, topic):
 
@@ -29,13 +39,13 @@ class Broker(object, metaclass=Singleton):
             }
 
         if subscriber not in self.topicSubscriptions[topic.name][SUBSCRIBERS]:
-            logger.printInfo(f"Subscriber {subscriber.subscriberID} atached successfully to topic [{topic.name}]")
+            logger.printInfo(f"Subscriber {subscriber.subscriberID} attached successfully to topic [{topic.name}]")
             self.topicSubscriptions[topic.name][SUBSCRIBERS].append(subscriber)
             return {
                 SUBSCRIBED: True
             }
         else:
-            logger.printInfo(f"Subscriber {subscriber.subscriberID} already atached to topic [{topic.name}]")
+            logger.printInfo(f"Subscriber {subscriber.subscriberID} already attached to topic [{topic.name}]")
             return {
                 SUBSCRIBED: False
             }
@@ -51,7 +61,9 @@ class Broker(object, metaclass=Singleton):
             }
 
         if topicName not in self.topicSubscriptions:
-            logger.printWarning(f"Trying to detach subscriber {subscriber.subscriberID} from unknown topic [{topicName}]")
+            logger.printWarning(
+                f"Trying to detach subscriber {subscriber.subscriberID} from unknown topic [{topicName}]"
+            )
             return {
                 UNSUBSCRIBED: False
             }
@@ -59,15 +71,23 @@ class Broker(object, metaclass=Singleton):
             self.topicSubscriptions[topicName][SUBSCRIBERS].remove(subscriber)
             logger.printInfo(f"Subscriber {subscriber.subscriberID} detached from topic [{topicName}]")
 
-            if len(self.topicSubscriptions[topicName][SUBSCRIBERS]) == 0:
+            if not self.topicHasSubscribers(topicName=topicName):
+
                 logger.printWarning(f"No more subscribers for topic [{topicName}]")
+                topicClosingFunc = self.topicSubscriptions[topicName][CLOSING_TOPIC_FUNC]
+                logger.printInfo(f"Calling closing func to topic [{topicName}]")
+                if topicClosingFunc is not None:
+                    topicClosingFunc(topicName)
+
                 del self.topicSubscriptions[topicName]
 
             return {
                 UNSUBSCRIBED: True
             }
         else:
-            logger.printWarning(f"Subscriber {subscriber.subscriberID} can not be detached because it is not subscribed to topic [{topicName}]")
+            logger.printWarning(
+                f"Subscriber {subscriber.subscriberID} can not be detached because"
+                f" it is not subscribed to topic [{topicName}]")
             return {
                 UNSUBSCRIBED: False
             }
@@ -80,8 +100,11 @@ class Broker(object, metaclass=Singleton):
 
             for subscriber in self.topicSubscriptions[topicName][SUBSCRIBERS]:
 
-                subscriberNotificationThread = threading.Thread(target=_notifySubscriber, args=(subscriber, topicName, message), daemon=True)
-                subscriberNotificationThread.start()
+                threading.Thread(
+                    target=_notifySubscriber,
+                    args=(subscriber, topicName, message),
+                    daemon=True
+                ).start()
 
     def removeSubscriber(self, subscriber):
 
@@ -92,19 +115,29 @@ class Broker(object, metaclass=Singleton):
             return False
 
         for topicName in subscriber.topicsSubscribed:
-            topicClosingFunc = self.topicSubscriptions[topicName][CLOSING_TOPIC_FUNC]
             self.detach(subscriber, topicName)
 
-            if not self.topicHasSubscribers(topicName):
-                logger.printInfo(f"Calling closing func to topic [{topicName}]")
-                if topicClosingFunc is not None:
-                    topicClosingFunc(topicName)
+        return True
 
     def isTopic(self, topicName):
         return topicName in self.topicSubscriptions
 
     def getSubTopics(self, topicName):
-        return [topicSubscription[len(topicName) + 1:] for topicSubscription in self.topicSubscriptions if topicName in topicSubscription]
+
+        subTopics = []
+
+        for topic in self.topicSubscriptions:
+            matches = re.finditer(f"{topicName}([a-z0-9A-Z/]+)", topic, re.MULTILINE)
+            found = False
+            for match in matches:
+                for group in match.groups():
+                    subTopics.append(group[1:])
+                    found = True
+                    break
+                if found:
+                    break
+
+        return subTopics
 
     def topicHasSubscribers(self, topicName):
         if topicName in self.topicSubscriptions:

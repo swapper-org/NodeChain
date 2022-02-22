@@ -1,6 +1,6 @@
 import json
 import jsonschema
-from . import errorhandler
+from . import error
 from .constants import *
 from logger import logger
 
@@ -13,38 +13,46 @@ def rpcMethod(f):
     return f
 
 
-def parseRpcRequest(request):
+def parseJsonRpcRequest(request):
 
-    try:
-        parsedRequest = json.loads(request)
-    except Exception as e:
-        logger.printError(f"Payload is not JSON message: {e}")
-        raise errorhandler.BadRequestError(f"Payload is not JSON message: {e}")
-
-    if METHOD not in parsedRequest or PARAMS not in parsedRequest or JSON_RPC not in parsedRequest or ID not in parsedRequest:
+    if METHOD not in request or PARAMS not in request or JSON_RPC not in request or ID not in request:
         logger.printError("JSON request is malformed")
-        raise errorhandler.BadRequestError("JSON request is malformed")
+        raise error.RpcBadRequestError(
+            id=request[ID] if ID in request else 0,
+            message="JSON request is malformed")
 
-    if not isinstance(parsedRequest[METHOD], str):
+    if not isinstance(request[METHOD], str):
         logger.printError(f"{METHOD} must be string")
-        raise errorhandler.BadRequestError(f"{METHOD} must be string")
+        raise error.RpcBadRequestError(
+            id=request[ID],
+            message=f"{METHOD} must be string"
+        )
 
-    if not isinstance(parsedRequest[PARAMS], dict):
+    if not isinstance(request[PARAMS], dict):
         logger.printError(f"{PARAMS} must be dictionary")
-        raise errorhandler.BadRequestError(f"{PARAMS} must be dictionary")
+        raise error.RpcBadRequestError(
+            id=request[ID],
+            message=f"{PARAMS} must be dictionary"
+        )
 
-    if parsedRequest[JSON_RPC] != JSON_RPC_VERSION:
+    if request[JSON_RPC] != JSON_RPC_VERSION:
         logger.printError(f"This version of JSON RPC is not supported. Supported version: {JSON_RPC_VERSION}")
-        raise errorhandler.BadRequestError(f"This version of JSON RPC is not supported. Supported version: {JSON_RPC_VERSION}")
+        raise error.RpcBadRequestError(
+            id=request[ID],
+            message=f"This version of JSON RPC is not supported. Supported version: {JSON_RPC_VERSION}"
+        )
 
-    if not isinstance(parsedRequest[ID], int):
+    if not isinstance(request[ID], int):
         logger.printError(f"{ID} must be integer")
-        raise errorhandler.BadRequestError(f"{ID} must be integer")
+        raise error.RpcBadRequestError(
+            id=request[ID],
+            message="{ID} must be integer"
+        )
 
     return {
-        METHOD: parsedRequest[METHOD],
-        PARAMS: parsedRequest[PARAMS],
-        ID: parsedRequest[ID]
+        METHOD: request[METHOD],
+        PARAMS: request[PARAMS],
+        ID: request[ID]
     }
 
 
@@ -62,7 +70,7 @@ def validateJSONRPCSchema(params, jsonSchemaFile):
                 return err
     except FileNotFoundError as err:
         logger.printError(f"Schema {jsonSchemaFile} not found: {err}")
-        raise errorhandler.InternalServerError(f"Schema {jsonSchemaFile} not found: {err}")
+        raise error.InternalServerError(f"Schema {jsonSchemaFile} not found: {err}")
 
     return None
 
@@ -97,3 +105,7 @@ def generateRPCErrorResponse(id, err):
 
 def isRPCErrorResponse(response):
     return CODE in response or MESSAGE in response
+
+
+def isRpcEnpointPath(method):
+    return method == RPC_ENDPOINT_PATH

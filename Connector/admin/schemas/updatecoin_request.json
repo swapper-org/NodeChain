@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "",
+    "description": "",
+    "type": "object",
+    "properties": {
+        "coin": {
+            "type": "string"
+        },
+        "network": {
+            "type": "string"
+        },
+        "config": {
+            "type": "object"
+        }
+    },
+    "required": [
+        "coin",
+        "network",
+        "config"
+    ]
+}

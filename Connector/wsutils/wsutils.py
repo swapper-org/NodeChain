@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 from logger import logger
+from .constants import WS_METHOD
+
 
 webSockets = []
 webSocketMethods = {}
@@ -21,3 +23,7 @@ def webSocketMethod(f):
 def webSocketClosingHandler(f):
     logger.printInfo(f"Registering new websocket handler: {f.__name__}")
     webSocketClosingHandlers.append(f)
+
+
+def isWsEnpointPath(method):
+    return method == WS_METHOD

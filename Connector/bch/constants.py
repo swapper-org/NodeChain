@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+COIN_SYMBOL = "bch"
+
 GET_ADDRESS_HISTORY_METHOD = "getaddresshistory"
 GET_ADDRESS_BALANCE_METHOD = "getaddressbalance"
 GET_ADDRESS_UNSPENT_METHOD = "getaddressunspent"
@@ -19,6 +22,7 @@ VERBOSITY_LESS_MODE = 0
 VERBOSITY_DEFAULT_MODE = 1
 VERBOSITY_MORE_MODE = 2
 
+"""
 TX_HASH = "txHash"
 TX_HASH_SNAKE_CASE = "tx_hash"
 TX_HASHES = "txHashes"
@@ -67,7 +71,7 @@ VERIFICATION_PROGRESS = "verificationprogress"
 BLOCKS = "blocks"
 HEADERS = "headers"
 BROADCASTED = "broadcasted"
-
+"""
 
 RPC_JSON_SCHEMA_FOLDER = "bch/rpcschemas/"
 WS_JSON_SCHEMA_FOLDER = "bch/wsschemas/"
@@ -91,5 +95,5 @@ GET_ADDRESSES_TRANSACTION_COUNT = "getaddressestransactioncount"
 GET_TRANSACTION_HEX = "gettransactionhex"
 NOTIFY = "notify"
 
-SUBSCRIBE_ADDRESS_BALANCE = "subscribeaddressbalance"
-UNSUBSCRIBE_ADDRESS_BALANCE = "unsubscribeaddressbalance"
+SUBSCRIBE_ADDRESS_BALANCE = "subscribetoaddressbalance"
+UNSUBSCRIBE_ADDRESS_BALANCE = "unsubscribefromaddressbalance"

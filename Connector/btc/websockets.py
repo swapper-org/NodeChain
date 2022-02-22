@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from aiohttp import web
+# from aiohttp import web
 import asyncio
 import binascii
 import json
@@ -10,42 +10,78 @@ import threading
 import zmq
 import zmq.asyncio
 from logger import logger
-from rpcutils import rpcutils, errorhandler as rpcerrorhandler
+from rpcutils import rpcutils, error
 from wsutils import wsutils, topics
 from wsutils.broker import Broker
 from wsutils.publishers import Publisher
-from webapp import WebApp
 from .constants import *
-from .connector import BITCOIN_CALLBACK_PATH, ELECTRUM_NAME, ZMQ_CORE_ENDPOINT
 from . import apirpc
+from wsutils import websocket
+from httputils import httpmethod
 
 
-@wsutils.webSocket
-def addressBalanceWS():
-    app = WebApp()
-    logger.printInfo("Starting WS for address balance callback")
-    app.add_routes([web.post(BITCOIN_CALLBACK_PATH, addressBalanceCallback)])
+@websocket.WebSocket
+class AddressBalanceWs:
+
+    def __init__(self, coin, config):
+        self._coin = coin
+        self._config = config
+
+    def start(self):
+
+        # TODO: Check this is working properly
+        broker = Broker()
+        for address in broker.getSubTopics(topicName=f"{self.coin}{topics.TOPIC_SEPARATOR}"
+                                                     f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
+                                                     f"{topics.ADDRESS_BALANCE_TOPIC}"
+                                           ):
+            apirpc.notify(
+                id=random.randint(1, sys.maxsize),
+                params={
+                    "address": address,
+                    "callBackEndpoint": f"{self.config.bitcoinAddressCallbackHost}"
+                                        f"/{self.coin}/{self.config.networkName}"
+                                        f"/callback/{ADDR_BALANCE_CALLBACK_NAME}"
+                },
+                config=self.config
+            )
+
+    async def stop(self):
+
+        # TODO: Check this is working properly
+        broker = Broker()
+        for address in broker.getSubTopics(topicName=f"{self.coin}{topics.TOPIC_SEPARATOR}"
+                                                     f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
+                                                     f"{topics.ADDRESS_BALANCE_TOPIC}"
+                                           ):
+            apirpc.notify(
+                id=random.randint(1, sys.maxsize),
+                params={
+                    "address": address,
+                    "callBackEndpoint": ""
+                },
+                config=self.config
+            )
+
+    @property
+    def coin(self):
+        return self._coin
+
+    @property
+    def config(self):
+        return self._config
 
 
-@wsutils.webSocket
-def newBlockWS():
-    logger.printInfo("Starting WS for new blocks")
-    thread = threading.Thread(target=newBlocksWSThread, daemon=True)
-    thread.start()
+@httpmethod.callbackMethod(callbackName=ADDR_BALANCE_CALLBACK_NAME, coin=COIN_SYMBOL)
+def addressBalanceCallback(request, config, coin):
 
-
-async def addressBalanceCallback(request):
-
-    if request.remote != socket.gethostbyname(ELECTRUM_NAME):
-        return
-
-    try:
-        messageLoaded = json.loads(await request.read())
-    except Exception as e:
-        raise rpcerrorhandler.InternalServerError(f"Payload from {ELECTRUM_NAME} is not JSON message: {e}")
+    # TODO: Check the call is made from config [electrumHost]
 
     broker = Broker()
-    addrBalanceTopic = topics.ADDRESS_BALANCE_TOPIC + topics.TOPIC_SEPARATOR + messageLoaded[ADDRESS]
+    addrBalanceTopic = f"{coin}{topics.TOPIC_SEPARATOR}" \
+                       f"{config.networkName}{topics.TOPIC_SEPARATOR}" \
+                       f"{topics.ADDRESS_BALANCE_TOPIC}{topics.TOPIC_SEPARATOR}" \
+                       f"{request['address']}"
 
     if not broker.isTopic(addrBalanceTopic):
         logger.printWarning("There are no subscribers")
@@ -53,14 +89,14 @@ async def addressBalanceCallback(request):
 
     id = random.randint(1, sys.maxsize)
     response = apirpc.getAddressBalance(
-        id,
-        {
-            ADDRESS: messageLoaded[ADDRESS]
-        }
+        id=id,
+        params={
+            "address": request["address"]
+        },
+        config=config
     )
 
-    addrBalancePub = Publisher()
-    addrBalancePub.publish(
+    Publisher().publish(
         broker,
         addrBalanceTopic,
         rpcutils.generateRPCResultResponse(
@@ -70,68 +106,98 @@ async def addressBalanceCallback(request):
     )
 
 
-def newBlocksWSThread():
+@websocket.WebSocket
+class BlockWebSocket:
 
-    logger.printInfo("Configuring ZMQ Socket")
+    def __init__(self, coin, config):
+        self._coin = coin
+        self._config = config
+        self._loop = None
 
-    zmqContext = zmq.asyncio.Context()
-    zmqSocket = zmqContext.socket(zmq.SUB)
-    zmqSocket.setsockopt(zmq.RCVHWM, 0)
-    zmqSocket.setsockopt_string(zmq.SUBSCRIBE, NEW_HASH_BLOCK_ZMQ_TOPIC)
-    zmqSocket.connect(ZMQ_CORE_ENDPOINT)
+    def start(self):
 
-    app = WebApp()
-    app.addZMQSocket(zmqSocket)
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(newBlocksWorker(zmqSocket))
-    loop.close()
+        logger.printInfo("Starting Block WS for Bitcoin")
+        threading.Thread(
+            target=self.newBlocksThread,
+            daemon=True
+        ).start()
 
+    def newBlocksThread(self):
 
-async def newBlocksWorker(zmqSocket):
+        logger.printInfo("Configuring ZMQ Socket")
 
-    newBlockPub = Publisher()
-    broker = Broker()
+        zmqContext = zmq.asyncio.Context()
+        zmqSocket = zmqContext.socket(zmq.SUB)
+        zmqSocket.setsockopt(zmq.RCVHWM, 0)
+        zmqSocket.setsockopt_string(zmq.SUBSCRIBE, NEW_HASH_BLOCK_ZMQ_TOPIC)
+        zmqSocket.connect(self.config.bitcoincoreZmqEndpoint)
 
-    while True:
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+        asyncio.ensure_future(self.newBlocksWorker(zmqSocket), loop=self.loop)
+        self.loop.run_forever()
 
-        payload = await zmqSocket.recv_multipart()
-        topic = payload[0].decode("utf-8")
-        message = payload[1]
+    async def newBlocksWorker(self, zmqSocket):
 
-        if topic == NEW_HASH_BLOCK_ZMQ_TOPIC:
+        newBlockPub = Publisher()
+        broker = Broker()
 
-            blockHash = binascii.hexlify(message).decode("utf-8")
-            logger.printInfo(f"New message for [{topic}]: {blockHash}")
+        while True:
 
-            try:
+            logger.printInfo("Esperando bloque BTC")
+            payload = await zmqSocket.recv_multipart()
+            topic = payload[0].decode("utf-8")
+            message = payload[1]
 
-                block = apirpc.getBlockByHash(
-                    random.randint(1, sys.maxsize),
-                    {
-                        BLOCK_HASH: blockHash
-                    }
-                )
+            logger.printInfo("Recibo algo")
+            if topic == NEW_HASH_BLOCK_ZMQ_TOPIC:
 
-                newBlockPub.publish(broker, topics.NEW_BLOCKS_TOPIC, block)
+                blockHash = binascii.hexlify(message).decode("utf-8")
+                logger.printInfo(f"New message for [{topic}]: {blockHash}")
 
-            except rpcerrorhandler.BadRequestError as err:
-                logger.printError(f"Error getting block {blockHash}: {err}")
-                newBlockPub.publish(broker, topics.NEW_BLOCKS_TOPIC, err.jsonEncode())
+                try:
 
+                    block = apirpc.getBlockByHash(
+                        id=random.randint(1, sys.maxsize),
+                        params={
+                            "blockHash": blockHash
+                        },
+                        config=self.config
+                    )
 
-@wsutils.webSocketClosingHandler
-async def wsClosingHandler():
+                    newBlockPub.publish(
+                        broker=broker,
+                        topic=f"{self.coin}{topics.TOPIC_SEPARATOR}"
+                              f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
+                              f"{topics.NEW_BLOCKS_TOPIC}",
+                        message=block
+                    )
 
-    logger.printInfo("Closing ZMQ connections")
+                except error.RpcBadRequestError as err:
+                    logger.printError(f"Error getting block {blockHash}: {err}")
+                    newBlockPub.publish(
+                        broker=broker,
+                        topic=f"{self.coin}{topics.TOPIC_SEPARATOR}"
+                              f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
+                              f"{topics.NEW_BLOCKS_TOPIC}",
+                        message=err.jsonEncode()
+                    )
 
-    app = WebApp()
-    await app.closeAllZMQSocket()
+    async def stop(self):
+        self.loop.stop()
 
-    logger.printInfo("Closing subscribers connections")
+    @property
+    def coin(self):
+        return self._coin
 
-    broker = Broker()
+    @property
+    def config(self):
+        return self._config
 
-    for topicName in broker.getTopicNameSubscriptions():
-        for subscriber in list(broker.getTopicSubscribers(topicName)):
-            await subscriber.closeConnection(broker)
+    @property
+    def loop(self):
+        return self._loop
+
+    @loop.setter
+    def loop(self, value):
+        self._loop = value

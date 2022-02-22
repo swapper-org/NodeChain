@@ -38,6 +38,11 @@ SYNCING = "syncing"
 SUBSCRIBE_TO_NEW_BLOCKS = "subscribetonewblocks"
 UNSUBSCRIBE_FROM_NEW_BLOCKS = "unsubscribefromnewblocks"
 
+COIN_SYMBOL = "eth"
+DEFAULT_PKG_CONF = "defaultConf.json"
+
+
+"""
 CONFIRMED = "confirmed"
 UNCONFIRMED = "unconfirmed"
 PENDING = "pending"
@@ -71,3 +76,4 @@ CURRENT_BLOCK_INDEX = "currentBlockIndex"
 CURRENT_BLOCK = "currentBlock"
 HIGHEST_BLOCK = "highestBlock"
 SYNC_PERCENTAGE = "syncPercentage"
+"""

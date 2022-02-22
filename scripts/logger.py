@@ -8,21 +8,21 @@ def printInfo(*argv, sep='', end='\n', file=sys.stdout, flush=True, verbosity=Fa
     if verbosity:
         print(f"[INFO][{datetime.now()}] ", *argv, sep=sep, end=end, file=file, flush=flush)
     else:
-        print(f"", *argv, sep=sep, end=end, file=file, flush=flush)
+        print("", *argv, sep=sep, end=end, file=file, flush=flush)
 
 
 def printWarning(*argv, sep='', end='\n', file=sys.stdout, flush=True, verbosity=False):
     if verbosity:
         print(f"[WARNING][{datetime.now()}] ", *argv, sep=sep, end=end, file=file, flush=flush)
     else:
-        print(f"", *argv, sep=sep, end=end, file=file, flush=flush)
+        print("", *argv, sep=sep, end=end, file=file, flush=flush)
 
 
 def printError(*argv, sep='', end='\n', file=sys.stdout, flush=True, verbosity=False):
     if verbosity:
         print(f"[ERROR][{datetime.now()}] ", *argv, sep=sep, end=end, file=file, flush=flush)
     else:
-        print(f"", *argv, sep=sep, end=end, file=file, flush=flush)
+        print("", *argv, sep=sep, end=end, file=file, flush=flush)
 
 
 def printEnvs():
