@@ -7,7 +7,16 @@
         "transaction": {
             "type": "object",
             "properties": {
+                "txHash": {
+                    "type": "string"
+                },
                 "blockHash": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "blockNumber": {
                     "type": [
                         "string",
                         "null"

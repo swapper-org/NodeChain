@@ -10,14 +10,23 @@
                 "null"
             ],
             "properties": {
+                "txHash": {
+                    "type": "string"
+                },
                 "blockHash": {
                     "type": [
                         "string",
                         "null"
                     ]
                 },
+                "blockNumber": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
                 "fee": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "transfers": {
                     "type": "array",
@@ -30,10 +39,10 @@
                                 "type": "string"
                             },
                             "fee": {
-                                "type": "number"
+                                "type": "string"
                             },
                             "amount": {
-                                "type": "number"
+                                "type": "string"
                             }
                         }
                     }
