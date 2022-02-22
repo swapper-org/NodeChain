@@ -63,6 +63,7 @@ jobs:
           name: Deploy BTC regtest nodes
           command: |
             docker-compose -f Connector/tests/docker-compose/btc.yml -p btc_regtest_api up --build -d
+          no_output_timeout: 1h
       - run:
           name: Add electrum and bitcoincore to /etc/hosts
           command: |
