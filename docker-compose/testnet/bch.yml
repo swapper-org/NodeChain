@@ -25,19 +25,7 @@ services:
     environment:
       TESTNET: 1
 
-  connector:
-    build: ../../Connector
-    environment:
-      COIN: BCH
-      NETWORK: ${NETWORK}
-      PORT: ${PORT}
-    image: connector
-
-  nginx:
-    image: nginx
-    volumes:
-      - ${NGINX_CONFIG_PATH}:/etc/nginx/nginx.conf
-      - ${CERT_PATH}:/etc/nginx/certs
-    ports:
-      - ${PORT}:80
-      - ${SSL_PORT}:443
+networks:
+  default:
+    external:
+      name: nodechain-network

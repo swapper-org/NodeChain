@@ -6,24 +6,7 @@ services:
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
 
-  connector:
-    build: ../../Connector
-    environment:
-      COIN: ETH
-      NETWORK: ${NETWORK}
-      PORT: ${PORT}
-    image: connector
-    restart: on-failure
-    depends_on:
-      - ethereumgo
-
-  nginx:
-    image: nginx
-    volumes:
-      - ${NGINX_CONFIG_PATH}:/etc/nginx/nginx.conf
-      - ${CERT_PATH}:/etc/nginx/certs
-    ports:
-      - ${PORT}:80
-      - ${SSL_PORT}:443
-    depends_on:
-      - connector
+networks:
+  default:
+    external:
+      name: nodechain-network

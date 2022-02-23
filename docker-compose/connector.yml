@@ -1,0 +1,19 @@
+version: "3"
+services:
+  connector:
+    build: ../Connector
+    image: connector
+
+  nginx:
+    image: nginx
+    volumes:
+      - ${NGINX_CONFIG_PATH}:/etc/nginx/nginx.conf
+      - ${CERT_PATH}:/etc/nginx/certs
+    ports:
+      - ${PORT}:80
+      - ${SSL_PORT}:443
+
+networks:
+  default:
+    external:
+      name: nodechain-network
