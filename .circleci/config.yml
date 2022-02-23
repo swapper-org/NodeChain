@@ -7,7 +7,7 @@ jobs:
     environment:
       NETWORK: regtest
       PORT: 80
-      SSL_PORT: 443
+      SSL_PORT: 443ø
       NGINX_CONFIG_PATH: ../../nginx/nginx.conf
       CERT_PATH: /etc/ssl/certs
       BLOCKCHAIN_PATH: ./blockchain/
@@ -63,7 +63,7 @@ jobs:
       - run: 
           name: Deploy BTC regtest nodes
           command: |
-            docker-compose -f Connector/tests/docker-compose/btc.yml -p btc_regtest_api up --build -d
+            docker-compose -f Connector/tests/docker-compose/btc.yml -p btc_regtest_api up -d
           no_output_timeout: 1h
       - run:
           name: Add electrum and bitcoincore to /etc/hosts
