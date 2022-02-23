@@ -11,6 +11,8 @@ jobs:
       NGINX_CONFIG_PATH: ../../nginx/nginx.conf
       CERT_PATH: /etc/ssl/certs
       BLOCKCHAIN_PATH: ./blockchain/
+      COMPOSE_DOCKER_CLI_BUILD: 0
+      DOCKER_BUILDKIT: 0
     steps:
       - checkout
       - run: 
@@ -54,7 +56,7 @@ jobs:
       CERT_PATH: /etc/ssl/certs
       BLOCKCHAIN_PATH: ./blockchain/
       COMPOSE_DOCKER_CLI_BUILD: 0
-      DOCKER_BUILDKIT: 1
+      DOCKER_BUILDKIT: 0
     steps:
       - checkout
       - run:
