@@ -20,6 +20,8 @@ jobs:
             source venv/bin/activate
             pip3 install -r Connector/requirements.txt
             pip3 install -r scripts/requirements.txt
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run: 
           name: Build docker images
           command: |
