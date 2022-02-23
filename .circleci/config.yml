@@ -66,7 +66,7 @@ jobs:
       - run: 
           name: build electrs image
           command: |
-            docker build -f packages/nodechain-electrs/Dockerfile -t electrs:nodechain 
+            docker build -t electrs:nodechain packages/nodechain-electrs
           no_output_timeout: 1h
       - run: 
           name: Build docker compose images
