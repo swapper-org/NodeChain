@@ -578,3 +578,62 @@ def syncing(id, params, config):
         )
 
     return response
+
+
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
+def call(id, params, config):
+
+    logger.printInfo(
+        f"Executing RPC method syncing with id {id} and params {params}")
+
+    requestSchema, responseSchema = utils.getMethodSchemas(CALL)
+
+    err = httputils.validateJSONSchema(params, requestSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    transaction = {
+        "to": params["transaction"]["to"]
+    }
+
+    if "from" in params["transaction"]:
+        transaction["from"] = params["transaction"]["from"]
+
+    if "gas" in params["transaction"]:
+        transaction["gas"] = utils.toHex(utils.toWei(params["transaction"]["gas"]))
+
+    if "gasPrice" in params["transaction"]:
+        transaction["gasPrice"] = utils.toHex(utils.toWei(params["transaction"]["gasPrice"]))
+
+    if "value" in params["transaction"]:
+        transaction["value"] = utils.toHex(utils.toWei(params["transaction"]["value"]))
+
+    if "data" in params["data"]:
+        transaction["data"] = params["transaction"]["data"]
+
+    result = RPCConnector.request(
+        endpoint=config.rpcEndpoint,
+        id=id,
+        method=CALL_METHOD,
+        params=[
+            transaction,
+            params["blockNumber"]
+        ]
+    )
+
+    response = {
+        "data": result
+    }
+
+    err = httputils.validateJSONSchema(response, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    return response

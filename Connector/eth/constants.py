@@ -10,6 +10,7 @@ SEND_RAW_TRANSACTION_METHOD = "eth_sendRawTransaction"
 ESTIMATE_GAS_METHOD = "eth_estimateGas"
 SUBSCRIBE_METHOD = "eth_subscribe"
 SYNCING_METHOD = "eth_syncing"
+CALL_METHOD = "eth_call"
 
 NEW_HEADS_SUBSCRIPTION = "newHeads"
 
@@ -35,6 +36,7 @@ GET_TRANSACTION_RECEIPT = "gettransactionreceipt"
 SUBSCRIBE_ADDRESS_BALANCE = "subscribetoaddressbalance"
 UNSUBSCRIBE_ADDRESS_BALANCE = "unsubscribefromaddressbalance"
 SYNCING = "syncing"
+CALL = "call"
 SUBSCRIBE_TO_NEW_BLOCKS = "subscribetonewblocks"
 UNSUBSCRIBE_FROM_NEW_BLOCKS = "unsubscribefromnewblocks"
 
