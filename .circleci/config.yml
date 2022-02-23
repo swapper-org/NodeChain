@@ -65,7 +65,7 @@ jobs:
       - run: 
           name: Build docker compose images
           command: |
-            docker-compose -f Connector/tests/docker-compose/btc.yml build
+            docker-compose -f Connector/tests/docker-compose/btc.yml build --no-rm
           no_output_timeout: 1h
       - run: 
           name: Deploy BTC regtest nodes
