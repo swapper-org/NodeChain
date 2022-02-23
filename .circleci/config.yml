@@ -52,7 +52,9 @@ jobs:
       SSL_PORT: 443
       NGINX_CONFIG_PATH: ../../nginx/nginx.conf
       CERT_PATH: /etc/ssl/certs
-      BLOCKCHAIN_PATH: ./blockchain/    
+      BLOCKCHAIN_PATH: ./blockchain/
+      COMPOSE_DOCKER_CLI_BUILD: 0
+      DOCKER_BUILDKIT: 1
     steps:
       - checkout
       - run:
