@@ -8,23 +8,7 @@ services:
       - ${BLOCKCHAIN_PATH}/bitmonero:/home/monero/.bitmonero
     user: "${UID}:${GID}"
 
-  connector:
-    build: ../../Connector
-    environment:
-      COIN: XMR
-      NETWORK: ${NETWORK}
-      PORT: ${PORT}
-    image: connector
-    depends_on:
-      - monerod
-
-  nginx:
-    image: nginx
-    volumes:
-      - ${NGINX_CONFIG_PATH}:/etc/nginx/nginx.conf
-      - ${CERT_PATH}:/etc/nginx/certs
-    ports:
-      - ${PORT}:80
-      - ${SSL_PORT}:443
-    depends_on:
-      - connector
+networks:
+  default:
+    external:
+      name: nodechain-network
