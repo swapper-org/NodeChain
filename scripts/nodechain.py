@@ -34,8 +34,7 @@ def createConnectorNetwork(args):
     logger.printInfo("Starting network nodechain-network.", verbosity=args.verbose)
     for network in client.networks.list():
         if network.name == "nodechain-network":
-            if args.verbose:
-                logger.printInfo("nodechain-network is already started", verbosity=args.verbose)
+            logger.printInfo("nodechain-network is already started", verbosity=args.verbose)
             return
 
     client.networks.create("nodechain-network", driver="bridge")
