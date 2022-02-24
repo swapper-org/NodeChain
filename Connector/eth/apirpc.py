@@ -596,31 +596,19 @@ def call(id, params, config):
             message=err.message
         )
 
-    transaction = {
-        "to": params["transaction"]["to"]
-    }
-
-    if "from" in params["transaction"]:
-        transaction["from"] = params["transaction"]["from"]
-
-    if "gas" in params["transaction"]:
-        transaction["gas"] = utils.toHex(utils.toWei(params["transaction"]["gas"]))
-
-    if "gasPrice" in params["transaction"]:
-        transaction["gasPrice"] = utils.toHex(utils.toWei(params["transaction"]["gasPrice"]))
-
-    if "value" in params["transaction"]:
-        transaction["value"] = utils.toHex(utils.toWei(params["transaction"]["value"]))
-
-    if "data" in params["transaction"]:
-        transaction["data"] = params["transaction"]["data"]
-
     result = RPCConnector.request(
         endpoint=config.rpcEndpoint,
         id=id,
         method=CALL_METHOD,
         params=[
-            transaction,
+            {
+                "to": params["transaction"]["to"],
+                "from": params["transaction"]["from"] if "from" in params["transaction"] else None,
+                "gasPrice": params["transaction"]["gasPrice"] if "gasPrice" in params["transaction"] else None,
+                "gas": params["transaction"]["gas"] if "gas" in params["transaction"] else None,
+                "value": params["transaction"]["value"] if "value" in params["transaction"] else None,
+                "data": params["transaction"]["data"] if "data" in params["transaction"] else None
+            },
             params["blockNumber"]
         ]
     )
