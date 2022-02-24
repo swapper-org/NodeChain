@@ -13,6 +13,10 @@ def convertToSatoshi(strAmount):
     return str(int(Decimal(strAmount) * 100000000))
 
 
+def convertKbToBytes(strAmount):
+    return str(int(Decimal(strAmount) / 1000))
+
+
 def getMethodSchemas(name):
     return getRequestMethodSchema(name), getResponseMethodSchema(name)
 
