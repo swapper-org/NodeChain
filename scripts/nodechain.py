@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from lib2to3.pgen2 import driver
 import os
 import subprocess
 import docker
@@ -17,10 +18,27 @@ def exitSignal(coin=None):
     raise SystemExit
 
 
-def checkIfRunning(coin, network):
+def checkApiRunning(coin, network):
     for container in client.containers.list():
         if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_{network}_api":
             return True
+
+
+def checkConnectorRunning():
+    for container in client.containers.list():
+        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == "connector":
+            return True
+
+
+def createConnectorNetwork(args):
+    logger.printInfo("Starting network nodechain-network.", verbosity=args.verbose)
+    for network in client.networks.list():
+        if network.name == "nodechain-network":
+            if args.verbose:
+                logger.printInfo("nodechain-network is already started", verbosity=args.verbose)
+            return
+
+    client.networks.create("nodechain-network", driver="bridge")
 
 
 def listRunningApis():
@@ -101,29 +119,38 @@ def start(args):
     if args.verbose:
         logger.printInfo(f"Working directory: {ROOT_DIR}", verbosity=args.verbose)
 
-    # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
-    if args.all:
-        for token in listAvailableTokens():
-            if args.all in listAvailableNetworksByToken(token):
-                os.environ["COIN"] = token
-                os.environ["NETWORK"] = args.all
-                utils.queryPath(token, args.all)
-                if checkIfRunning(token, args.all):
-                    logger.printError(f"The API {token} in {args.all} network is already started.", verbosity=args.verbose)
-                # startApi(token, args.all)
+    utils.showMainTitle()
+    utils.showSubtitle("CONNECTOR CONFIG")
+
+    if checkConnectorRunning():
+        logger.printInfo("Connector is already started.", verbosity=args.verbose)
     else:
-        utils.showMainTitle()
-        token = coinMenu(args)
-        if args.verbose:
-            logger.printInfo(f"Token selected: {token}", verbosity=args.verbose)
-        network = networkMenu(args, token)
-        if args.verbose:
-            logger.printInfo(f"Network selected: {network}", verbosity=args.verbose)
-        utils.configQueries(args, token, network)
-        if checkIfRunning(token, network):
-            logger.printError(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
-            return
-        startApi(args, token, network)
+        utils.connectorQueries(args)
+        createConnectorNetwork(args)
+        startConnector(args)
+
+    # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
+    # if args.all:
+    #     for token in listAvailableTokens():
+    #         if args.all in listAvailableNetworksByToken(token):
+    #             os.environ["COIN"] = token
+    #             os.environ["NETWORK"] = args.all
+    #             utils.queryPath(token, args.all)
+    #             if checkApiRunning(token, args.all):
+    #                 logger.printError(f"The API {token} in {args.all} network is already started.", verbosity=args.verbose)
+    #             # startApi(token, args.all)
+    # else:
+    #     token = coinMenu(args)
+    #     if args.verbose:
+    #         logger.printInfo(f"Token selected: {token}", verbosity=args.verbose)
+    #     network = networkMenu(args, token)
+    #     if args.verbose:
+    #         logger.printInfo(f"Network selected: {network}", verbosity=args.verbose)
+    #     utils.queryPath(args, token, network)
+    #     if checkApiRunning(token, network):
+    #         logger.printError(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
+    #         return
+    #     startApi(args, token, network)
 
 
 def stop(args):
@@ -131,26 +158,26 @@ def stop(args):
     if args.verbose:
         logger.printInfo(f"Working directory: {ROOT_DIR}", verbosity=args.verbose)
 
+    utils.showMainTitle()
     # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
     if args.all:
         for token in listAvailableTokens():
             if args.all in listAvailableNetworksByToken(token):
                 os.environ["COIN"] = token
                 os.environ["NETWORK"] = args.all
-                if not checkIfRunning(token, args.all):
+                if not checkApiRunning(token, args.all):
                     logger.printError(f"Can't stop {token} in {args.all}. Containers are not running", verbosity=args.verbose)
                     continue
                 bindUsedPort(token, args.all)
                 # stopApi(token, args.all)
     else:
-        utils.showMainTitle()
         token = coinMenu(args)
         if args.verbose:
             logger.printInfo(f"Token selected: {token}")
         network = networkMenu(args, token)
         if args.verbose:
             logger.printInfo(f"Network selected: {network}")
-        if not checkIfRunning(token, network):
+        if not checkApiRunning(token, network):
             logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.", verbosity=args.verbose)
             return
         bindUsedPort(token, network)
@@ -318,6 +345,25 @@ def statusApi(args, token, network):
                 print("{}{}".format("[RUNNING]".ljust(15), str(dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"]).capitalize()))
             else:
                 print("{}{}".format("[OFF]".ljust(15), str(dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"]).capitalize()))
+
+
+def startConnector(args):
+    path = Path("./docker-compose/connector.yml")
+    path = path.parent.absolute()
+    logger.printInfo("Starting connector and reverse proxy... This might take a while.")
+    if args.verbose:
+        logger.printEnvs()
+        logger.printInfo(f"Path to docker file: {path}", verbosity=args.verbose)
+
+    sp = subprocess.Popen(["docker-compose", "-f", "connector.yml", "-p", "connector", "up", "--build", "-d"],
+                          stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
+    err = sp.communicate()
+    if sp.returncode == 0:
+        logger.printInfo("Connector has been started", verbosity=args.verbose)
+    else:
+        logger.printError("An error occurred while trying to start connector container or nginx container: \n", verbosity=args.verbose)
+        logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
+        raise SystemExit
 
 
 if __name__ == "__main__":

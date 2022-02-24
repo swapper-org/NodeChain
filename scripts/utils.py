@@ -2,6 +2,7 @@
 import sys
 import os
 import json
+import logger
 
 
 # DEPRECATED
@@ -29,14 +30,9 @@ def queryYesNo(question, default="yes"):
                 "Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
-def configQueries(args, token, network):
+def connectorQueries(args):
     # Connector port configuration. This line will be deprecated in the future
     os.environ["PORT"] = args.port if args.port else queryPort("Port to start: ")
-
-    if args.blockchain_path:
-        os.environ["BLOCKCHAIN_PATH"] = args.blockchain_path
-    else:
-        os.environ["BLOCKCHAIN_PATH"] = queryPath(token, network)
 
     # In the future this only works for the connector setup
     if args.ssl_port:
@@ -58,14 +54,20 @@ def queryPort(question):
             return port
 
 
-def queryPath(coin, network):
-    try:
-        path = input(f"Please choose the directory to save blockchain data (/srv/nodechain-node/{coin}_{network}): ")
-    except SyntaxError:
-        path = f"/srv/nodechain-node/{coin}_{network}"
-    if not path:
-        path = f"/srv/nodechain-node/{coin}_{network}"
-    return path
+def queryPath(args, coin, network):
+    if args.blockchain_path:
+        os.environ["BLOCKCHAIN_PATH"] = args.blockchain_path
+    else:
+        try:
+            path = input(f"Please choose the directory to save blockchain data (/srv/nodechain-node/{coin}_{network}): ")
+        except SyntaxError:
+            path = f"/srv/nodechain-node/{coin}_{network}"
+        if not path:
+            path = f"/srv/nodechain-node/{coin}_{network}"
+
+        os.environ["BLOCKCHAIN_PATH"] = path
+        if args.verbose:
+            logger.printInfo(f"Blockchain path selected: {path}", verbosity=args.verbose)
 
 
 def queryCerts(certs):
@@ -91,10 +93,10 @@ def querySSL(config, certs):
             path = queryCerts(certs)
             if os.path.isdir(path) and "nodechain_cert.key" in os.listdir(path) and "nodechain_cert.crt" in os.listdir(path):
                 os.environ["CERT_PATH"] = path
-                os.environ["NGINX_CONFIG_PATH"] = "../../nginx/ssl.conf"
+                os.environ["NGINX_CONFIG_PATH"] = "../nginx/ssl.conf"
                 return
     else:
-        os.environ["NGINX_CONFIG_PATH"] = "../../nginx/nginx.conf"
+        os.environ["NGINX_CONFIG_PATH"] = "../nginx/nginx.conf"
         os.environ["CERT_PATH"] = "/etc/ssl/certs"
         return
 
