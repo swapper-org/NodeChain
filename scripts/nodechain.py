@@ -158,29 +158,45 @@ def stop(args):
         logger.printInfo(f"Working directory: {ROOT_DIR}", verbosity=args.verbose)
 
     utils.showMainTitle()
+    utils.showSubtitle("CONNECTOR CONFIG")
+
+    if not checkConnectorRunning():
+        logger.printError("Connector is not running.", verbosity=args.verbose)
+        return
+
+    # Stop all or only apis
+    if args.verbose:
+        logger.printWarning("Stopping the connector will stop all running APIs", verbosity=args.verbose)
+    if utils.queryYesNo("Do you want to stop the connector?", default="no"):
+        # stopConnector(args)
+        # Stop all APIs
+        print("hols")
+    # else:
+        # ask stop api
+
     # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
-    if args.all:
-        for token in listAvailableTokens():
-            if args.all in listAvailableNetworksByToken(token):
-                os.environ["COIN"] = token
-                os.environ["NETWORK"] = args.all
-                if not checkApiRunning(token, args.all):
-                    logger.printError(f"Can't stop {token} in {args.all}. Containers are not running", verbosity=args.verbose)
-                    continue
-                bindUsedPort(token, args.all)
-                # stopApi(token, args.all)
-    else:
-        token = coinMenu(args)
-        if args.verbose:
-            logger.printInfo(f"Token selected: {token}")
-        network = networkMenu(args, token)
-        if args.verbose:
-            logger.printInfo(f"Network selected: {network}")
-        if not checkApiRunning(token, network):
-            logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.", verbosity=args.verbose)
-            return
-        bindUsedPort(token, network)
-        stopApi(args, token, network)
+    # if args.all:
+    #     for token in listAvailableTokens():
+    #         if args.all in listAvailableNetworksByToken(token):
+    #             os.environ["COIN"] = token
+    #             os.environ["NETWORK"] = args.all
+    #             if not checkApiRunning(token, args.all):
+    #                 logger.printError(f"Can't stop {token} in {args.all}. Containers are not running", verbosity=args.verbose)
+    #                 continue
+    #             bindUsedPort(token, args.all)
+    #             # stopApi(token, args.all)
+    # else:
+    #     token = coinMenu(args)
+    #     if args.verbose:
+    #         logger.printInfo(f"Token selected: {token}")
+    #     network = networkMenu(args, token)
+    #     if args.verbose:
+    #         logger.printInfo(f"Network selected: {network}")
+    #     if not checkApiRunning(token, network):
+    #         logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.", verbosity=args.verbose)
+    #         return
+    #     bindUsedPort(token, network)
+    #     stopApi(args, token, network)
 
 
 def status(args):
@@ -361,6 +377,26 @@ def startConnector(args):
         logger.printInfo("Connector has been started", verbosity=args.verbose)
     else:
         logger.printError("An error occurred while trying to start connector container or nginx container: \n", verbosity=args.verbose)
+        logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
+        raise SystemExit
+
+
+def stopConnector(args):
+    path = Path("./docker-compose/connector.yml")
+    path = path.parent.absolute()
+
+    logger.printInfo("Stopping connector and reverse proxy... This might take a while.", verbosity=args.verbose)
+    if args.verbose:
+        logger.printEnvs()
+        logger.printInfo(f"Path to docker file: {path}", verbosity=args.verbose)
+
+    sp = subprocess.Popen(["docker-compose", "-f", "connector.yml", "-p", "connector", "down"],
+                          stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
+    err = sp.communicate()
+    if sp.returncode == 0:
+        logger.printInfo("Connector has been stopped", verbosity=args.verbose)
+    else:
+        logger.printError("An error occurred while trying to stop connector container or nginx container: \n", verbosity=args.verbose)
         logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
         raise SystemExit
 
