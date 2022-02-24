@@ -350,7 +350,7 @@ def statusApi(args, token, network):
 def startConnector(args):
     path = Path("./docker-compose/connector.yml")
     path = path.parent.absolute()
-    logger.printInfo("Starting connector and reverse proxy... This might take a while.")
+    logger.printInfo("Starting connector and reverse proxy... This might take a while.", verbosity=args.verbose)
     if args.verbose:
         logger.printEnvs()
         logger.printInfo(f"Path to docker file: {path}", verbosity=args.verbose)
