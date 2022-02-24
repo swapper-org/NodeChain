@@ -585,7 +585,7 @@ def syncing(id, params, config):
 def call(id, params, config):
 
     logger.printInfo(
-        f"Executing RPC method syncing with id {id} and params {params}")
+        f"Executing RPC method call with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(CALL)
 
@@ -612,7 +612,7 @@ def call(id, params, config):
     if "value" in params["transaction"]:
         transaction["value"] = utils.toHex(utils.toWei(params["transaction"]["value"]))
 
-    if "data" in params["data"]:
+    if "data" in params["transaction"]:
         transaction["data"] = params["transaction"]["data"]
 
     result = RPCConnector.request(
