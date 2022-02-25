@@ -4,6 +4,8 @@ import os
 import json
 import logger
 
+AVAILABLE_CURRENCIES = "./Connector/.availableCurrencies.json"
+
 
 # DEPRECATED
 def queryYesNo(question, default="yes"):
@@ -145,7 +147,7 @@ def invalid():
 
 def listTokens():
     tokens = []
-    with open('.availableCurrencies.json') as f:
+    with open(AVAILABLE_CURRENCIES) as f:
         data = json.load(f)
         for api in data:
             tokens.append(api["token"])
@@ -153,7 +155,7 @@ def listTokens():
 
 
 def listServices(token, network):
-    with open('.availableCurrencies.json') as f:
+    with open(AVAILABLE_CURRENCIES) as f:
         data = json.load(f)
         for api in data:
             if api["token"] == token:
@@ -161,7 +163,7 @@ def listServices(token, network):
 
 
 def getTokenFromCoin(coin):
-    with open('.availableCurrencies.json') as f:
+    with open(AVAILABLE_CURRENCIES) as f:
         data = json.load(f)
         for api in data:
             if api["name"] == coin:

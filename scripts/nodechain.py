@@ -215,7 +215,7 @@ def status(args):
 
 def listAvailableCoins():
     coins = []
-    with open('.availableCurrencies.json') as f:
+    with open(utils.AVAILABLE_CURRENCIES) as f:
         data = json.load(f)
         for api in data:
             coins.append(api["name"])
@@ -224,7 +224,7 @@ def listAvailableCoins():
 
 def listAvailableTokens():
     tokens = []
-    with open('.availableCurrencies.json') as f:
+    with open(utils.AVAILABLE_CURRENCIES) as f:
         data = json.load(f)
         for api in data:
             tokens.append(api["token"])
@@ -232,7 +232,7 @@ def listAvailableTokens():
 
 
 def listAvailableNetworksByToken(token):
-    with open('.availableCurrencies.json') as f:
+    with open(utils.AVAILABLE_CURRENCIES) as f:
         data = json.load(f)
         for api in data:
             if api["token"] == token:
@@ -301,7 +301,7 @@ def getDockerComposePath(token, network):
         print(f"Can't find {token} in {network}")
         return
 
-    with open('.availableCurrencies.json') as f:
+    with open(utils.AVAILABLE_CURRENCIES) as f:
         data = json.load(f)
         for api in data:
             if api["token"] == token:
