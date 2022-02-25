@@ -164,7 +164,7 @@ def stop(args):
         logger.printError("Connector is not running.", verbosity=args.verbose)
         return
 
-    # Stop all or only apis
+    # If you stop the connector you'll stop all running APIs
     if args.verbose:
         logger.printWarning("Stopping the connector will stop all running APIs", verbosity=args.verbose)
     if utils.queryYesNo("Do you want to stop the connector?", default="no"):
