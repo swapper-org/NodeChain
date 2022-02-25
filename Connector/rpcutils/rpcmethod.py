@@ -55,7 +55,7 @@ async def callMethod(coin, config, request):
     if rpcPayload[METHOD] not in rpcMethods[coin]:
         raise error.RpcBadRequestError(
             id=rpcPayload[ID],
-            message=f"Calling unknown method aOperation for currency {coin}"
+            message=f"Calling unknown method {rpcPayload[METHOD]} for currency {coin}"
         )
 
     return rpcMethods[coin][payload[METHOD]](rpcPayload, config)

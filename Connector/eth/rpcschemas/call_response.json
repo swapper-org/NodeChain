@@ -4,13 +4,8 @@
     "description": "",
     "type": "object",
     "properties": {
-        "blockNumber": {
-            "type": [
-                "string"
-            ]
+        "data" : {
+            "type" : "string"
         }
-    },
-    "required": [
-        "blockNumber"
-    ]
+    }
 }
