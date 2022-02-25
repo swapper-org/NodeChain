@@ -22,6 +22,20 @@ async def getVersion(request):
         )
     )
 
+
+@routes.get(f"/{GET_STATUS}")
+async def getStatus(request):
+
+    logger.printInfo("Executing getStatus method")
+
+    return web.Response(
+        text=json.dumps(
+            {
+                "status": "Connector is running"
+            }
+        )
+    )
+
 infoModule = web.Application()
 infoModule.add_routes(routes)
 
