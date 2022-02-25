@@ -49,10 +49,10 @@ def listRunningApis():
     return running
 
 
-# This method binds the used ports to the ENV variables to stop Connector and Nginx. TODO: this might use only to container and nginx containers in the future
-def bindUsedPort(coin, network):
+# This method binds the used ports to the ENV variables to stop Connector and Nginx.
+def bindUsedPort():
     for container in client.containers.list():
-        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_{network}_api":
+        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == "connector":
             bindings = client.containers.get(
                 container.name).attrs["HostConfig"]["PortBindings"]
             if "80/tcp" in bindings:
@@ -168,11 +168,14 @@ def stop(args):
     if args.verbose:
         logger.printWarning("Stopping the connector will stop all running APIs", verbosity=args.verbose)
     if utils.queryYesNo("Do you want to stop the connector?", default="no"):
-        # stopConnector(args)
-        # Stop all APIs
-        print("hols")
-    # else:
+        logger.printInfo("Stopping all APIs", verbosity=args.verbose)
+        # stopAllAPIs(args)
+        bindUsedPort()
+        stopConnector(args)
+    else:
         # ask stop api
+        if args.verbose:
+            logger.printInfo("Connector won't shut down.", verbosity=args.verbose)
 
     # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
     # if args.all:
@@ -195,6 +198,7 @@ def stop(args):
     #     if not checkApiRunning(token, network):
     #         logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.", verbosity=args.verbose)
     #         return
+    #     # TODO: This bindUsedPort may not be necessary
     #     bindUsedPort(token, network)
     #     stopApi(args, token, network)
 
@@ -204,13 +208,22 @@ def status(args):
     if args.verbose:
         logger.printInfo(f"Working directory: {ROOT_DIR}", verbosity=args.verbose)
     utils.showMainTitle()
-    token = coinMenu(args)
-    if args.verbose:
-        logger.printInfo(f"Token selected: {token}")
-    network = networkMenu(args, token)
-    if args.verbose:
-        logger.printInfo(f"Network selected: {network}")
-    statusApi(args, token, network)
+    choice = configMenu()
+    if choice == 'connector':
+        if args.verbose:
+            logger.printInfo("Showing connector status information", verbosity=args.verbose)
+        # Display connector information
+    elif choice == 'apis':
+        token = coinMenu(args)
+        if args.verbose:
+            logger.printInfo(f"Token selected: {token}")
+        network = networkMenu(args, token)
+        if args.verbose:
+            logger.printInfo(f"Network selected: {network}")
+        statusApi(args, token, network)
+    else:
+        logger.printError("Showing connector status information", verbosity=args.verbose)
+        raise SystemExit
 
 
 def listAvailableCoins():
@@ -286,12 +299,35 @@ def networkMenu(args, token):
         return menu[network][0]
 
 
+def configMenu():
+    menu = utils.fillMenu(lambda: ["Connector", "APIs"], configChoice, exitSignal)
+    utils.showSubtitle("STATUS SELECTION")
+    for key in sorted(menu.keys())[:-1]:
+        # TODO: Add some way to find out if connector or any api is running
+        # if True:
+        print("{}{}.{}".format("[RUNNING]", str(key).rjust(7), menu[key][0].capitalize()))
+        # else:
+        #     print("{}{}.{}".format("[OFF]", str(key).rjust(11), menu[key][0].capitalize()))
+
+    print("{}.{}".format(str(len(sorted(menu.keys()))).rjust(16), menu[sorted(menu.keys())[-1]][0].capitalize()))
+
+    choice = input("Please choose any option to show its status (1-{options}): ".format(
+        options=(len(["Connector", "APIs"]) + 1)))
+    menu.get(choice, [None, utils.invalid])[1](menu[choice][0])
+
+    return (menu[choice][0]).lower()
+
+
 def blockchainChoice(coin):
     os.environ["COIN"] = utils.getTokenFromCoin(coin.lower())
 
 
 def networkChoice(network):
     os.environ["NETWORK"] = network.lower()
+
+
+def configChoice(choice):
+    return
 
 
 def getDockerComposePath(token, network):
