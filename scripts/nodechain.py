@@ -211,8 +211,12 @@ def status(args):
     choice = configMenu()
     if choice == 'connector':
         if args.verbose:
-            logger.printInfo("Showing connector status information", verbosity=args.verbose)
+            logger.printInfo("Showing connector status information.", verbosity=args.verbose)
+        if not checkConnectorRunning():
+            logger.printError("Connector is not running.", verbosity=args.verbose)
+            raise SystemExit
         # Display connector information
+        # TODO: Improve the status info given
     elif choice == 'apis':
         token = coinMenu(args)
         if args.verbose:
@@ -222,7 +226,7 @@ def status(args):
             logger.printInfo(f"Network selected: {network}")
         statusApi(args, token, network)
     else:
-        logger.printError("Showing connector status information", verbosity=args.verbose)
+        logger.printError("Error trying to get the status of NodeChain", verbosity=args.verbose)
         raise SystemExit
 
 
@@ -304,10 +308,10 @@ def configMenu():
     utils.showSubtitle("STATUS SELECTION")
     for key in sorted(menu.keys())[:-1]:
         # TODO: Add some way to find out if connector or any api is running
-        # if True:
-        print("{}{}.{}".format("[RUNNING]", str(key).rjust(7), menu[key][0].capitalize()))
-        # else:
-        #     print("{}{}.{}".format("[OFF]", str(key).rjust(11), menu[key][0].capitalize()))
+        if checkConnectorRunning():
+            print("{}{}.{}".format("[RUNNING]", str(key).rjust(7), menu[key][0].capitalize()))
+        else:
+            print("{}{}.{}".format("[OFF]", str(key).rjust(11), menu[key][0].capitalize()))
 
     print("{}.{}".format(str(len(sorted(menu.keys()))).rjust(16), menu[sorted(menu.keys())[-1]][0].capitalize()))
 
