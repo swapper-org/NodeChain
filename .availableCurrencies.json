@@ -4,7 +4,7 @@
     "token": "btc",
     "networks": {
       "regtest": {
-        "services": ["bitcoincore", "electrumx", "electrum"],
+        "services": ["bitcoincore", "electrs", "electrum"],
         "dockerComposePath": "./docker-compose/regtest/btc.yml",
         "configurable": [
           "bitcoincoreRpc",
@@ -14,7 +14,7 @@
         ]
       },
       "testnet": {
-        "services": ["bitcoincore", "electrumx", "electrum"],
+        "services": ["bitcoincore", "electrs", "electrum"],
         "dockerComposePath": "./docker-compose/testnet/btc.yml",
         "configurable": [
           "bitcoincoreRpc",
@@ -24,7 +24,7 @@
         ]
       },
       "mainnet": {
-        "services": ["bitcoincore", "electrumx", "electrum"],
+        "services": ["bitcoincore", "electrs", "electrum"],
         "dockerComposePath": "./docker-compose/mainnet/btc.yml",
         "configurable": [
           "bitcoincoreRpc",
@@ -89,6 +89,22 @@
           "bitcoincorePort",
           "electrumPort"
         ]
+      }
+    }
+  },
+  {
+    "name": "terra",
+    "token": "luna",
+    "networks": {
+      "testnet": {
+        "services": ["terrad"],
+        "dockerComposePath": "./docker-compose/testnet/luna.yml",
+        "configurable": []
+      },
+      "mainnet": {
+        "services": ["terrad"],
+        "dockerComposePath": "./docker-compose/mainnet/luna.yml",
+        "configurable": []
       }
     }
   }
