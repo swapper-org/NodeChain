@@ -1,10 +1,12 @@
 FROM python:3.7
 
 WORKDIR /usr/src/app
-COPY ./Connector ./Connector
-COPY .availableCurrencies.json ./.availableCurrencies.json
 
+COPY ./requirements.txt ./Connector/
 RUN pip3 install -r Connector/requirements.txt
+
+COPY . ./Connector
+
 
 EXPOSE 80 28332
 
