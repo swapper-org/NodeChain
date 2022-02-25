@@ -202,7 +202,7 @@ def testGetFeePerByte():
         CONFIRMATIONS: confirmations
     })
 
-    assert str(expected[FEE_RATE]) == str(float((Decimal(got[FEE_PER_BYTE]) / 100000000)))
+    assert str(expected[FEE_RATE]) == str(float((Decimal(got[FEE_PER_BYTE]) / 100000000 * 1000)))
 
 
 def testBroadcastTransaction():

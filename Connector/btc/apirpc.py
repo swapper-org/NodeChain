@@ -300,7 +300,7 @@ def getFeePerByte(id, params, config):
         logger.printError("Response without feerate field. No fee rate found")
         raise error.RpcInternalServerError("Response without feerate field. No fee rate found")
 
-    response = {"feePerByte": utils.convertToSatoshi(feePerByte["feerate"])}
+    response = {"feePerByte": utils.convertKbToBytes(utils.convertToSatoshi(feePerByte["feerate"]))}
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
