@@ -1,4 +1,4 @@
 #!/usr/bin/python
 
 GET_VERSION_METHOD = "getVersion"
-GET_STATUS = "status"
+GET_STATUS = "getStatus"
