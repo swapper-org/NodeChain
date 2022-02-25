@@ -69,7 +69,6 @@ def createSignedRawTransaction(fromAddress, toAddress, amount):
 
     adddressUtxos = makeBitcoinCoreRequest("listunspent", [1, 9999999, [fromAddress]])
 
-
     amountCount = 0
     transactionUtxos = []
     allowed = False
