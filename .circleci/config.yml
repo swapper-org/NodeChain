@@ -11,8 +11,6 @@ jobs:
       NGINX_CONFIG_PATH: ../../nginx/nginx.conf
       CERT_PATH: /etc/ssl/certs
       BLOCKCHAIN_PATH: ./blockchain/
-      COMPOSE_DOCKER_CLI_BUILD: 0
-      DOCKER_BUILDKIT: 0
     steps:
       - checkout
       - run: 
@@ -25,7 +23,7 @@ jobs:
       - run: 
           name: Build docker compose images
           command: |
-            docker-compose -f Connector/tests/docker-compose/eth.yml build
+            docker-compose -f Connector/tests/docker-compose/eth.yml -p eth_regtest_api build
       - run: 
           name: Deploy ETH regtest nodes
           command: |
@@ -55,8 +53,6 @@ jobs:
       NGINX_CONFIG_PATH: ../../nginx/nginx.conf
       CERT_PATH: /etc/ssl/certs
       BLOCKCHAIN_PATH: ./blockchain/
-      COMPOSE_DOCKER_CLI_BUILD: 0
-      DOCKER_BUILDKIT: 0
     steps:
       - checkout
       - run:
@@ -69,7 +65,7 @@ jobs:
       - run: 
           name: Build docker compose images
           command: |
-            docker-compose -f Connector/tests/docker-compose/btc.yml build --no-rm  
+            docker-compose -f Connector/tests/docker-compose/btc.yml -p btc_regtest_api build
           no_output_timeout: 1h
       - run: 
           name: Deploy BTC regtest nodes
