@@ -2,7 +2,7 @@ version: "3"
 services:
   bitcoincore:
     build: ../../../packages/nodechain-bitcoin-core
-    image: bitcoincore:test
+    image: bitcoincore
     command: -rpcuser=swapper
       -rpcpassword=swapper
       -server=1
@@ -24,7 +24,7 @@ services:
 
   electrs:
     build: ../../../packages/nodechain-electrs
-    image: electrs:test
+    image: electrs
     command: -v --timestamp
     depends_on:
       - bitcoincore
@@ -38,7 +38,7 @@ services:
 
   electrum:
     build: ../../../packages/nodechain-electrum-regtest
-    image: electrum:test
+    image: electrum
     environment:
       REGTEST: 1
     ports:
