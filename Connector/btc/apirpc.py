@@ -405,12 +405,19 @@ def getTransaction(id, params, config):
             ]
         )
 
-        transactionBlock = RPCConnector.request(
-            endpoint=config.bitcoincoreRpcEndpoint,
-            id=id,
-            method="getblock",
-            params=[transaction["blockhash"], 1]
-        )
+        isConfirmed = "blockhash" in transaction
+
+        if isConfirmed:
+            transactionBlock = RPCConnector.request(
+                endpoint=config.bitcoincoreRpcEndpoint,
+                id=id,
+                method="getblock",
+                params=[transaction["blockhash"], 1]
+            )
+            blockNumber = transactionBlock["height"]
+        else:
+            blockNumber = None
+
 
         transactionDetails = utils.decodeTransactionDetails(transaction, config.bitcoincoreRpcEndpoint)
 
@@ -425,7 +432,7 @@ def getTransaction(id, params, config):
             "transaction": {
                 "txId": transaction["txid"],
                 "txHash": transaction["hash"],
-                "blockNumber": str(transactionBlock["height"]),
+                "blockNumber": str(blockNumber) if blockNumber is not None else blockNumber,
                 "fee": transactionDetails["fee"],
                 "inputs": transactionDetails["inputs"],
                 "outputs": transactionDetails["outputs"],
