@@ -69,14 +69,7 @@ def closeAddrBalanceTopic(topicName):
         raise rpcerrorhandler.BadRequestError(f"Can not unsubscribe {topicName} to node")
 
 
-def getWorkaroundScriptHash(txDecoded):
-    script = txDecoded["vout"][1]["scriptPubKey"]["hex"]
-    scriptUnex = binascii.unhexlify(script)
-    hash = hashlib.sha256(scriptUnex).digest()[::-1].hex()
-    return hash
-
-
-def decodeTransactionDetails(txDecoded, bitcoincoreRpcEndpoint, electrumxHost, electrumxPort):
+def decodeTransactionDetails(txDecoded, bitcoincoreRpcEndpoint):
     outputs = []
     for output in txDecoded["vout"]:
         if "addresses" in output["scriptPubKey"] and len(output["scriptPubKey"]["addresses"]) == 1:
@@ -96,23 +89,17 @@ def decodeTransactionDetails(txDecoded, bitcoincoreRpcEndpoint, electrumxHost, e
             inputs.append({"amount": sumOutputs, "address": None})
             break
 
-        txInRaw = RPCSocketConnector.request(
-            hostname=electrumxHost,
-            port=electrumxPort,
-            id=0,
-            method="blockchain.transaction.get",
-            params=[
-                txInput["txid"]
-            ]
-        )
-        txInDecoded = RPCConnector.request(
+        transaction = RPCConnector.request(
             endpoint=bitcoincoreRpcEndpoint,
             id=0,
-            method="decoderawtransaction",
-            params=[txInRaw]
+            method="getrawtransaction",
+            params=[
+                txInput["txid"],
+                True
+            ]
         )
 
-        for txOutput in txInDecoded["vout"]:
+        for txOutput in transaction["vout"]:
             if txOutput["n"] == txInput["vout"] and "addresses" in txOutput["scriptPubKey"] and len(
                     txOutput["scriptPubKey"]["addresses"]) == 1:
                 inputs.append({"amount": math.trunc(txOutput["value"] * 100000000),

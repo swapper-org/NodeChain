@@ -395,44 +395,24 @@ def getTransaction(id, params, config):
         raise error.RpcBadRequestError(err.message)
 
     try:
-        transactionRaw = RPCSocketConnector.request(
-            hostname=config.electrumxHost,
-            port=config.electrumxPort,
-            id=id,
-            method="blockchain.transaction.get",
-            params=[
-                params["txHash"]
-            ]
-        )
-
-        transactionDecoded = RPCConnector.request(
+        transaction = RPCConnector.request(
             endpoint=config.bitcoincoreRpcEndpoint,
             id=id,
-            method="decoderawtransaction",
-            params=[transactionRaw]
-        )
-
-        # We pick a random script hash (first one) and after that, we find the transaction that matches
-        # out transaction to find the height.
-        # This is ugly but has to be done because of Electrum protocol, that it is (apparently) unable
-        # of give the transaction height in 'blockchain.transaction.get' method
-        txWorkaround = RPCSocketConnector.request(
-            hostname=config.electrumxHost,
-            port=config.electrumxPort,
-            id=id,
-            method="blockchain.scripthash.get_history",
+            method="getrawtransaction",
             params=[
-                utils.getWorkaroundScriptHash(transactionDecoded)
+                params["txHash"],
+                True
             ]
         )
 
-        transactionHeight = None
-        for transaction in txWorkaround:
-            if transaction["tx_hash"] == transactionDecoded["txid"]:
-                transactionHeight = transaction["height"]
-                break
+        transactionBlock = RPCConnector.request(
+            endpoint=config.bitcoincoreRpcEndpoint,
+            id=id,
+            method="getblock",
+            params=[transaction["blockhash"], 1]
+        )
 
-        transactionDetails = utils.decodeTransactionDetails(transactionDecoded, config.bitcoincoreRpcEndpoint, config.electrumxHost, config.electrumxPort)
+        transactionDetails = utils.decodeTransactionDetails(transaction, config.bitcoincoreRpcEndpoint)
 
         # Converting all transaction details to str
         transactionDetails["fee"] = str(transactionDetails["fee"])
@@ -443,13 +423,13 @@ def getTransaction(id, params, config):
 
         response = {
             "transaction": {
-                "txId": transactionDecoded["txid"],
-                "txHash": transactionDecoded["hash"],
-                "blockNumber": str(transactionHeight) if transactionHeight is not None else None,
+                "txId": transaction["txid"],
+                "txHash": transaction["hash"],
+                "blockNumber": str(transactionBlock["height"]),
                 "fee": transactionDetails["fee"],
                 "inputs": transactionDetails["inputs"],
                 "outputs": transactionDetails["outputs"],
-                "data": transactionDecoded
+                "data": transaction
             }
         }
 
