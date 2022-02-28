@@ -75,7 +75,7 @@ def runServer():
     logger.printInfo("Starting connector")
 
     # TODO: Do not hardcode port
-    web.run_app(mainApp, port=8080)
+    web.run_app(mainApp, port=80)
 
 
 if __name__ == '__main__':
