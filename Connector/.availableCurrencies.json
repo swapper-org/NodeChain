@@ -5,7 +5,7 @@
     "networks": {
       "regtest": {
         "services": ["bitcoincore", "electrs", "electrum"],
-        "dockerComposePath": "../docker-compose/regtest/btc.yml",
+        "dockerComposePath": "docker-compose/regtest/btc.yml",
         "configurable": [
           "bitcoincoreRpc",
           "electrumRpc",
@@ -15,7 +15,7 @@
       },
       "testnet": {
         "services": ["bitcoincore", "electrs", "electrum"],
-        "dockerComposePath": "../docker-compose/testnet/btc.yml",
+        "dockerComposePath": "docker-compose/testnet/btc.yml",
         "configurable": [
           "bitcoincoreRpc",
           "electrumRpc",
@@ -25,7 +25,7 @@
       },
       "mainnet": {
         "services": ["bitcoincore", "electrs", "electrum"],
-        "dockerComposePath": "../docker-compose/mainnet/btc.yml",
+        "dockerComposePath": "docker-compose/mainnet/btc.yml",
         "configurable": [
           "bitcoincoreRpc",
           "electrumRpc",
@@ -41,17 +41,17 @@
     "networks": {
       "regtest": {
         "services": ["ethereumgo"],
-        "dockerComposePath": "../docker-compose/regtest/eth.yml",
+        "dockerComposePath": "docker-compose/regtest/eth.yml",
         "configurable": ["ethereumRpc", "ethereumPort", "ethereumWS"]
       },
       "testnet": {
         "services": ["ethereumgo"],
-        "dockerComposePath": "../docker-compose/testnet/eth.yml",
+        "dockerComposePath": "docker-compose/testnet/eth.yml",
         "configurable": ["ethereumRpc", "ethereumPort", "ethereumWS"]
       },
       "mainnet": {
         "services": ["ethereumgo"],
-        "dockerComposePath": "../docker-compose/mainnet/eth.yml",
+        "dockerComposePath": "docker-compose/mainnet/eth.yml",
         "configurable": ["ethereumRpc", "ethereumPort", "ethereumWS"]
       }
     }
@@ -60,19 +60,9 @@
     "name": "bitcoin-cash",
     "token": "bch",
     "networks": {
-      "regtest": {
-        "services": ["bitcoincore", "electrumx", "electrum"],
-        "dockerComposePath": "../docker-compose/regtest/bch.yml",
-        "configurable": [
-          "bitcoincoreRpc",
-          "electrumRpc",
-          "bitcoincorePort",
-          "electrumPort"
-        ]
-      },
       "testnet": {
         "services": ["bitcoincore", "electrumx", "electrum"],
-        "dockerComposePath": "../docker-compose/testnet/bch.yml",
+        "dockerComposePath": "docker-compose/testnet/bch.yml",
         "configurable": [
           "bitcoincoreRpc",
           "electrumRpc",
@@ -82,7 +72,7 @@
       },
       "mainnet": {
         "services": ["bitcoincore", "electrumx", "electrum"],
-        "dockerComposePath": "../docker-compose/mainnet/bch.yml",
+        "dockerComposePath": "docker-compose/mainnet/bch.yml",
         "configurable": [
           "bitcoincoreRpc",
           "electrumRpc",
@@ -98,12 +88,12 @@
     "networks": {
       "testnet": {
         "services": ["terrad"],
-        "dockerComposePath": "../docker-compose/testnet/luna.yml",
+        "dockerComposePath": "docker-compose/testnet/luna.yml",
         "configurable": []
       },
       "mainnet": {
         "services": ["terrad"],
-        "dockerComposePath": "../docker-compose/mainnet/luna.yml",
+        "dockerComposePath": "docker-compose/mainnet/luna.yml",
         "configurable": []
       }
     }

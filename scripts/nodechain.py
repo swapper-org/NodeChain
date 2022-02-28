@@ -12,15 +12,15 @@ from pathlib import Path
 import logger
 
 
-# "coin" argument is never used. Is declared to prevent errors
-def exitSignal(coin=None):
+# "token" argument is never used. Is declared to prevent errors
+def exitSignal(token=None):
     print("Exiting gracefully, goodbye!")
     raise SystemExit
 
 
-def checkApiRunning(coin, network):
+def checkApiRunning(token, network):
     for container in client.containers.list():
-        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{coin}_{network}_api":
+        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{token}{network}api":
             return True
 
 
@@ -174,30 +174,28 @@ def stop(args):
         if args.verbose:
             logger.printInfo("Connector won't shut down.", verbosity=args.verbose)
 
-    # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
-    # if args.all:
-    #     for token in listAvailableTokens():
-    #         if args.all in listAvailableNetworksByToken(token):
-    #             os.environ["COIN"] = token
-    #             os.environ["NETWORK"] = args.all
-    #             if not checkApiRunning(token, args.all):
-    #                 logger.printError(f"Can't stop {token} in {args.all}. Containers are not running", verbosity=args.verbose)
-    #                 continue
-    #             bindUsedPort(token, args.all)
-    #             # stopApi(token, args.all)
-    # else:
-    #     token = coinMenu(args)
-    #     if args.verbose:
-    #         logger.printInfo(f"Token selected: {token}")
-    #     network = networkMenu(args, token)
-    #     if args.verbose:
-    #         logger.printInfo(f"Network selected: {network}")
-    #     if not checkApiRunning(token, network):
-    #         logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.", verbosity=args.verbose)
-    #         return
-    #     # TODO: This bindUsedPort may not be necessary
-    #     bindUsedPort(token, network)
-    #     stopApi(args, token, network)
+        # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
+        if args.all:
+            for token in listAvailableTokens():
+                if args.all in listAvailableNetworksByToken(token):
+                    os.environ["COIN"] = token
+                    os.environ["NETWORK"] = args.all
+                    if not checkApiRunning(token, args.all):
+                        logger.printError(f"Can't stop {token} in {args.all}. Containers are not running", verbosity=args.verbose)
+                        continue
+                    bindUsedPort(token, args.all)
+                    # stopApi(token, args.all)
+        else:
+            token = coinMenu(args)
+            if args.verbose:
+                logger.printInfo(f"Token selected: {token}")
+            network = networkMenu(args, token)
+            if args.verbose:
+                logger.printInfo(f"Network selected: {network}")
+            if not checkApiRunning(token, network):
+                logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.", verbosity=args.verbose)
+                return
+            stopApi(args, token, network)
 
 
 def status(args):
@@ -349,42 +347,42 @@ def getDockerComposePath(token, network):
 
 def startApi(args, token, network):
     path = getDockerComposePath(token, network)
-    logger.printInfo(f"Starting {token}_{network}_api node... This might take a while.")
+    logger.printInfo(f"Starting {token}{network}api node... This might take a while.")
     if args.verbose:
         logger.printEnvs()
         logger.printInfo(f"Path to docker file: {path}", verbosity=args.verbose)
 
-    sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}_{network}_api", "up", "--build", "-d"],
+    sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}{network}api", "up", "--build", "-d"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
     err = sp.communicate()
     if sp.returncode == 0:
-        logger.printInfo(f"{token}_{network}_api node started", verbosity=args.verbose)
+        logger.printInfo(f"{token}{network}api node started", verbosity=args.verbose)
     else:
-        logger.printError(f"An error occurred while trying to start {token}_{network}_api: \n", verbosity=args.verbose)
+        logger.printError(f"An error occurred while trying to start {token}{network}api: \n", verbosity=args.verbose)
         logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
         raise SystemExit
 
 
 def stopApi(args, token, network):
     path = getDockerComposePath(token, network)
-    logger.printInfo(f"Stopping {token}_{network}_api node... This might take a while.", verbosity=args.verbose)
+    logger.printInfo(f"Stopping {token}{network}api node... This might take a while.", verbosity=args.verbose)
     if args.verbose:
         logger.printEnvs()
         logger.printInfo(f"Path to docker file: {path}", verbosity=args.verbose)
 
-    sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}_{network}_api", "down"],
+    sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}{network}api", "down"],
                           stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
     err = sp.communicate()
     if sp.returncode == 0:
-        logger.printInfo(f"{token}_{network}_api node stopped", verbosity=args.verbose)
+        logger.printInfo(f"{token}{network}api node stopped", verbosity=args.verbose)
     else:
-        logger.printError(f"An error occurred while trying to stop {token}_{network}_api: \n", verbosity=args.verbose)
+        logger.printError(f"An error occurred while trying to stop {token}{network}api: \n", verbosity=args.verbose)
         logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
         raise SystemExit
 
 
 def statusApi(args, token, network):
-    logger.printInfo(f"Getting information of {token}_{network}_api containers...", verbosity=args.verbose)
+    logger.printInfo(f"Getting information of {token}{network}api containers...", verbosity=args.verbose)
     if args.verbose:
         logger.printEnvs()
 
