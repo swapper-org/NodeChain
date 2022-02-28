@@ -384,6 +384,7 @@ def getTransactionHex(id, params, config):
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
 @httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getTransaction(id, params, config):
+    #TODO: Test unconfirmed tx
 
     logger.printInfo(f"Executing RPC method getTransaction with id {id} and params {params}")
 
@@ -425,19 +426,21 @@ def getTransaction(id, params, config):
             ]
         )
 
-        txHeight = None
+        transactionHeight = None
         for transaction in txWorkaround:
             if transaction["tx_hash"] == transactionDecoded["txid"]:
-                txHeight = transaction["height"]
+                transactionHeight = transaction["height"]
                 break
+
+        transactionDetails = utils.decodeTransactionDetails(transactionDecoded, config.bitcoincoreRpcEndpoint, config.electrumxHost, config.electrumxPort)
 
         response = {
             "transaction": {
                 "txId": transactionDecoded["id"],
                 "txHash": transactionDecoded["hash"],
-                "blockNumber": str(txHeight) if txHeight is not None else None,
-                "fee": str(utils.convertToSatoshi(-transactionDecoded["fee"])) if "generated" not in transactionDecoded else "0",
-                "transfers": utils.getTransactionTransfers(transactionDecoded, config.bitcoincoreRpcEndpoint, config.electrumxHost, config.electrumxPort),
+                "blockNumber": str(transactionHeight) if transactionHeight is not None else None,
+                "fee": transactionDetails["fee"],
+                "transfers": transactionDecoded["transfers"],
                 "data": transactionDecoded
             }
         }

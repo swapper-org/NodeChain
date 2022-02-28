@@ -76,14 +76,14 @@ def getWorkaroundScriptHash(txDecoded):
     return hash
 
 
-def getTransactionTransfers(txDecoded, bitcoincoreRpcEndpoint, electrumxHost, electrumxPort):
+def decodeTransactionDetails(txDecoded, bitcoincoreRpcEndpoint, electrumxHost, electrumxPort):
     outputs = []
     for output in txDecoded["vout"]:
         if "addresses" in output["scriptPubKey"] and len(output["scriptPubKey"]["addresses"]) == 1:
             outputs.append(
-                {"amount": math.trunc(output["value"] * 100000000), "address": output["scriptPubKey"]["addresses"][0]})
+                {"amount": math.trunc(output["value"] * 100000000), "address": output["scriptPubKey"]["addresses"][0]}) # TODO: Convert to satoshi test
         else:
-            outputs.append({"amount": math.trunc(output["value"] * 100000000), "address": None})
+            outputs.append({"amount": math.trunc(output["value"] * 100000000), "address": None}) # TODO: Convert to satoshi test
 
     sumOutputs = 0
     for output in outputs:
@@ -96,17 +96,28 @@ def getTransactionTransfers(txDecoded, bitcoincoreRpcEndpoint, electrumxHost, el
             inputs.append({"amount": sumOutputs, "address": None})
             break
 
-        txInRaw = RPCSocketConnector.sendRequest(electrumxHost, electrumxPort, 0, "blockchain.transaction.get",
-                                         [txInput["txid"]])
-        txInDecoded = RPCConnector.request(bitcoincoreRpcEndpoint, "decoderawtransaction",
-                                           [txInRaw])
+        txInRaw = RPCSocketConnector.request(
+            hostname=electrumxHost,
+            port=electrumxPort,
+            id=0,
+            method="blockchain.transaction.get",
+            params=[
+                txInput["txid"]
+            ]
+        )
+        txInDecoded = RPCConnector.request(
+            endpoint=bitcoincoreRpcEndpoint,
+            id=0,
+            method="decoderawtransaction",
+            params=[txInRaw]
+        )
 
         for txOutput in txInDecoded["vout"]:
             if txOutput["n"] == txInput["vout"] and "addresses" in txOutput["scriptPubKey"] and len(
                     txOutput["scriptPubKey"]["addresses"]) == 1:
                 inputs.append({"amount": math.trunc(txOutput["value"] * 100000000),
                                "address": txOutput["scriptPubKey"]["addresses"][0]})
-            elif len(txOutput["scriptPubKey"]["addresses"]) != 1:
+            elif "addresses" not in txOutput["scriptPubKey"] or len(txOutput["scriptPubKey"]["addresses"]) != 1:
                 inputs.append({"amount": math.trunc(txOutput["value"] * 100000000), "address": None})
 
     sumInputs = 0
@@ -134,7 +145,8 @@ def getTransactionTransfers(txDecoded, bitcoincoreRpcEndpoint, electrumxHost, el
     transfersResult = []
     for key in transfers.keys():
         transfersResult.append({"from": key[0], "to": key[1], "amount": transfers[key]})
-    return transfersResult
+
+    return {"transfers": transfersResult, "fee": fee}
 
 
 def sortUnspentOutputs(outputs):
