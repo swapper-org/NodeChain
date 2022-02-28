@@ -45,7 +45,7 @@ def listRunningApis():
     for container in client.containers.list():
         if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and not client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"][:-4] in running:
             running.append(
-                client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"][:-4])
+                client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"][:-3])
     return running
 
 
@@ -128,28 +128,27 @@ def start(args):
         createConnectorNetwork(args)
         startConnector(args)
 
-    # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
-    # if args.all:
-    #     for token in listAvailableTokens():
-    #         if args.all in listAvailableNetworksByToken(token):
-    #             os.environ["COIN"] = token
-    #             os.environ["NETWORK"] = args.all
-    #             utils.queryPath(token, args.all)
-    #             if checkApiRunning(token, args.all):
-    #                 logger.printError(f"The API {token} in {args.all} network is already started.", verbosity=args.verbose)
-    #             # startApi(token, args.all)
-    # else:
-    #     token = coinMenu(args)
-    #     if args.verbose:
-    #         logger.printInfo(f"Token selected: {token}", verbosity=args.verbose)
-    #     network = networkMenu(args, token)
-    #     if args.verbose:
-    #         logger.printInfo(f"Network selected: {network}", verbosity=args.verbose)
-    #     utils.queryPath(args, token, network)
-    #     if checkApiRunning(token, network):
-    #         logger.printError(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
-    #         return
-    #     startApi(args, token, network)
+    if args.all:
+        for token in listAvailableTokens():
+            if args.all in listAvailableNetworksByToken(token):
+                os.environ["COIN"] = token
+                os.environ["NETWORK"] = args.all
+                utils.queryPath(token, args.all)
+                if checkApiRunning(token, args.all):
+                    logger.printError(f"The API {token} in {args.all} network is already started.", verbosity=args.verbose)
+                # startApi(token, args.all)
+    else:
+        token = coinMenu(args)
+        if args.verbose:
+            logger.printInfo(f"Token selected: {token}", verbosity=args.verbose)
+        network = networkMenu(args, token)
+        if args.verbose:
+            logger.printInfo(f"Network selected: {network}", verbosity=args.verbose)
+        utils.queryPath(args, token, network)
+        if checkApiRunning(token, network):
+            logger.printError(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
+            return
+        startApi(args, token, network)
 
 
 def stop(args):
@@ -287,7 +286,7 @@ def networkMenu(args, token):
         utils.showSubtitle("NETWORK SELECTION")
         runningApis = listRunningApis()
         for key in sorted(menu.keys())[:-1]:
-            if f"{token}_{menu[key][0]}" in runningApis:
+            if f"{token}{menu[key][0]}" in runningApis:
                 print("{}{}.{}".format("[RUNNING]", str(key).rjust(7), menu[key][0].capitalize()))
             else:
                 print("{}{}.{}".format("[OFF]", str(key).rjust(11), menu[key][0].capitalize()))
@@ -393,8 +392,8 @@ def statusApi(args, token, network):
     services = utils.listServices(token, network)
     for container in client.containers.list():
         dockerContainer = client.containers.get(container.name)
-        if "com.docker.compose.project" in dockerContainer.attrs["Config"]["Labels"] and dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{token}_{network}_api" and dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"] in services:
-            if dockerContainer.attrs["State"]["Status"] == 'running':
+        if "com.docker.compose.project" in dockerContainer.attrs["Config"]["Labels"] and dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{token}{network}api" and dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"] in services:
+            if str(dockerContainer.attrs["State"]["Status"]) == 'running':
                 print("{}{}".format("[RUNNING]".ljust(15), str(dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"]).capitalize()))
             else:
                 print("{}{}".format("[OFF]".ljust(15), str(dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"]).capitalize()))
