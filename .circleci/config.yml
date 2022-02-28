@@ -2,7 +2,8 @@ version: 2
 jobs:
   ethtest:
     machine:
-      image: ubuntu-1604:202007-01
+      image: ubuntu-2004:202201-02
+      docker_layer_caching: true
     environment:
       NETWORK: regtest
       PORT: 80
@@ -10,6 +11,8 @@ jobs:
       NGINX_CONFIG_PATH: ../../nginx/nginx.conf
       CERT_PATH: /etc/ssl/certs
       BLOCKCHAIN_PATH: ./blockchain/
+      COMPOSE_DOCKER_CLI_BUILD: 0
+      DOCKER_BUILDKIT: 0
     steps:
       - checkout
       - run: 
@@ -27,7 +30,7 @@ jobs:
       - run: 
           name: Deploy ETH regtest nodes
           command: |
-            docker-compose -f Connector/tests/docker-compose/eth.yml -p eth_regtest_api up --build -d
+            docker-compose -f Connector/tests/docker-compose/eth.yml -p eth_regtest_api up -d
       - run:
           name: Add ethereumgo to /etc/hosts
           command: |
@@ -42,17 +45,19 @@ jobs:
           command: |
             source venv/bin/activate
             cd Connector && python -m pytest -c tests/eth/pytest_eth.ini -s --cov=eth/ tests/eth
-    
   btctest:
     machine:
-      image: ubuntu-1604:202007-01
+      image: ubuntu-2004:202201-02
+      docker_layer_caching: true
     environment:
       NETWORK: regtest
       PORT: 80
       SSL_PORT: 443
       NGINX_CONFIG_PATH: ../../nginx/nginx.conf
       CERT_PATH: /etc/ssl/certs
-      BLOCKCHAIN_PATH: ./blockchain/    
+      BLOCKCHAIN_PATH: ./blockchain/
+      COMPOSE_DOCKER_CLI_BUILD: 0
+      DOCKER_BUILDKIT: 0
     steps:
       - checkout
       - run:
@@ -68,9 +73,14 @@ jobs:
             source venv/bin/activate
             flake8 --statistics
       - run: 
-          name: Deploy BTC regtest nodes
+          name: Build docker compose images
           command: |
-            docker-compose -f Connector/tests/docker-compose/btc.yml -p btc_regtest_api up --build -d
+            docker-compose -f Connector/tests/docker-compose/btc.yml -p btc_regtest_api build --no-rm
+          no_output_timeout: 1h
+      - run: 
+          name: Deploy BTC regtest node
+          command: |
+            docker-compose -f Connector/tests/docker-compose/btc.yml -p btc_regtest_api up -d
       - run:
           name: Add electrum and bitcoincore to /etc/hosts
           command: |
