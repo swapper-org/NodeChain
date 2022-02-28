@@ -70,7 +70,7 @@ def closeAddrBalanceTopic(topicName):
 
 
 def getWorkaroundScriptHash(txDecoded):
-    script = txDecoded["vout"][0]["scriptPubKey"]["hex"]
+    script = txDecoded["vout"][1]["scriptPubKey"]["hex"]
     scriptUnex = binascii.unhexlify(script)
     hash = hashlib.sha256(scriptUnex).digest()[::-1].hex()
     return hash
