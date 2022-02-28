@@ -3,7 +3,7 @@ from httputils import httpmethod, httputils
 from rpcutils import rpcmethod
 from logger import logger
 from rpcutils import error
-from rpcutils.rpcconnector import RPCConnector
+from rpcutils.rpcconnector import RPCConnector, RPCSocketConnector
 from . import utils
 from .constants import *
 
@@ -393,53 +393,50 @@ def getTransaction(id, params, config):
         raise error.RpcBadRequestError(err.message)
 
     try:
-        # Parameters: TransactionId, include_watchonly, verbose
-        transaction = RPCConnector.request(
-            endpoint=config.bitcoincoreRpcEndpoint,
+        transactionRaw = RPCSocketConnector.request(
+            hostname=config.electrumxHost,
+            port=config.electrumxPort,
             id=id,
-            method=GET_TRANSACTION_METHOD,
+            method="blockchain.transaction.get",
             params=[
-                params["txHash"],
-                True,
-                True
+                params["txHash"]
             ]
         )
 
-        vinAddressBalances = {}
-        transactionAmount = 0
+        transactionDecoded = RPCConnector.request(
+            endpoint=config.bitcoincoreRpcEndpoint,
+            id=id,
+            method="decoderawtransaction",
+            params=[transactionRaw]
+        )
 
-        if "generated" not in transaction:
+        # We pick a random script hash (first one) and after that, we find the transaction that matches
+        # out transaction to find the height.
+        # This is ugly but has to be done because of Electrum protocol, that it is (apparently) unable
+        # of give the transaction height in 'blockchain.transaction.get' method
+        txWorkaround = RPCSocketConnector.request(
+            hostname=config.electrumxHost,
+            port=config.electrumxPort,
+            id=id,
+            method="blockchain.scripthash.get_history",
+            params=[
+                utils.getWorkaroundScriptHash(transactionDecoded)
+            ]
+        )
 
-            for vin in transaction["decoded"]["vin"]:
-                inputTransaction = RPCConnector.request(
-                    endpoint=config.bitcoincoreRpcEndpoint,
-                    id=id,
-                    method=GET_TRANSACTION_METHOD,
-                    params=[
-                        vin["txid"],
-                        True,
-                        True
-                    ]
-                )
-
-                transactionAmount += inputTransaction["decoded"]["vout"][vin["vout"]]["value"]
-                address = inputTransaction["decoded"]["vout"][vin["vout"]]["scriptPubKey"]["addresses"][0]
-                value = inputTransaction["decoded"]["vout"][vin["vout"]]["value"]
-                vinAddressBalances[address] = value
+        txHeight = None
+        for transaction in txWorkaround:
+            if transaction["tx_hash"] == transactionDecoded["txid"]:
+                txHeight = transaction["height"]
+                break
 
         response = {
             "transaction": {
-                "txHash": params["txHash"],
-                "blockhash": transaction["blockhash"] if transaction["confirmations"] >= 1 else None,
-                "blockNumber": str(transaction["blockheight"]) if transaction["confirmations"] >= 1 else None,
-                "fee": str(utils.convertToSatoshi(-transaction["fee"])) if "generated" not in transaction else "0",
-                "transfers": utils.parseBalancesToTransfers(
-                    vinAddressBalances,
-                    transaction["details"],
-                    -transaction["fee"] if "generated" not in transaction else 0,
-                    transactionAmount
-                ),
-                "data": transaction["decoded"]
+                "txHash": transactionDecoded["txHash"],
+                "blockNumber": str(txHeight) if txHeight is not None else None,
+                "fee": str(utils.convertToSatoshi(-transactionDecoded["fee"])) if "generated" not in transactionDecoded else "0",
+                "transfers": utils.getTransactionTransfers(transactionDecoded, config.bitcoincoreRpcEndpoint, config.electrumxHost, config.electrumxPort),
+                "data": transactionDecoded["decoded"]
             }
         }
 
