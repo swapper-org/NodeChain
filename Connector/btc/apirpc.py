@@ -436,11 +436,11 @@ def getTransaction(id, params, config):
 
         response = {
             "transaction": {
-                "txId": transactionDecoded["id"],
+                "txId": transactionDecoded["txid"],
                 "txHash": transactionDecoded["hash"],
                 "blockNumber": str(transactionHeight) if transactionHeight is not None else None,
-                "fee": transactionDetails["fee"],
-                "transfers": transactionDecoded["transfers"],
+                "fee": str(transactionDetails["fee"]),
+                "transfers": transactionDetails["transfers"],
                 "data": transactionDecoded
             }
         }
