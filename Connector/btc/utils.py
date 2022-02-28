@@ -81,9 +81,9 @@ def decodeTransactionDetails(txDecoded, bitcoincoreRpcEndpoint, electrumxHost, e
     for output in txDecoded["vout"]:
         if "addresses" in output["scriptPubKey"] and len(output["scriptPubKey"]["addresses"]) == 1:
             outputs.append(
-                {"amount": math.trunc(output["value"] * 100000000), "address": output["scriptPubKey"]["addresses"][0]}) # TODO: Convert to satoshi test
+                {"amount": math.trunc(output["value"] * 100000000), "address": output["scriptPubKey"]["addresses"][0]})
         else:
-            outputs.append({"amount": math.trunc(output["value"] * 100000000), "address": None}) # TODO: Convert to satoshi test
+            outputs.append({"amount": math.trunc(output["value"] * 100000000), "address": None})
 
     sumOutputs = 0
     for output in outputs:
@@ -92,7 +92,7 @@ def decodeTransactionDetails(txDecoded, bitcoincoreRpcEndpoint, electrumxHost, e
     inputs = []
     for txInput in txDecoded["vin"]:
 
-        if "coinbase" in txInput:  # This is a coinbase transaction and thus it have one only input of 'sumOutputs' amount
+        if "coinbase" in txInput:  # This is a coinbase transaction and thus it have one only input of 'sumOutputs'
             inputs.append({"amount": sumOutputs, "address": None})
             break
 
@@ -124,29 +124,11 @@ def decodeTransactionDetails(txDecoded, bitcoincoreRpcEndpoint, electrumxHost, e
     for txInput in inputs:
         sumInputs += txInput["amount"]
 
-    sumOutputs = 0
-    for txOutput in outputs:
-        sumOutputs += txOutput["amount"]
-
     fee = sumInputs - sumOutputs
 
-    transfers = {}
-    for inputTx in inputs:
-        inputTotalProvide = inputTx["amount"] - (fee / len(inputs))
-        for txOutput in outputs:
-            outputPercentage = txOutput["amount"] / sumOutputs
+    transactionsDetails = {"fee": fee, "inputs": inputs, "outputs": outputs}
 
-            if (inputTx["address"], txOutput["address"]) in transfers:
-                transfers[(inputTx["address"], txOutput["address"])] = transfers[(
-                    inputTx["address"], txOutput["address"])] + (inputTotalProvide * outputPercentage)
-            else:
-                transfers[(inputTx["address"], txOutput["address"])] = inputTotalProvide * outputPercentage
-
-    transfersResult = []
-    for key in transfers.keys():
-        transfersResult.append({"from": key[0], "to": key[1], "amount": transfers[key]})
-
-    return {"transfers": transfersResult, "fee": fee}
+    return transactionsDetails
 
 
 def sortUnspentOutputs(outputs):

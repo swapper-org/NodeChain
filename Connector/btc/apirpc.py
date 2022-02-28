@@ -434,13 +434,21 @@ def getTransaction(id, params, config):
 
         transactionDetails = utils.decodeTransactionDetails(transactionDecoded, config.bitcoincoreRpcEndpoint, config.electrumxHost, config.electrumxPort)
 
+        # Converting all transaction details to str
+        transactionDetails["fee"] = str(transactionDetails["fee"])
+        for input in transactionDetails["inputs"]:
+            input["amount"] = str(input["amount"])
+        for output in transactionDetails["outputs"]:
+            output["amount"] = str(output["amount"])
+
         response = {
             "transaction": {
                 "txId": transactionDecoded["txid"],
                 "txHash": transactionDecoded["hash"],
                 "blockNumber": str(transactionHeight) if transactionHeight is not None else None,
-                "fee": str(transactionDetails["fee"]),
-                "transfers": transactionDetails["transfers"],
+                "fee": transactionDetails["fee"],
+                "inputs": transactionDetails["inputs"],
+                "outputs": transactionDetails["outputs"],
                 "data": transactionDecoded
             }
         }
