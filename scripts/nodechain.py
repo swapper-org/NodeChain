@@ -62,6 +62,39 @@ def bindUsedPort():
     return
 
 
+# Start/Stop all apis by network
+# PARAMS:
+# args.all -> contains the information of the chosen network
+# mode -> ['start', 'stop']
+def handleAllApisByNetwork(args, mode):
+    for token in listAvailableTokens():
+        if args.all in listAvailableNetworksByToken(token):
+            os.environ["COIN"] = token
+            os.environ["NETWORK"] = args.all
+            if mode == 'start':
+                utils.queryPath(args, token, args.all)
+                if checkApiRunning(token, args.all):
+                    logger.printError(f"The API {token} in {args.all} network is already started.", verbosity=args.verbose)
+                startApi(args, token, args.all)
+            else:
+                if not checkApiRunning(token, args.all):
+                    logger.printError(f"Can't stop {token} in {args.all}. Containers are not running", verbosity=args.verbose)
+                    continue
+                stopApi(args, token, args.all)
+
+
+# Stop all APIs
+def stopAllApis(args):
+    for token in listAvailableTokens():
+        os.environ["COIN"] = token
+        for network in listAvailableNetworksByToken(token):
+            os.environ["NETWORK"] = network
+            if not checkApiRunning(token, network):
+                logger.printError(f"Can't stop {token} in {network}. Containers are not running", verbosity=args.verbose)
+                continue
+            stopApi(args, token, network)
+
+
 def argumentHandler():
     version = utils.getVersion()
 
@@ -129,14 +162,7 @@ def start(args):
         startConnector(args)
 
     if args.all:
-        for token in listAvailableTokens():
-            if args.all in listAvailableNetworksByToken(token):
-                os.environ["COIN"] = token
-                os.environ["NETWORK"] = args.all
-                utils.queryPath(token, args.all)
-                if checkApiRunning(token, args.all):
-                    logger.printError(f"The API {token} in {args.all} network is already started.", verbosity=args.verbose)
-                # startApi(token, args.all)
+        handleAllApisByNetwork(args, 'start')
     else:
         token = coinMenu(args)
         if args.verbose:
@@ -161,30 +187,19 @@ def stop(args):
 
     logger.connectorNotRunning(checkConnectorRunning(), args)
 
-    # If you stop the connector you'll stop all running APIs
     if args.verbose:
         logger.printWarning("Stopping the connector will stop all running APIs", verbosity=args.verbose)
     if utils.queryYesNo("Do you want to stop the connector?", default="no"):
-        logger.printInfo("Stopping all APIs", verbosity=args.verbose)
-        # stopAllAPIs(args)
+        logger.printInfo("Stopping all APIs...", verbosity=args.verbose)
+        stopAllApis(args)
         bindUsedPort()
         stopConnector(args)
     else:
-        # ask stop api
         if args.verbose:
             logger.printInfo("Connector won't shut down.", verbosity=args.verbose)
 
-        # TODO: This method might contain errors. This will be used once we have only one Connector container for all apis
         if args.all:
-            for token in listAvailableTokens():
-                if args.all in listAvailableNetworksByToken(token):
-                    os.environ["COIN"] = token
-                    os.environ["NETWORK"] = args.all
-                    if not checkApiRunning(token, args.all):
-                        logger.printError(f"Can't stop {token} in {args.all}. Containers are not running", verbosity=args.verbose)
-                        continue
-                    bindUsedPort(token, args.all)
-                    # stopApi(token, args.all)
+            handleAllApisByNetwork(args, 'stop')
         else:
             token = coinMenu(args)
             if args.verbose:
