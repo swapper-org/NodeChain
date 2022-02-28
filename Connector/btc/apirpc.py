@@ -384,8 +384,6 @@ def getTransactionHex(id, params, config):
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
 @httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getTransaction(id, params, config):
-    #TODO: Test unconfirmed tx
-
     logger.printInfo(f"Executing RPC method getTransaction with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION)
