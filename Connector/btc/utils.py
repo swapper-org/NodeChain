@@ -8,7 +8,8 @@ import sys
 from logger import logger
 from rpcutils import error as rpcerrorhandler
 from wsutils import topics
-from rpcutils.rpcconnector import RPCConnector, RPCSocketConnector
+from rpcutils.rpcconnector import RPCConnector
+from rpcutils.rpcsocketconnector import RPCSocketConnector
 from .constants import *
 from . import apirpc
 

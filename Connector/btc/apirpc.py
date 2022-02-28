@@ -3,7 +3,8 @@ from httputils import httpmethod, httputils
 from rpcutils import rpcmethod
 from logger import logger
 from rpcutils import error
-from rpcutils.rpcconnector import RPCConnector, RPCSocketConnector
+from rpcutils.rpcconnector import RPCConnector
+from rpcutils.rpcsocketconnector import RPCSocketConnector
 from . import utils
 from .constants import *
 
@@ -432,11 +433,12 @@ def getTransaction(id, params, config):
 
         response = {
             "transaction": {
-                "txHash": transactionDecoded["txHash"],
+                "txId": transactionDecoded["id"],
+                "txHash": transactionDecoded["hash"],
                 "blockNumber": str(txHeight) if txHeight is not None else None,
                 "fee": str(utils.convertToSatoshi(-transactionDecoded["fee"])) if "generated" not in transactionDecoded else "0",
                 "transfers": utils.getTransactionTransfers(transactionDecoded, config.bitcoincoreRpcEndpoint, config.electrumxHost, config.electrumxPort),
-                "data": transactionDecoded["decoded"]
+                "data": transactionDecoded
             }
         }
 
