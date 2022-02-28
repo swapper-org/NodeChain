@@ -8,3 +8,8 @@ services:
       NETWORK: bombay-12
     volumes:
       - ${BLOCKCHAIN_PATH}/terrad:/root/.terra
+
+networks:
+  default:
+    external:
+      name: nodechain-network
