@@ -34,3 +34,11 @@ def printEnvs():
     certsPath = os.getenv("CERT_PATH")
 
     printInfo(f"[ENVIRONMENTAL INFO] Token: {token} | Network: {network} | Port: {port} | Blockchain Path: {blockchainPath} | SSL Port: {sslPort} | Config File: {configFile} | Path to ssl certs: {certsPath}")
+
+
+def connectorNotRunning(isRunning, args):
+    if not isRunning:
+        printError("Connector is not running.", verbosity=args.verbose)
+        if args.verbose:
+            printWarning("You need to start the connector to use NodeChain", verbosity=args.verbose)
+        raise SystemExit

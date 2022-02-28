@@ -160,9 +160,7 @@ def stop(args):
     utils.showMainTitle()
     utils.showSubtitle("CONNECTOR CONFIG")
 
-    if not checkConnectorRunning():
-        logger.printError("Connector is not running.", verbosity=args.verbose)
-        return
+    logger.connectorNotRunning(checkConnectorRunning(), args)
 
     # If you stop the connector you'll stop all running APIs
     if args.verbose:
@@ -210,14 +208,14 @@ def status(args):
     utils.showMainTitle()
     choice = configMenu()
     if choice == 'connector':
+        logger.connectorNotRunning(checkConnectorRunning(), args)
         if args.verbose:
             logger.printInfo("Showing connector status information.", verbosity=args.verbose)
-        if not checkConnectorRunning():
-            logger.printError("Connector is not running.", verbosity=args.verbose)
-            raise SystemExit
-        # Display connector information
-        # TODO: Improve the status info given
+        statusConnector(args)
     elif choice == 'apis':
+        logger.connectorNotRunning(checkConnectorRunning(), args)
+        if args.verbose:
+            logger.printInfo("Showing connector status information.", verbosity=args.verbose)
         token = coinMenu(args)
         if args.verbose:
             logger.printInfo(f"Token selected: {token}")
@@ -439,6 +437,21 @@ def stopConnector(args):
         logger.printError("An error occurred while trying to stop connector container or nginx container: \n", verbosity=args.verbose)
         logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
         raise SystemExit
+
+
+def statusConnector(args):
+    logger.printInfo("Getting information of connector containers...", verbosity=args.verbose)
+    if args.verbose:
+        logger.printEnvs()
+
+    utils.showSubtitle("CONNECTOR INFORMATION")
+    for container in client.containers.list():
+        dockerContainer = client.containers.get(container.name)
+        if "com.docker.compose.project" in dockerContainer.attrs["Config"]["Labels"] and dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.project"] == "connector" and dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"] in ["connector", "nginx"]:
+            if dockerContainer.attrs["State"]["Status"] == 'running':
+                print("{}{}".format("[RUNNING]".ljust(15), str(dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"]).capitalize()))
+            else:
+                print("{}{}".format("[OFF]".ljust(15), str(dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"]).capitalize()))
 
 
 if __name__ == "__main__":
