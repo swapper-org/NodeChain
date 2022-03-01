@@ -7,7 +7,6 @@ import logger
 AVAILABLE_CURRENCIES = "./Connector/.availableCurrencies.json"
 
 
-# DEPRECATED
 def queryYesNo(question, default="yes"):
     valid = {"yes": True, "y": True, "ye": True,
              "no": False, "n": False}
@@ -33,23 +32,33 @@ def queryYesNo(question, default="yes"):
 
 
 def connectorQueries(args):
-    # Connector port configuration. This line will be deprecated in the future
-    os.environ["PORT"] = args.port if args.port else queryPort("Port to start: ")
+    os.environ["PORT"] = args.port if args.port else queryPort(args, "Port to start: ")
 
     # In the future this only works for the connector setup
     if args.ssl_port:
         os.environ["SSL_PORT"] = args.ssl_port
     else:
-        os.environ["SSL_PORT"] = queryPort("Port to start (SSL): ")
+        os.environ["SSL_PORT"] = queryPort(args, "Port to start (SSL): ")
 
     querySSL(args.config, args.certs)
 
 
-def queryPort(question):
+def queryConfigurable(args, question, configurable):
+    while True:
+        response = input(question).lower()
+        if not response:
+            logger.printError("Can't configure with empty answers.", verbosity=args.verbose)
+            sys.stdout.write(f"Please respond with with a valid text for {configurable}")
+        else:
+            return response
+
+
+def queryPort(args, question):
     while True:
         sys.stdout.write(question)
         port = input().lower()
         if not port.isnumeric():
+            logger.printError("Can't configure with empty answers.", verbosity=args.verbose)
             sys.stdout.write(
                 "Port must be a number, please respond with a valid port. \n")
         else:
@@ -162,9 +171,17 @@ def listServices(token, network):
                 return api["networks"][network]["services"]
 
 
-def getTokenFromCoin(coin):
+def getTokenFromCoin(token):
     with open(AVAILABLE_CURRENCIES) as f:
         data = json.load(f)
         for api in data:
-            if api["name"] == coin:
+            if api["name"] == token:
                 return api["token"]
+
+
+def getTokenConfiguration(token, network):
+    with open(AVAILABLE_CURRENCIES) as f:
+        data = json.load(f)
+        for api in data:
+            if api["token"] == token:
+                return api["networks"][network]["configurable"]

@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-from lib2to3.pgen2 import driver
 import os
 import subprocess
 import docker
@@ -10,6 +9,7 @@ import argparse
 import json
 from pathlib import Path
 import logger
+import endpoints
 
 
 # "token" argument is never used. Is declared to prevent errors
@@ -376,6 +376,26 @@ def startApi(args, token, network):
         logger.printError(f"An error occurred while trying to start {token}{network}api: \n", verbosity=args.verbose)
         logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
         raise SystemExit
+
+    # Get port to make requests
+    bindUsedPort()
+
+    # Add currency to the connector
+    if utils.queryYesNo("Do you want to configure your API ", default="no"):
+        response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig=False)
+    else:
+        response = endpoints.addApi(args, token, network, os.environ["PORT"])
+    # Already registered
+    if not response:
+        return
+    # If response is an error we need to shut down the API
+    if response.status_code != 200:
+        stopApi(args, token, network)
+    else:
+        response = response.json()
+        # If response["success"] is an internal connector error so we also need to shut down the API
+        if response["success"] is False:
+            stopApi(args, token, network)
 
 
 def stopApi(args, token, network):
