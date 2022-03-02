@@ -100,6 +100,7 @@ GET_ADDRESSES_HISTORY = "getaddresseshistory"
 NOTIFY = "notify"
 NEW_HASH_BLOCK_ZMQ_TOPIC = "hashblock"
 NEW_RAW_BLOCK_ZMQ_TOPIC = "rawblock"
+GET_BLOCK = "getblock"
 
 SUBSCRIBE_ADDRESS_BALANCE = "subscribetoaddressbalance"
 UNSUBSCRIBE_ADDRESS_BALANCE = "unsubscribefromaddressbalance"

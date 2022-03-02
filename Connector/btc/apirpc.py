@@ -396,20 +396,19 @@ def getTransaction(id, params, config):
         transaction = RPCConnector.request(
             endpoint=config.bitcoincoreRpcEndpoint,
             id=id,
-            method="getrawtransaction",
+            method=GET_TRANSACTION_METHOD,
             params=[
                 params["txHash"],
                 True
             ]
         )
 
-        isConfirmed = "blockhash" in transaction
-
-        if isConfirmed:
+        # Check if transaction is confirmed, and obtain block number
+        if "blockhash" in transaction:
             transactionBlock = RPCConnector.request(
                 endpoint=config.bitcoincoreRpcEndpoint,
                 id=id,
-                method="getblock",
+                method=GET_BLOCK,
                 params=[transaction["blockhash"], 1]
             )
             blockNumber = transactionBlock["height"]
