@@ -4,7 +4,6 @@ from rpcutils import rpcmethod
 from logger import logger
 from rpcutils import error
 from rpcutils.rpcconnector import RPCConnector
-from rpcutils.rpcsocketconnector import RPCSocketConnector
 from . import utils
 from .constants import *
 
@@ -19,7 +18,7 @@ def getAddressHistory(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     addrHistory = RPCConnector.request(
         endpoint=config.electrumRpcEndpoint,
@@ -38,7 +37,7 @@ def getAddressHistory(id, params, config):
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return response
 
@@ -55,7 +54,7 @@ def getAddressesHistory(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     response = []
 
@@ -72,7 +71,7 @@ def getAddressesHistory(id, params, config):
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return response
 
@@ -87,7 +86,7 @@ def getAddressBalance(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     connResponse = RPCConnector.request(
         endpoint=config.electrumRpcEndpoint,
@@ -106,7 +105,7 @@ def getAddressBalance(id, params, config):
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return response
 
@@ -121,7 +120,7 @@ def getAddressesBalance(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     response = []
 
@@ -139,7 +138,7 @@ def getAddressesBalance(id, params, config):
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return response
 
@@ -154,7 +153,7 @@ def getAddressUnspent(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     connResponse = RPCConnector.request(
         endpoint=config.electrumRpcEndpoint,
@@ -178,7 +177,7 @@ def getAddressUnspent(id, params, config):
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return response
 
@@ -235,7 +234,7 @@ def getBlockByHash(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     block = RPCConnector.request(
         endpoint=config.bitcoincoreRpcEndpoint,
@@ -249,7 +248,7 @@ def getBlockByHash(id, params, config):
 
     err = httputils.validateJSONSchema(block, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return block
 
@@ -264,13 +263,14 @@ def getBlockByNumber(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     blockHash = RPCConnector.request(
         endpoint=config.bitcoincoreRpcEndpoint,
         id=id,
         method=GET_BLOCK_HASH_METHOD,
-        params=[params["blockNumber"]])
+        params=[params["blockNumber"]]
+    )
 
     return getBlockByHash(
         id=id,
@@ -289,23 +289,24 @@ def getFeePerByte(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     feePerByte = RPCConnector.request(
         endpoint=config.bitcoincoreRpcEndpoint,
         id=id,
         method=ESTIMATE_SMART_FEE_METHOD,
-        params=[params["confirmations"]])
+        params=[params["confirmations"]]
+    )
 
     if "feerate" not in feePerByte:
         logger.printError("Response without feerate field. No fee rate found")
-        raise error.RpcInternalServerError("Response without feerate field. No fee rate found")
+        raise error.RpcInternalServerError(id=id, message="Response without feerate field. No fee rate found")
 
     response = {"feePerByte": utils.convertKbToBytes(utils.convertToSatoshi(feePerByte["feerate"]))}
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return response
 
@@ -321,7 +322,7 @@ def getHeight(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     latestBlockHeight = int(
         RPCConnector.request(
@@ -345,7 +346,7 @@ def getHeight(id, params, config):
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return response
 
@@ -363,7 +364,7 @@ def getTransactionHex(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     rawTransaction = RPCConnector.request(
         endpoint=config.bitcoincoreRpcEndpoint,
@@ -372,11 +373,11 @@ def getTransactionHex(id, params, config):
         params=[params["txHash"]]
     )
 
-    response = {"rawTransaction": rawTransaction}
+    response = {"rawTransaction": rawTransaction["hex"]}
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return response
 
@@ -390,7 +391,7 @@ def getTransaction(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     try:
         transaction = RPCConnector.request(
@@ -414,7 +415,6 @@ def getTransaction(id, params, config):
             blockNumber = transactionBlock["height"]
         else:
             blockNumber = None
-
 
         transactionDetails = utils.decodeTransactionDetails(transaction, config.bitcoincoreRpcEndpoint)
 
@@ -461,7 +461,7 @@ def getAddressTransactionCount(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     txs = RPCConnector.request(
         endpoint=config.electrumRpcEndpoint,
@@ -482,7 +482,7 @@ def getAddressTransactionCount(id, params, config):
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return response
 
@@ -497,7 +497,7 @@ def getAddressesTransactionCount(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     transactionCounts = []
 
@@ -512,7 +512,7 @@ def getAddressesTransactionCount(id, params, config):
 
     err = httputils.validateJSONSchema(transactionCounts, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return transactionCounts
 
@@ -527,17 +527,18 @@ def broadcastTransaction(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     hash = RPCConnector.request(
         endpoint=config.bitcoincoreRpcEndpoint,
         id=id,
         method=SEND_RAW_TRANSACTION_METHOD,
-        params=[params["rawTransaction"]])
+        params=[params["rawTransaction"]]
+    )
 
     if hash is None:
         logger.printError(f"Transaction could not be broadcasted. Raw Transaction: {params['rawTransaction']}")
-        raise error.RpcBadRequestError("Transaction could not be broadcasted")
+        raise error.RpcBadRequestError(id=id, message="Transaction could not be broadcasted")
 
     response = {
         "broadcasted": hash
@@ -563,7 +564,7 @@ def notify(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     payload = RPCConnector.request(
         endpoint=config.electrumRpcEndpoint,
@@ -579,7 +580,7 @@ def notify(id, params, config):
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return response
 
@@ -595,7 +596,7 @@ def syncing(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     blockchainInfo = RPCConnector.request(
         endpoint=config.bitcoincoreRpcEndpoint,
@@ -606,7 +607,7 @@ def syncing(id, params, config):
 
     if blockchainInfo is None:
         logger.printWarning("Could not get blockchain info from node")
-        raise error.RpcBadRequestError("Could not get blockchain info from node")
+        raise error.RpcBadRequestError(id=id,message="Could not get blockchain info from node")
 
     if blockchainInfo["blocks"] != blockchainInfo["headers"]:
         response = {
@@ -620,6 +621,6 @@ def syncing(id, params, config):
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return response

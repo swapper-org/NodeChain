@@ -35,7 +35,7 @@ class Broker(object, metaclass=Singleton.Singleton):
         if topic.name not in self.topicSubscriptions:
             self.topicSubscriptions[topic.name] = {
                 SUBSCRIBERS: [],
-                CLOSING_TOPIC_FUNC: topic.closingHandler
+                CLOSING_TOPIC_HANDLER: topic.closingHandler
             }
 
         if subscriber not in self.topicSubscriptions[topic.name][SUBSCRIBERS]:
@@ -74,10 +74,10 @@ class Broker(object, metaclass=Singleton.Singleton):
             if not self.topicHasSubscribers(topicName=topicName):
 
                 logger.printWarning(f"No more subscribers for topic [{topicName}]")
-                topicClosingFunc = self.topicSubscriptions[topicName][CLOSING_TOPIC_FUNC]
+                closingHandler = self.topicSubscriptions[topicName][CLOSING_TOPIC_HANDLER]
                 logger.printInfo(f"Calling closing func to topic [{topicName}]")
-                if topicClosingFunc is not None:
-                    topicClosingFunc(topicName)
+                if closingHandler is not None:
+                    closingHandler.close()
 
                 del self.topicSubscriptions[topicName]
 

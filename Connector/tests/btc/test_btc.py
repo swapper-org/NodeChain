@@ -3,20 +3,38 @@ from decimal import Decimal
 import pytest
 import json
 import time
-from btc.connector import RPC_CORE_ENDPOINT, RPC_ELECTRUM_ENDPOINT
+from btc.config import Config
 from btc.constants import *
+from btc.websockets import BlockWebSocket
 from btc.utils import convertToSatoshi, parseBalancesToTransfers, sortUnspentOutputs
 from logger import logger
 from rpcutils.rpcconnector import RPCConnector
-from rpcutils.rpcutils import RPCMethods
-from rpcutils.errorhandler import BadRequestError
+from httputils.httpmethod import postHttpMethods
+from rpcutils.error import RpcBadRequestError
 from wsutils.subscribers import ListenerSubscriber
-from wsutils.wsutils import webSocketMethods, webSockets
+from wsutils.wsmethod import wsMethods
 from wsutils.constants import *
+from wsutils import websocket
 
+networkName = "regtest"
 
-for webSocket in webSockets:
-    webSocket()
+config = Config(
+    coin=COIN_SYMBOL,
+    networkName=networkName
+)
+config.loadConfig(
+    config={
+        "bitcoincoreHost": "localhost",
+        "electrumHost": "localhost",
+        "electrumPort": 30000
+    }
+)
+
+BlockWebSocket(
+    coin=COIN_SYMBOL,
+    config=config
+)
+websocket.startWebSockets(COIN_SYMBOL, networkName)
 
 
 def makeRequest(endpoint, method, params):
@@ -24,11 +42,11 @@ def makeRequest(endpoint, method, params):
 
 
 def makeBitcoinCoreRequest(method, params):
-    return makeRequest(RPC_CORE_ENDPOINT, method, params)
+    return makeRequest(config.bitcoincoreRpcEndpoint, method, params)
 
 
 def makeElectrumRequest(method, params):
-    return makeRequest(RPC_ELECTRUM_ENDPOINT, method, params)
+    return makeRequest(config.electrumRpcEndpoint, method, params)
 
 
 def mineBlocksToAddress(address, numBlocks=1):
@@ -38,7 +56,7 @@ def mineBlocksToAddress(address, numBlocks=1):
 wallet1Name = "wallet1"
 try:
     makeBitcoinCoreRequest("loadwallet", [wallet1Name])
-except BadRequestError:
+except RpcBadRequestError:
     if wallet1Name not in makeBitcoinCoreRequest("listwallets", []):
         makeBitcoinCoreRequest("createwallet", [wallet1Name])
 
@@ -61,8 +79,8 @@ def sendTransaction(fromAddress, toAddress, amount):
     if not ok:
         return None, False
 
-    if makeBitcoinCoreRequest("testmempoolaccept", [[signedRawTransaction[HEX]]]):
-        return makeBitcoinCoreRequest("sendrawtransaction", [signedRawTransaction[HEX]]), True
+    if makeBitcoinCoreRequest("testmempoolaccept", [[signedRawTransaction["hex"]]]):
+        return makeBitcoinCoreRequest("sendrawtransaction", [signedRawTransaction["hex"]]), True
 
 
 def createSignedRawTransaction(fromAddress, toAddress, amount):
@@ -75,12 +93,12 @@ def createSignedRawTransaction(fromAddress, toAddress, amount):
 
     for addressUtxo in adddressUtxos:
 
-        amountCount += addressUtxo[AMOUNT]
+        amountCount += addressUtxo["amount"]
         transactionUtxos.append({
-            TX_ID: addressUtxo[TX_ID],
-            VOUT: addressUtxo[VOUT],
-            AMOUNT: addressUtxo[AMOUNT],
-            SCRIPT_PUB_KEY: addressUtxo[SCRIPT_PUB_KEY]
+            "txid": addressUtxo["txid"],
+            "vout": addressUtxo["vout"],
+            "amount": addressUtxo["amount"],
+            "scriptPubKey": addressUtxo["scriptPubKey"]
         })
 
         if amountCount > amount:
@@ -92,7 +110,7 @@ def createSignedRawTransaction(fromAddress, toAddress, amount):
         return None, False
 
     rawTransaction = makeBitcoinCoreRequest("createrawtransaction", [
-        [{key: transactionUtxo[key] for key in (TX_ID, VOUT) if key in transactionUtxo} for transactionUtxo in transactionUtxos],
+        [{key: transactionUtxo[key] for key in ("txid", "vout") if key in transactionUtxo} for transactionUtxo in transactionUtxos],
         [{toAddress: amount}],
         0,
         True
@@ -111,8 +129,8 @@ def createSignedRawTransaction(fromAddress, toAddress, amount):
     ])
 
     signedRawTransaction = makeBitcoinCoreRequest("signrawtransactionwithwallet", [
-        fundTransactionResponse[HEX],
-        [{key: transactionUtxo[key] for key in (TX_ID, VOUT, AMOUNT, SCRIPT_PUB_KEY) if key in transactionUtxo} for transactionUtxo in transactionUtxos]
+        fundTransactionResponse["hex"],
+        [{key: transactionUtxo[key] for key in ("txid", "vout", "amount", "scriptPubKey") if key in transactionUtxo} for transactionUtxo in transactionUtxos]
     ])
 
     if signedRawTransaction["complete"]:
@@ -142,11 +160,11 @@ def simulateTransactions(numTransations=100, amount=0.01, transactionsPerBlock=5
 
 def testGetBlock():
 
-    if "getBlockByNumber" not in RPCMethods:
+    if "getBlockByNumber" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getBlockByNumber not loaded in RPCMethods")
         assert False
 
-    if "getBlockByHash" not in RPCMethods:
+    if "getBlockByHash" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getBlockByHash not loaded in RPCMethods")
         assert False
 
@@ -155,17 +173,13 @@ def testGetBlock():
     expectedHash = makeBitcoinCoreRequest(GET_BLOCK_HASH_METHOD, [blockNumber])
     expectedBlock = makeBitcoinCoreRequest(GET_BLOCK_METHOD, [expectedHash, 2])
 
-    gotByHash = RPCMethods["getBlockByHash"](0, {
-        BLOCK_HASH: expectedHash
-    })
+    gotByHash = postHttpMethods[COIN_SYMBOL]["getBlockByHash"]({"blockHash": expectedHash}, config)
 
     if not json.dumps(expectedBlock, sort_keys=True) == json.dumps(gotByHash, sort_keys=True):
         logger.printError(f"Get block by hash error. Expected  {expectedBlock} but Got{gotByHash}")
         assert False
 
-    gotByNumber = RPCMethods["getBlockByNumber"](0, {
-        BLOCK_NUMBER: blockNumber
-    })
+    gotByNumber = postHttpMethods[COIN_SYMBOL]["getBlockByNumber"]({"blockNumber": blockNumber}, config)
 
     if not json.dumps(expectedBlock, sort_keys=True) == json.dumps(gotByNumber, sort_keys=True):
         logger.printError(f"Get block by number error. Expected  {expectedBlock} but Got{gotByNumber}")
@@ -176,21 +190,21 @@ def testGetBlock():
 
 def testGetHeight():
 
-    if "getHeight" not in RPCMethods:
+    if "getHeight" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getHeight not loaded in RPCMethods")
         assert False
 
     expectedHeight = makeBitcoinCoreRequest(GET_BLOCK_COUNT_METHOD, [])
     expectedHash = makeBitcoinCoreRequest(GET_BLOCK_HASH_METHOD, [expectedHeight])
 
-    got = RPCMethods["getHeight"](0, {})
+    got = postHttpMethods[COIN_SYMBOL]["getHeight"]({}, config)
 
-    assert got[LATEST_BLOCK_INDEX] == str(expectedHeight) and got[LATEST_BLOCK_HASH] == expectedHash
+    assert got["latestBlockIndex"] == str(expectedHeight) and got["latestBlockHash"] == expectedHash
 
 
 def testGetFeePerByte():
 
-    if "getFeePerByte" not in RPCMethods:
+    if "getFeePerByte" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getFeePerByte not loaded in RPCMethods")
         assert False
 
@@ -198,16 +212,14 @@ def testGetFeePerByte():
 
     confirmations = 2
     expected = makeBitcoinCoreRequest(ESTIMATE_SMART_FEE_METHOD, [confirmations])
-    got = RPCMethods["getFeePerByte"](0, {
-        CONFIRMATIONS: confirmations
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getFeePerByte"]({"confirmations": confirmations}, config)
 
-    assert str(expected[FEE_RATE]) == str(float((Decimal(got[FEE_PER_BYTE]) / 100000000 * 1000)))
+    assert str(expected["feerate"]) == str(float((Decimal(got["feePerByte"]) / 100000000 * 1000)))
 
 
 def testBroadcastTransaction():
 
-    if "broadcastTransaction" not in RPCMethods:
+    if "broadcastTransaction" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("broadcastTransaction not loaded in RPCMethods")
         assert False
 
@@ -217,38 +229,39 @@ def testBroadcastTransaction():
         logger.printError("Can not create transaction to broadcasts")
         assert False
 
-    got = RPCMethods["broadcastTransaction"](0, {
-        RAW_TRANSACTION: signedRawTransaction[HEX]
-    })
+    got = postHttpMethods[COIN_SYMBOL]["broadcastTransaction"](
+        {
+            "rawTransaction": signedRawTransaction["hex"]
+        },
+        config
+    )
 
     blockMinedHash = mineBlocksToAddress(minerAddress, 1)[0]
     blockMined = makeBitcoinCoreRequest(GET_BLOCK_METHOD, [blockMinedHash, 2])
 
-    found = signedRawTransaction[HEX] in [tx[HEX] for tx in blockMined[TX]]
+    found = signedRawTransaction["hex"] in [tx["hex"] for tx in blockMined["tx"]]
 
-    logger.printWarning(f"Transaction ID from connector is: {got[BROADCASTED]}")
+    logger.printWarning(f"Transaction ID from connector is: {got['broadcasted']}")
 
     if not found:
-        logger.printError(f"Signed raw transaction {signedRawTransaction[HEX]} not found in last generated block {blockMinedHash}")
-        logger.printError(f"Transaction ID from connector is: {got[BROADCASTED]}")
+        logger.printError(f"Signed raw transaction {signedRawTransaction['hex']} not found in last generated block {blockMinedHash}")
+        logger.printError(f"Transaction ID from connector is: {got['broadcasted']}")
     assert found
 
 
 def testGetAddressHistory():
 
-    if "getAddressHistory" not in RPCMethods:
+    if "getAddressHistory" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getAddressHistory not loaded in RPCMethods")
         assert False
 
     expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
 
-    got = RPCMethods["getAddressHistory"](0, {
-        ADDRESS: address1
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getAddressHistory"]({"address": address1}, config)
 
-    expectedTxHashes = {item[TX_HASH_SNAKE_CASE]: False for item in expected}
+    expectedTxHashes = {item["tx_hash"]: False for item in expected}
 
-    for gotTxHash in got[TX_HASHES]:
+    for gotTxHash in got["txHashes"]:
         if gotTxHash in expectedTxHashes:
             expectedTxHashes[gotTxHash] = True
         else:
@@ -257,7 +270,7 @@ def testGetAddressHistory():
 
     for expectedTxHash in expectedTxHashes:
         if not expectedTxHashes[expectedTxHash]:
-            logger.printError(f"Transaction {expectedTxHash} not in got txHashes {got[TX_HASHES]}")
+            logger.printError(f"Transaction {expectedTxHash} not in got txHashes {got['txHashes']}")
             assert False
 
     assert True
@@ -265,21 +278,19 @@ def testGetAddressHistory():
 
 def testGetAddressesHistory():
 
-    if "getAddressesHistory" not in RPCMethods:
+    if "getAddressesHistory" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getAddressesHistory not loaded in RPCMethods")
         assert False
 
     addresses = [address1, address2]
 
-    got = RPCMethods["getAddressesHistory"](0, {
-        ADDRESSES: addresses
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getAddressesHistory"]({"addresses": addresses}, config)
 
     for addressHistory in got:
-        expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [addressHistory[ADDRESS]])
-        expectedTxHashes = {item[TX_HASH_SNAKE_CASE]: False for item in expected}
+        expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [addressHistory["address"]])
+        expectedTxHashes = {item["tx_hash"]: False for item in expected}
 
-        for gotTxHash in addressHistory[TX_HASHES]:
+        for gotTxHash in addressHistory["txHashes"]:
             if gotTxHash in expectedTxHashes:
                 expectedTxHashes[gotTxHash] = True
             else:
@@ -288,7 +299,7 @@ def testGetAddressesHistory():
 
         for expectedTxHash in expectedTxHashes:
             if not expectedTxHashes[expectedTxHash]:
-                logger.printError(f"Transaction {expectedTxHash} not in got txHashes {addressHistory[TX_HASHES]}")
+                logger.printError(f"Transaction {expectedTxHash} not in got txHashes {addressHistory['txHashes']}")
                 assert False
 
     assert True
@@ -296,36 +307,32 @@ def testGetAddressesHistory():
 
 def testGetAddressBalance():
 
-    if "getAddressBalance" not in RPCMethods:
+    if "getAddressBalance" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getAddressBalance not loaded in RPCMethods")
         assert False
 
     expected = makeElectrumRequest("getaddressbalance", [address1])
-    got = RPCMethods["getAddressBalance"](0, {
-        ADDRESS: address1
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getAddressBalance"]({"address": address1}, config)
 
-    assert convertToSatoshi(expected[CONFIRMED]) == got[BALANCE][CONFIRMED] and convertToSatoshi(expected[UNCONFIRMED]) == got[BALANCE][UNCONFIRMED] and address1 == got[ADDRESS]
+    assert convertToSatoshi(expected["confirmed"]) == got["balance"]["confirmed"] and convertToSatoshi(expected["unconfirmed"]) == got["balance"]["unconfirmed"] and address1 == got["address"]
 
 
 def testGetAddressesBalance():
 
-    if "getAddressesBalance" not in RPCMethods:
+    if "getAddressesBalance" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getAddressesBalance not loaded in RPCMethods")
         assert False
 
     addresses = [address1, address2]
 
-    got = RPCMethods["getAddressesBalance"](0, {
-        ADDRESSES: addresses
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getAddressesBalance"]({"addresses": addresses}, config)
 
     for addressBalance in got:
 
-        expected = makeElectrumRequest("getaddressbalance", [addressBalance[ADDRESS]])
+        expected = makeElectrumRequest("getaddressbalance", [addressBalance["address"]])
 
-        if convertToSatoshi(expected[CONFIRMED]) != addressBalance[BALANCE][CONFIRMED] or convertToSatoshi(expected[UNCONFIRMED]) != addressBalance[BALANCE][UNCONFIRMED]:
-            logger.printError(f"Error getting balance for {addressBalance[ADDRESS]}. Expected: {expected}. Got: {addressBalance[BALANCE]}")
+        if convertToSatoshi(expected["confirmed"]) != addressBalance["balance"]["confirmed"] or convertToSatoshi(expected["unconfirmed"]) != addressBalance["balance"]["unconfirmed"]:
+            logger.printError(f"Error getting balance for {addressBalance['address']}. Expected: {expected}. Got: {addressBalance['balance']}")
             assert False
 
     assert True
@@ -333,98 +340,97 @@ def testGetAddressesBalance():
 
 def testGetTransactionHex():
 
-    if "getTransactionHex" not in RPCMethods:
+    if "getTransactionHex" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getTransactionHex not loaded in RPCMethods")
         assert False
 
     addressHistory = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
-    txHash = addressHistory[0][TX_HASH_SNAKE_CASE]
+    txHash = addressHistory[0]["tx_hash"]
 
     expected = makeElectrumRequest(GET_TRANSACTION_METHOD, [txHash])
 
-    got = RPCMethods["getTransactionHex"](0, {
-        TX_HASH: txHash
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getTransactionHex"]({"txHash": txHash}, config)
 
-    assert expected == got[RAW_TRANSACTION]
+    assert expected == got["rawTransaction"]
 
 
 def testGetAddressesTransactionCount():
 
-    if "getAddressesTransactionCount" not in RPCMethods:
+    if "getAddressesTransactionCount" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getAddressesTransactionCount not loaded in RPCMethods")
         assert False
 
     addresses = {
-        ADDRESSES: [
+        "addresses": [
             {
-                ADDRESS: address1,
-                PENDING: True
+                "address": address1,
+                "pending": True
             },
             {
-                ADDRESS: address2,
-                PENDING: False
+                "address": address2,
+                "pending": False
             }
         ]
     }
 
-    got = RPCMethods["getAddressesTransactionCount"](0, addresses)
+    got = postHttpMethods[COIN_SYMBOL]["getAddressesTransactionCount"](addresses, config)
 
-    for index, address in enumerate(addresses[ADDRESSES]):
+    for index, address in enumerate(addresses["addresses"]):
 
-        expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address[ADDRESS]])
+        expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address["address"]])
 
         pendingCount = 0
         for tx in expected:
-            if tx[HEIGHT] == 0:
+            if tx["height"] == 0:
                 pendingCount += 1
 
         assert json.dumps(got[index], sort_keys=True) == json.dumps(
             {
-                ADDRESS: address[ADDRESS],
-                TRANSACTION_COUNT: str(pendingCount) if address[PENDING] else str(len(expected) - pendingCount)
+                "address": address["address"],
+                "transactionCount": str(pendingCount) if address["pending"] else str(len(expected) - pendingCount)
             }
         )
 
 
 def testGetAddressTransactionCount():
 
-    if "getAddressTransactionCount" not in RPCMethods:
+    if "getAddressTransactionCount" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getAddressTransactionCount not loaded in RPCMethods")
         assert False
 
     pending = True
 
     expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
-    got = RPCMethods["getAddressTransactionCount"](0, {
-        ADDRESS: address1,
-        PENDING: pending
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getAddressTransactionCount"](
+        {
+            "address": address1,
+            "pending": pending
+        },
+        config
+    )
 
     pendingCount = 0
     for tx in expected:
-        if tx[HEIGHT] == 0:
+        if tx["height"] == 0:
             pendingCount += 1
 
     assert json.dumps(got, sort_keys=True) == json.dumps(
         {
-            ADDRESS: address1,
-            TRANSACTION_COUNT: str(pendingCount) if pending else str(len(expected) - pendingCount)
+            "address": address1,
+            "transactionCount": str(pendingCount) if pending else str(len(expected) - pendingCount)
         }
     )
 
 
 def testGetAddressUnspent():
 
-    if "getAddressUnspent" not in RPCMethods:
+    if "getAddressUnspent" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getAddressUnspent not loaded in RPCMethods")
         assert False
 
     expected = makeElectrumRequest(GET_ADDRESS_UNSPENT_METHOD, [address1])
 
-    got = RPCMethods["getAddressUnspent"](0, {
-        ADDRESS: address1
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getAddressUnspent"]({"address": address1}, config)
 
     got.sort(key=sortUnspentOutputs, reverse=False)
 
@@ -433,13 +439,13 @@ def testGetAddressUnspent():
     for tx in expected:
         txs.append(
             {
-                TX_HASH: tx[TX_HASH_SNAKE_CASE],
-                VOUT: str(tx[TX_POS_SNAKE_CASE]),
-                STATUS: {
-                    CONFIRMED: tx[HEIGHT] != 0,
-                    BLOCK_HEIGHT: str(tx[HEIGHT])
+                "txHash": tx["tx_hash"],
+                "vout": str(tx["tx_pos"]),
+                "status": {
+                    "confirmed": tx["height"] != 0,
+                    "blockHeight": str(tx["height"])
                 },
-                VALUE: str(tx[VALUE])
+                "value": str(tx["value"])
             }
         )
 
@@ -450,37 +456,36 @@ def testGetAddressUnspent():
 
 def testGetAddressesUnspent():
 
-    if "getAddressesUnspent" not in RPCMethods:
+    if "getAddressesUnspent" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getAddressesUnspent not loaded in RPCMethods")
         assert False
 
     addresses = [address1, address2]
 
-    got = RPCMethods["getAddressesUnspent"](0, {
-        ADDRESSES: addresses
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getAddressesUnspent"]({"addresses": addresses}, config)
 
     for addressUnspent in got:
-        addressUnspent[OUTPUTS].sort(key=sortUnspentOutputs, reverse=False)
-        expected = makeElectrumRequest(GET_ADDRESS_UNSPENT_METHOD, [addressUnspent[ADDRESS]])
+        addressUnspent["outputs"].sort(key=sortUnspentOutputs, reverse=False)
+        expected = makeElectrumRequest(GET_ADDRESS_UNSPENT_METHOD, [addressUnspent["address"]])
 
         txs = []
 
         for tx in expected:
             txs.append(
                 {
-                    TX_HASH: tx[TX_HASH_SNAKE_CASE],
-                    VOUT: str(tx[TX_POS_SNAKE_CASE]),
-                    STATUS: {
-                        CONFIRMED: tx[HEIGHT] != 0,
-                        BLOCK_HEIGHT: str(tx[HEIGHT])
+                    "txHash": tx["tx_hash"],
+                    "vout": str(tx["tx_pos"]),
+                    "status": {
+                        "confirmed": tx["height"] != 0,
+                        "blockHeight": str(tx["height"])
                     },
-                    VALUE: str(tx[VALUE])
+                    "value": str(tx["value"])
                 }
             )
         txs.sort(key=sortUnspentOutputs, reverse=False)
-        if not (json.dumps(addressUnspent[OUTPUTS], sort_keys=True) == json.dumps(txs, sort_keys=True)):
-            logger.printError(f"Error getting unspent transaction for {addressUnspent[ADDRESS]}. Expected: {txs}. Got: {addressUnspent[OUTPUTS]}")
+        if not (json.dumps(addressUnspent["outputs"], sort_keys=True) == json.dumps(txs, sort_keys=True)):
+            logger.printError(f"Error getting unspent transaction for {addressUnspent['address']}. "
+                              f"Expected: {txs}. Got: {addressUnspent['outputs']}")
             assert False
 
     assert True
@@ -488,36 +493,36 @@ def testGetAddressesUnspent():
 
 def testGetTransaction():
 
-    if "getTransaction" not in RPCMethods:
+    if "getTransaction" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("getTransaction not loaded in RPCMethods")
         assert False
 
-    txHash, _ = sendTransaction(address1, address2, 0.25)
+    txHash, _ = sendTransaction(address1, address2, 0.00001)
     mineBlocksToAddress(minerAddress, 1)
 
     expected = makeBitcoinCoreRequest(GET_TRANSACTION_METHOD, [txHash, True, True])
 
-    got = RPCMethods["getTransaction"](0, {
-        TX_HASH: txHash
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getTransaction"]({"txHash": txHash}, config)
 
     vins = {}
     transactionAmount = 0
     if "generated" not in expected:
-        for vin in expected["decoded"][VIN]:
+        for vin in expected["decoded"]["vin"]:
 
-            inputTransaction = makeBitcoinCoreRequest(GET_TRANSACTION_METHOD, [vin[TX_ID], True, True])
-            value = inputTransaction["decoded"][VOUT][vin[VOUT]][VALUE]
-            address = inputTransaction["decoded"][VOUT][vin[VOUT]][SCRIPT_PUB_KEY][ADDRESSES][0]
+            inputTransaction = makeBitcoinCoreRequest(GET_TRANSACTION_METHOD, [vin["txid"], True, True])
+            value = inputTransaction["decoded"]["vout"][vin["vout"]]["value"]
+            address = inputTransaction["decoded"]["vout"][vin["vout"]]["scriptPubKey"]["addresses"][0]
             transactionAmount += value
             vins[address] = value
 
     assert json.dumps(
         {
             "transaction": {
+                "blockNumber": str(expected["blockheight"]),
+                "txHash": txHash,
                 "data": expected["decoded"],
-                "fee": -expected["fee"],
-                BLOCK_HASH: expected["blockhash"],
+                "fee": str(convertToSatoshi(-expected["fee"])),
+                "blockHash": expected["blockhash"],
                 "transfers": parseBalancesToTransfers(
                     vins,
                     expected["details"],
@@ -530,21 +535,35 @@ def testGetTransaction():
 
 def testSubscribeToAddressBalance():
 
-    if "subscribeToAddressBalance" not in webSocketMethods:
+    if "subscribeToAddressBalance" not in wsMethods[COIN_SYMBOL]:
         logger.printError("Method subscribeToAddressBalance not loaded")
         assert False
 
-    got = webSocketMethods["subscribeToAddressBalance"](sub, 0, {
-        ADDRESS: address1
-    })
+    got = wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"](
+        sub,
+        {
+            "id": 0,
+            "params": {
+                "address": address1
+            }
+        },
+        config
+    )
 
     if not got[SUBSCRIBED]:
         logger.printError(f"Error in subscribe to address balance. Expected: True Got: {got[SUBSCRIBED]}")
         assert False
 
-    got = webSocketMethods["subscribeToAddressBalance"](sub, 0, {
-        ADDRESS: address1
-    })
+    got = wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"](
+        sub,
+        {
+            "id": 0,
+            "params": {
+                "address": address1
+            }
+        },
+        config
+    )
 
     if got[SUBSCRIBED]:
         logger.printError(f"Error in subscribe to address balance. Expected: False Got: {got[SUBSCRIBED]}")
@@ -555,24 +574,38 @@ def testSubscribeToAddressBalance():
 
 def testUnsubscribeFromAddressBalance():
 
-    if "unsubscribeFromAddressBalance" not in webSocketMethods:
+    if "unsubscribeFromAddressBalance" not in wsMethods[COIN_SYMBOL]:
         logger.printError("Method unsubscribeFromAddressBalance not loaded")
         assert False
 
-    got = webSocketMethods["unsubscribeFromAddressBalance"](sub, 0, {
-        ADDRESS: address1
-    })
+    got = wsMethods[COIN_SYMBOL]["unsubscribeFromAddressBalance"](
+        sub,
+        {
+            "id": 0,
+            "params": {
+                "address": address1
+            }
+        },
+        config
+    )
 
-    if not got[UNSUBSCRIBED]:
-        logger.printError(f"Error in unsubscribe from address balance. Expected: True Got: {got[UNSUBSCRIBED]}")
+    if not got["unsubscribed"]:
+        logger.printError(f"Error in unsubscribe from address balance. Expected: True Got: {got['unsubscribed']}")
         assert False
 
-    got = webSocketMethods["unsubscribeFromAddressBalance"](sub, 0, {
-        ADDRESS: address1
-    })
+    got = wsMethods[COIN_SYMBOL]["unsubscribeFromAddressBalance"](
+        sub,
+        {
+            "id": 0,
+            "params": {
+                "address": address1
+            }
+        },
+        config
+    )
 
-    if got[UNSUBSCRIBED]:
-        logger.printError(f"Error in unsubscribe from address balance. Expected: False Got: {got[UNSUBSCRIBED]}")
+    if got["unsubscribed"]:
+        logger.printError(f"Error in unsubscribe from address balance. Expected: False Got: {got['unsubscribed']}")
         assert False
 
     assert True
@@ -580,17 +613,31 @@ def testUnsubscribeFromAddressBalance():
 
 def testSubscribeToNewBlocks():
 
-    if "subscribeToNewBlocks" not in webSocketMethods:
+    if "subscribeToNewBlocks" not in wsMethods[COIN_SYMBOL]:
         logger.printError("Method subscribeToNewBlocks not loaded")
         assert False
 
-    got = webSocketMethods["subscribeToNewBlocks"](newBlocksSub, 0, {})
+    got = wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"](
+        newBlocksSub,
+        {
+            "id": 0,
+            "params": {}
+        },
+        config
+    )
 
     if not got[SUBSCRIBED]:
         logger.printError(f"Error in subscribe to new blocks. Expected: True Got: {got[SUBSCRIBED]}")
         assert False
 
-    got = webSocketMethods["subscribeToNewBlocks"](newBlocksSub, 0, {})
+    got = wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"](
+        newBlocksSub,
+        {
+            "id": 0,
+            "params": {}
+        },
+        config
+    )
 
     if got[SUBSCRIBED]:
         logger.printError(f"Error in subscribe to new blocks. Expected: False Got: {got[SUBSCRIBED]}")
@@ -615,17 +662,33 @@ def testNewBlocksWS():
 
 def testUnsubscribeFromNewBlocks():
 
-    if "unsubscribeFromNewBlocks" not in webSocketMethods:
+    if "unsubscribeFromNewBlocks" not in wsMethods[COIN_SYMBOL]:
         logger.printError("Method unsubscribeFromNewBlocks not loaded")
         assert False
 
-    got = webSocketMethods["unsubscribeFromNewBlocks"](newBlocksSub, 0, {})
+    got = wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"](
+        newBlocksSub,
+        {
+
+            "id": 0,
+            "params": {}
+        },
+        config
+    )
 
     if not got[UNSUBSCRIBED]:
         logger.printError(f"Error in unsubscribe from new blocks. Expected: True Got: {got[UNSUBSCRIBED]}")
         assert False
 
-    got = webSocketMethods["unsubscribeFromNewBlocks"](newBlocksSub, 0, {})
+    got = wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"](
+        newBlocksSub,
+        {
+
+            "id": 0,
+            "params": {}
+        },
+        config
+    )
 
     if got[UNSUBSCRIBED]:
         logger.printError(f"Error in unsubscribe from new blocks. Expected: False Got: {got[UNSUBSCRIBED]}")

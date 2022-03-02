@@ -6,7 +6,7 @@ from decimal import Decimal
 import random
 import sys
 from logger import logger
-from rpcutils import error as rpcerrorhandler
+from rpcutils import error
 from wsutils import topics
 from rpcutils.rpcconnector import RPCConnector
 from rpcutils.rpcsocketconnector import RPCSocketConnector
@@ -46,27 +46,34 @@ def getWSResponseMethodSchema(name):
     return WS_JSON_SCHEMA_FOLDER + name + SCHEMA_CHAR_SEPARATOR + RESPONSE + SCHEMA_EXTENSION
 
 
-def closeAddrBalanceTopic(topicName):
+class AddrBalanceTopicCloseHandler:
 
-    addrTopicSplitted = topicName.split(topics.TOPIC_SEPARATOR)
+    def __init__(self, topicName, config):
+        self.topicName = topicName
+        self.config = config
 
-    if len(addrTopicSplitted) <= 1:
-        logger.printError(f"Topic name [{topicName}] not valid for Address Balance WS")
-        raise rpcerrorhandler.RpcInternalServerError(f"Can not unsubscribe {topicName} to node")
+    def close(self):
 
-    id = random.randint(1, sys.maxsize)
+        addrTopicSplitted = self.topicName.split(topics.TOPIC_SEPARATOR)
 
-    response = apirpc.notify(
-        id,
-        {
-            "success": addrTopicSplitted[1],
-            "callBackEndpoint": ""
-        }
-    )
+        if len(addrTopicSplitted) <= 1:
+            logger.printError(f"Topic name [{self.topicName}] not valid for Address Balance WS")
+            raise error.RpcInternalServerError(f"Can not unsubscribe {self.topicName} to node")
 
-    if not response["success"]:
-        logger.printError(f"Can not unsubscribe {topicName} to node")
-        raise rpcerrorhandler.BadRequestError(f"Can not unsubscribe {topicName} to node")
+        id = random.randint(1, sys.maxsize)
+
+        response = apirpc.notify(
+            id,
+            {
+                "address": addrTopicSplitted[3],
+                "callBackEndpoint": ""
+            },
+            self.config
+        )
+
+        if not response["success"]:
+            logger.printError(f"Can not unsubscribe {self.topicName} to node")
+            raise error.RpcBadRequestError(f"Can not unsubscribe {self.topicName} to node")
 
 
 def decodeTransactionDetails(txDecoded, bitcoincoreRpcEndpoint):
