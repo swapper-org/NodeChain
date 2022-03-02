@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import os
 import subprocess
+from tabnanny import verbose
 import docker
 import utils
 import signal
@@ -172,7 +173,8 @@ def start(args):
             logger.printInfo(f"Network selected: {network}", verbosity=args.verbose)
         if checkApiRunning(token, network):
             # TODO: update currency logic :D
-            logger.printError(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
+            logger.printInfo(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
+            updateApi(args, token, network)
             return
         utils.queryPath(args, token, network)
         startApi(args, token, network)
@@ -384,7 +386,6 @@ def startApi(args, token, network):
     # Get port to make requests
     bindUsedPort()
 
-    # Add currency to the connector
     if utils.queryYesNo("Do you want to configure your API ", default="no"):
         response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig=False)
     else:
@@ -458,6 +459,18 @@ def statusApi(args, token, network):
                 print("{}{}".format("[RUNNING]".ljust(15), str(dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"]).capitalize()))
             else:
                 print("{}{}".format("[OFF]".ljust(15), str(dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"]).capitalize()))
+
+
+def updateApi(args, token, network):
+    # Get port to make requests
+    bindUsedPort()
+
+    response = endpoints.updateApi(args, token, network, os.environ["PORT"])
+
+    # Check request errors
+    if response.status_code == 200:
+        logger.printInfo(f"{token} {network} has updated succesfully from the connector", verbosity=args.verbose)
+        return
 
 
 def startConnector(args):

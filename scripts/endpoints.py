@@ -140,8 +140,38 @@ def updateApi(args, token, network, port):
 
     response = response.json()
     if response["success"] is False:
-        logger.printError(f"Can't remove the API {token} {network} from the connector. Is not registered: {response}", verbosity=args.verbose)
+        logger.printError(f"Can't update the API {token} {network} from the connector. Is not registered: {response}", verbosity=args.verbose)
         return
 
-    # TODO: UPDATE INFO LOGIC
-    return
+    configurable = utils.getTokenConfiguration(token, network)
+    userData = []
+    configurableData = []
+    for configOption in configurable:
+        if utils.queryYesNo(f"Do you want to update the {configOption}?"):
+            configurableData.append(configOption)
+            userData.append(utils.queryConfigurable(args, f"Please, introduce a value for {configOption}: ", configOption))
+
+    config = dict(zip(configurableData, userData))
+    print(config)
+    payload = {
+        "coin": token,
+        "network": network,
+        "config": config
+    }
+
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    try:
+        req = requests.post(
+            url=f"http://localhost:{port}/admin/{UPDATE_CURRENCY}",
+            json=payload,
+            headers=headers
+        )
+
+        if args.verbose:
+            logger.printInfo(f"Request sended to http://localhost:{port}/admin/{UPDATE_CURRENCY}: {req.json()}", verbosity=args.verbose)
+        return req
+    except Exception as e:
+        logger.printError(f"Request to client could not be completed: {str(e)}", verbosity=args.verbose)
+        return e
