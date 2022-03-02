@@ -164,16 +164,17 @@ def start(args):
     if args.all:
         handleAllApisByNetwork(args, 'start')
     else:
-        token = coinMenu(args)
+        token = currencyMenu(args)
         if args.verbose:
             logger.printInfo(f"Token selected: {token}", verbosity=args.verbose)
         network = networkMenu(args, token)
         if args.verbose:
             logger.printInfo(f"Network selected: {network}", verbosity=args.verbose)
-        utils.queryPath(args, token, network)
         if checkApiRunning(token, network):
+            # TODO: update currency logic :D
             logger.printError(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
             return
+        utils.queryPath(args, token, network)
         startApi(args, token, network)
 
 
@@ -201,7 +202,7 @@ def stop(args):
         if args.all:
             handleAllApisByNetwork(args, 'stop')
         else:
-            token = coinMenu(args)
+            token = currencyMenu(args)
             if args.verbose:
                 logger.printInfo(f"Token selected: {token}")
             network = networkMenu(args, token)
@@ -228,7 +229,7 @@ def status(args):
         logger.connectorNotRunning(checkConnectorRunning(), args)
         if args.verbose:
             logger.printInfo("Showing connector status information.", verbosity=args.verbose)
-        token = coinMenu(args)
+        token = currencyMenu(args)
         if args.verbose:
             logger.printInfo(f"Token selected: {token}")
         network = networkMenu(args, token)
@@ -266,7 +267,7 @@ def listAvailableNetworksByToken(token):
                 return dict.keys(api["networks"])
 
 
-def coinMenu(args):
+def currencyMenu(args):
     tokens = utils.listTokens()
     if args.token and args.token in tokens:
         os.environ["COIN"] = args.token
@@ -332,8 +333,8 @@ def configMenu():
     return (menu[choice][0]).lower()
 
 
-def blockchainChoice(coin):
-    os.environ["COIN"] = utils.getTokenFromCoin(coin.lower())
+def blockchainChoice(token):
+    os.environ["COIN"] = utils.getTokenFromCoin(token.lower())
 
 
 def networkChoice(network):
@@ -360,6 +361,9 @@ def getDockerComposePath(token, network):
     return path.parent.absolute()
 
 
+# LOGIC
+# 1. START CONTAINERS
+# 2. REGISTER API IN CONNECTOR (WS NEED THE CONTAINERS RUNNING)
 def startApi(args, token, network):
     path = getDockerComposePath(token, network)
     logger.printInfo(f"Starting {token}{network}api node... This might take a while.")
@@ -385,20 +389,44 @@ def startApi(args, token, network):
         response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig=False)
     else:
         response = endpoints.addApi(args, token, network, os.environ["PORT"])
+
     # Already registered
     if not response:
         return
-    # If response is an error we need to shut down the API
+
+    # Check request errors
     if response.status_code != 200:
         stopApi(args, token, network)
+        return
     else:
         response = response.json()
+
         # If response["success"] is an internal connector error so we also need to shut down the API
         if response["success"] is False:
             stopApi(args, token, network)
+            return
+
+    logger.printInfo(f"{token} {network} has registered succesfully in the connector", verbosity=args.verbose)
 
 
+# LOGIC
+# 1. REMOVE API IN CONNECTOR
+# 2. STOP CONTAINERS
 def stopApi(args, token, network):
+    # Get port to make requests
+    bindUsedPort()
+    response = endpoints.removeApi(args, token, network, os.environ["PORT"])
+
+    # Already registered
+    if not response:
+        return
+
+    # Check request errors
+    if response.status_code != 200:
+        return
+
+    logger.printInfo(f"{token} {network} has removed succesfully from the connector", verbosity=args.verbose)
+
     path = getDockerComposePath(token, network)
     logger.printInfo(f"Stopping {token}{network}api node... This might take a while.", verbosity=args.verbose)
     if args.verbose:

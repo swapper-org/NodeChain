@@ -6,14 +6,14 @@ import requests
 import logger
 import utils
 
-ADD_COIN = "addcoin"
-GET_COIN = "getcoin"
-UPDATE_COIN = "updatecoin"
-REMOVE_COIN = "removecoin"
+ADD_CURRENCY = "addcoin"
+GET_CURRENCY = "getcoin"
+UPDATE_CURRENCY = "updatecoin"
+REMOVE_CURRENCY = "removecoin"
 
 
 def addApi(args, token, network, port, defaultConfig=True):
-    # Get if API is registered
+    # Getting API information
     try:
         status_code, response = getApi(args, token, network, port)
     except Exception as e:
@@ -53,13 +53,13 @@ def addApi(args, token, network, port, defaultConfig=True):
     }
     try:
         req = requests.post(
-            url=f"http://localhost:{port}/admin/{ADD_COIN}",
+            url=f"http://localhost:{port}/admin/{ADD_CURRENCY}",
             json=payload,
             headers=headers
         )
 
         if args.verbose:
-            logger.printInfo(f"Request sended to http://localhost:{port}/admin/{ADD_COIN}: {req.json()}", verbosity=args.verbose)
+            logger.printInfo(f"Request sended to http://localhost:{port}/admin/{ADD_CURRENCY}: {req.json()}", verbosity=args.verbose)
         return req
     except Exception as e:
         logger.printError(f"Request to client could not be completed: {str(e)}", verbosity=args.verbose)
@@ -76,14 +76,72 @@ def getApi(args, token, network, port):
     }
     try:
         req = requests.post(
-            url=f"http://localhost:{port}/admin/{GET_COIN}",
+            url=f"http://localhost:{port}/admin/{GET_CURRENCY}",
             json=payload,
             headers=headers
         )
 
         if args.verbose:
-            logger.printInfo(f"Request sended to http://localhost:{port}/admin/{GET_COIN}: {req.json()}", verbosity=args.verbose)
+            logger.printInfo(f"Request sended to http://localhost:{port}/admin/{GET_CURRENCY}: {req.json()}", verbosity=args.verbose)
         return req.status_code, req
     except Exception as e:
         logger.printError(f"Request to client could not be completed: {str(e)}", verbosity=args.verbose)
         return e
+
+
+def removeApi(args, token, network, port):
+    # Getting API information
+    try:
+        status_code, response = getApi(args, token, network, port)
+    except Exception as e:
+        logger.printError(f"Request to client could not be completed: {str(e)}", verbosity=args.verbose)
+
+    # Check if API is not registered
+    if status_code != 200:
+        logger.printError(f"Request to client could not be completed: {status_code}", verbosity=args.verbose)
+
+    response = response.json()
+    if response["success"] is False:
+        logger.printError(f"Can't remove the API {token} {network} from the connector. Is not registered: {response}", verbosity=args.verbose)
+        return
+
+    payload = {
+        "coin": token,
+        "network": network,
+    }
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    try:
+        req = requests.post(
+            url=f"http://localhost:{port}/admin/{REMOVE_CURRENCY}",
+            json=payload,
+            headers=headers
+        )
+
+        if args.verbose:
+            logger.printInfo(f"Request sended to http://localhost:{port}/admin/{REMOVE_CURRENCY}: {req.json()}", verbosity=args.verbose)
+        return req
+    except Exception as e:
+        logger.printError(f"Request to client could not be completed: {str(e)}", verbosity=args.verbose)
+        return e
+
+
+def updateApi(args, token, network, port):
+    # Getting API information
+    try:
+        status_code, response = getApi(args, token, network, port)
+    except Exception as e:
+        logger.printError(f"Request to client could not be completed: {str(e)}", verbosity=args.verbose)
+
+    # Check if API is not registered
+    if status_code != 200:
+        logger.printError(f"Request to client could not be completed: {status_code}", verbosity=args.verbose)
+
+    response = response.json()
+    if response["success"] is False:
+        logger.printError(f"Can't remove the API {token} {network} from the connector. Is not registered: {response}", verbosity=args.verbose)
+        return
+
+    # TODO: UPDATE INFO LOGIC
+    return
