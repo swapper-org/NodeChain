@@ -249,6 +249,43 @@ def getTransaction(id, params, config):
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
 @httpmethod.postHttpMethod(coin=COIN_SYMBOL)
+def getTransactions(id, params, config):
+
+    logger.printInfo(f"Executing RPC method getTransactions with id {id} and params {params}")
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTIONS)
+
+    err = httputils.validateJSONSchema(params, requestSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(id=id, message=err.message)
+
+    response = {
+        "transactions": []
+    }
+
+    for txHash in params["txHashes"]:
+        response["transactions"].append(
+            getTransaction(
+                id=id,
+                params={
+                    "txHash": txHash
+                },
+                config=config
+            )
+        )
+
+    err = httputils.validateJSONSchema(response, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    return response
+
+
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getBlockByHash(id, params, config):
 
     logger.printInfo(
