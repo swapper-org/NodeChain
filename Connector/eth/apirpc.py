@@ -222,12 +222,16 @@ def getTransaction(id, params, config):
             "blockHash": transaction["blockHash"],
             "blockNumber": str(int(transaction["blockNumber"], 16)) if transaction["blockNumber"] is not None else None,
             "data": transaction,
-            "transfers": [
+            "inputs": [
                 {
-                    "from": transaction["from"],
-                    "to": transaction["to"],
-                    "amount": str(utils.toWei(transaction["value"])),
-                    "fee": str(utils.toWei(transaction["gasPrice"]) * utils.toWei(transaction["gas"]))
+                    "address": transaction["from"],
+                    "amount": str(utils.toWei(transaction["value"]))
+                }
+            ],
+            "outputs": [
+                {
+                    "address": transaction["to"],
+                    "amount": str(utils.toWei(transaction["value"]))
                 }
             ]
         }

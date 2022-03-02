@@ -4,6 +4,7 @@ from rpcutils import rpcmethod
 from logger import logger
 from rpcutils import error
 from rpcutils.rpcconnector import RPCConnector
+from rpcutils.rpcsocketconnector import RPCSocketConnector
 from . import utils
 from .constants import *
 
@@ -367,7 +368,7 @@ def getTransactionHex(id, params, config):
     rawTransaction = RPCConnector.request(
         endpoint=config.bitcoincoreRpcEndpoint,
         id=id,
-        method=GET_TRANSACTION_METHOD,
+        method=GET_RAW_TRANSACTION_METHOD,
         params=[params["txHash"]]
     )
 
@@ -383,7 +384,6 @@ def getTransactionHex(id, params, config):
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
 @httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getTransaction(id, params, config):
-
     logger.printInfo(f"Executing RPC method getTransaction with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION)
@@ -393,53 +393,47 @@ def getTransaction(id, params, config):
         raise error.RpcBadRequestError(err.message)
 
     try:
-        # Parameters: TransactionId, include_watchonly, verbose
         transaction = RPCConnector.request(
             endpoint=config.bitcoincoreRpcEndpoint,
             id=id,
-            method=GET_TRANSACTION_METHOD,
+            method=GET_RAW_TRANSACTION_METHOD,
             params=[
                 params["txHash"],
-                True,
                 True
             ]
         )
 
-        vinAddressBalances = {}
-        transactionAmount = 0
+        # Check if transaction is confirmed, and obtain block number
+        if "blockhash" in transaction:
+            transactionBlock = RPCConnector.request(
+                endpoint=config.bitcoincoreRpcEndpoint,
+                id=id,
+                method=GET_BLOCK,
+                params=[transaction["blockhash"], 1]
+            )
+            blockNumber = transactionBlock["height"]
+        else:
+            blockNumber = None
 
-        if "generated" not in transaction:
 
-            for vin in transaction["decoded"]["vin"]:
-                inputTransaction = RPCConnector.request(
-                    endpoint=config.bitcoincoreRpcEndpoint,
-                    id=id,
-                    method=GET_TRANSACTION_METHOD,
-                    params=[
-                        vin["txid"],
-                        True,
-                        True
-                    ]
-                )
+        transactionDetails = utils.decodeTransactionDetails(transaction, config.bitcoincoreRpcEndpoint)
 
-                transactionAmount += inputTransaction["decoded"]["vout"][vin["vout"]]["value"]
-                address = inputTransaction["decoded"]["vout"][vin["vout"]]["scriptPubKey"]["addresses"][0]
-                value = inputTransaction["decoded"]["vout"][vin["vout"]]["value"]
-                vinAddressBalances[address] = value
+        # Converting all transaction details to str
+        transactionDetails["fee"] = str(transactionDetails["fee"])
+        for input in transactionDetails["inputs"]:
+            input["amount"] = str(input["amount"])
+        for output in transactionDetails["outputs"]:
+            output["amount"] = str(output["amount"])
 
         response = {
             "transaction": {
-                "txHash": params["txHash"],
-                "blockhash": transaction["blockhash"] if transaction["confirmations"] >= 1 else None,
-                "blockNumber": str(transaction["blockheight"]) if transaction["confirmations"] >= 1 else None,
-                "fee": str(utils.convertToSatoshi(-transaction["fee"])) if "generated" not in transaction else "0",
-                "transfers": utils.parseBalancesToTransfers(
-                    vinAddressBalances,
-                    transaction["details"],
-                    -transaction["fee"] if "generated" not in transaction else 0,
-                    transactionAmount
-                ),
-                "data": transaction["decoded"]
+                "txId": transaction["txid"],
+                "txHash": transaction["hash"],
+                "blockNumber": str(blockNumber) if blockNumber is not None else blockNumber,
+                "fee": transactionDetails["fee"],
+                "inputs": transactionDetails["inputs"],
+                "outputs": transactionDetails["outputs"],
+                "data": transaction
             }
         }
 

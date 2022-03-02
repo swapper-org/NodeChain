@@ -28,18 +28,31 @@
                 "fee": {
                     "type": "string"
                 },
-                "transfers": {
+                "inputs": {
                     "type": "array",
                     "items": {
                         "properties": {
-                            "from": {
-                                "type": "string"
+                            "address": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
                             },
-                            "to": {
+                            "amount": {
                                 "type": "string"
-                            },
-                            "fee": {
-                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "outputs": {
+                    "type": "array",
+                    "items": {
+                        "properties": {
+                            "address": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
                             },
                             "amount": {
                                 "type": "string"

@@ -1,10 +1,15 @@
 #!/usr/bin/python3
+import binascii
+import hashlib
+import math
 from decimal import Decimal
 import random
 import sys
 from logger import logger
 from rpcutils import error as rpcerrorhandler
 from wsutils import topics
+from rpcutils.rpcconnector import RPCConnector
+from rpcutils.rpcsocketconnector import RPCSocketConnector
 from .constants import *
 from . import apirpc
 
@@ -64,49 +69,53 @@ def closeAddrBalanceTopic(topicName):
         raise rpcerrorhandler.BadRequestError(f"Can not unsubscribe {topicName} to node")
 
 
-def parseBalancesToTransfers(vin, vout, fee, amount):
+def decodeTransactionDetails(txDecoded, bitcoincoreRpcEndpoint):
+    outputs = []
+    for output in txDecoded["vout"]:
+        if "addresses" in output["scriptPubKey"] and len(output["scriptPubKey"]["addresses"]) == 1:
+            outputs.append(
+                {"amount": math.trunc(output["value"] * 100000000), "address": output["scriptPubKey"]["addresses"][0]})
+        else:
+            outputs.append({"amount": math.trunc(output["value"] * 100000000), "address": None})
 
-    transfers = []
-    diff = 0
+    sumOutputs = 0
+    for output in outputs:
+        sumOutputs += output["amount"]
 
-    for utxo in vout:
+    inputs = []
+    for txInput in txDecoded["vin"]:
 
-        if utxo["category"] == "send":
+        if "coinbase" in txInput:  # This is a coinbase transaction and thus it have one only input of 'sumOutputs'
+            inputs.append({"amount": sumOutputs, "address": None})
+            break
 
-            for address in list(vin.keys()):
+        transaction = RPCConnector.request(
+            endpoint=bitcoincoreRpcEndpoint,
+            id=0,
+            method="getrawtransaction",
+            params=[
+                txInput["txid"],
+                True
+            ]
+        )
 
-                voutAmount = -utxo["amount"]
-                vinAmount = vin[address]
+        for txOutput in transaction["vout"]:
+            if txOutput["n"] == txInput["vout"] and "addresses" in txOutput["scriptPubKey"] and len(
+                    txOutput["scriptPubKey"]["addresses"]) == 1:
+                inputs.append({"amount": math.trunc(txOutput["value"] * 100000000),
+                               "address": txOutput["scriptPubKey"]["addresses"][0]})
+            elif "addresses" not in txOutput["scriptPubKey"] or len(txOutput["scriptPubKey"]["addresses"]) != 1:
+                inputs.append({"amount": math.trunc(txOutput["value"] * 100000000), "address": None})
 
-                if vinAmount <= (voutAmount + diff):
-                    transfer = {
-                        "from": address,
-                        "to": utxo["address"],
-                        "amount": str(convertToSatoshi(vinAmount)),
-                        "fee": str(convertToSatoshi(round(vinAmount * fee / amount, BTC_PRECISION)))
-                    }
-                    del vin[address]
-                else:
-                    transfer = {
-                        "from": address,
-                        "to": utxo["address"],
-                        "amount": str(convertToSatoshi(voutAmount)),
-                        "fee": str(convertToSatoshi(round(voutAmount * fee / amount, BTC_PRECISION)))
-                    }
+    sumInputs = 0
+    for txInput in inputs:
+        sumInputs += txInput["amount"]
 
-                diff = diff + voutAmount - vinAmount
-                transfers.append(transfer)
+    fee = sumInputs - sumOutputs
 
-        if utxo["category"] in ["generate", "immature", "orphan"]:
-            transfers.append(
-                {
-                    "to": utxo["address"],
-                    "fee": "0",
-                    "amount": str(convertToSatoshi(utxo["maount"]))
-                }
-            )
+    transactionsDetails = {"fee": fee, "inputs": inputs, "outputs": outputs}
 
-    return transfers
+    return transactionsDetails
 
 
 def sortUnspentOutputs(outputs):

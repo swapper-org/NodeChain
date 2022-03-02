@@ -24,6 +24,8 @@ class Config:
         self._electrumPassword = ""
         self._bitcoincoreCallbackProtocol = ""
         self._bitcoincoreCallbackHost = ""
+        self._electrumxHost = ""
+        self._electrumxPort = 0
 
     def loadConfig(self, config):
 
@@ -57,6 +59,8 @@ class Config:
             else defaultConfig["bitcoincoreCallbackProtocol"]
         self.bitcoincoreCallbackHost = config["bitcoincoreCallbackHost"] if "bitcoincoreCallbackHost" in config \
             else defaultConfig["bitcoincoreCallbackHost"]
+        self.electrumxHost = config["electrumxHost"] if "electrumxHost" in config else defaultConfig["electrumxHost"]
+        self.electrumxPort = config["electrumxPort"] if "electrumxPort" in config else defaultConfig["electrumxPort"]
 
         return True, None
 
@@ -185,6 +189,22 @@ class Config:
         self._bitcoincoreCallbackHost = value
 
     @property
+    def electrumxHost(self):
+        return self._electrumxHost
+
+    @electrumxHost.setter
+    def electrumxHost(self, value):
+        self._electrumxHost = value
+
+    @property
+    def electrumxPort(self):
+        return self._electrumxPort
+
+    @electrumxPort.setter
+    def electrumxPort(self, value):
+        self._electrumxPort = value
+
+    @property
     def bitcoincoreRpcEndpoint(self):
         return f"{self.bitcoincoreProtocol}://" \
                f"{self.bitcoincoreUser}:{self.bitcoincorePassword}@" \
@@ -226,5 +246,7 @@ class ConfigEncoder(JSONEncoder):
             "electrumHost": o.electrumHost,
             "electrumPort": o.electrumPort,
             "electrumUser": o.electrumUser,
-            "electrumPassword": o.electrumPassword
+            "electrumPassword": o.electrumPassword,
+            "electrumxHost": o.electrumxHost,
+            "electrumxPort": o.electrumxPort
         }

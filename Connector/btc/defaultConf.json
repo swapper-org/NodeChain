@@ -12,5 +12,7 @@
   "electrumUser": "swapper",
   "electrumPassword": "swapper",
   "bitcoincoreCallbackProtocol": "http",
-  "bitcoincoreCallbackHost": "connector"
+  "bitcoincoreCallbackHost": "connector",
+  "electrumxHost": "electrs",
+  "electrumxPort": 60001
 }
