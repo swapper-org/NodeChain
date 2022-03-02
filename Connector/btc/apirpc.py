@@ -368,7 +368,7 @@ def getTransactionHex(id, params, config):
     rawTransaction = RPCConnector.request(
         endpoint=config.bitcoincoreRpcEndpoint,
         id=id,
-        method=GET_TRANSACTION_METHOD,
+        method=GET_RAW_TRANSACTION_METHOD,
         params=[params["txHash"]]
     )
 
@@ -396,7 +396,7 @@ def getTransaction(id, params, config):
         transaction = RPCConnector.request(
             endpoint=config.bitcoincoreRpcEndpoint,
             id=id,
-            method=GET_TRANSACTION_METHOD,
+            method=GET_RAW_TRANSACTION_METHOD,
             params=[
                 params["txHash"],
                 True
