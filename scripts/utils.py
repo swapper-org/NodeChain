@@ -163,6 +163,23 @@ def listTokens():
     return tokens
 
 
+def listNetworksByToken(token):
+    with open(AVAILABLE_CURRENCIES) as f:
+        data = json.load(f)
+        for api in data:
+            if api["token"] == token:
+                return dict.keys(api["networks"])
+
+
+def listNameTokens():
+    coins = []
+    with open(AVAILABLE_CURRENCIES) as f:
+        data = json.load(f)
+        for api in data:
+            coins.append(api["name"])
+    return coins
+
+
 def listServices(token, network):
     with open(AVAILABLE_CURRENCIES) as f:
         data = json.load(f)

@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import os
 import subprocess
-from tabnanny import verbose
 import docker
 import utils
 import signal
@@ -22,6 +21,13 @@ def exitSignal(token=None):
 def checkApiRunning(token, network):
     for container in client.containers.list():
         if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{token}{network}api":
+            return True
+
+
+def checkAnyApiRunning():
+    tokens = utils.listTokens()
+    for container in client.containers.list():
+        if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and any(sub in client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] for sub in tokens):
             return True
 
 
@@ -68,8 +74,8 @@ def bindUsedPort():
 # args.all -> contains the information of the chosen network
 # mode -> ['start', 'stop']
 def handleAllApisByNetwork(args, mode):
-    for token in listAvailableTokens():
-        if args.all in listAvailableNetworksByToken(token):
+    for token in utils.listTokens():
+        if args.all in utils.listNetworksByToken(token):
             os.environ["COIN"] = token
             os.environ["NETWORK"] = args.all
             if mode == 'start':
@@ -86,9 +92,9 @@ def handleAllApisByNetwork(args, mode):
 
 # Stop all APIs
 def stopAllApis(args):
-    for token in listAvailableTokens():
+    for token in utils.listTokens():
         os.environ["COIN"] = token
-        for network in listAvailableNetworksByToken(token):
+        for network in utils.listNetworksByToken(token):
             os.environ["NETWORK"] = network
             if not checkApiRunning(token, network):
                 logger.printError(f"Can't stop {token} in {network}. Containers are not running", verbosity=args.verbose)
@@ -133,7 +139,7 @@ def argumentHandler():
     # Hook subparsers up to handle start, stop and status
     spStart.set_defaults(func=start)
     spStop.set_defaults(func=stop)
-    spStatus.set_defaults(func=status)  # TODO: Change to GUI
+    spStatus.set_defaults(func=status)
 
     args = parser.parse_args()
 
@@ -172,7 +178,6 @@ def start(args):
         if args.verbose:
             logger.printInfo(f"Network selected: {network}", verbosity=args.verbose)
         if checkApiRunning(token, network):
-            # TODO: update currency logic :D
             logger.printInfo(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
             updateApi(args, token, network)
             return
@@ -243,39 +248,13 @@ def status(args):
         raise SystemExit
 
 
-def listAvailableCoins():
-    coins = []
-    with open(utils.AVAILABLE_CURRENCIES) as f:
-        data = json.load(f)
-        for api in data:
-            coins.append(api["name"])
-    return coins
-
-
-def listAvailableTokens():
-    tokens = []
-    with open(utils.AVAILABLE_CURRENCIES) as f:
-        data = json.load(f)
-        for api in data:
-            tokens.append(api["token"])
-    return tokens
-
-
-def listAvailableNetworksByToken(token):
-    with open(utils.AVAILABLE_CURRENCIES) as f:
-        data = json.load(f)
-        for api in data:
-            if api["token"] == token:
-                return dict.keys(api["networks"])
-
-
 def currencyMenu(args):
     tokens = utils.listTokens()
     if args.token and args.token in tokens:
         os.environ["COIN"] = args.token
         return args.token
     else:
-        menu = utils.fillMenu(listAvailableCoins, blockchainChoice, exitSignal)
+        menu = utils.fillMenu(utils.listNameTokens, blockchainChoice, exitSignal)
         utils.showSubtitle("BLOCKCHAIN SELECTION")
         runningApis = listRunningApis()
         for key in sorted(menu.keys())[:-1]:
@@ -287,7 +266,7 @@ def currencyMenu(args):
         print("{}.{}".format(str(len(sorted(menu.keys()))).rjust(16), menu[sorted(menu.keys())[-1]][0].capitalize()))
 
         coin = input("Please choose the blockchain that you want to use to build up/stop the node(1-{options}): ".format(
-            options=(len(listAvailableCoins()) + 1)))
+            options=(len(utils.listNameTokens()) + 1)))
         menu.get(coin, [None, utils.invalid])[1](menu[coin][0])
 
         return utils.getTokenFromCoin(menu[coin][0])  # TODO: CHECK
@@ -298,7 +277,7 @@ def networkMenu(args, token):
         os.environ["NETWORK"] = args.network
         return args.network
     else:
-        menu = utils.fillMenu(lambda: listAvailableNetworksByToken(token), networkChoice, exitSignal)
+        menu = utils.fillMenu(lambda: utils.listNetworksByToken(token), networkChoice, exitSignal)
         utils.showSubtitle("NETWORK SELECTION")
         runningApis = listRunningApis()
         for key in sorted(menu.keys())[:-1]:
@@ -310,7 +289,7 @@ def networkMenu(args, token):
         print("{}.{}".format(str(len(sorted(menu.keys()))).rjust(16), menu[sorted(menu.keys())[-1]][0].capitalize()))
 
         network = input("Please choose the network that you want to use (1-{options}): ".format(
-            options=(len(listAvailableNetworksByToken(token)) + 1)))
+            options=(len(utils.listNetworksByToken(token)) + 1)))
         menu.get(network, [None, utils.invalid])[1](menu[network][0])
 
         return menu[network][0]
@@ -319,12 +298,15 @@ def networkMenu(args, token):
 def configMenu():
     menu = utils.fillMenu(lambda: ["Connector", "APIs"], configChoice, exitSignal)
     utils.showSubtitle("STATUS SELECTION")
-    for key in sorted(menu.keys())[:-1]:
-        # TODO: Add some way to find out if connector or any api is running
-        if checkConnectorRunning():
-            print("{}{}.{}".format("[RUNNING]", str(key).rjust(7), menu[key][0].capitalize()))
-        else:
-            print("{}{}.{}".format("[OFF]", str(key).rjust(11), menu[key][0].capitalize()))
+    keys = sorted(menu.keys())
+    if checkConnectorRunning():
+        print("{}{}.{}".format("[RUNNING]", str(1).rjust(7), menu[keys[0]][0].capitalize()))
+    else:
+        print("{}{}.{}".format("[OFF]", str(1).rjust(11), menu[keys[0]][0].capitalize()))
+    if checkAnyApiRunning():
+        print("{}{}.{}".format("[RUNNING]", str(2).rjust(7), menu[keys[1]][0].capitalize()))
+    else:
+        print("{}{}.{}".format("[OFF]", str(2).rjust(11), menu[keys[1]][0].capitalize()))
 
     print("{}.{}".format(str(len(sorted(menu.keys()))).rjust(16), menu[sorted(menu.keys())[-1]][0].capitalize()))
 
@@ -350,7 +332,7 @@ def configChoice(choice):
 def getDockerComposePath(token, network):
     path = ""
 
-    if network not in listAvailableNetworksByToken(token):
+    if network not in utils.listNetworksByToken(token):
         print(f"Can't find {token} in {network}")
         return
 
