@@ -145,7 +145,6 @@ def updateApi(args, token, network, port):
             userData.append(utils.queryConfigurable(args, f"Please, introduce a value for {configOption}: ", configOption))
 
     config = dict(zip(configurableData, userData))
-    print(config)
     payload = {
         "coin": token,
         "network": network,
