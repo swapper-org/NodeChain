@@ -34,7 +34,6 @@ def queryYesNo(question, default="yes"):
 def connectorQueries(args):
     os.environ["PORT"] = args.port if args.port else queryPort(args, "Port to start: ")
 
-    # In the future this only works for the connector setup
     if args.ssl_port:
         os.environ["SSL_PORT"] = args.ssl_port
     else:
@@ -202,3 +201,7 @@ def getTokenConfiguration(token, network):
         for api in data:
             if api["token"] == token:
                 return api["networks"][network]["configurable"]
+
+
+def formatApiData(args, data):
+    logger.printInfo(json.dumps(data, sort_keys=True, indent=4), verbosity=args.verbose)

@@ -56,7 +56,7 @@ def listRunningApis():
     return running
 
 
-# This method binds the used ports to the ENV variables to stop Connector and Nginx.
+# This method binds the used ports to the ENV variables make request to Connector and Nginx.
 def bindUsedPort():
     for container in client.containers.list():
         if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == "connector":
@@ -90,7 +90,6 @@ def handleAllApisByNetwork(args, mode):
                 stopApi(args, token, args.all)
 
 
-# Stop all APIs
 def stopAllApis(args):
     for token in utils.listTokens():
         os.environ["COIN"] = token
@@ -269,7 +268,7 @@ def currencyMenu(args):
             options=(len(utils.listNameTokens()) + 1)))
         menu.get(coin, [None, utils.invalid])[1](menu[coin][0])
 
-        return utils.getTokenFromCoin(menu[coin][0])  # TODO: CHECK
+        return utils.getTokenFromCoin(menu[coin][0])
 
 
 def networkMenu(args, token):
@@ -441,6 +440,22 @@ def statusApi(args, token, network):
                 print("{}{}".format("[RUNNING]".ljust(15), str(dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"]).capitalize()))
             else:
                 print("{}{}".format("[OFF]".ljust(15), str(dockerContainer.attrs["Config"]["Labels"]["com.docker.compose.service"]).capitalize()))
+
+    logger.printInfo("\nConnector API information:", verbosity=args.verbose)
+
+    bindUsedPort()
+
+    status_code, response = endpoints.getApi(args, token, network, os.environ["PORT"])
+
+    # Check if API is registered
+    if status_code != 200:
+        logger.printError(f"Request to client could not be completed: {status_code}", verbosity=args.verbose)
+
+    response = response.json()
+    if response["success"] is False:
+        logger.printError(f"API {token} {network} is not registered: {response}", verbosity=args.verbose)
+        return
+    utils.formatApiData(args, response)
 
 
 def updateApi(args, token, network):

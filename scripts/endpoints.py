@@ -14,10 +14,7 @@ REMOVE_CURRENCY = "removecoin"
 
 def addApi(args, token, network, port, defaultConfig=True):
     # Getting API information
-    try:
-        status_code, response = getApi(args, token, network, port)
-    except Exception as e:
-        logger.printError(f"Request to client could not be completed: {str(e)}", verbosity=args.verbose)
+    status_code, response = getApi(args, token, network, port)
 
     # Check if API is registered
     if status_code != 200:
