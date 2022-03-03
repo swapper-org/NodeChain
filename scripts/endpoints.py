@@ -1,7 +1,3 @@
-#!/usr/bin/python3
-import sys
-import os
-import json
 import requests
 import logger
 import utils
