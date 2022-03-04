@@ -145,6 +145,7 @@ def testGetHeight():
     assert str(int(expected["number"], 16)) == got["latestBlockIndex"] and expected["hash"] == got["latestBlockHash"]
 
 
+"""
 def testGetTransaction():
 
     if "getTransaction" not in postHttpMethods[COIN_SYMBOL]:
@@ -171,6 +172,7 @@ def testGetTransaction():
         assert transfer["from"] == expected["from"]
         assert transfer["amount"] == str(utils.toWei(expected["value"]))
         assert transfer["fee"] == str(utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
+"""
 
 
 def testEstimateGas():

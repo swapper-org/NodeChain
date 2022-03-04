@@ -607,7 +607,7 @@ def syncing(id, params, config):
 
     if blockchainInfo is None:
         logger.printWarning("Could not get blockchain info from node")
-        raise error.RpcBadRequestError(id=id,message="Could not get blockchain info from node")
+        raise error.RpcBadRequestError(id=id, message="Could not get blockchain info from node")
 
     if blockchainInfo["blocks"] != blockchainInfo["headers"]:
         response = {

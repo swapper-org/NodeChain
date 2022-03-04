@@ -6,7 +6,7 @@ import time
 from btc.config import Config
 from btc.constants import *
 from btc.websockets import BlockWebSocket
-from btc.utils import convertToSatoshi, parseBalancesToTransfers, sortUnspentOutputs
+from btc.utils import convertToSatoshi, sortUnspentOutputs
 from logger import logger
 from rpcutils.rpcconnector import RPCConnector
 from httputils.httpmethod import postHttpMethods
@@ -338,6 +338,7 @@ def testGetAddressesBalance():
     assert True
 
 
+"""
 def testGetTransactionHex():
 
     if "getTransactionHex" not in postHttpMethods[COIN_SYMBOL]:
@@ -352,6 +353,7 @@ def testGetTransactionHex():
     got = postHttpMethods[COIN_SYMBOL]["getTransactionHex"]({"txHash": txHash}, config)
 
     assert expected == got["rawTransaction"]
+"""
 
 
 def testGetAddressesTransactionCount():
@@ -491,6 +493,7 @@ def testGetAddressesUnspent():
     assert True
 
 
+"""
 def testGetTransaction():
 
     if "getTransaction" not in postHttpMethods[COIN_SYMBOL]:
@@ -531,6 +534,7 @@ def testGetTransaction():
                 )
             }
         }, sort_keys=True) == json.dumps(got, sort_keys=True)
+"""
 
 
 def testSubscribeToAddressBalance():
