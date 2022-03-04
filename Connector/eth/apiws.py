@@ -29,7 +29,7 @@ def subscribeToAddressBalance(subscriber, id, params, config):
                  f"{config.networkName}{topics.TOPIC_SEPARATOR}"
                  f"{topics.ADDRESS_BALANCE_TOPIC}{topics.TOPIC_SEPARATOR}"
                  f"{params['address']}",
-            closingHandler=utils.closingAddrBalanceTopic
+            closingHandler=None
         )
     )
 

@@ -25,7 +25,10 @@ def subscribeToAddressBalance(subscriber, id, params, config):
                        f"{topics.ADDRESS_BALANCE_TOPIC}{topics.TOPIC_SEPARATOR}" \
                        f"{params['address']}"
 
-    topic = topics.Topic(name=addrBalanceTopic, closingHandler=utils.closeAddrBalanceTopic)
+    topic = topics.Topic(
+        name=addrBalanceTopic,
+        closingHandler=utils.AddrBalanceTopicCloseHandler(topicName=addrBalanceTopic, config=config)
+    )
 
     if not broker.isTopic(addrBalanceTopic):
 
@@ -57,29 +60,13 @@ def unsubscribeFromAddressBalance(subscriber, id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    broker = Broker()
-    addrBalanceTopic = f"{COIN_SYMBOL}{topics.TOPIC_SEPARATOR}" \
-                       f"{config.networkName}{topics.ADDRESS_BALANCE_TOPIC}" \
-                       f"{topics.TOPIC_SEPARATOR}{params['address']}"
-
-    unsubscribeResponse = subscriber.unsubscribeFromTopic(broker=broker, topicName=addrBalanceTopic)
-
-    if not broker.isTopic(addrBalanceTopic):
-
-        response = apirpc.notify(
-            id=id,
-            params={
-                "address": params['address'],
-                "callBackEndpoint": ""
-            },
-            config=config
-        )
-
-        if not response["success"]:
-            logger.printError(f"Can not unsubscribe {params['address']} to node")
-            raise error.RpcBadRequestError(f"Can not unsubscribe {params['address']} to node")
-
-    return unsubscribeResponse
+    return subscriber.unsubscribeFromTopic(
+        broker=Broker(),
+        topicName=f"{COIN_SYMBOL}{topics.TOPIC_SEPARATOR}"
+                  f"{config.networkName}{topics.TOPIC_SEPARATOR}"
+                  f"{topics.ADDRESS_BALANCE_TOPIC}{topics.TOPIC_SEPARATOR}"
+                  f"{params['address']}"
+    )
 
 
 @wsmethod.wsMethod(coin=COIN_SYMBOL)

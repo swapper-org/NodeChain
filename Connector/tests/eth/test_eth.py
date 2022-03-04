@@ -3,18 +3,36 @@ import json
 import pytest
 import time
 from web3 import Web3
-from eth.connector import RPC_ENDPOINT
+from eth.config import Config
 from eth.constants import *
+from eth.websockets import WebSocket
 from eth import utils
 from logger import logger
-from rpcutils.rpcutils import RPCMethods
+from httputils.httpmethod import postHttpMethods
 from rpcutils.rpcconnector import RPCConnector
-from wsutils.constants import *
-from wsutils.wsutils import webSocketMethods, webSockets
+from wsutils.wsmethod import wsMethods
 from wsutils.subscribers import ListenerSubscriber
+from wsutils import websocket
 
-for webSocket in webSockets:
-    webSocket()
+
+networkName = "regtest"
+config = Config(
+    coin=COIN_SYMBOL,
+    networkName=networkName
+)
+config.loadConfig(
+    config={
+        "host": "localhost"
+    }
+)
+
+WebSocket(
+    coin=COIN_SYMBOL,
+    config=config
+)
+
+websocket.startWebSockets(COIN_SYMBOL, networkName)
+
 
 address1 = "0x625ACaEdeF812d2842eFd2Fb0294682A868455bd"
 privateKey1 = "0x6fa76995e9a39e852f893e8347c662453a5d517846d150bdf3ddf7601c4bc74c"
@@ -27,7 +45,7 @@ newBlocksSub = ListenerSubscriber()
 
 def makeTransaction(address1=address1, address2=address2, value=1, gas=2000000):
 
-    web3 = Web3(Web3.HTTPProvider(RPC_ENDPOINT))
+    web3 = Web3(Web3.HTTPProvider(config.rpcEndpoint))
 
     nonce = web3.eth.getTransactionCount(address1)
 
@@ -48,60 +66,60 @@ def makeTransaction(address1=address1, address2=address2, value=1, gas=2000000):
 def makeEtherumgoRequest(method, params):
 
     try:
-        return RPCConnector.request(RPC_ENDPOINT, 1, method, params)
+        return RPCConnector.request(config.rpcEndpoint, 1, method, params)
     except Exception as err:
-        logger.printError(f"Can not make request to {RPC_ENDPOINT}. {err}")
+        logger.printError(f"Can not make request to {config.rpcEndpoint}. {err}")
         assert False
 
 
 def testGetAddressBalance():
 
-    if "getAddressBalance" not in RPCMethods:
+    if "getAddressBalance" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method getAddressBalance not loaded")
         assert False
 
     expectedLatest = makeEtherumgoRequest(
         GET_BALANCE_METHOD,
-        [address1, LATEST]
+        [address1, "latest"]
     )
 
     expectedPending = makeEtherumgoRequest(
         GET_BALANCE_METHOD,
-        [address1, PENDING]
+        [address1, "pending"]
     )
 
-    got = RPCMethods["getAddressBalance"](0, {"address": address1})
+    got = postHttpMethods[COIN_SYMBOL]["getAddressBalance"]({"address": address1}, config)
 
-    assert got[BALANCE][CONFIRMED] == str(int(expectedPending, 16)) and got[BALANCE][UNCONFIRMED] == str(int(expectedPending, 16) - int(expectedLatest, 16)) and address1 == got[ADDRESS]
+    assert got["balance"]["confirmed"] == str(int(expectedPending, 16)) and got["balance"]["unconfirmed"] == str(int(expectedPending, 16) - int(expectedLatest, 16)) and address1 == got["address"]
 
 
 def testGetAddressesBalance():
 
-    if "getAddressesBalance" not in RPCMethods:
+    if "getAddressesBalance" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method getAddressBalance not loaded")
         assert False
 
     addresses = [address1, address2]
 
-    got = RPCMethods["getAddressesBalance"](0, {"addresses": addresses})
+    got = postHttpMethods[COIN_SYMBOL]["getAddressesBalance"]({"addresses": addresses}, config)
 
     for address in addresses:
 
         expectedLatest = makeEtherumgoRequest(
             GET_BALANCE_METHOD,
-            [address, LATEST]
+            [address, "latest"]
         )
         expectedPending = makeEtherumgoRequest(
             GET_BALANCE_METHOD,
-            [address, PENDING]
+            [address, "pending"]
         )
 
         found = False
         for gotBalance in got:
 
-            if gotBalance[ADDRESS] == address:
+            if gotBalance["address"] == address:
                 found = True
-                if not (gotBalance[BALANCE][CONFIRMED] == str(int(expectedPending, 16)) and gotBalance[BALANCE][UNCONFIRMED] == str(int(expectedPending, 16) - int(expectedLatest, 16))):
+                if not (gotBalance["balance"]["confirmed"] == str(int(expectedPending, 16)) and gotBalance["balance"]["unconfirmed"] == str(int(expectedPending, 16) - int(expectedLatest, 16))):
                     logger.printError(f"Error validating {address}")
                     assert False
         if not found:
@@ -113,52 +131,57 @@ def testGetAddressesBalance():
 
 def testGetHeight():
 
-    if "getHeight" not in RPCMethods:
+    if "getHeight" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method getHeight not loaded")
         assert False
 
-    got = RPCMethods["getHeight"](0, {})
+    got = postHttpMethods[COIN_SYMBOL]["getHeight"]({}, config)
 
     expected = makeEtherumgoRequest(
         GET_BLOCK_BY_NUMBER_METHOD,
-        [LATEST, True]
+        ["latest", True]
     )
 
-    assert str(int(expected[NUMBER], 16)) == got[LATEST_BLOCK_INDEX] and expected[HASH] == got[LATEST_BLOCK_HASH]
+    assert str(int(expected["number"], 16)) == got["latestBlockIndex"] and expected["hash"] == got["latestBlockHash"]
 
 
+"""
 def testGetTransaction():
 
-    if "getTransaction" not in RPCMethods:
+    if "getTransaction" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method getTransaction not loaded")
         assert False
 
     _, txHash = makeTransaction()
 
-    got = RPCMethods["getTransaction"](0, {
-        TX_HASH: txHash.hex()
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getTransaction"](
+        {
+            "txHash": txHash.hex()
+        },
+        config
+    )
 
     expected = makeEtherumgoRequest(GET_TRANSACTION_BY_HASH_METHOD, [txHash.hex()])
 
-    assert json.dumps(got[TRANSACTION]["data"], sort_keys=True) == json.dumps(expected, sort_keys=True)
-    assert got[TRANSACTION][BLOCK_HASH] == expected[BLOCK_HASH]
-    assert got[TRANSACTION]["fee"] == str(utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
+    assert json.dumps(got["transaction"]["data"], sort_keys=True) == json.dumps(expected, sort_keys=True)
+    assert got["transaction"]["blockHash"] == expected["blockHash"]
+    assert got["transaction"]["fee"] == str(utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
 
-    for transfer in got[TRANSACTION]["transfers"]:
-        assert transfer[TO] == expected[TO]
-        assert transfer[FROM] == expected[FROM]
-        assert transfer[AMOUNT] == str(utils.toWei(expected[VALUE]))
+    for transfer in got["transaction"]["transfers"]:
+        assert transfer["to"] == expected["to"]
+        assert transfer["from"] == expected["from"]
+        assert transfer["amount"] == str(utils.toWei(expected["value"]))
         assert transfer["fee"] == str(utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
+"""
 
 
 def testEstimateGas():
 
-    if "estimateGas" not in RPCMethods:
+    if "estimateGas" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method estimateGas not loaded")
         assert False
 
-    web3 = Web3(Web3.HTTPProvider(RPC_ENDPOINT))
+    web3 = Web3(Web3.HTTPProvider(config.rpcEndpoint))
 
     nonce = web3.eth.getTransactionCount(address1)
 
@@ -170,39 +193,43 @@ def testEstimateGas():
         "gasPrice": str(web3.toWei('50', 'gwei'))
     }
 
-    got = RPCMethods["estimateGas"](0, {
-        TX: tx
-    })
+    got = postHttpMethods[COIN_SYMBOL]["estimateGas"](
+        {
+            "tx": tx
+        },
+        config
+    )
     expected = makeEtherumgoRequest(ESTIMATE_GAS_METHOD, [tx])
 
-    assert got[ESTIMATED_GAS] == str(int(expected, 16))
+    assert got["estimatedGas"] == str(int(expected, 16))
 
 
 def testGetGasPrice():
 
-    if "getGasPrice" not in RPCMethods:
+    if "getGasPrice" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method getGasPrice not loaded")
         assert False
 
-    got = RPCMethods["getGasPrice"](0, {
-
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getGasPrice"](
+        {},
+        config
+    )
     expected = makeEtherumgoRequest(
         GET_GAS_PRICE_METHOD,
         None
     )
 
-    assert str(int(expected, 16)) == got[GAS_PRICE]
+    assert str(int(expected, 16)) == got["gasPrice"]
 
 
 def testGetTransactionReceipt():
 
-    if "getTransactionReceipt" not in RPCMethods:
+    if "getTransactionReceipt" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method getTransactionReceipt not loaded")
         assert False
 
     _, txHash = makeTransaction()
-    got = RPCMethods["getTransactionReceipt"](0, {TX_HASH: txHash.hex()})
+    got = postHttpMethods[COIN_SYMBOL]["getTransactionReceipt"]({"txHash": txHash.hex()}, config)
     expected = makeEtherumgoRequest(GET_TRANSACTION_RECEIPT_METHOD, [txHash.hex()])
 
     for key in expected:
@@ -218,85 +245,84 @@ def testGetTransactionReceipt():
 
 def testGetAddressTransactionCount():
 
-    if "getAddressTransactionCount" not in RPCMethods:
+    if "getAddressTransactionCount" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method getAddressTransactionCount not loaded")
         assert False
 
-    got = RPCMethods["getAddressTransactionCount"](0, {
-        ADDRESS: address1,
-        PENDING: True
-    })
+    got = postHttpMethods[COIN_SYMBOL]["getAddressTransactionCount"](
+        {
+            "address": address1,
+            "pending": True
+        },
+        config
+    )
 
-    expected = makeEtherumgoRequest(GET_TRANSACTION_COUNT_METHOD, [address1, PENDING])
+    expected = makeEtherumgoRequest(GET_TRANSACTION_COUNT_METHOD, [address1, "pending"])
 
     assert json.dumps(got, sort_keys=True) == json.dumps(
         {
-            ADDRESS: address1,
-            TRANSACTION_COUNT: str(int(expected, 16))
+            "address": address1,
+            "transactionCount": str(int(expected, 16))
         }, sort_keys=True)
 
 
 def testGetAddressesTransactionCount():
 
-    if "getAddressesTransactionCount" not in RPCMethods:
+    if "getAddressesTransactionCount" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method getAddressesTransactionCount not loaded")
         assert False
 
     addresses = {
-        ADDRESSES: [
+        "addresses": [
             {
-                ADDRESS: address1,
-                PENDING: True
+                "address": address1,
+                "pending": True
             },
             {
-                ADDRESS: address2,
-                PENDING: False
+                "address": address2,
+                "pending": False
             }
         ]
     }
 
-    got = RPCMethods["getAddressesTransactionCount"](0, addresses)
-    print(got)
-    for index, address in enumerate(addresses[ADDRESSES]):
+    got = postHttpMethods[COIN_SYMBOL]["getAddressesTransactionCount"](addresses, config)
+
+    for index, address in enumerate(addresses["addresses"]):
 
         expected = makeEtherumgoRequest(GET_TRANSACTION_COUNT_METHOD,
                                         [
-                                            address[ADDRESS],
-                                            PENDING if address[PENDING] else LATEST
+                                            address["address"],
+                                            "pending" if address["pending"] else "latest"
                                         ])
 
         assert json.dumps(got[index], sort_keys=True) == json.dumps(
             {
-                ADDRESS: address[ADDRESS],
-                TRANSACTION_COUNT: str(int(expected, 16))
+                "address": address["address"],
+                "transactionCount": str(int(expected, 16))
             }, sort_keys=True)
 
 
 def testGetBlock():
 
-    if "getBlockByNumber" not in RPCMethods:
+    if "getBlockByNumber" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method getBlockByNumber not loaded")
         assert False
 
-    if "getBlockByHash" not in RPCMethods:
+    if "getBlockByHash" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method getBlockByHash not loaded")
         assert False
 
     expected = makeEtherumgoRequest(GET_BLOCK_BY_NUMBER_METHOD, ["0x1", True])
 
-    gotBlockByNumber = RPCMethods["getBlockByNumber"](0, {
-        BLOCK_NUMBER: "1"
-    })
+    gotBlockByNumber = postHttpMethods[COIN_SYMBOL]["getBlockByNumber"]({"blockNumber": "1"}, config)
 
-    gotBlockByHash = RPCMethods["getBlockByHash"](0, {
-        BLOCK_HASH: expected[HASH]
-    })
+    gotBlockByHash = postHttpMethods[COIN_SYMBOL]["getBlockByHash"]({"blockHash": expected["hash"]}, config)
 
-    if not json.dumps(expected[TRANSACTIONS], sort_keys=True) == json.dumps(gotBlockByNumber[TRANSACTIONS], sort_keys=True):
+    if not json.dumps(expected["transactions"], sort_keys=True) == json.dumps(gotBlockByNumber["transactions"], sort_keys=True):
         logger.printError("getBlockByNumber failed")
         assert False
 
-    if not json.dumps(expected[TRANSACTIONS], sort_keys=True) == json.dumps(gotBlockByHash[TRANSACTIONS], sort_keys=True):
+    if not json.dumps(expected["transactions"], sort_keys=True) == json.dumps(gotBlockByHash["transactions"], sort_keys=True):
         logger.printError("getBlockByHash failed")
         assert False
 
@@ -305,15 +331,15 @@ def testGetBlock():
 
 def testBroadCastTransaction():
 
-    if "broadcastTransaction" not in RPCMethods:
+    if "broadcastTransaction" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method broadcastTransaction not loaded")
         assert False
 
-    if "getTransaction" not in RPCMethods:
+    if "getTransaction" not in postHttpMethods[COIN_SYMBOL]:
         logger.printError("Method getTransaction not loaded")
         assert False
 
-    web3 = Web3(Web3.HTTPProvider(RPC_ENDPOINT))
+    web3 = Web3(Web3.HTTPProvider(config.rpcEndpoint))
 
     nonce = web3.eth.getTransactionCount(address1)
 
@@ -327,35 +353,49 @@ def testBroadCastTransaction():
 
     signedTx = web3.eth.account.sign_transaction(tx, privateKey1)
 
-    got = RPCMethods["broadcastTransaction"](0, {
-        RAW_TRANSACTION: signedTx.rawTransaction.hex()
-    })
+    got = postHttpMethods[COIN_SYMBOL]["broadcastTransaction"]({"rawTransaction": signedTx.rawTransaction.hex()}, config)
 
-    expected = makeEtherumgoRequest(GET_TRANSACTION_BY_HASH_METHOD, [got[BROADCASTED]])
+    expected = makeEtherumgoRequest(GET_TRANSACTION_BY_HASH_METHOD, [got["broadcasted"]])
 
-    assert got[BROADCASTED] == expected[HASH]
+    assert got["broadcasted"] == expected["hash"]
 
 
 def testSubscribeAddressBalance():
 
-    if "subscribeToAddressBalance" not in webSocketMethods:
+    if "subscribeToAddressBalance" not in wsMethods[COIN_SYMBOL]:
         logger.printError("Method subscribeToAddressBalance not loaded")
         assert False
 
-    got = webSocketMethods["subscribeToAddressBalance"](sub, 0, {
-        ADDRESS: address1
-    })
+    got = wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"](
+        sub,
+        {
+            "id": 0,
+            "params":
+            {
+                "address": address1
+            }
+        },
+        config
+    )
 
-    if not got[SUBSCRIBED]:
-        logger.printError(f"Error in subscribe to address balance. Expected: True Got: {got[SUBSCRIBED]}")
+    if not got["subscribed"]:
+        logger.printError(f"Error in subscribe to address balance. Expected: True Got: {got['subscribed']}")
         assert False
 
-    got = webSocketMethods["subscribeToAddressBalance"](sub, 0, {
-        ADDRESS: address1
-    })
+    got = wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"](
+        sub,
+        {
+            "id": 0,
+            "params": {
+                "address": address1
 
-    if got[SUBSCRIBED]:
-        logger.printError(f"Error in subscribe to address balance. Expected: False Got: {got[SUBSCRIBED]}")
+            }
+        },
+        config
+    )
+
+    if got["subscribed"]:
+        logger.printError(f"Error in subscribe to address balance. Expected: False Got: {got['subscribed']}")
         assert False
 
     assert True
@@ -377,24 +417,38 @@ def testAdressBalanceWS():
 
 def testUnsubscribeFromAddressBalance():
 
-    if "unsubscribeFromAddressBalance" not in webSocketMethods:
+    if "unsubscribeFromAddressBalance" not in wsMethods[COIN_SYMBOL]:
         logger.printError("Method unsubscribeFromAddressBalance not loaded")
         assert False
 
-    got = webSocketMethods["unsubscribeFromAddressBalance"](sub, 0, {
-        ADDRESS: address1
-    })
+    got = wsMethods[COIN_SYMBOL]["unsubscribeFromAddressBalance"](
+        sub,
+        {
+            "id": 0,
+            "params": {
+                "address": address1
+            }
+        },
+        config
+    )
 
-    if not got[UNSUBSCRIBED]:
-        logger.printError(f"Error in unsubscribe from address balance. Expected: True Got: {got[UNSUBSCRIBED]}")
+    if not got["unsubscribed"]:
+        logger.printError(f"Error in unsubscribe from address balance. Expected: True Got: {got['unsubscribed']}")
         assert False
 
-    got = webSocketMethods["unsubscribeFromAddressBalance"](sub, 0, {
-        ADDRESS: address1
-    })
+    got = wsMethods[COIN_SYMBOL]["unsubscribeFromAddressBalance"](
+        sub,
+        {
+            "id": 0,
+            "params": {
+                "address": address1
+            }
+        },
+        config
+    )
 
-    if got[UNSUBSCRIBED]:
-        logger.printError(f"Error in unsubscribe from address balance. Expected: False Got: {got[UNSUBSCRIBED]}")
+    if got["unsubscribed"]:
+        logger.printError(f"Error in unsubscribe from address balance. Expected: False Got: {got['unsubscribed']}")
         assert False
 
     assert True
@@ -402,20 +456,34 @@ def testUnsubscribeFromAddressBalance():
 
 def testSubscribeToNewBlocks():
 
-    if "subscribeToNewBlocks" not in webSocketMethods:
+    if "subscribeToNewBlocks" not in wsMethods[COIN_SYMBOL]:
         logger.printError("Method subscribeToNewBlocks not loaded")
         assert False
 
-    got = webSocketMethods["subscribeToNewBlocks"](newBlocksSub, 0, {})
+    got = wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"](
+        newBlocksSub,
+        {
+            "id": 0,
+            "params": {}
+        },
+        config
+    )
 
-    if not got[SUBSCRIBED]:
-        logger.printError(f"Error in subscribe to new blocks. Expected: True Got: {got[SUBSCRIBED]}")
+    if not got["subscribed"]:
+        logger.printError(f"Error in subscribe to new blocks. Expected: True Got: {got['subscribed']}")
         assert False
 
-    got = webSocketMethods["subscribeToNewBlocks"](newBlocksSub, 0, {})
+    got = wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"](
+        newBlocksSub,
+        {
+            "id": 0,
+            "params": {}
+        },
+        config
+    )
 
-    if got[SUBSCRIBED]:
-        logger.printError(f"Error in subscribe to new blocks. Expected: False Got: {got[SUBSCRIBED]}")
+    if got["subscribed"]:
+        logger.printError(f"Error in subscribe to new blocks. Expected: False Got: {got['subscribed']}")
         assert False
 
     assert True
@@ -437,20 +505,34 @@ def testNewBlocksWS():
 
 def testUnsubscribeFromNewBlocks():
 
-    if "unsubscribeFromNewBlocks" not in webSocketMethods:
+    if "unsubscribeFromNewBlocks" not in wsMethods[COIN_SYMBOL]:
         logger.printError("Method unsubscribeFromNewBlocks not loaded")
         assert False
 
-    got = webSocketMethods["unsubscribeFromNewBlocks"](newBlocksSub, 0, {})
+    got = wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"](
+        newBlocksSub,
+        {
+            "id": 0,
+            "params": {}
+        },
+        config
+    )
 
-    if not got[UNSUBSCRIBED]:
-        logger.printError(f"Error in unsubscribe from new blocks. Expected: True Got: {got[UNSUBSCRIBED]}")
+    if not got["unsubscribed"]:
+        logger.printError(f"Error in unsubscribe from new blocks. Expected: True Got: {got['unsubscribed']}")
         assert False
 
-    got = webSocketMethods["unsubscribeFromNewBlocks"](newBlocksSub, 0, {})
+    got = wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"](
+        newBlocksSub,
+        {
+            "id": 0,
+            "params": {}
+        },
+        config
+    )
 
-    if got[UNSUBSCRIBED]:
-        logger.printError(f"Error in unsubscribe from new blocks. Expected: False Got: {got[UNSUBSCRIBED]}")
+    if got["unsubscribed"]:
+        logger.printError(f"Error in unsubscribe from new blocks. Expected: False Got: {got['unsubscribed']}")
         assert False
 
     assert True
