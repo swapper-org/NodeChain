@@ -6,7 +6,7 @@ import time
 from btc.config import Config
 from btc.constants import *
 from btc.websockets import BlockWebSocket
-from btc.utils import convertToSatoshi, sortUnspentOutputs
+from btc.utils import convertToSatoshi, sortUnspentOutputs, decodeTransactionDetails
 from logger import logger
 from rpcutils.rpcconnector import RPCConnector
 from httputils.httpmethod import postHttpMethods
@@ -338,7 +338,6 @@ def testGetAddressesBalance():
     assert True
 
 
-"""
 def testGetTransactionHex():
 
     if "getTransactionHex" not in postHttpMethods[COIN_SYMBOL]:
@@ -348,12 +347,11 @@ def testGetTransactionHex():
     addressHistory = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
     txHash = addressHistory[0]["tx_hash"]
 
-    expected = makeElectrumRequest(GET_TRANSACTION_METHOD, [txHash])
+    expected = makeBitcoinCoreRequest(GET_RAW_TRANSACTION_METHOD, [txHash])
 
     got = postHttpMethods[COIN_SYMBOL]["getTransactionHex"]({"txHash": txHash}, config)
 
     assert expected == got["rawTransaction"]
-"""
 
 
 def testGetAddressesTransactionCount():
@@ -493,7 +491,6 @@ def testGetAddressesUnspent():
     assert True
 
 
-"""
 def testGetTransaction():
 
     if "getTransaction" not in postHttpMethods[COIN_SYMBOL]:
@@ -503,38 +500,78 @@ def testGetTransaction():
     txHash, _ = sendTransaction(address1, address2, 0.00001)
     mineBlocksToAddress(minerAddress, 1)
 
-    expected = makeBitcoinCoreRequest(GET_TRANSACTION_METHOD, [txHash, True, True])
+    expectedTransaction = makeBitcoinCoreRequest(GET_RAW_TRANSACTION_METHOD, [txHash, True])
+    expectedBlock = makeBitcoinCoreRequest(GET_BLOCK, [expectedTransaction["blockhash"], 1])
 
     got = postHttpMethods[COIN_SYMBOL]["getTransaction"]({"txHash": txHash}, config)
 
-    vins = {}
-    transactionAmount = 0
-    if "generated" not in expected:
-        for vin in expected["decoded"]["vin"]:
+    txDetails = decodeTransactionDetails(expectedTransaction, config.bitcoincoreRpcEndpoint)
 
-            inputTransaction = makeBitcoinCoreRequest(GET_TRANSACTION_METHOD, [vin["txid"], True, True])
-            value = inputTransaction["decoded"]["vout"][vin["vout"]]["value"]
-            address = inputTransaction["decoded"]["vout"][vin["vout"]]["scriptPubKey"]["addresses"][0]
-            transactionAmount += value
-            vins[address] = value
+    for input in txDetails["inputs"]:
+        input["amount"] = str(input["amount"])
+    for output in txDetails["outputs"]:
+        output["amount"] = str(output["amount"])
 
     assert json.dumps(
         {
             "transaction": {
-                "blockNumber": str(expected["blockheight"]),
-                "txHash": txHash,
-                "data": expected["decoded"],
-                "fee": str(convertToSatoshi(-expected["fee"])),
-                "blockHash": expected["blockhash"],
-                "transfers": parseBalancesToTransfers(
-                    vins,
-                    expected["details"],
-                    -expected["fee"],
-                    transactionAmount
-                )
+                "txId": expectedTransaction["txid"],
+                "txHash": expectedTransaction["hash"],
+                "blockNumber": str(expectedBlock["height"]),
+                "fee": str(txDetails["fee"]),
+                "inputs": txDetails["inputs"],
+                "outputs": txDetails["outputs"],
+                "data": expectedTransaction
             }
         }, sort_keys=True) == json.dumps(got, sort_keys=True)
-"""
+
+
+def testGetTransactions():
+
+    if "getTransactions" not in postHttpMethods[COIN_SYMBOL]:
+        logger.printError("getTransactions not loaded in RPCMethods")
+        assert False
+
+    txHashes = []
+    for i in range(0, 2):
+
+        txHash, _ = sendTransaction(address1, address2, 0.00001)
+        txHashes.append(txHash)
+
+    mineBlocksToAddress(minerAddress, 1)
+
+    got = postHttpMethods[COIN_SYMBOL]["getTransactions"]({"txHashes": txHashes}, config)
+
+    for txHash in txHashes:
+
+        found = True
+        for gotTransaction in got["transactions"]:
+            if gotTransaction["transaction"]["txHash"] == txHash:
+                found = True
+                expectedTransaction = makeBitcoinCoreRequest(GET_RAW_TRANSACTION_METHOD, [txHash, True])
+                expectedBlock = makeBitcoinCoreRequest(GET_BLOCK, [expectedTransaction["blockhash"], 1])
+                txDetails = decodeTransactionDetails(expectedTransaction, config.bitcoincoreRpcEndpoint)
+
+                for input in txDetails["inputs"]:
+                    input["amount"] = str(input["amount"])
+                for output in txDetails["outputs"]:
+                    output["amount"] = str(output["amount"])
+
+                assert json.dumps(
+                    {
+                        "transaction": {
+                            "txId": expectedTransaction["txid"],
+                            "txHash": expectedTransaction["hash"],
+                            "blockNumber": str(expectedBlock["height"]),
+                            "fee": str(txDetails["fee"]),
+                            "inputs": txDetails["inputs"],
+                            "outputs": txDetails["outputs"],
+                            "data": expectedTransaction
+                        }
+                    }, sort_keys=True) == json.dumps(gotTransaction, sort_keys=True)
+        if not found:
+            logger.printError(f"Can not find transaction for {txHash}")
+            assert False
 
 
 def testSubscribeToAddressBalance():

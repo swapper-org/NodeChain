@@ -373,7 +373,7 @@ def getTransactionHex(id, params, config):
         params=[params["txHash"]]
     )
 
-    response = {"rawTransaction": rawTransaction["hex"]}
+    response = {"rawTransaction": rawTransaction}
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:

@@ -8,7 +8,7 @@ services:
       -server=1
       -rpcallowip=0.0.0.0/0
       -rpcbind=0.0.0.0
-      -txindex=0
+      -txindex=1
       -prune=0
       -regtest=1
       -debug=1
