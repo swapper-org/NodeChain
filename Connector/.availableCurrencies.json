@@ -20,7 +20,9 @@
           "electrumUser",
           "electrumPassword",
           "bitcoincoreCallbackProtocol",
-          "bitcoincoreCallbackHost"
+          "bitcoincoreCallbackHost",
+          "electrumxHost",
+          "electrumxPort"
         ]
       },
       "testnet": {
@@ -40,7 +42,9 @@
           "electrumUser",
           "electrumPassword",
           "bitcoincoreCallbackProtocol",
-          "bitcoincoreCallbackHost"
+          "bitcoincoreCallbackHost",
+          "electrumxHost",
+          "electrumxPort"
         ]
       },
       "mainnet": {
@@ -60,7 +64,9 @@
           "electrumUser",
           "electrumPassword",
           "bitcoincoreCallbackProtocol",
-          "bitcoincoreCallbackHost"
+          "bitcoincoreCallbackHost",
+          "electrumxHost",
+          "electrumxPort"
         ]
       }
     }
