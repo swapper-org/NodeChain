@@ -27,10 +27,18 @@ def printError(*argv, sep='', end='\n', file=sys.stdout, flush=True, verbosity=F
 def printEnvs():
     port = os.getenv("PORT")
     blockchainPath = os.getenv("BLOCKCHAIN_PATH")
-    sslPort = os.getenv("SSL_PORT")  # TODO: We might remove this in the future
+    sslPort = os.getenv("SSL_PORT")
     token = os.getenv("COIN")
     network = os.getenv("NETWORK")
     configFile = os.getenv("NGINX_CONFIG_PATH")
     certsPath = os.getenv("CERT_PATH")
 
     printInfo(f"[ENVIRONMENTAL INFO] Token: {token} | Network: {network} | Port: {port} | Blockchain Path: {blockchainPath} | SSL Port: {sslPort} | Config File: {configFile} | Path to ssl certs: {certsPath}")
+
+
+def connectorNotRunning(isRunning, args):
+    if not isRunning:
+        printError("Connector is not running.", verbosity=args.verbose)
+        if args.verbose:
+            printWarning("You need to start the connector to use NodeChain", verbosity=args.verbose)
+        raise SystemExit

@@ -5,32 +5,68 @@
     "networks": {
       "regtest": {
         "services": ["bitcoincore", "electrs", "electrum"],
-        "dockerComposePath": "./docker-compose/regtest/btc.yml",
+        "dockerComposePath": "docker-compose/regtest/btc.yml",
         "configurable": [
-          "bitcoincoreRpc",
-          "electrumRpc",
+          "bitcoincoreProtocol",
+          "bitcoincoreHost",
           "bitcoincorePort",
-          "electrumPort"
+          "bitcoincoreUser",
+          "bitcoincorePassword",
+          "bitcoincoreZmqProtocol",
+          "bitcoincoreZmqPort",
+          "electrumProtocol",
+          "electrumHost",
+          "electrumPort",
+          "electrumUser",
+          "electrumPassword",
+          "bitcoincoreCallbackProtocol",
+          "bitcoincoreCallbackHost",
+          "electrumxHost",
+          "electrumxPort"
         ]
       },
       "testnet": {
         "services": ["bitcoincore", "electrs", "electrum"],
-        "dockerComposePath": "./docker-compose/testnet/btc.yml",
+        "dockerComposePath": "docker-compose/testnet/btc.yml",
         "configurable": [
-          "bitcoincoreRpc",
-          "electrumRpc",
+          "bitcoincoreProtocol",
+          "bitcoincoreHost",
           "bitcoincorePort",
-          "electrumPort"
+          "bitcoincoreUser",
+          "bitcoincorePassword",
+          "bitcoincoreZmqProtocol",
+          "bitcoincoreZmqPort",
+          "electrumProtocol",
+          "electrumHost",
+          "electrumPort",
+          "electrumUser",
+          "electrumPassword",
+          "bitcoincoreCallbackProtocol",
+          "bitcoincoreCallbackHost",
+          "electrumxHost",
+          "electrumxPort"
         ]
       },
       "mainnet": {
         "services": ["bitcoincore", "electrs", "electrum"],
-        "dockerComposePath": "./docker-compose/mainnet/btc.yml",
+        "dockerComposePath": "docker-compose/mainnet/btc.yml",
         "configurable": [
-          "bitcoincoreRpc",
-          "electrumRpc",
+          "bitcoincoreProtocol",
+          "bitcoincoreHost",
           "bitcoincorePort",
-          "electrumPort"
+          "bitcoincoreUser",
+          "bitcoincorePassword",
+          "bitcoincoreZmqProtocol",
+          "bitcoincoreZmqPort",
+          "electrumProtocol",
+          "electrumHost",
+          "electrumPort",
+          "electrumUser",
+          "electrumPassword",
+          "bitcoincoreCallbackProtocol",
+          "bitcoincoreCallbackHost",
+          "electrumxHost",
+          "electrumxPort"
         ]
       }
     }
@@ -41,18 +77,18 @@
     "networks": {
       "regtest": {
         "services": ["ethereumgo"],
-        "dockerComposePath": "./docker-compose/regtest/eth.yml",
-        "configurable": ["ethereumRpc", "ethereumPort", "ethereumWS"]
+        "dockerComposePath": "docker-compose/regtest/eth.yml",
+        "configurable": ["protocol", "host", "rpcPort", "wsPort"]
       },
       "testnet": {
         "services": ["ethereumgo"],
-        "dockerComposePath": "./docker-compose/testnet/eth.yml",
-        "configurable": ["ethereumRpc", "ethereumPort", "ethereumWS"]
+        "dockerComposePath": "docker-compose/testnet/eth.yml",
+        "configurable": ["protocol", "host", "rpcPort", "wsPort"]
       },
       "mainnet": {
         "services": ["ethereumgo"],
-        "dockerComposePath": "./docker-compose/mainnet/eth.yml",
-        "configurable": ["ethereumRpc", "ethereumPort", "ethereumWS"]
+        "dockerComposePath": "docker-compose/mainnet/eth.yml",
+        "configurable": ["protocol", "host", "rpcPort", "wsPort"]
       }
     }
   },
@@ -60,34 +96,36 @@
     "name": "bitcoin-cash",
     "token": "bch",
     "networks": {
-      "regtest": {
-        "services": ["bitcoincore", "electrumx", "electrum"],
-        "dockerComposePath": "./docker-compose/regtest/bch.yml",
-        "configurable": [
-          "bitcoincoreRpc",
-          "electrumRpc",
-          "bitcoincorePort",
-          "electrumPort"
-        ]
-      },
       "testnet": {
         "services": ["bitcoincore", "electrumx", "electrum"],
-        "dockerComposePath": "./docker-compose/testnet/bch.yml",
+        "dockerComposePath": "docker-compose/testnet/bch.yml",
         "configurable": [
-          "bitcoincoreRpc",
-          "electrumRpc",
+          "bitcoincoreProtocol",
+          "bitcoincoreHost",
           "bitcoincorePort",
-          "electrumPort"
+          "bitcoincoreUser",
+          "bitcoincorePassword",
+          "electrumCashProtocol",
+          "electrumCashHost",
+          "electrumCashPort",
+          "electrumCashUser",
+          "electrumCashPassword"
         ]
       },
       "mainnet": {
         "services": ["bitcoincore", "electrumx", "electrum"],
-        "dockerComposePath": "./docker-compose/mainnet/bch.yml",
+        "dockerComposePath": "docker-compose/mainnet/bch.yml",
         "configurable": [
-          "bitcoincoreRpc",
-          "electrumRpc",
+          "bitcoincoreProtocol",
+          "bitcoincoreHost",
           "bitcoincorePort",
-          "electrumPort"
+          "bitcoincoreUser",
+          "bitcoincorePassword",
+          "electrumCashProtocol",
+          "electrumCashHost",
+          "electrumCashPort",
+          "electrumCashUser",
+          "electrumCashPassword"
         ]
       }
     }
@@ -98,13 +136,21 @@
     "networks": {
       "testnet": {
         "services": ["terrad"],
-        "dockerComposePath": "./docker-compose/testnet/luna.yml",
-        "configurable": []
+        "dockerComposePath": "docker-compose/testnet/luna.yml",
+        "configurable": [
+          "terradProtocol",
+          "terradHost",
+          "terradPort"
+        ]
       },
       "mainnet": {
         "services": ["terrad"],
-        "dockerComposePath": "./docker-compose/mainnet/luna.yml",
-        "configurable": []
+        "dockerComposePath": "docker-compose/mainnet/luna.yml",
+        "configurable": [
+          "terradProtocol",
+          "terradHost",
+          "terradPort"
+        ]
       }
     }
   }
