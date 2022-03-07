@@ -52,7 +52,7 @@ def addApi(args, token, network, port, defaultConfig=True):
         )
 
         if args.verbose:
-            logger.printInfo(f"Request sended to http://localhost:{port}/admin/{ADD_CURRENCY}: {req.json()}", verbosity=args.verbose)
+            logger.printInfo(f"Request sent to http://localhost:{port}/admin/{ADD_CURRENCY}: {req.json()}", verbosity=args.verbose)
         return req
     except Exception as e:
         logger.printError(f"Request to client could not be completed: {str(e)}", verbosity=args.verbose)
@@ -75,7 +75,7 @@ def getApi(args, token, network, port):
         )
 
         if args.verbose:
-            logger.printInfo(f"Request sended to http://localhost:{port}/admin/{GET_CURRENCY}: {req.json()}", verbosity=args.verbose)
+            logger.printInfo(f"Request sent to http://localhost:{port}/admin/{GET_CURRENCY}: {req.json()}", verbosity=args.verbose)
         return req.status_code, req
     except Exception as e:
         logger.printError(f"Request to client could not be completed: {str(e)}", verbosity=args.verbose)
@@ -113,7 +113,7 @@ def removeApi(args, token, network, port):
         )
 
         if args.verbose:
-            logger.printInfo(f"Request sended to http://localhost:{port}/admin/{REMOVE_CURRENCY}: {req.json()}", verbosity=args.verbose)
+            logger.printInfo(f"Request sent to http://localhost:{port}/admin/{REMOVE_CURRENCY}: {req.json()}", verbosity=args.verbose)
         return req
     except Exception as e:
         logger.printError(f"Request to client could not be completed: {str(e)}", verbosity=args.verbose)
@@ -162,7 +162,7 @@ def updateApi(args, token, network, port):
         )
 
         if args.verbose:
-            logger.printInfo(f"Request sended to http://localhost:{port}/admin/{UPDATE_CURRENCY}: {req.json()}", verbosity=args.verbose)
+            logger.printInfo(f"Request sent to http://localhost:{port}/admin/{UPDATE_CURRENCY}: {req.json()}", verbosity=args.verbose)
         return req
     except Exception as e:
         logger.printError(f"Request to client could not be completed: {str(e)}", verbosity=args.verbose)
