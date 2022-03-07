@@ -1,0 +1,172 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "",
+    "description": "",
+    "type": "object",
+    "properties": {
+        "transactions": {
+            "type": "array",
+            "items": {
+                "type": [
+                    "object",
+                    "null"
+                ],
+                "properties": {
+                    "txHash": {
+                        "type": "string"
+                    },
+                    "blockHash": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "blockNumber": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "fee": {
+                        "type": "string"
+                    },
+                    "inputs": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "address": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "amount": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "address": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "amount": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "txid": {
+                                "type": "string"
+                            },
+                            "hash": {
+                                "type": "string"
+                            },
+                            "version": {
+                                "type": "integer"
+                            },
+                            "size": {
+                                "type": "integer"
+                            },
+                            "vsize": {
+                                "type": "integer"
+                            },
+                            "weight": {
+                                "type": "integer"
+                            },
+                            "locktime": {
+                                "type": "integer"
+                            },
+                            "hex": {
+                                "type": "string"
+                            },
+                            "vin": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "coinbase": {
+                                            "type": "string"
+                                        },
+                                        "sequence": {
+                                            "type": "integer"
+                                        },
+                                        "txid": {
+                                            "type": "string"
+                                        },
+                                        "vout": {
+                                            "type": "integer"
+                                        },
+                                        "scriptSig": {
+                                            "type": "object",
+                                            "properties": {
+                                                "asm": {
+                                                    "type": "string"
+                                                },
+                                                "hex": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "txinwitness": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "vout": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "value": {
+                                            "type": "number"
+                                        },
+                                        "n": {
+                                            "type": "integer"
+                                        },
+                                        "scriptPubKey": {
+                                            "type": "object",
+                                            "properties": {
+                                                "asm": {
+                                                    "type": "string"
+                                                },
+                                                "hex": {
+                                                    "type": "string"
+                                                },
+                                                "reqSigs": {
+                                                    "type": "integer"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "addresses": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

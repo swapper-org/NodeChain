@@ -373,7 +373,7 @@ def getTransactionHex(id, params, config):
         params=[params["txHash"]]
     )
 
-    response = {"rawTransaction": rawTransaction["hex"]}
+    response = {"rawTransaction": rawTransaction}
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
@@ -440,6 +440,43 @@ def getTransaction(id, params, config):
     except error.RpcBadRequestError as err:
         logger.printError(f"Transaction {params['txHash']} could not be retrieve: {err}")
         return {"transaction": None}
+
+    err = httputils.validateJSONSchema(response, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    return response
+
+
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
+def getTransactions(id, params, config):
+
+    logger.printInfo(f"Executing RPC method getTransactions with id {id} and params {params}")
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTIONS)
+
+    err = httputils.validateJSONSchema(params, requestSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(id=id, message=err.message)
+
+    response = {
+        "transactions": []
+    }
+
+    for txHash in params["txHashes"]:
+        response["transactions"].append(
+            getTransaction(
+                id=id,
+                params={
+                    "txHash": txHash
+                },
+                config=config
+            )
+        )
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
