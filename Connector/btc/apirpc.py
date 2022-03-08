@@ -441,7 +441,7 @@ def getTransaction(id, params, config):
                 "fee": str(transactionDetails["fee"]),
                 "inputs": transactionDetails["inputs"],
                 "outputs": transactionDetails["outputs"],
-                "data": transaction
+                "data": transaction["rawTransaction"]
             }
         }
 

@@ -113,7 +113,7 @@ def decodeTransactionDetails(txDecoded, id, config):
             config=config
         )
 
-        for txOutput in transaction["vout"]:
+        for txOutput in transaction["rawTransaction"]["vout"]:
             if txOutput["n"] == txInput["vout"] and "addresses" in txOutput["scriptPubKey"] and len(
                     txOutput["scriptPubKey"]["addresses"]) == 1:
                 inputs.append(
