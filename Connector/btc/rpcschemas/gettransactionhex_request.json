@@ -6,6 +6,9 @@
     "properties": {
         "txHash" : {
             "type" : "string"
+        },
+        "verbose": {
+            "type": "boolean"
         }
     },
     "required": [

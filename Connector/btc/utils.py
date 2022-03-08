@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-import binascii
-import hashlib
 import math
 from decimal import Decimal
 import random
@@ -8,8 +6,6 @@ import sys
 from logger import logger
 from rpcutils import error
 from wsutils import topics
-from rpcutils.rpcconnector import RPCConnector
-from rpcutils.rpcsocketconnector import RPCSocketConnector
 from .constants import *
 from . import apirpc
 
@@ -55,12 +51,11 @@ class AddrBalanceTopicCloseHandler:
     def close(self):
 
         addrTopicSplitted = self.topicName.split(topics.TOPIC_SEPARATOR)
+        id = random.randint(1, sys.maxsize)
 
         if len(addrTopicSplitted) <= 1:
             logger.printError(f"Topic name [{self.topicName}] not valid for Address Balance WS")
-            raise error.RpcInternalServerError(f"Can not unsubscribe {self.topicName} to node")
-
-        id = random.randint(1, sys.maxsize)
+            raise error.RpcInternalServerError(id=id, message=f"Can not unsubscribe {self.topicName} to node")
 
         response = apirpc.notify(
             id,
@@ -73,56 +68,75 @@ class AddrBalanceTopicCloseHandler:
 
         if not response["success"]:
             logger.printError(f"Can not unsubscribe {self.topicName} to node")
-            raise error.RpcBadRequestError(f"Can not unsubscribe {self.topicName} to node")
+            raise error.RpcBadRequestError(id=id, message=f"Can not unsubscribe {self.topicName} to node")
 
 
-def decodeTransactionDetails(txDecoded, bitcoincoreRpcEndpoint):
+def decodeTransactionDetails(txDecoded, id, config):
+
     outputs = []
     for output in txDecoded["vout"]:
         if "addresses" in output["scriptPubKey"] and len(output["scriptPubKey"]["addresses"]) == 1:
             outputs.append(
-                {"amount": math.trunc(output["value"] * 100000000), "address": output["scriptPubKey"]["addresses"][0]})
+                {
+                    "amount": math.trunc(output["value"] * 10 * BTC_PRECISION),
+                    "address": output["scriptPubKey"]["addresses"][0]
+                }
+            )
         else:
-            outputs.append({"amount": math.trunc(output["value"] * 100000000), "address": None})
+            outputs.append(
+                {
+                    "amount": math.trunc(output["value"] * 10 * BTC_PRECISION),
+                    "address": None
+                }
+            )
 
-    sumOutputs = 0
-    for output in outputs:
-        sumOutputs += output["amount"]
+    sumOutputs = sum([output["amount"] for output in outputs])
 
     inputs = []
     for txInput in txDecoded["vin"]:
 
         if "coinbase" in txInput:  # This is a coinbase transaction and thus it have one only input of 'sumOutputs'
-            inputs.append({"amount": sumOutputs, "address": None})
+            inputs.append(
+                {
+                    "amount": sumOutputs,
+                    "address": None
+                }
+            )
             break
 
-        transaction = RPCConnector.request(
-            endpoint=bitcoincoreRpcEndpoint,
-            id=0,
-            method="getrawtransaction",
-            params=[
-                txInput["txid"],
-                True
-            ]
+        transaction = apirpc.getTransactionHex(
+            id=id,
+            params={
+                "txHash": txInput["txid"],
+                "verbose": True
+            },
+            config=config
         )
 
         for txOutput in transaction["vout"]:
             if txOutput["n"] == txInput["vout"] and "addresses" in txOutput["scriptPubKey"] and len(
                     txOutput["scriptPubKey"]["addresses"]) == 1:
-                inputs.append({"amount": math.trunc(txOutput["value"] * 100000000),
-                               "address": txOutput["scriptPubKey"]["addresses"][0]})
+                inputs.append(
+                    {
+                        "amount": math.trunc(txOutput["value"] * 10 * BTC_PRECISION),
+                        "address": txOutput["scriptPubKey"]["addresses"][0]
+                    }
+                )
             elif "addresses" not in txOutput["scriptPubKey"] or len(txOutput["scriptPubKey"]["addresses"]) != 1:
-                inputs.append({"amount": math.trunc(txOutput["value"] * 100000000), "address": None})
+                inputs.append(
+                    {
+                        "amount": math.trunc(txOutput["value"] * 10 * BTC_PRECISION),
+                        "address": None
+                    }
+                )
 
-    sumInputs = 0
-    for txInput in inputs:
-        sumInputs += txInput["amount"]
+    sumInputs = sum([txInput["amount"] for txInput in inputs])
 
-    fee = sumInputs - sumOutputs
-
-    transactionsDetails = {"fee": fee, "inputs": inputs, "outputs": outputs}
-
-    return transactionsDetails
+    return {
+        "fee": sumInputs - sumOutputs,
+        "inputs": inputs,
+        "outputs": outputs
+    }
 
 
 def sortUnspentOutputs(outputs):

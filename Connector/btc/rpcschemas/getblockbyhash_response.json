@@ -2,7 +2,10 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "title": "",
     "description": "",
-    "type": "object",
+    "type": [
+        "object",
+        "string"
+    ],
     "properties": {
         "hash": {
             "type": "string"
@@ -55,7 +58,10 @@
         "tx": {
             "type": "array",
             "items": {
-                "type": "object",
+                "type": [
+                    "object",
+                    "string"
+                ],
                 "properties": {
                     "txid": {
                         "type": "string"
