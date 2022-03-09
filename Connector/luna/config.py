@@ -11,7 +11,7 @@ class Config:
         self._coin = coin
         self._terradProtocol = ""
         self._terradHost = ""
-        self._terradPort = 0
+        self._terradPort = ""
 
     def loadConfig(self, config):
 
