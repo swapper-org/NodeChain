@@ -11,12 +11,12 @@ class Config:
         self._coin = coin
         self._bitcoincoreProtocol = ""
         self._bitcoincoreHost = ""
-        self._bitcoincorePort = 0
+        self._bitcoincorePort = ""
         self._bitcoincoreUser = ""
         self._bitcoincorePassword = ""
         self._electrumCashProtocol = ""
         self._electrumCashHost = ""
-        self._electrumCashPort = 0
+        self._electrumCashPort = ""
         self._electrumCashUser = ""
         self._electrumCashPassword = ""
 
