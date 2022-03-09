@@ -30,8 +30,15 @@ class Config:
             else defaultConfig["bitcoincoreProtocol"]
         self.bitcoincoreHost = config["bitcoincoreHost"] if "bitcoincoreHost" in config \
             else defaultConfig["bitcoincoreHost"]
-        self.bitcoincorePort = config["bitcoincorePort"] if "bitcoincorePort" in config \
-            else defaultConfig["bitcoincorePort"]
+
+        if "bitcoincorePort" in config:
+            if config["bitcoincorePort"].isdigit():
+                self.bitcoincorePort = config["bitcoincorePort"]
+            else:
+                return False, f"Value {config['bitcoincorePort']} for bitcoincorePort is not digit"
+        else:
+            self.bitcoincorePort = defaultConfig["bitcoincorePort"]
+
         self.bitcoincoreUser = config["bitcoincoreUser"] if "bitcoincoreUser" in config \
             else defaultConfig["bitcoincoreUser"]
         self.bitcoincorePassword = config["bitcoincorePassword"] if "bitcoincorePassword" in config \
@@ -40,8 +47,15 @@ class Config:
             else defaultConfig["electrumCashProtocol"]
         self.electrumCashHost = config["electrumCashHost"] if "electrumCashHost" in config \
             else defaultConfig["electrumCashHost"]
-        self.electrumCashPort = config["electrumCashPort"] if "electrumCashPort" in config \
-            else defaultConfig["electrumCashPort"]
+
+        if "electrumCashPort" in config:
+            if config["electrumCashPort"].isdigit():
+                self.electrumCashPort = config["electrumCashPort"]
+            else:
+                return False, f"Value {config['electrumCashPort']} for electrumCashPort is not digit"
+        else:
+            self.electrumCashPort = defaultConfig["electrumCashPort"]
+
         self.electrumCashUser = config["electrumCashUser"] if "electrumCashUser" in config \
             else defaultConfig["electrumCashUser"]
         self.electrumCashPassword = config["electrumCashPassword"] if "electrumCashPassword" in config \
