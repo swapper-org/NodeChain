@@ -11,8 +11,8 @@ class Config:
         self._networkName = networkName
         self._protocol = ""
         self._host = ""
-        self._rpcPort = 0
-        self._wsPort = 0
+        self._rpcPort = ""
+        self._wsPort = ""
 
     def loadConfig(self, config):
 
