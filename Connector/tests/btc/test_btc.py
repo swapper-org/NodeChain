@@ -26,7 +26,7 @@ config.loadConfig(
     config={
         "bitcoincoreHost": "localhost",
         "electrumHost": "localhost",
-        "electrumPort": 30000
+        "electrumPort": "30000"
     }
 )
 
