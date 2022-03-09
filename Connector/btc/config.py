@@ -12,20 +12,20 @@ class Config:
 
         self._bitcoincoreProtocol = ""
         self._bitcoincoreHost = ""
-        self._bitcoincorePort = 0
+        self._bitcoincorePort = ""
         self._bitcoincoreUser = ""
         self._bitcoincorePassword = ""
         self._bitcoincoreZmqProtocol = ""
-        self._bitcoincoreZmqPort = 0
+        self._bitcoincoreZmqPort = ""
         self._electrumProtocol = ""
         self._electrumHost = ""
-        self._electrumPort = 0
+        self._electrumPort = ""
         self._electrumUser = ""
         self._electrumPassword = ""
         self._bitcoincoreCallbackProtocol = ""
         self._bitcoincoreCallbackHost = ""
         self._electrumxHost = ""
-        self._electrumxPort = 0
+        self._electrumxPort = ""
 
     def loadConfig(self, config):
 
