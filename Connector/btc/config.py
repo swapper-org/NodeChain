@@ -12,20 +12,20 @@ class Config:
 
         self._bitcoincoreProtocol = ""
         self._bitcoincoreHost = ""
-        self._bitcoincorePort = 0
+        self._bitcoincorePort = ""
         self._bitcoincoreUser = ""
         self._bitcoincorePassword = ""
         self._bitcoincoreZmqProtocol = ""
-        self._bitcoincoreZmqPort = 0
+        self._bitcoincoreZmqPort = ""
         self._electrumProtocol = ""
         self._electrumHost = ""
-        self._electrumPort = 0
+        self._electrumPort = ""
         self._electrumUser = ""
         self._electrumPassword = ""
         self._bitcoincoreCallbackProtocol = ""
         self._bitcoincoreCallbackHost = ""
         self._electrumxHost = ""
-        self._electrumxPort = 0
+        self._electrumxPort = ""
 
     def loadConfig(self, config):
 
@@ -37,20 +37,42 @@ class Config:
             else defaultConfig["bitcoincoreProtocol"]
         self.bitcoincoreHost = config["bitcoincoreHost"] if "bitcoincoreHost" in config \
             else defaultConfig["bitcoincoreHost"]
-        self.bitcoincorePort = config["bitcoincorePort"] if "bitcoincorePort" in config \
-            else defaultConfig["bitcoincorePort"]
+
+        if "bitcoincorePort" in config:
+            if config["bitcoincorePort"].isdigit():
+                self.bitcoincorePort = config["bitcoincorePort"]
+            else:
+                return False, f"Value {config['bitcoincorePort']} for bitcoincorePort is not digit"
+        else:
+            self.bitcoincorePort = defaultConfig["bitcoincorePort"]
+
         self.bitcoincoreUser = config["bitcoincoreUser"] if "bitcoincoreUser" in config \
             else defaultConfig["bitcoincoreUser"]
         self.bitcoincorePassword = config["bitcoincorePassword"] if "bitcoincorePassword" in config \
             else defaultConfig["bitcoincorePassword"]
         self.bitcoincoreZmqProtocol = config["bitcoincoreZmqProtocol"] if "bitcoincoreZmqProtocol" in config \
             else defaultConfig["bitcoincoreZmqProtocol"]
-        self.bitcoincoreZmqPort = config["bitcoincoreZmqPort"] if "bitcoincoreZmqPort" in config \
-            else defaultConfig["bitcoincoreZmqPort"]
+
+        if "bitcoincoreZmqPort" in config:
+            if config["bitcoincoreZmqPort"].isdigit():
+                self.bitcoincoreZmqPort = config["bitcoincoreZmqPort"]
+            else:
+                return False, f"Value {config['bitcoincoreZmqPort']} for bitcoincoreZmqPort is not digit"
+        else:
+            self.bitcoincoreZmqPort = defaultConfig["bitcoincoreZmqPort"]
+
         self.electrumProtocol = config["electrumProtocol"] if "electrumProtocol" in config \
             else defaultConfig["electrumProtocol"]
         self.electrumHost = config["electrumHost"] if "electrumHost" in config else defaultConfig["electrumHost"]
-        self.electrumPort = config["electrumPort"] if "electrumPort" in config else defaultConfig["electrumPort"]
+
+        if "electrumPort" in config:
+            if config["electrumPort"].isdigit():
+                self.electrumPort = config["electrumPort"]
+            else:
+                return False, f"Value {config['electrumPort']} for electrumPort is not digit"
+        else:
+            self.electrumPort = defaultConfig["electrumPort"]
+
         self.electrumUser = config["electrumUser"] if "electrumUser" in config else defaultConfig["electrumUser"]
         self.electrumPassword = config["electrumPassword"] if "electrumPassword" in config \
             else defaultConfig["electrumPassword"]
@@ -60,7 +82,14 @@ class Config:
         self.bitcoincoreCallbackHost = config["bitcoincoreCallbackHost"] if "bitcoincoreCallbackHost" in config \
             else defaultConfig["bitcoincoreCallbackHost"]
         self.electrumxHost = config["electrumxHost"] if "electrumxHost" in config else defaultConfig["electrumxHost"]
-        self.electrumxPort = config["electrumxPort"] if "electrumxPort" in config else defaultConfig["electrumxPort"]
+
+        if "electrumxPort" in config:
+            if config["electrumxPort"].isdigit():
+                self.electrumxPort = config["electrumxPort"]
+            else:
+                return False, f"Value {config['electrumxPort']} for electrumxPort is not digit"
+        else:
+            self.electrumxPort = defaultConfig["electrumxPort"]
 
         return True, None
 

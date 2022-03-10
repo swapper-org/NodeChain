@@ -11,7 +11,7 @@
             "type": "string"
         },
         "bitcoincorePort": {
-            "type": "integer"
+            "type": "string"
         },
         "bitcoincoreUser":{
           "type": "string"
@@ -26,7 +26,7 @@
             "type": "string"
         },
         "electrumCashPort": {
-            "type": "integer"
+            "type": "string"
         },
         "electrumCashUser": {
             "type": "string"

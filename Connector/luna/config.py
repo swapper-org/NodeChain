@@ -11,7 +11,7 @@ class Config:
         self._coin = coin
         self._terradProtocol = ""
         self._terradHost = ""
-        self._terradPort = 0
+        self._terradPort = ""
 
     def loadConfig(self, config):
 
@@ -23,8 +23,14 @@ class Config:
             else defaultConfig["terradProtocol"]
         self.terradHost = config["terradHost"] if "terradHost" in config \
             else defaultConfig["terradHost"]
-        self.terradPort = config["terradPort"] if "terradPort" in config \
-            else defaultConfig["terradPort"]
+
+        if "terradPort" in config:
+            if config["terradPort"].isdigit():
+                self.terradPort = config["terradPort"]
+            else:
+                return False, f"Value {config['terradPort']} for terradPort is not digit"
+        else:
+            self.terradPort = defaultConfig["terradPort"]
 
         return True, None
 

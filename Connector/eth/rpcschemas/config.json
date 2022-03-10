@@ -15,7 +15,7 @@
             "type": "string"
         },
         "rpcPort": {
-            "type": "integer"
+            "type": "string"
         },
         "wsPort": {
             "type": "string"

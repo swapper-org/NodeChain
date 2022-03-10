@@ -1,5 +1,5 @@
 {
   "terradProtocol": "http",
   "terradHost": "terrad",
-  "terradPort": 1317
+  "terradPort": "1317"
 }

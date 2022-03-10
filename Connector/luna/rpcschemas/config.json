@@ -3,6 +3,20 @@
   "title": "",
   "description": "",
   "type": "object",
-  "properties": {},
-  "required": []
+  "properties": {
+    "terradProtocol": {
+      "type": "string"
+    },
+    "terradHost": {
+      "type": "string"
+    },
+    "terradPort": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "terradProtocol",
+    "terradHost",
+    "terradPort"
+  ]
 }

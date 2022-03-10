@@ -11,7 +11,7 @@
             "type": "string"
         },
         "bitcoincorePort": {
-            "type": "integer"
+            "type": "string"
         },
         "bitcoincoreUser":{
           "type": "string"
@@ -33,7 +33,7 @@
             "type": "string"
         },
         "bitcoincoreZmqPort": {
-            "type": "integer"
+            "type": "string"
         },
         "electrumProtocol": {
             "type": "string"
@@ -42,12 +42,18 @@
             "type": "string"
         },
         "electrumPort": {
-            "type": "integer"
+            "type": "string"
         },
         "electrumUser": {
             "type": "string"
         },
         "electrumPassword": {
+            "type": "string"
+        },
+        "electrumxHost": {
+            "type": "string"
+        },
+        "electrumxPort": {
             "type": "string"
         }
     },
@@ -63,6 +69,8 @@
         "electrumHost",
         "electrumPort",
         "electrumUser",
-        "electrumPassword"
+        "electrumPassword",
+        "electrumxHost",
+        "electrumxPort"
     ]
 }

@@ -11,8 +11,8 @@ class Config:
         self._networkName = networkName
         self._protocol = ""
         self._host = ""
-        self._rpcPort = 0
-        self._wsPort = 0
+        self._rpcPort = ""
+        self._wsPort = ""
 
     def loadConfig(self, config):
 
@@ -22,8 +22,22 @@ class Config:
 
         self.protocol = config["protocol"] if "protocol" in config else defaultConfig["protocol"]
         self.host = config["host"] if "host" in config else defaultConfig["host"]
-        self.rpcPort = config["rpcPort"] if "rpcPort" in config else defaultConfig["rpcPort"]
-        self.wsPort = config["wsPort"] if "wsPort" in config else defaultConfig["wsPort"]
+
+        if "rpcPort" in config:
+            if config["rpcPort"].isdigit():
+                self.rpcPort = config["rpcPort"]
+            else:
+                return False, f"Value {config['rpcPort']} for rpcPort is not digit"
+        else:
+            self.rpcPort = defaultConfig["rpcPort"]
+
+        if "wsPort" in config:
+            if config["wsPort"].isdigit():
+                self.wsPort = config["wsPort"]
+            else:
+                return False, f"Value {config['wsPort']} for wsPort is not digit"
+        else:
+            self.wsPort = defaultConfig["wsPort"]
 
         return True, None
 
