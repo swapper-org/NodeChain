@@ -242,7 +242,7 @@ def getBlockByHash(id, params, config):
         method=GET_BLOCK_METHOD,
         params=[
             params["blockHash"],
-            VERBOSITY_MORE_MODE
+            params["verbosity"] if "verbosity" in params else VERBOSITY_MORE_MODE
         ]
     )
 
@@ -274,7 +274,10 @@ def getBlockByNumber(id, params, config):
 
     return getBlockByHash(
         id=id,
-        params={"blockHash": blockHash},
+        params={
+            "blockHash": blockHash,
+            "verbosity": params["verbosity"] if "verbosity" in params else VERBOSITY_MORE_MODE
+        },
         config=config
     )
 
@@ -370,7 +373,10 @@ def getTransactionHex(id, params, config):
         endpoint=config.bitcoincoreRpcEndpoint,
         id=id,
         method=GET_RAW_TRANSACTION_METHOD,
-        params=[params["txHash"]]
+        params=[
+            params["txHash"],
+            False if "verbose" not in params else params["verbose"]
+        ]
     )
 
     response = {"rawTransaction": rawTransaction}
@@ -385,6 +391,7 @@ def getTransactionHex(id, params, config):
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
 @httpmethod.postHttpMethod(coin=COIN_SYMBOL)
 def getTransaction(id, params, config):
+
     logger.printInfo(f"Executing RPC method getTransaction with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION)
@@ -394,32 +401,33 @@ def getTransaction(id, params, config):
         raise error.RpcBadRequestError(id=id, message=err.message)
 
     try:
-        transaction = RPCConnector.request(
-            endpoint=config.bitcoincoreRpcEndpoint,
+        transaction = getTransactionHex(
             id=id,
-            method=GET_RAW_TRANSACTION_METHOD,
-            params=[
-                params["txHash"],
-                True
-            ]
+            params={
+                "txHash": params["txHash"],
+                "verbose": True
+            },
+            config=config
         )
 
         # Check if transaction is confirmed, and obtain block number
-        if "blockhash" in transaction:
-            transactionBlock = RPCConnector.request(
-                endpoint=config.bitcoincoreRpcEndpoint,
+        if "blockhash" in transaction["rawTransaction"]:
+            transactionBlock = getBlockByHash(
                 id=id,
-                method=GET_BLOCK,
-                params=[transaction["blockhash"], 1]
+                params={
+                    "blockHash": transaction["rawTransaction"]["blockhash"],
+                    "verbosity": VERBOSITY_DEFAULT_MODE
+                },
+                config=config
             )
             blockNumber = transactionBlock["height"]
         else:
             blockNumber = None
 
-        transactionDetails = utils.decodeTransactionDetails(transaction, config.bitcoincoreRpcEndpoint)
+        transactionDetails = utils.decodeTransactionDetails(transaction["rawTransaction"], id, config)
 
         # Converting all transaction details to str
-        transactionDetails["fee"] = str(transactionDetails["fee"])
+
         for input in transactionDetails["inputs"]:
             input["amount"] = str(input["amount"])
         for output in transactionDetails["outputs"]:
@@ -427,13 +435,13 @@ def getTransaction(id, params, config):
 
         response = {
             "transaction": {
-                "txId": transaction["txid"],
-                "txHash": transaction["hash"],
+                "txId": transaction["rawTransaction"]["txid"],
+                "txHash": transaction["rawTransaction"]["hash"],
                 "blockNumber": str(blockNumber) if blockNumber is not None else blockNumber,
-                "fee": transactionDetails["fee"],
+                "fee": str(transactionDetails["fee"]),
                 "inputs": transactionDetails["inputs"],
                 "outputs": transactionDetails["outputs"],
-                "data": transaction
+                "data": transaction["rawTransaction"]
             }
         }
 

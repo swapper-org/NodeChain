@@ -10,6 +10,9 @@
                 "null"
             ],
             "properties": {
+                "txId": {
+                    "type": "string"
+                },
                 "txHash": {
                     "type": "string"
                 },

@@ -505,7 +505,7 @@ def testGetTransaction():
 
     got = postHttpMethods[COIN_SYMBOL]["getTransaction"]({"txHash": txHash}, config)
 
-    txDetails = decodeTransactionDetails(expectedTransaction, config.bitcoincoreRpcEndpoint)
+    txDetails = decodeTransactionDetails(expectedTransaction, 0, config)
 
     for input in txDetails["inputs"]:
         input["amount"] = str(input["amount"])
@@ -550,7 +550,7 @@ def testGetTransactions():
                 found = True
                 expectedTransaction = makeBitcoinCoreRequest(GET_RAW_TRANSACTION_METHOD, [txHash, True])
                 expectedBlock = makeBitcoinCoreRequest(GET_BLOCK, [expectedTransaction["blockhash"], 1])
-                txDetails = decodeTransactionDetails(expectedTransaction, config.bitcoincoreRpcEndpoint)
+                txDetails = decodeTransactionDetails(expectedTransaction, 0, config)
 
                 for input in txDetails["inputs"]:
                     input["amount"] = str(input["amount"])
