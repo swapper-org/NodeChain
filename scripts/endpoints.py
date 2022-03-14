@@ -44,6 +44,8 @@ def addApi(args, token, network, port, defaultConfig=True):
     headers = {
         'Content-Type': 'application/json'
     }
+    if args.verbose:
+        logger.printInfo(f"Request payload: {payload}", verbosity=args.verbose)
     try:
         req = requests.post(
             url=f"http://localhost:{port}/admin/{ADD_CURRENCY}",
