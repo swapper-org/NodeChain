@@ -4,7 +4,7 @@ services:
     image: uphold/bitcoin-abc:latest
     command: -rpcuser=swapper -rpcpassword=swapper -server=1 -rpcallowip=0.0.0.0/0 -rpcbind=bitcoinabc-testnet -txindex=1 -testnet -rpcport=8332
     volumes:
-      - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
+      - ${BLOCKCHAIN_PATH}/bitcoinabc:/home/bitcoin/.bitcoin
 
   electrumx:
     image: lukechilds/electrumx
