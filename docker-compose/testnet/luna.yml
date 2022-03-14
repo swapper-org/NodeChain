@@ -1,6 +1,6 @@
 version: "3"
 services:
-  terrad:
+  terrad-testnet:
     build: ../../packages/nodechain-terrad
     image: terrad
     environment:

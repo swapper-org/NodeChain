@@ -1,6 +1,6 @@
 version: "3"
 services:
-  terrad:
+  terrad-mainnet:
     build: ../../packages/nodechain-terrad
     image: terrad
     environment:
