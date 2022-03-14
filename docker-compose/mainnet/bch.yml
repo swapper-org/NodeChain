@@ -6,7 +6,7 @@ services:
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoinabc:/home/bitcoin/.bitcoin
 
-  electrumx:
+  electrumx-mainnet:
     image: lukechilds/electrumx
     environment:
       DAEMON_URL: http://swapper:swapper@bitcoinabc-mainnet:8332
@@ -18,9 +18,11 @@ services:
     volumes:
       - ${BLOCKCHAIN_PATH}/electrumx:/data
 
-  electrum:
+  electrum-mainnet:
     build: ../../packages/nodechain-electron-cash
     image: electrum
+    environment:
+      NETWORK: ${NETWORK}
 
 networks:
   default:
