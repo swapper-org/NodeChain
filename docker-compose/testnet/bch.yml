@@ -1,15 +1,15 @@
 version: "3"
 services:
-  bitcoincore:
+  bitcoinabc-testnet:
     image: uphold/bitcoin-abc:latest
-    command: -rpcuser=swapper -rpcpassword=swapper -server=1 -rpcallowip=0.0.0.0/0 -rpcbind=bitcoincore -txindex=1 -testnet -rpcport=8332
+    command: -rpcuser=swapper -rpcpassword=swapper -server=1 -rpcallowip=0.0.0.0/0 -rpcbind=bitcoinabc-testnet -txindex=1 -testnet -rpcport=8332
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
 
   electrumx:
     image: lukechilds/electrumx
     environment:
-      DAEMON_URL: http://swapper:swapper@bitcoincore:8332
+      DAEMON_URL: http://swapper:swapper@bitcoinabc-testnet:8332
       COIN: BitcoinCashABC
       PEER_DISCOVERY: "off"
       SERVICES: tcp://:50001

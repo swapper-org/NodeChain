@@ -27,6 +27,9 @@ class Config:
         self._electrumxHost = ""
         self._electrumxPort = ""
 
+    def __attachNetworkToHost(self, host):
+        return f"{host}-{self.networkName}"
+
     def loadConfig(self, config):
 
         defaultConfig, err = utils.loadDefaultPackageConf(self.coin)
@@ -36,7 +39,7 @@ class Config:
         self.bitcoincoreProtocol = config["bitcoincoreProtocol"] if "bitcoincoreProtocol" in config \
             else defaultConfig["bitcoincoreProtocol"]
         self.bitcoincoreHost = config["bitcoincoreHost"] if "bitcoincoreHost" in config \
-            else defaultConfig["bitcoincoreHost"]
+            else self.__attachNetworkToHost(defaultConfig["bitcoincoreHost"])
 
         if "bitcoincorePort" in config:
             if config["bitcoincorePort"].isdigit():
