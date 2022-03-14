@@ -49,7 +49,7 @@ class Config:
         self.electrumCashProtocol = config["electrumCashProtocol"] if "electrumCashProtocol" in config \
             else defaultConfig["electrumCashProtocol"]
         self.electrumCashHost = config["electrumCashHost"] if "electrumCashHost" in config \
-            else defaultConfig["electrumCashHost"]
+            else self.__attachNetworkToHost(defaultConfig["electrumCashHost"])
 
         if "electrumCashPort" in config:
             if config["electrumCashPort"].isdigit():
