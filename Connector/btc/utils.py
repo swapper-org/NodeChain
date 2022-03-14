@@ -78,14 +78,14 @@ def decodeTransactionDetails(txDecoded, id, config):
         if "addresses" in output["scriptPubKey"] and len(output["scriptPubKey"]["addresses"]) == 1:
             outputs.append(
                 {
-                    "amount": math.trunc(output["value"] * 10 * BTC_PRECISION),
+                    "amount": math.trunc(output["value"] * math.pow(10, BTC_PRECISION)),
                     "address": output["scriptPubKey"]["addresses"][0]
                 }
             )
         else:
             outputs.append(
                 {
-                    "amount": math.trunc(output["value"] * 10 * BTC_PRECISION),
+                    "amount": math.trunc(output["value"] * math.pow(10, BTC_PRECISION)),
                     "address": None
                 }
             )
@@ -118,14 +118,14 @@ def decodeTransactionDetails(txDecoded, id, config):
                     txOutput["scriptPubKey"]["addresses"]) == 1:
                 inputs.append(
                     {
-                        "amount": math.trunc(txOutput["value"] * 10 * BTC_PRECISION),
+                        "amount": math.trunc(txOutput["value"] * math.pow(10, BTC_PRECISION)),
                         "address": txOutput["scriptPubKey"]["addresses"][0]
                     }
                 )
             elif "addresses" not in txOutput["scriptPubKey"] or len(txOutput["scriptPubKey"]["addresses"]) != 1:
                 inputs.append(
                     {
-                        "amount": math.trunc(txOutput["value"] * 10 * BTC_PRECISION),
+                        "amount": math.trunc(txOutput["value"] * math.pow(10, BTC_PRECISION)),
                         "address": None
                     }
                 )
