@@ -27,4 +27,4 @@ exclude =
     Connector/tests/docker-compose,
     # This contains nginx configuration files
     nginx,
-max-complexity = 10
+max-complexity = 11
