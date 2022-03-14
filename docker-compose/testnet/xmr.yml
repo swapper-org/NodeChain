@@ -1,6 +1,6 @@
 version: "3"
 services:
-  monerod:
+  monerod-testnet:
     build: ../../packages/nodechain-monerod
     image: monerod
     command: --stagenet --p2p-bind-ip=0.0.0.0 --p2p-bind-port=38080 --rpc-bind-ip=0.0.0.0 --rpc-bind-port=38081 --non-interactive --confirm-external-bind
