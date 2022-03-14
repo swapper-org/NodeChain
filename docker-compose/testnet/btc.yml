@@ -1,42 +1,44 @@
 version: "3"
 services:
-  bitcoincore:
+  bitcoincore-testnet:
     build: ../../packages/nodechain-bitcoin-core
     image: bitcoincore
     command: -rpcuser=swapper
       -rpcpassword=swapper
       -server=1
       -rpcallowip=0.0.0.0/0
-      -rpcbind=bitcoincore
+      -rpcbind=bitcoincore-testnet
       -txindex=1
       -prune=0
       -testnet
       -rpcport=8332
       -zmqpubhashblock=tcp://0.0.0.0:28332
     volumes:
-      - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
+      - ${BLOCKCHAIN_PATH}/bitcoincore:/home/bitcoin/.bitcoin
 
-  electrs:
+  electrs-testnet:
     build: ../../packages/nodechain-electrs
     image: electrs
     command: -v --timestamp
     depends_on:
-      - bitcoincore
+      - bitcoincore-testnet
     environment:
       TESTNET: 1
-      DAEMON_RPC_URL: bitcoincore:8332
+      DAEMON_RPC_URL: bitcoincore-testnet:8332
       ELECTRUM_RPC_URL: 0.0.0.0:60001
+      NETWORK: ${NETWORK}
     volumes:
       - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
-      - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
+      - ${BLOCKCHAIN_PATH}/bitcoincore:/home/bitcoin/.bitcoin
 
-  electrum:
+  electrum-testnet:
     build: ../../packages/nodechain-electrum
     image: electrum
     depends_on:
-      - electrs
+      - electrs-testnest
     environment:
       TESTNET: 1
+      NETWORK: ${NETWORK}
 
 networks:
   default:

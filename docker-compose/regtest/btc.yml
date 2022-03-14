@@ -1,6 +1,6 @@
 version: "3"
 services:
-  bitcoincore:
+  bitcoincore-regtest:
     build: ../../packages/nodechain-bitcoin-core
     image: bitcoincore
     command: -rpcuser=swapper
@@ -17,29 +17,31 @@ services:
       -fallbackfee=0.0001
       -zmqpubhashblock=tcp://0.0.0.0:28332
     volumes:
-      - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
+      - ${BLOCKCHAIN_PATH}/bitcoincore:/home/bitcoin/.bitcoin
 
-  electrs:
+  electrs-regtest:
     build: ../../packages/nodechain-electrs
     image: electrs
     command: -v --timestamp
     depends_on:
-      - bitcoincore
+      - bitcoincore-regtest
     environment:
       REGTEST: 1
-      DAEMON_RPC_URL: bitcoincore:8332
+      DAEMON_RPC_URL: bitcoincore-regtest:8332
       ELECTRUM_RPC_URL: 0.0.0.0:60401
+      NETWORK: ${NETWORK}
     volumes:
       - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
-      - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
+      - ${BLOCKCHAIN_PATH}/bitcoincore:/home/bitcoin/.bitcoin
 
-  electrum:
+  electrum-regtest:
     build: ../../packages/nodechain-electrum-regtest
     image: electrum
     depends_on:
-      - electrs
+      - electrs-regtest
     environment:
       REGTEST: 1
+      NETWORK: ${NETWORK}
 
 networks:
   default:

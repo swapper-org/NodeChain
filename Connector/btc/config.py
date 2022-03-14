@@ -66,7 +66,8 @@ class Config:
 
         self.electrumProtocol = config["electrumProtocol"] if "electrumProtocol" in config \
             else defaultConfig["electrumProtocol"]
-        self.electrumHost = config["electrumHost"] if "electrumHost" in config else defaultConfig["electrumHost"]
+        self.electrumHost = config["electrumHost"] if "electrumHost" in config \
+            else self.__attachNetworkToHost(defaultConfig["electrumHost"])
 
         if "electrumPort" in config:
             if config["electrumPort"].isdigit():
@@ -84,7 +85,8 @@ class Config:
             else defaultConfig["bitcoincoreCallbackProtocol"]
         self.bitcoincoreCallbackHost = config["bitcoincoreCallbackHost"] if "bitcoincoreCallbackHost" in config \
             else defaultConfig["bitcoincoreCallbackHost"]
-        self.electrumxHost = config["electrumxHost"] if "electrumxHost" in config else defaultConfig["electrumxHost"]
+        self.electrumxHost = config["electrumxHost"] if "electrumxHost" in config \
+            else self.__attachNetworkToHost(defaultConfig["electrumxHost"])
 
         if "electrumxPort" in config:
             if config["electrumxPort"].isdigit():
