@@ -5,7 +5,7 @@ services:
     image: terrad
     environment:
       TESTNET: 1
-      NETWORK: bombay-12
+      NET: bombay-12
     volumes:
       - ${BLOCKCHAIN_PATH}/terrad:/root/.terra
 
