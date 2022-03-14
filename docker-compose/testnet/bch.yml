@@ -6,7 +6,7 @@ services:
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoinabc:/home/bitcoin/.bitcoin
 
-  electrumx-mainnet:
+  electrumx-testnet:
     image: lukechilds/electrumx
     environment:
       DAEMON_URL: http://swapper:swapper@bitcoinabc-testnet:8332
@@ -19,7 +19,7 @@ services:
     volumes:
       - ${BLOCKCHAIN_PATH}/electrumx:/data
 
-  electrum-mainnet:
+  electrum-testnet:
     build: ../../packages/nodechain-electron-cash
     image: electrum
     environment:
