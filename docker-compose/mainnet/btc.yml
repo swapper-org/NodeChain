@@ -1,35 +1,39 @@
 version: "3"
 services:
-  bitcoincore:
+  bitcoincore-mainnet:
     build: ../../packages/nodechain-bitcoin-core
     image: bitcoincore
     command: -rpcuser=swapper
       -rpcpassword=swapper
       -server=1
       -rpcallowip=0.0.0.0/0
-      -rpcbind=bitcoincore
+      -rpcbind=bitcoincore-mainnet
       -txindex=1
       -rpcport=8332
       -zmqpubhashblock=tcp://0.0.0.0:28332
     volumes:
-      - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
+      - ${BLOCKCHAIN_PATH}/bitcoincore:/home/bitcoin/.bitcoin
 
-  electrs:
+  electrs-mainnet:
     build: ../../packages/nodechain-electrs
     image: electrs
     command: -v --timestamp
     depends_on:
-      - bitcoincore
+      - bitcoincore-mainnet
     environment:
-      DAEMON_RPC_URL: bitcoincore:8332
+      DAEMON_RPC_URL: bitcoincore-mainnet:8332
       ELECTRUM_RPC_URL: 0.0.0.0:50001
     volumes:
       - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
-      - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
+      - ${BLOCKCHAIN_PATH}/bitcoincore:/home/bitcoin/.bitcoin
 
-  electrum:
+  electrum-mainnet:
     build: ../../packages/nodechain-electrum
     image: electrum
+    depends_on:
+      - electrs-mainnet
+    environment:
+      NETWORK: ${NETWORK}
 
 networks:
   default:

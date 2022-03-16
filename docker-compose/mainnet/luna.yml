@@ -1,11 +1,11 @@
 version: "3"
 services:
-  terrad:
+  terrad-mainnet:
     build: ../../packages/nodechain-terrad
     image: terrad
     environment:
       MAINNET: 1
-      NETWORK: columbus-5
+      NET: columbus-5
     volumes:
       - ${BLOCKCHAIN_PATH}/terrad:/root/.terra
 

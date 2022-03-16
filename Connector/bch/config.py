@@ -9,16 +9,19 @@ class Config:
 
         self._networkName = networkName
         self._coin = coin
-        self._bitcoincoreProtocol = ""
-        self._bitcoincoreHost = ""
-        self._bitcoincorePort = ""
-        self._bitcoincoreUser = ""
-        self._bitcoincorePassword = ""
+        self._bitcoinabcProtocol = ""
+        self._bitcoinabcHost = ""
+        self._bitcoinabcPort = ""
+        self._bitcoinabcUser = ""
+        self._bitcoinabcPassword = ""
         self._electrumCashProtocol = ""
         self._electrumCashHost = ""
         self._electrumCashPort = ""
         self._electrumCashUser = ""
         self._electrumCashPassword = ""
+
+    def __attachNetworkToHost(self, host):
+        return f"{host}-{self.networkName}"
 
     def loadConfig(self, config):
 
@@ -26,27 +29,27 @@ class Config:
         if err is not None:
             return False, err
 
-        self.bitcoincoreProtocol = config["bitcoincoreProtocol"] if "bitcoincoreProtocol" in config \
-            else defaultConfig["bitcoincoreProtocol"]
-        self.bitcoincoreHost = config["bitcoincoreHost"] if "bitcoincoreHost" in config \
-            else defaultConfig["bitcoincoreHost"]
+        self.bitcoinabcProtocol = config["bitcoinabcProtocol"] if "bitcoinabcProtocol" in config \
+            else defaultConfig["bitcoinabcProtocol"]
+        self.bitcoinabcHost = config["bitcoinabcHost"] if "bitcoinabcHost" in config \
+            else self.__attachNetworkToHost(defaultConfig["bitcoinabcHost"])
 
-        if "bitcoincorePort" in config:
-            if config["bitcoincorePort"].isdigit():
-                self.bitcoincorePort = config["bitcoincorePort"]
+        if "bitcoinabcPort" in config:
+            if config["bitcoinabcPort"].isdigit():
+                self.bitcoinabcPort = config["bitcoinabcPort"]
             else:
-                return False, f"Value {config['bitcoincorePort']} for bitcoincorePort is not digit"
+                return False, f"Value {config['bitcoinabcPort']} for bitcoinabcPort is not digit"
         else:
-            self.bitcoincorePort = defaultConfig["bitcoincorePort"]
+            self.bitcoinabcPort = defaultConfig["bitcoinabcPort"]
 
-        self.bitcoincoreUser = config["bitcoincoreUser"] if "bitcoincoreUser" in config \
-            else defaultConfig["bitcoincoreUser"]
-        self.bitcoincorePassword = config["bitcoincorePassword"] if "bitcoincorePassword" in config \
-            else defaultConfig["bitcoincorePassword"]
+        self.bitcoinabcUser = config["bitcoinabcUser"] if "bitcoinabcUser" in config \
+            else defaultConfig["bitcoinabcUser"]
+        self.bitcoinabcPassword = config["bitcoinabcPassword"] if "bitcoinabcPassword" in config \
+            else defaultConfig["bitcoinabcPassword"]
         self.electrumCashProtocol = config["electrumCashProtocol"] if "electrumCashProtocol" in config \
             else defaultConfig["electrumCashProtocol"]
         self.electrumCashHost = config["electrumCashHost"] if "electrumCashHost" in config \
-            else defaultConfig["electrumCashHost"]
+            else self.__attachNetworkToHost(defaultConfig["electrumCashHost"])
 
         if "electrumCashPort" in config:
             if config["electrumCashPort"].isdigit():
@@ -76,44 +79,44 @@ class Config:
         self._networkName = value
 
     @property
-    def bitcoincoreProtocol(self):
-        return self._bitcoincoreProtocol
+    def bitcoinabcProtocol(self):
+        return self._bitcoinabcProtocol
 
-    @bitcoincoreProtocol.setter
-    def bitcoincoreProtocol(self, value):
-        self._bitcoincoreProtocol = value
-
-    @property
-    def bitcoincoreHost(self):
-        return self._bitcoincoreHost
-
-    @bitcoincoreHost.setter
-    def bitcoincoreHost(self, value):
-        self._bitcoincoreHost = value
+    @bitcoinabcProtocol.setter
+    def bitcoinabcProtocol(self, value):
+        self._bitcoinabcProtocol = value
 
     @property
-    def bitcoincorePort(self):
-        return self._bitcoincorePort
+    def bitcoinabcHost(self):
+        return self._bitcoinabcHost
 
-    @bitcoincorePort.setter
-    def bitcoincorePort(self, value):
-        self._bitcoincorePort = value
-
-    @property
-    def bitcoincoreUser(self):
-        return self._bitcoincoreUser
-
-    @bitcoincoreUser.setter
-    def bitcoincoreUser(self, value):
-        self._bitcoincoreUser = value
+    @bitcoinabcHost.setter
+    def bitcoinabcHost(self, value):
+        self._bitcoinabcHost = value
 
     @property
-    def bitcoincorePassword(self):
-        return self._bitcoincorePassword
+    def bitcoinabcPort(self):
+        return self._bitcoinabcPort
 
-    @bitcoincorePassword.setter
-    def bitcoincorePassword(self, value):
-        self._bitcoincorePassword = value
+    @bitcoinabcPort.setter
+    def bitcoinabcPort(self, value):
+        self._bitcoinabcPort = value
+
+    @property
+    def bitcoinabcUser(self):
+        return self._bitcoinabcUser
+
+    @bitcoinabcUser.setter
+    def bitcoinabcUser(self, value):
+        self._bitcoinabcUser = value
+
+    @property
+    def bitcoinabcPassword(self):
+        return self._bitcoinabcPassword
+
+    @bitcoinabcPassword.setter
+    def bitcoinabcPassword(self, value):
+        self._bitcoinabcPassword = value
 
     @property
     def electrumCashProtocol(self):
@@ -156,10 +159,10 @@ class Config:
         self._electrumCashPassword = value
 
     @property
-    def bitcoincoreRpcEndpoint(self):
-        return f"{self.bitcoincoreProtocol}://" \
-               f"{self.bitcoincoreUser}:{self.bitcoincorePassword}@" \
-               f"{self.bitcoincoreHost}:{self.bitcoincorePort}"
+    def bitcoinabcRpcEndpoint(self):
+        return f"{self.bitcoinabcProtocol}://" \
+               f"{self.bitcoinabcUser}:{self.bitcoinabcPassword}@" \
+               f"{self.bitcoinabcHost}:{self.bitcoinabcPort}"
 
     @property
     def electrumCashRpcEndpoint(self):
@@ -174,11 +177,11 @@ class Config:
 class ConfigEncoder(JSONEncoder):
     def encode(self, o):
         return {
-            "bitcoincoreProtocol": o.bitcoincoreProtocol,
-            "bitcoincoreHost": o.bitcoincoreHost,
-            "bitcoincorePort": o.bitcoincorePort,
-            "bitcoincoreUser": o.bitcoincoreUser,
-            "bitcoincorePassword": o.bitcoincorePassword,
+            "bitcoinabcProtocol": o.bitcoinabcProtocol,
+            "bitcoinabcHost": o.bitcoinabcHost,
+            "bitcoinabcPort": o.bitcoinabcPort,
+            "bitcoinabcUser": o.bitcoinabcUser,
+            "bitcoinabcPassword": o.bitcoinabcPassword,
             "electrumCashProtocol": o.electrumCashProtocol,
             "electrumCashHost": o.electrumCashHost,
             "electrumCashPort": o.electrumCashPort,

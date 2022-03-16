@@ -259,7 +259,7 @@ def getBlockByHash(id, params, config):
         raise error.RpcBadRequestError(err.message)
 
     block = RPCConnector.request(
-        endpoint=config.bitcoincoreRpcEndpoint,
+        endpoint=config.bitcoinabcRpcEndpoint,
         id=id,
         method=GET_BLOCK_METHOD,
         params=[
@@ -288,7 +288,7 @@ def getBlockByNumber(id, params, config):
         raise error.RpcBadRequestError(err.message)
 
     blockHash = RPCConnector.request(
-        endpoint=config.bitcoincoreRpcEndpoint,
+        endpoint=config.bitcoinabcRpcEndpoint,
         id=id,
         method=GET_BLOCK_HASH_METHOD,
         params=[params["blockNumber"]])
@@ -316,7 +316,7 @@ def getFeePerByte(id, params, config):
         )
 
     feePerByte = RPCConnector.request(
-        endpoint=config.bitcoincoreRpcEndpoint,
+        endpoint=config.bitcoinabcRpcEndpoint,
         id=id,
         method=ESTIMATE_SMART_FEE_METHOD,
         params=[params["confirmations"]])
@@ -355,14 +355,14 @@ def getHeight(id, params, config):
 
     latestBlockHeight = int(
         RPCConnector.request(
-            endpoint=config.bitcoincoreRpcEndpoint,
+            endpoint=config.bitcoinabcRpcEndpoint,
             id=id,
             method=GET_BLOCK_COUNT_METHOD,
             params=[]
         )
     )
     latestBlockHash = RPCConnector.request(
-        endpoint=config.bitcoincoreRpcEndpoint,
+        endpoint=config.bitcoinabcRpcEndpoint,
         id=id,
         method=GET_BLOCK_HASH_METHOD,
         params=[latestBlockHeight]
@@ -402,7 +402,7 @@ def getTransactionHex(id, params, config):
         )
 
     rawTransaction = RPCConnector.request(
-        endpoint=config.bitcoincoreRpcEndpoint,
+        endpoint=config.bitcoinabcRpcEndpoint,
         id=id,
         method=GET_TRANSACTION_METHOD,
         params=[params["txHash"]]
@@ -438,7 +438,7 @@ def getTransaction(id, params, config):
     try:
         # Parameters: TransactionId, include_watchonly, verbose
         transaction = RPCConnector.request(
-            endpoint=config.bitcoincoreRpcEndpoint,
+            endpoint=config.bitcoinabcRpcEndpoint,
             id=id,
             method=GET_TRANSACTION_METHOD,
             params=[
@@ -455,7 +455,7 @@ def getTransaction(id, params, config):
 
             for vin in transaction["decoded"]["vin"]:
                 inputTransaction = RPCConnector.request(
-                    endpoint=config.bitcoincoreRpcEndpoint,
+                    endpoint=config.bitcoinabcRpcEndpoint,
                     id=id,
                     method=GET_TRANSACTION_METHOD,
                     params=[
@@ -594,7 +594,7 @@ def broadcastTransaction(id, params, config):
         )
 
     hash = RPCConnector.request(
-        endpoint=config.bitcoincoreRpcEndpoint,
+        endpoint=config.bitcoinabcRpcEndpoint,
         id=id,
         method=SEND_RAW_TRANSACTION_METHOD,
         params=[params["rawTransaction"]])
@@ -662,7 +662,7 @@ def syncing(id, params, config):
         raise error.RpcBadRequestError(err.message)
 
     blockchainInfo = RPCConnector.request(
-        endpoint=config.bitcoincoreRpcEndpoint,
+        endpoint=config.bitcoinabcRpcEndpoint,
         id=id,
         method=GET_BLOCKCHAIN_INFO,
         params=None
@@ -675,7 +675,7 @@ def syncing(id, params, config):
     if blockchainInfo["blocks"] != blockchainInfo["headers"]:
         response = {
             "syncing": True,
-            "syncPercentage": f"{str(blockchainInfo['verificationprogess']*100)}%",
+            "syncPercentage": f"{str(blockchainInfo['verificationprogress']*100)}%",
             "currentBlockIndex": str(blockchainInfo["blocks"]),
             "latestBlockIndex": str(blockchainInfo["headers"]),
         }

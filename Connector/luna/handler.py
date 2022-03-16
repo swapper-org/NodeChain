@@ -21,10 +21,6 @@ class Handler:
             logger.printError(f"Configuration {network} already added for {self.coin}")
             return False, f"Configuration {network} already added for {self.coin}"
 
-        defaultConf, err = utils.loadDefaultPackageConf(self.coin)
-        if err is not None:
-            return False, err
-
         pkgConfig = Config(
             coin=self.coin,
             networkName=network

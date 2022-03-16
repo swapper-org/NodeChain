@@ -3,12 +3,12 @@
 electrum_args="--regtest -v"
 
 Electrum/run_electrum --offline setconfig host "0.0.0.0" $electrum_args
-Electrum/run_electrum --offline setconfig rpchost "electrum" $electrum_args
+Electrum/run_electrum --offline setconfig rpchost "electrum-regtest" $electrum_args
 Electrum/run_electrum --offline setconfig rpcuser "swapper" $electrum_args
 Electrum/run_electrum --offline setconfig rpcpassword "swapper" $electrum_args
 Electrum/run_electrum --offline setconfig rpcport "30000" $electrum_args
 Electrum/run_electrum --offline setconfig oneserver "true" $electrum_args
-Electrum/run_electrum --offline setconfig server "electrs:60401:t" $electrum_args
+Electrum/run_electrum --offline setconfig server "electrs-regtest:60401:t" $electrum_args
 
 
 Electrum/run_electrum daemon $electrum_args

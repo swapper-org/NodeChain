@@ -13,6 +13,9 @@ class Config:
         self._terradHost = ""
         self._terradPort = ""
 
+    def __attachNetworkToHost(self, host):
+        return f"{host}-{self.networkName}"
+
     def loadConfig(self, config):
 
         defaultConfig, err = utils.loadDefaultPackageConf(self.coin)
@@ -22,7 +25,7 @@ class Config:
         self.terradProtocol = config["terradProtocol"] if "terradProtocol" in config \
             else defaultConfig["terradProtocol"]
         self.terradHost = config["terradHost"] if "terradHost" in config \
-            else defaultConfig["terradHost"]
+            else self.__attachNetworkToHost(defaultConfig["terradHost"])
 
         if "terradPort" in config:
             if config["terradPort"].isdigit():

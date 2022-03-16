@@ -9,7 +9,7 @@ from httputils.constants import JSON_CONTENT_TYPE
 from rpcutils import middleware as rpcMiddleware
 from wsutils import broker
 from logger import logger
-# from utils import utils
+from utils import utils
 
 
 async def onPrepare(request, response):
@@ -42,9 +42,7 @@ def runServer():
 
     logger.printInfo("Registering app modules")
 
-    # availableCurrencies = utils.getAvailableCurrencies()
-
-    availableCurrencies = ["eth", "btc", "xmr", "bch"]
+    availableCurrencies = utils.getAvailableCurrencies()
 
     for module in (modules + availableCurrencies):
         importlib.__import__(module)

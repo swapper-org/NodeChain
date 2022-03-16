@@ -114,54 +114,7 @@
         "uncles": {
             "type": "array",
             "items": {
-                "type": "object",
-                "properties": {
-                    "blockHash": {
-                        "type": "string"
-                    },
-                    "blockNumber": {
-                        "type": "string"
-                    },
-                    "from": {
-                        "type": "string"
-                    },
-                    "gas": {
-                        "type": "string"
-                    },
-                    "gasPrice": {
-                        "type": "string"
-                    },
-                    "hash": {
-                        "type": "string"
-                    },
-                    "input": {
-                        "type": "string"
-                    },
-                    "nonce": {
-                        "type": "string"
-                    },
-                    "r": {
-                        "type": "string"
-                    },
-                    "s": {
-                        "type": "string"
-                    },
-                    "to": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "transactionIndex": {
-                        "type": "string"
-                    },
-                    "v": {
-                        "type": "string"
-                    },
-                    "value": {
-                        "type": "string"
-                    }
-                }
+                "type": "string"
             }
         }
     }

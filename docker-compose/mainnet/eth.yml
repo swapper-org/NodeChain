@@ -1,8 +1,8 @@
 version: "3"
 services:
-  ethereumgo:
+  ethereumgo-mainnet:
     image: ethereum/client-go:latest
-    command: --http --http.addr=ethereumgo --cache=1024 --http.port=8545 --syncmode=full --gcmode=archive --ws --ws.addr=ethereumgo --ws.port=8546 --ws.origins=connector --http.vhosts=ethereumgo
+    command: --http --http.addr=ethereumgo-mainnet --cache=1024 --http.port=8545 --syncmode=full --gcmode=archive --ws --ws.addr=ethereumgo-mainnet --ws.port=8546 --ws.origins=connector --http.vhosts=ethereumgo-mainnet
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
 

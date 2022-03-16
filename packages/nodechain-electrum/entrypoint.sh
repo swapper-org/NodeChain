@@ -4,11 +4,11 @@ if [[ -n "${TESTNET}" ]]; then
   electrum_args="--testnet -v"
 fi
 
-Electrum/run_electrum --offline setconfig rpchost "electrum" $electrum_args
+Electrum/run_electrum --offline setconfig rpchost "electrum-${NETWORK}" $electrum_args
 Electrum/run_electrum --offline setconfig rpcuser "swapper" $electrum_args
 Electrum/run_electrum --offline setconfig rpcpassword "swapper" $electrum_args
 Electrum/run_electrum --offline setconfig rpcport "30000" $electrum_args
 Electrum/run_electrum --offline setconfig oneserver "true" $electrum_args
-Electrum/run_electrum --offline setconfig server "electrs:60001:t" $electrum_args
+Electrum/run_electrum --offline setconfig server "electrs-${NETWORK}:60001:t" $electrum_args
 
 Electrum/run_electrum daemon $electrum_args

@@ -14,6 +14,9 @@ class Config:
         self._rpcPort = ""
         self._wsPort = ""
 
+    def __attachNetworkToHost(self, host):
+        return f"{host}-{self.networkName}"
+
     def loadConfig(self, config):
 
         defaultConfig, err = utils.loadDefaultPackageConf(self.coin)
@@ -21,7 +24,7 @@ class Config:
             return False, err
 
         self.protocol = config["protocol"] if "protocol" in config else defaultConfig["protocol"]
-        self.host = config["host"] if "host" in config else defaultConfig["host"]
+        self.host = config["host"] if "host" in config else self.__attachNetworkToHost(defaultConfig["host"])
 
         if "rpcPort" in config:
             if config["rpcPort"].isdigit():

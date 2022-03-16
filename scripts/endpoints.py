@@ -44,6 +44,8 @@ def addApi(args, token, network, port, defaultConfig=True):
     headers = {
         'Content-Type': 'application/json'
     }
+    if args.verbose:
+        logger.printInfo(f"Request payload: {payload}", verbosity=args.verbose)
     try:
         req = requests.post(
             url=f"http://localhost:{port}/admin/{ADD_CURRENCY}",
@@ -67,6 +69,8 @@ def getApi(args, token, network, port):
     headers = {
         'Content-Type': 'application/json'
     }
+    if args.verbose:
+        logger.printInfo(f"Request payload: {payload}", verbosity=args.verbose)
     try:
         req = requests.post(
             url=f"http://localhost:{port}/admin/{GET_CURRENCY}",
@@ -105,6 +109,8 @@ def removeApi(args, token, network, port):
     headers = {
         'Content-Type': 'application/json'
     }
+    if args.verbose:
+        logger.printInfo(f"Request payload: {payload}", verbosity=args.verbose)
     try:
         req = requests.post(
             url=f"http://localhost:{port}/admin/{REMOVE_CURRENCY}",
@@ -150,10 +156,11 @@ def updateApi(args, token, network, port):
         "network": network,
         "config": config
     }
-
     headers = {
         'Content-Type': 'application/json'
     }
+    if args.verbose:
+        logger.printInfo(f"Request payload: {payload}", verbosity=args.verbose)
     try:
         req = requests.post(
             url=f"http://localhost:{port}/admin/{UPDATE_CURRENCY}",
