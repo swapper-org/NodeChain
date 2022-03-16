@@ -675,7 +675,7 @@ def syncing(id, params, config):
     if blockchainInfo["blocks"] != blockchainInfo["headers"]:
         response = {
             "syncing": True,
-            "syncPercentage": f"{str(blockchainInfo['verificationprogess']*100)}%",
+            "syncPercentage": f"{str(blockchainInfo['verificationprogress']*100)}%",
             "currentBlockIndex": str(blockchainInfo["blocks"]),
             "latestBlockIndex": str(blockchainInfo["headers"]),
         }
