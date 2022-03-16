@@ -75,6 +75,9 @@ class Config:
 
     @property
     def terradRpcEndpoint(self):
+        if self.terradPort == "80" or self.terradPort == "443":
+            return f"{self.terradProtocol}://{self.terradHost}"
+
         return f"{self.terradProtocol}://" \
                f"{self.terradHost}:{self.terradPort}"
 

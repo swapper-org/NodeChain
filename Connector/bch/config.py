@@ -160,12 +160,22 @@ class Config:
 
     @property
     def bitcoinabcRpcEndpoint(self):
+        if self.bitcoinabcPort == "80" or self.bitcoinabcPort == "443":
+            return f"{self.bitcoinabcProtocol}://" \
+                f"{self.bitcoinabcUser}:{self.bitcoinabcPassword}@" \
+                f"{self.bitcoinabcHost}"
+
         return f"{self.bitcoinabcProtocol}://" \
                f"{self.bitcoinabcUser}:{self.bitcoinabcPassword}@" \
-               f"{self.bitcoinabcHost}:{self.bitcoinabcPort}"
+               f"{self.bitcoinabcHost}:{self.bitcoincorePort}"
 
     @property
     def electrumCashRpcEndpoint(self):
+        if self.electrumCashPort == "80" or self.electrumCashPort == "443":
+            return f"{self.electrumCashProtocol}://" \
+                f"{self.electrumCashUser}:{self.electrumCashPassword}@" \
+                f"{self.electrumCashHost}"
+
         return f"{self.electrumCashProtocol}://" \
                f"{self.electrumCashUser}:{self.electrumCashPassword}@" \
                f"{self.electrumCashHost}:{self.electrumCashPort}"
