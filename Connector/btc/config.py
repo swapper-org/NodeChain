@@ -251,7 +251,7 @@ class Config:
 
     @property
     def electrumRpcEndpoint(self):
-        if self.bitcoincorePort == "80" or self.bitcoincorePort == "443":
+        if self.electrumPort == "80" or self.electrumPort == "443":
             return f"{self.electrumProtocol}://" \
                 f"{self.electrumUser}:{self.electrumPassword}@" \
                 f"{self.electrumHost}"
