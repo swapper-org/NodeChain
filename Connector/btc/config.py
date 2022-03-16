@@ -240,12 +240,22 @@ class Config:
 
     @property
     def bitcoincoreRpcEndpoint(self):
+        if self.bitcoincorePort == "80" or self.bitcoincorePort == "443":
+            return f"{self.bitcoincoreProtocol}://" \
+                f"{self.bitcoincoreUser}:{self.bitcoincorePassword}@" \
+                f"{self.bitcoincoreHost}"
+
         return f"{self.bitcoincoreProtocol}://" \
                f"{self.bitcoincoreUser}:{self.bitcoincorePassword}@" \
                f"{self.bitcoincoreHost}:{self.bitcoincorePort}"
 
     @property
     def electrumRpcEndpoint(self):
+        if self.bitcoincorePort == "80" or self.bitcoincorePort == "443":
+            return f"{self.electrumProtocol}://" \
+                f"{self.electrumUser}:{self.electrumPassword}@" \
+                f"{self.electrumHost}"
+
         return f"{self.electrumProtocol}://" \
                f"{self.electrumUser}:{self.electrumPassword}@" \
                f"{self.electrumHost}:{self.electrumPort}"

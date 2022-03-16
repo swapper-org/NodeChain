@@ -90,6 +90,9 @@ class Config:
 
     @property
     def rpcEndpoint(self):
+        if self.rpcPort == "80" or self.rpcPort == "443":
+            return f"{self.protocol}://{self.host}"
+
         return "{}://{}:{}".format(self.protocol, self.host, self.rpcPort)
 
     @property
