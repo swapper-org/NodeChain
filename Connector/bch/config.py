@@ -167,7 +167,7 @@ class Config:
 
         return f"{self.bitcoinabcProtocol}://" \
                f"{self.bitcoinabcUser}:{self.bitcoinabcPassword}@" \
-               f"{self.bitcoinabcHost}:{self.bitcoincorePort}"
+               f"{self.bitcoinabcHost}:{self.bitcoinabcPort}"
 
     @property
     def electrumCashRpcEndpoint(self):
