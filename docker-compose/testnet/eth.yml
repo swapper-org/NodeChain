@@ -5,6 +5,50 @@ services:
     command: --http --http.addr=ethereumgo-testnet --ropsten --cache=1024 --http.port=8545 --syncmode=full --gcmode=archive --ws --ws.addr=ethereumgo-testnet --ws.port=8546 --ws.origins=connector --http.vhosts=ethereumgo-testnet
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:8545 --post-data '{\"jsonrpc\":\"2.0\",\"method\":\"net_listening\",\"params\": [],\"id\":1}'"]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+
+  postgres-testnet:
+    build: ../../packages/nodechain-ethereum-indexer
+    image: nodechain-ethereum-indexer
+    volumes:
+      - ${BLOCKCHAIN_PATH}/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: swapper
+      POSTGRES_PASSWORD: swapper
+      POSTGRES_DB: swapper
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres://swapper_writer:swapper_writer@postgres-testnet:5432/swapper"]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+  
+  postgrest-testnet:
+    image: postgrest/postgrest
+    environment:
+      PGRST_DB_URI: postgres://swapper_reader:swapper_reader@postgres-testnet:5432/swapper
+      PGRST_DB_SCHEMAS: public
+      PGRST_DB_ANON_ROLE: swapper_reader
+    depends_on:
+      postgres-testnet:
+        condition: service_healthy
+
+  synchroniser-testnet:
+    image: guenoledc/eth-tx-storage
+    environment:
+      DB_NAME: postgres://swapper_writer:swapper_writer@postgres-testnet:5432/swapper
+      ETH_URL: wss://ethereumgo-testnet:8546
+      START_BLOCK: 1700000
+      CONFIRMATIONS_BLOCK: 3
+      PERIOD: 20
+    depends_on:
+      ethereumgo-testnet:
+        condition: service_healthy
+      postgres:
+        condition-testnet: service_healthy
 
 networks:
   default:

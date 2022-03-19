@@ -5,6 +5,50 @@ services:
     command: -p=8545 -h=0.0.0.0 -m="piece effort bind that embrace enrich remind powder sudden patient legend group"
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:8545 --post-data '{\"jsonrpc\":\"2.0\",\"method\":\"net_listening\",\"params\": [],\"id\":1}'"]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+
+  postgres-regtest:
+    build: ../../packages/nodechain-ethereum-indexer
+    image: nodechain-ethereum-indexer
+    volumes:
+      - ${BLOCKCHAIN_PATH}/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: swapper
+      POSTGRES_PASSWORD: swapper
+      POSTGRES_DB: swapper
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres://swapper_writer:swapper_writer@postgres-regtest:5432/swapper"]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+  
+  postgrest-regtest:
+    image: postgrest/postgrest
+    environment:
+      PGRST_DB_URI: postgres://swapper_reader:swapper_reader@postgres-regtest:5432/swapper
+      PGRST_DB_SCHEMAS: public
+      PGRST_DB_ANON_ROLE: swapper_reader
+    depends_on:
+      postgres-regtest:
+        condition: service_healthy
+
+  synchroniser-regtest:
+    image: guenoledc/eth-tx-storage
+    environment:
+      DB_NAME: postgres://swapper_writer:swapper_writer@postgres-regtest:5432/swapper
+      ETH_URL: wss://ethereumgo-regtest:8545
+      START_BLOCK: 1700000
+      CONFIRMATIONS_BLOCK: 0
+      PERIOD: 20
+    depends_on:
+      ethereumgo-regtest:
+        condition: service_healthy
+      postgres-regtest:
+        condition: service_healthy
 
 networks:
   default:
