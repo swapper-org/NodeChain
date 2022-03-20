@@ -40,7 +40,7 @@ services:
     image: guenoledc/eth-tx-storage
     environment:
       DB_NAME: postgres://swapper_writer:swapper_writer@postgres-mainnet:5432/swapper
-      ETH_URL: wss://ethereumgo-mainnet:8546
+      ETH_URL: ws://ethereumgo-mainnet:8546
       START_BLOCK: 4370000
       CONFIRMATIONS_BLOCK: 6
       PERIOD: 20
