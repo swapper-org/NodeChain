@@ -54,6 +54,12 @@ class NotFoundError(Error):
         super().__init__(message=message, code=NOT_FOUND_CODE)
 
 
+class TimeoutError(Error):
+
+    def __init__(self, message):
+        super().__init__(message=message, code=TIME_OUT_CODE)
+
+
 class ConflictError(Error):
 
     def __init__(self, message):

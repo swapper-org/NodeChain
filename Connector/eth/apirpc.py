@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-from httputils import httpmethod, httputils
+from httputils import httpmethod, httputils, error as httpError
+from httputils.httpconnector import HTTPConnector
 from rpcutils import rpcmethod, error
 from rpcutils.rpcconnector import RPCConnector
 from logger import logger
@@ -657,6 +658,91 @@ def call(id, params, config):
     response = {
         "data": result
     }
+
+    err = httputils.validateJSONSchema(response, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    return response
+
+
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
+def getAddressHistory(id, params, config):
+
+    logger.printInfo(
+        f"Executing RPC method getAddressHistory with id {id} and params {params}")
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_HISTORY)
+
+    err = httputils.validateJSONSchema(params, requestSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    try:
+        addrHistory = HTTPConnector.get(
+            endpoint=f"{config.indexerEndpoint}",
+            path=INDEXER_TXS_PATH,
+            params={
+                "and": f"(contract_to.eq.,or(txfrom.eq.{params['address']},txto.eq.{params['address']}))",
+                "order": "time.desc"
+            }
+        )
+    except httpError.Error as err:
+        raise error.RpcError(
+            id=id,
+            message=err.message,
+            code=err.code
+        )
+
+    response = {
+        "address": params["address"],
+        "txHashes": [tx["txhash"] for tx in addrHistory]
+    }
+
+    err = httputils.validateJSONSchema(response, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    return response
+
+
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
+def getAddressesHistory(id, params, config):
+
+    logger.printInfo(
+        f"Executing RPC method getAddressesHistory with id {id} and params {params}")
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_HISTORY)
+
+    err = httputils.validateJSONSchema(params, requestSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    response = []
+    for address in params["addresses"]:
+        response.append(
+            getAddressHistory(
+                id=id,
+                params={
+                    "address": address
+                },
+                config=config
+            )
+        )
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:

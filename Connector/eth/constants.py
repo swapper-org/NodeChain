@@ -38,8 +38,12 @@ SUBSCRIBE_ADDRESS_BALANCE = "subscribetoaddressbalance"
 UNSUBSCRIBE_ADDRESS_BALANCE = "unsubscribefromaddressbalance"
 SYNCING = "syncing"
 CALL = "call"
+GET_ADDRESS_HISTORY = "getAddressHistory"
+GET_ADDRESSES_HISTORY = "getAddressesHistory"
 SUBSCRIBE_TO_NEW_BLOCKS = "subscribetonewblocks"
 UNSUBSCRIBE_FROM_NEW_BLOCKS = "unsubscribefromnewblocks"
+
+INDEXER_TXS_PATH = "/ethtxs"
 
 COIN_SYMBOL = "eth"
 DEFAULT_PKG_CONF = "defaultConf.json"

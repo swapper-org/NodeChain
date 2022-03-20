@@ -11,10 +11,13 @@ class Config:
 
         self._rpcEndpoint = ""
         self._wsEndpoint = ""
+        self._indexerEndpoint = ""
 
     def loadConfig(self, config):
+
         self.rpcEndpoint = config["rpcEndpoint"]
         self.wsEndpoint = config["wsEndpoint"]
+        self.indexerEndpoint = config["indexerEndpoint"]
 
         return True, None
 
@@ -46,6 +49,14 @@ class Config:
     def wsEndpoint(self, value):
         self._wsEndpoint = value
 
+    @property
+    def indexerEndpoint(self):
+        return self._indexerEndpoint
+
+    @indexerEndpoint.setter
+    def indexerEndpoint(self, value):
+        self._indexerEndpoint = value
+
     def jsonEncode(self):
         return ConfigEncoder().encode(self)
 
@@ -55,5 +66,6 @@ class ConfigEncoder(JSONEncoder):
     def encode(self, o):
         return {
             "rpcEndpoint": o.rpcEndpoint,
-            "wsEndpoint": o.wsEndpoint
+            "wsEndpoint": o.wsEndpoint,
+            "indexerEndpoint": o.indexerEndpoint
         }
