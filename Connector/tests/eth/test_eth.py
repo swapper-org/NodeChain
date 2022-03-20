@@ -9,6 +9,7 @@ from eth.websockets import WebSocket
 from eth import utils
 from logger import logger
 from httputils.httpmethod import postHttpMethods
+from httputils.httpconnector import HTTPConnector
 from rpcutils.rpcconnector import RPCConnector
 from wsutils.wsmethod import wsMethods
 from wsutils.subscribers import ListenerSubscriber
@@ -70,6 +71,19 @@ def makeEtherumgoRequest(method, params):
         return RPCConnector.request(config.rpcEndpoint, 1, method, params)
     except Exception as err:
         logger.printError(f"Can not make request to {config.rpcEndpoint}. {err}")
+        assert False
+
+
+def makeHTTPGetRequest(endpoint, path, params):
+
+    try:
+        return HTTPConnector.get(
+            endpoint=endpoint,
+            path=path,
+            params=params
+        )
+    except Exception as err:
+        logger.printError(f"Can not make HTTP Get Request to {endpoint}. {err}")
         assert False
 
 
@@ -419,6 +433,49 @@ def testBroadCastTransaction():
     expected = makeEtherumgoRequest(GET_TRANSACTION_BY_HASH_METHOD, [got["broadcasted"]])
 
     assert got["broadcasted"] == expected["hash"]
+
+
+def testGetAddressHistory():
+
+    if "getAddressHistory" not in postHttpMethods[COIN_SYMBOL]:
+        logger.printError("Method getAddressHistoy not loaded")
+        assert False
+
+    got = postHttpMethods[COIN_SYMBOL]["getAddressHistory"]({"address": address1}, config)
+
+    expected = makeHTTPGetRequest(
+        endpoint=config.indexerEndpoint,
+        path=INDEXER_TXS_PATH,
+        params={
+            "and": f"(contract_to.eq.,or(txfrom.eq.{address1},txto.eq.{address1}))"
+        }
+    )
+
+    for tx in expected:
+        assert tx["txhash"] in got["txHashes"]
+
+
+def testGetAddressesHistory():
+
+    if "getAddressesHistory" not in postHttpMethods[COIN_SYMBOL]:
+        logger.printError("Method getAddressesHistory not loaded")
+        assert False
+
+    addresses = [address1, address2]
+    got = postHttpMethods[COIN_SYMBOL]["getAddressesHistory"]({"address": addresses}, config)
+
+    for addrHistory in got:
+
+        expected = makeHTTPGetRequest(
+            endpoint=config.indexerEndpoint,
+            path=INDEXER_TXS_PATH,
+            params={
+                "and": f"(contract_to.eq.,or(txfrom.eq.{addrHistory['address']},txto.eq.{addrHistory['address']}))"
+            }
+        )
+
+        for tx in expected:
+            assert tx["txHash"] in got["txHashes"]
 
 
 def testSubscribeAddressBalance():
