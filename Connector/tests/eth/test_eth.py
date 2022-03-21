@@ -24,7 +24,8 @@ config = Config(
 config.loadConfig(
     config={
         "rpcEndpoint": "http://localhost:8545",
-        "wsEndpoint": "http://localhost:8545"
+        "wsEndpoint": "http://localhost:8546",
+        "indexerEnspoint": "http://localhost:3000"
     }
 )
 
@@ -462,7 +463,7 @@ def testGetAddressesHistory():
         assert False
 
     addresses = [address1, address2]
-    got = postHttpMethods[COIN_SYMBOL]["getAddressesHistory"]({"address": addresses}, config)
+    got = postHttpMethods[COIN_SYMBOL]["getAddressesHistory"]({"addresses": addresses}, config)
 
     for addrHistory in got:
 
@@ -475,7 +476,7 @@ def testGetAddressesHistory():
         )
 
         for tx in expected:
-            assert tx["txHash"] in got["txHashes"]
+            assert tx["txhash"] in addrHistory["txHashes"]
 
 
 def testSubscribeAddressBalance():
