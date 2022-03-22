@@ -92,11 +92,11 @@ jobs:
           command: |
             sleep 5 && nc -vz localhost 8332
             sleep 5 && nc -vz localhost 28332
-            #sleep 5 && nc -vz localhost 3000
+            #sleep 5 && nc -vz localhost 30000
       - run:
           name: BitcoinCore set up
           command: |
-            docker exec -it btc_regtest_api-bitcoincore-1 bash -c "rm -rf /home/bitcoin/.bitcoin/regtest/wallets/*"
+            docker exec -it btc_regtest_api-bitcoincore-regtest-1 bash -c "rm -rf /home/bitcoin/.bitcoin/regtest/wallets/*"
       - run:
           name: Run BTC tests
           command: |

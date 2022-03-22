@@ -35,7 +35,7 @@ services:
     build: ../../packages/nodechain-electrum
     image: electrum
     depends_on:
-      - electrs-testnest
+      - electrs-testnet
     environment:
       TESTNET: 1
       NETWORK: ${NETWORK}
