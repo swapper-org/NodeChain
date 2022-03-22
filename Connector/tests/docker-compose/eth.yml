@@ -1,6 +1,6 @@
 version: "3"
 services:
-  ethereumgo-test:
+  ethereumgo-regtest:
     image: trufflesuite/ganache-cli
     command:
       -p=8545 -h=0.0.0.0 -m="piece effort bind that embrace enrich remind powder sudden patient legend group"
@@ -14,7 +14,7 @@ services:
       timeout: 15s
       retries: 5
 
-  postgres-test:
+  postgres-regtest:
     build: ../../../packages/nodechain-ethereum-indexer
     image: nodechain-ethereum-indexer
     volumes:
@@ -24,33 +24,33 @@ services:
       POSTGRES_PASSWORD: swapper
       POSTGRES_DB: swapper
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d postgres://swapper_writer:swapper_writer@postgres-test:5432/swapper"]
+      test: ["CMD-SHELL", "pg_isready -d postgres://swapper_writer:swapper_writer@postgres-regtest:5432/swapper"]
       interval: 5s
       timeout: 15s
       retries: 5
 
-  postgrest-test:
+  postgrest-regtest:
     image: postgrest/postgrest
     environment:
-      PGRST_DB_URI: postgres://swapper_reader:swapper_reader@postgres-test:5432/swapper
+      PGRST_DB_URI: postgres://swapper_reader:swapper_reader@postgres-regtest:5432/swapper
       PGRST_DB_SCHEMAS: public
       PGRST_DB_ANON_ROLE: swapper_reader
     ports:
       - 3000:3000
     depends_on:
-      postgres-test:
+      postgres-regtest:
         condition: service_healthy
 
-  synchroniser-test:
+  synchroniser-regtest:
     image: guenoledc/eth-tx-storage
     environment:
-      DB_NAME: postgres://swapper_writer:swapper_writer@postgres-test:5432/swapper
-      ETH_URL: ws://ethereumgo-test:8545
+      DB_NAME: postgres://swapper_writer:swapper_writer@postgres-regtest:5432/swapper
+      ETH_URL: ws://ethereumgo-regtest:8545
       START_BLOCK: 0
       CONFIRMATIONS_BLOCK: 0
       PERIOD: 20
     depends_on:
-      ethereumgo-test:
+      ethereumgo-regtest:
         condition: service_healthy
-      postgres-test:
+      postgres-regtest:
         condition: service_healthy
