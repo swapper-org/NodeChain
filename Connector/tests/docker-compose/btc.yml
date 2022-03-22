@@ -1,6 +1,6 @@
 version: "3"
 services:
-  bitcoincore:
+  bitcoincore-regtest:
     build: ../../../packages/nodechain-bitcoin-core
     image: bitcoincore
     command: -rpcuser=swapper
@@ -22,7 +22,7 @@ services:
       - 8332:8332
       - 28332:28332
 
-  electrs:
+  electrs-regtest:
     build: ../../../packages/nodechain-electrs
     image: electrs
     command: -v --timestamp
@@ -30,13 +30,13 @@ services:
       - bitcoincore
     environment:
       REGTEST: 1
-      DAEMON_RPC_URL: bitcoincore:8332
+      DAEMON_RPC_URL: bitcoincore-regtest:8332
       ELECTRUM_RPC_URL: 0.0.0.0:60401
     volumes:
       - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
       - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
 
-  electrum:
+  electrum-regtest:
     build: ../../../packages/nodechain-electrum-regtest
     image: electrum
     environment:
