@@ -96,7 +96,7 @@ jobs:
       - run:
           name: BitcoinCore set up
           command: |
-            docker exec -it btc_regtest_api-bitcoincore-1 bash -c "rm -rf /home/bitcoin/.bitcoin/regtest/wallets/*"
+            docker exec -it btc_regtest_api-bitcoincore-regtest-1 bash -c "rm -rf /home/bitcoin/.bitcoin/regtest/wallets/*"
       - run:
           name: Run BTC tests
           command: |
