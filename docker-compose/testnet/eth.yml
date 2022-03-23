@@ -15,7 +15,7 @@ services:
     build: ../../packages/nodechain-ethereum-indexer
     image: nodechain-ethereum-indexer
     volumes:
-      - ${BLOCKCHAIN_PATH}/postgres:/var/lib/postgresql/data
+      - ${BLOCKCHAIN_PATH}/postgres/testnet:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: swapper
       POSTGRES_PASSWORD: swapper
