@@ -6,10 +6,10 @@ services:
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://localhost:8545 --post-data '{\"jsonrpc\":\"2.0\",\"method\":\"net_listening\",\"params\": [],\"id\":1}'"]
-      interval: 5s
+      test: ["CMD-SHELL", "wget -q -O - http://ethereumgo-mainnet:8545"]
+      interval: 10s
       timeout: 15s
-      retries: 5
+      retries: 10
 
   postgres-mainnet:
     build: ../../packages/nodechain-ethereum-indexer
@@ -42,7 +42,7 @@ services:
       DB_NAME: postgres://swapper_writer:swapper_writer@postgres-mainnet:5432/swapper
       ETH_URL: ws://ethereumgo-mainnet:8546
       START_BLOCK: 4370000
-      CONFIRMATIONS_BLOCK: 6
+      CONFIRMATIONS_BLOCK: 0
       PERIOD: 20
     depends_on:
       ethereumgo-mainnet:

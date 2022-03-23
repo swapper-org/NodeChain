@@ -6,8 +6,8 @@ services:
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://localhost:8545 --post-data '{\"jsonrpc\":\"2.0\",\"method\":\"net_listening\",\"params\": [],\"id\":1}'"]
-      interval: 5s
+      test: ["CMD-SHELL", "wget -q -O - http://ethereumgo-testnet:8545"]
+      interval: 10s
       timeout: 15s
       retries: 5
 
@@ -42,13 +42,13 @@ services:
       DB_NAME: postgres://swapper_writer:swapper_writer@postgres-testnet:5432/swapper
       ETH_URL: ws://ethereumgo-testnet:8546
       START_BLOCK: 1700000
-      CONFIRMATIONS_BLOCK: 3
+      CONFIRMATIONS_BLOCK: 0
       PERIOD: 20
     depends_on:
       ethereumgo-testnet:
         condition: service_healthy
-      postgres:
-        condition-testnet: service_healthy
+      postgres-testnet:
+        condition: service_healthy
 
 networks:
   default:
