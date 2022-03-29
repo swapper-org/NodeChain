@@ -9,13 +9,19 @@ class Config:
 
         self._coin = coin
         self._networkName = networkName
-        self._protocol = ""
+        self._rpcProtocol = ""
+        self._wsProtocol = ""
         self._host = ""
         self._rpcPort = ""
         self._wsPort = ""
+        self._rpcEndpoint = ""
+        self._wsEndpoint = ""
 
     def __attachNetworkToHost(self, host):
         return f"{host}-{self.networkName}"
+
+    def __formDefaultUrl(self, protocol, host, port):
+        return "{}://{}:{}".format(protocol, host, port)
 
     def loadConfig(self, config):
 
@@ -23,24 +29,20 @@ class Config:
         if err is not None:
             return False, err
 
-        self.protocol = config["protocol"] if "protocol" in config else defaultConfig["protocol"]
-        self.host = config["host"] if "host" in config else self.__attachNetworkToHost(defaultConfig["host"])
-
-        if "rpcPort" in config:
-            if config["rpcPort"].isdigit():
-                self.rpcPort = config["rpcPort"]
-            else:
-                return False, f"Value {config['rpcPort']} for rpcPort is not digit"
+        if "rpcEndpoint" in config:
+            self.rpcEndpoint = config["rpcEndpoint"]
         else:
+            self.rpcProtocol = defaultConfig["rpcProtocol"]
+            self.host = self.__attachNetworkToHost(defaultConfig["host"])
             self.rpcPort = defaultConfig["rpcPort"]
+            self.rpcEndpoint = self.__formDefaultUrl(self.rpcProtocol, self.host, self.rpcPort)
 
-        if "wsPort" in config:
-            if config["wsPort"].isdigit():
-                self.wsPort = config["wsPort"]
-            else:
-                return False, f"Value {config['wsPort']} for wsPort is not digit"
+        if "wsEndpoint" in config:
+            self.wsEndpoint = config["wsEndpoint"]
         else:
+            self.wsProtocol = defaultConfig["wsProtocol"]
             self.wsPort = defaultConfig["wsPort"]
+            self.wsEndpoint = self.__formDefaultUrl(self.wsProtocol, self.host, self.wsPort)
 
         return True, None
 
@@ -57,12 +59,20 @@ class Config:
         self._networkName = value
 
     @property
-    def protocol(self):
-        return self._protocol
+    def rpcProtocol(self):
+        return self._rpcProtocol
 
-    @protocol.setter
-    def protocol(self, value):
-        self._protocol = value
+    @rpcProtocol.setter
+    def rpcProtocol(self, value):
+        self._rpcProtocol = value
+
+    @property
+    def wsProtocol(self):
+        return self._wsProtocol
+
+    @wsProtocol.setter
+    def wsProtocol(self, value):
+        self._wsProtocol = value
 
     @property
     def host(self):
@@ -90,14 +100,19 @@ class Config:
 
     @property
     def rpcEndpoint(self):
-        if self.rpcPort == "80" or self.rpcPort == "443":
-            return f"{self.protocol}://{self.host}"
+        return self._rpcEndpoint
 
-        return "{}://{}:{}".format(self.protocol, self.host, self.rpcPort)
+    @rpcEndpoint.setter
+    def rpcEndpoint(self, value):
+        self._rpcEndpoint = value
 
     @property
     def wsEndpoint(self):
-        return "{}://{}:{}".format(self.protocol, self.host, self.wsPort)
+        return self._wsEndpoint
+
+    @wsEndpoint.setter
+    def wsEndpoint(self, value):
+        self._wsEndpoint = value
 
     def jsonEncode(self):
         return ConfigEncoder().encode(self)
@@ -107,8 +122,11 @@ class ConfigEncoder(JSONEncoder):
 
     def encode(self, o):
         return {
-            "protocol": o.protocol,
+            "rpcProtocol": o.rpcProtocol,
+            "wsProtocol": o.wsProtocol,
             "host": o.host,
             "rpcPort": o.rpcPort,
-            "wsPort": o.wsPort
+            "wsPort": o.wsPort,
+            "rpcEndpoint": o.rpcEndpoint,
+            "wsEndpoint": o.wsEndpoint
         }

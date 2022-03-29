@@ -78,17 +78,17 @@
       "regtest": {
         "services": ["ethereumgo"],
         "dockerComposePath": "docker-compose/regtest/eth.yml",
-        "configurable": ["protocol", "host", "rpcPort", "wsPort"]
+        "configurable": ["rpcEndpoint", "wsEndpoint"]
       },
       "testnet": {
         "services": ["ethereumgo"],
         "dockerComposePath": "docker-compose/testnet/eth.yml",
-        "configurable": ["protocol", "host", "rpcPort", "wsPort"]
+        "configurable": ["rpcEndpoint", "wsEndpoint"]
       },
       "mainnet": {
         "services": ["ethereumgo"],
         "dockerComposePath": "docker-compose/mainnet/eth.yml",
-        "configurable": ["protocol", "host", "rpcPort", "wsPort"]
+        "configurable": ["rpcEndpoint", "wsEndpoint"]
       }
     }
   },
