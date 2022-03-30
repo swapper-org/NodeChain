@@ -75,19 +75,3 @@ def isAvailableNetworkForCurrency(coin, network):
     except FileNotFoundError as err:
         logger.printError(f"File {availableCurrenciesFile} could not be found")
         raise error.InternalServerError(f"File {availableCurrenciesFile} could not be found:{err}")
-
-
-def loadDefaultPackageConf(coin):
-
-    try:
-        pkgConfFile = getConfigProperty("defaultPkgConfFile")
-        with open(os.path.join(coin, pkgConfFile), "r") as fp:
-            config = json.load(fp)
-            err = httputils.validateJSONSchema(config, os.path.join(coin, "defaultConf.json"))
-            if err is not None:
-                return None, err.message
-            return config, None
-
-    except Exception as e:
-        logger.printError(f"Can not open default configuration for currency {coin}: {str(e)}")
-        raise error.InternalServerError(f"Can not open default configuration for currency {coin}: {str(e)}")
