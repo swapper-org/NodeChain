@@ -3,7 +3,5 @@
   "wsProtocol": "ws",
   "host": "ethereumgo",
   "rpcPort": "8545",
-  "wsPort": "8545",
-  "rpcEndpoint": "",
-  "wsEndpoint": ""
+  "wsPort": "8545"
 }

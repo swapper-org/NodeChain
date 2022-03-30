@@ -122,11 +122,6 @@ class ConfigEncoder(JSONEncoder):
 
     def encode(self, o):
         return {
-            "rpcProtocol": o.rpcProtocol,
-            "wsProtocol": o.wsProtocol,
-            "host": o.host,
-            "rpcPort": o.rpcPort,
-            "wsPort": o.wsPort,
             "rpcEndpoint": o.rpcEndpoint,
             "wsEndpoint": o.wsEndpoint
         }
