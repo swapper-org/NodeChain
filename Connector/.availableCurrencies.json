@@ -7,66 +7,36 @@
         "services": ["bitcoincore", "electrs", "electrum"],
         "dockerComposePath": "docker-compose/regtest/btc.yml",
         "configurable": [
-          "bitcoincoreProtocol",
-          "bitcoincoreHost",
-          "bitcoincorePort",
-          "bitcoincoreUser",
-          "bitcoincorePassword",
-          "bitcoincoreZmqProtocol",
-          "bitcoincoreZmqPort",
-          "electrumProtocol",
-          "electrumHost",
-          "electrumPort",
-          "electrumUser",
-          "electrumPassword",
-          "bitcoincoreCallbackProtocol",
-          "bitcoincoreCallbackHost",
           "electrumxHost",
-          "electrumxPort"
+          "electrumxPort",
+          "bitcoincoreRpcEndpoint",
+          "electrumRpcEndpoint",
+          "bitcoincoreZmqEndpoint",
+          "bitcoinAddressCallbackHost"
         ]
       },
       "testnet": {
         "services": ["bitcoincore", "electrs", "electrum"],
         "dockerComposePath": "docker-compose/testnet/btc.yml",
         "configurable": [
-          "bitcoincoreProtocol",
-          "bitcoincoreHost",
-          "bitcoincorePort",
-          "bitcoincoreUser",
-          "bitcoincorePassword",
-          "bitcoincoreZmqProtocol",
-          "bitcoincoreZmqPort",
-          "electrumProtocol",
-          "electrumHost",
-          "electrumPort",
-          "electrumUser",
-          "electrumPassword",
-          "bitcoincoreCallbackProtocol",
-          "bitcoincoreCallbackHost",
           "electrumxHost",
-          "electrumxPort"
+          "electrumxPort",
+          "bitcoincoreRpcEndpoint",
+          "electrumRpcEndpoint",
+          "bitcoincoreZmqEndpoint",
+          "bitcoinAddressCallbackHost"
         ]
       },
       "mainnet": {
         "services": ["bitcoincore", "electrs", "electrum"],
         "dockerComposePath": "docker-compose/mainnet/btc.yml",
         "configurable": [
-          "bitcoincoreProtocol",
-          "bitcoincoreHost",
-          "bitcoincorePort",
-          "bitcoincoreUser",
-          "bitcoincorePassword",
-          "bitcoincoreZmqProtocol",
-          "bitcoincoreZmqPort",
-          "electrumProtocol",
-          "electrumHost",
-          "electrumPort",
-          "electrumUser",
-          "electrumPassword",
-          "bitcoincoreCallbackProtocol",
-          "bitcoincoreCallbackHost",
           "electrumxHost",
-          "electrumxPort"
+          "electrumxPort",
+          "bitcoincoreRpcEndpoint",
+          "electrumRpcEndpoint",
+          "bitcoincoreZmqEndpoint",
+          "bitcoinAddressCallbackHost"
         ]
       }
     }

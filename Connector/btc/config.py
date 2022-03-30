@@ -24,11 +24,22 @@ class Config:
         self._electrumPassword = ""
         self._bitcoincoreCallbackProtocol = ""
         self._bitcoincoreCallbackHost = ""
+        self._bitcoincoreCallbackPort = ""
         self._electrumxHost = ""
         self._electrumxPort = ""
+        self._bitcoincoreRpcEndpoint = ""
+        self._electrumRpcEndpoint = ""
+        self._bitcoincoreZmqEndpoint = ""
+        self._bitcoinAddressCallbackHost = ""
 
     def __attachNetworkToHost(self, host):
         return f"{host}-{self.networkName}"
+
+    def __formDefaultUrl(self, protocol, host, port, user=None, passwd=None):
+        if not user and not passwd:
+            return "{}://{}:{}".format(protocol, host, port)
+        else:
+            return "{}://{}:{}@{}:{}".format(protocol, user, passwd, host, port)
 
     def loadConfig(self, config):
 
@@ -36,55 +47,42 @@ class Config:
         if err is not None:
             return False, err
 
-        self.bitcoincoreProtocol = config["bitcoincoreProtocol"] if "bitcoincoreProtocol" in config \
-            else defaultConfig["bitcoincoreProtocol"]
-        self.bitcoincoreHost = config["bitcoincoreHost"] if "bitcoincoreHost" in config \
-            else self.__attachNetworkToHost(defaultConfig["bitcoincoreHost"])
-
-        if "bitcoincorePort" in config:
-            if config["bitcoincorePort"].isdigit():
-                self.bitcoincorePort = config["bitcoincorePort"]
-            else:
-                return False, f"Value {config['bitcoincorePort']} for bitcoincorePort is not digit"
+        if "bitcoincoreRpcEndpoint" in config:
+            self.bitcoincoreRpcEndpoint = config["bitcoincoreRpcEndpoint"]
         else:
+            self.bitcoincoreProtocol = defaultConfig["bitcoincoreProtocol"]
+            self.bitcoincoreHost = self.__attachNetworkToHost(defaultConfig["bitcoincoreHost"])
             self.bitcoincorePort = defaultConfig["bitcoincorePort"]
+            self.bitcoincoreUser = defaultConfig["bitcoincoreUser"]
+            self.bitcoincorePassword = defaultConfig["bitcoincorePassword"]
+            self.bitcoincoreRpcEndpoint = self.__formDefaultUrl(self.bitcoincoreProtocol, self.bitcoincoreHost, self.bitcoincorePort, self.bitcoincoreUser, self.bitcoincorePassword)
 
-        self.bitcoincoreUser = config["bitcoincoreUser"] if "bitcoincoreUser" in config \
-            else defaultConfig["bitcoincoreUser"]
-        self.bitcoincorePassword = config["bitcoincorePassword"] if "bitcoincorePassword" in config \
-            else defaultConfig["bitcoincorePassword"]
-        self.bitcoincoreZmqProtocol = config["bitcoincoreZmqProtocol"] if "bitcoincoreZmqProtocol" in config \
-            else defaultConfig["bitcoincoreZmqProtocol"]
-
-        if "bitcoincoreZmqPort" in config:
-            if config["bitcoincoreZmqPort"].isdigit():
-                self.bitcoincoreZmqPort = config["bitcoincoreZmqPort"]
-            else:
-                return False, f"Value {config['bitcoincoreZmqPort']} for bitcoincoreZmqPort is not digit"
+        if "bitcoincoreZmqEndpoint" in config:
+            self.bitcoincoreZmqEndpoint = config["bitcoincoreZmqEndpoint"]
         else:
+            self.bitcoincoreZmqProtocol = defaultConfig["bitcoincoreZmqProtocol"]
             self.bitcoincoreZmqPort = defaultConfig["bitcoincoreZmqPort"]
+            self.bitcoincoreZmqEndpoint = self.__formDefaultUrl(self.bitcoincoreZmqProtocol, self.bitcoincoreHost, self.bitcoincoreZmqPort)
 
-        self.electrumProtocol = config["electrumProtocol"] if "electrumProtocol" in config \
-            else defaultConfig["electrumProtocol"]
-        self.electrumHost = config["electrumHost"] if "electrumHost" in config \
-            else self.__attachNetworkToHost(defaultConfig["electrumHost"])
-
-        if "electrumPort" in config:
-            if config["electrumPort"].isdigit():
-                self.electrumPort = config["electrumPort"]
-            else:
-                return False, f"Value {config['electrumPort']} for electrumPort is not digit"
+        if "electrumRpcEndpoint" in config:
+            self.electrumRpcEndpoint = config["electrumRpcEndpoint"]
         else:
+            self.electrumProtocol = defaultConfig["electrumProtocol"]
+            self.electrumHost = self.__attachNetworkToHost(defaultConfig["electrumHost"])
             self.electrumPort = defaultConfig["electrumPort"]
+            self.electrumUser = defaultConfig["electrumUser"]
+            self.electrumPassword = defaultConfig["electrumPassword"]
+            self.electrumRpcEndpoint = self.__formDefaultUrl(self.electrumProtocol, self.electrumHost, self.electrumPort, self.electrumUser, self.electrumPassword)
 
-        self.electrumUser = config["electrumUser"] if "electrumUser" in config else defaultConfig["electrumUser"]
-        self.electrumPassword = config["electrumPassword"] if "electrumPassword" in config \
-            else defaultConfig["electrumPassword"]
-        self.bitcoincoreCallbackProtocol = config["bitcoincoreCallbackProtocol"] \
-            if "bitcoincoreCallbackProtocol" in config \
-            else defaultConfig["bitcoincoreCallbackProtocol"]
-        self.bitcoincoreCallbackHost = config["bitcoincoreCallbackHost"] if "bitcoincoreCallbackHost" in config \
-            else defaultConfig["bitcoincoreCallbackHost"]
+        if "bitcoinAddressCallbackHost" in config:
+            self.bitcoinAddressCallbackHost = config["bitcoinAddressCallbackHost"]
+        else:
+            self.bitcoincoreCallbackProtocol = defaultConfig["bitcoincoreCallbackProtocol"]
+            self.bitcoincoreCallbackHost = defaultConfig["bitcoincoreCallbackHost"]
+            self.bitcoincoreCallbackPort = defaultConfig["bitcoincoreCallbackPort"]
+            self.bitcoinAddressCallbackHost = self.__formDefaultUrl(self.bitcoincoreCallbackProtocol, self.bitcoincoreCallbackHost, self.bitcoincoreCallbackPort)
+
+        # TODO: This may be removed in the future
         self.electrumxHost = config["electrumxHost"] if "electrumxHost" in config \
             else self.__attachNetworkToHost(defaultConfig["electrumxHost"])
 
@@ -223,6 +221,15 @@ class Config:
         self._bitcoincoreCallbackHost = value
 
     @property
+    def bitcoincoreCallbackPort(self):
+        return self._bitcoincoreCallbackPort
+
+    @bitcoincoreCallbackPort.setter
+    def bitcoincoreCallbackPort(self, value):
+        self._bitcoincoreCallbackPort = value
+
+    # TODO: This may be removed in the future
+    @property
     def electrumxHost(self):
         return self._electrumxHost
 
@@ -240,35 +247,35 @@ class Config:
 
     @property
     def bitcoincoreRpcEndpoint(self):
-        if self.bitcoincorePort == "80" or self.bitcoincorePort == "443":
-            return f"{self.bitcoincoreProtocol}://" \
-                f"{self.bitcoincoreUser}:{self.bitcoincorePassword}@" \
-                f"{self.bitcoincoreHost}"
+        return self._bitcoincoreRpcEndpoint
 
-        return f"{self.bitcoincoreProtocol}://" \
-               f"{self.bitcoincoreUser}:{self.bitcoincorePassword}@" \
-               f"{self.bitcoincoreHost}:{self.bitcoincorePort}"
+    @bitcoincoreRpcEndpoint.setter
+    def bitcoincoreRpcEndpoint(self, value):
+        self._bitcoincoreRpcEndpoint = value
 
     @property
     def electrumRpcEndpoint(self):
-        if self.electrumPort == "80" or self.electrumPort == "443":
-            return f"{self.electrumProtocol}://" \
-                f"{self.electrumUser}:{self.electrumPassword}@" \
-                f"{self.electrumHost}"
+        return self._electrumRpcEndpoint
 
-        return f"{self.electrumProtocol}://" \
-               f"{self.electrumUser}:{self.electrumPassword}@" \
-               f"{self.electrumHost}:{self.electrumPort}"
+    @electrumRpcEndpoint.setter
+    def electrumRpcEndpoint(self, value):
+        self._electrumRpcEndpoint = value
 
     @property
     def bitcoincoreZmqEndpoint(self):
-        return f"{self.bitcoincoreZmqProtocol}://" \
-               f"{self.bitcoincoreHost}:{self.bitcoincoreZmqPort}"
+        return self._bitcoincoreZmqEndpoint
+
+    @bitcoincoreZmqEndpoint.setter
+    def bitcoincoreZmqEndpoint(self, value):
+        self._bitcoincoreZmqEndpoint = value
 
     @property
     def bitcoinAddressCallbackHost(self):
-        return f"{self.bitcoincoreCallbackProtocol}://" \
-               f"{self.bitcoincoreCallbackHost}:80"
+        return self._bitcoinAddressCallbackHost
+
+    @bitcoinAddressCallbackHost.setter
+    def bitcoinAddressCallbackHost(self, value):
+        self._bitcoinAddressCallbackHost = value
 
     def jsonEncode(self):
         return ConfigEncoder().encode(self)
@@ -292,5 +299,9 @@ class ConfigEncoder(JSONEncoder):
             "electrumUser": o.electrumUser,
             "electrumPassword": o.electrumPassword,
             "electrumxHost": o.electrumxHost,
-            "electrumxPort": o.electrumxPort
+            "electrumxPort": o.electrumxPort,
+            "bitcoincoreRpcEndpoint": o.bitcoincoreRpcEndpoint,
+            "electrumRpcEndpoint": o.electrumRpcEndpoint,
+            "bitcoincoreZmqEndpoint": o.bitcoincoreZmqEndpoint,
+            "bitcoinAddressCallbackHost": o.bitcoinAddressCallbackHost
         }
