@@ -779,14 +779,11 @@ def getAddressPendingTransactions(id, params, config):
             json={
                 "query": "query { pending { transactions { hash from { address } to { address } } } }"
             }
+        )
 
-        )
-    except httpError.Error as err:
-        raise error.RpcError(
-            id=id,
-            message=err.message,
-            code=err.code
-        )
+    except httpError.Error:
+        logger.printError("Could not retrieve pending transactions using Graphql query")
+        return []
 
     txs = []
 
