@@ -8,6 +8,7 @@ class Config:
 
         self._coin = coin
         self._networkName = networkName
+
         self._rpcEndpoint = ""
         self._wsEndpoint = ""
 
