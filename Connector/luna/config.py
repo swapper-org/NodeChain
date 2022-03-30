@@ -1,39 +1,17 @@
 #!/usr/bin/python3
 from json import JSONEncoder
-from utils import utils
 
 
 class Config:
-
     def __init__(self, coin, networkName):
 
         self._networkName = networkName
         self._coin = coin
-        self._terradProtocol = ""
-        self._terradHost = ""
-        self._terradPort = ""
 
-    def __attachNetworkToHost(self, host):
-        return f"{host}-{self.networkName}"
+        self._terradRpcEndpoint = ""
 
     def loadConfig(self, config):
-
-        defaultConfig, err = utils.loadDefaultPackageConf(self.coin)
-        if err is not None:
-            return False, err
-
-        self.terradProtocol = config["terradProtocol"] if "terradProtocol" in config \
-            else defaultConfig["terradProtocol"]
-        self.terradHost = config["terradHost"] if "terradHost" in config \
-            else self.__attachNetworkToHost(defaultConfig["terradHost"])
-
-        if "terradPort" in config:
-            if config["terradPort"].isdigit():
-                self.terradPort = config["terradPort"]
-            else:
-                return False, f"Value {config['terradPort']} for terradPort is not digit"
-        else:
-            self.terradPort = defaultConfig["terradPort"]
+        self.terradRpcEndpoint = config["terradRpcEndpoint"]
 
         return True, None
 
@@ -50,36 +28,12 @@ class Config:
         self._networkName = value
 
     @property
-    def terradProtocol(self):
-        return self._terradProtocol
-
-    @terradProtocol.setter
-    def terradProtocol(self, value):
-        self._terradProtocol = value
-
-    @property
-    def terradHost(self):
-        return self._terradHost
-
-    @terradHost.setter
-    def terradHost(self, value):
-        self._terradHost = value
-
-    @property
-    def terradPort(self):
-        return self._terradPort
-
-    @terradPort.setter
-    def terradPort(self, value):
-        self._terradPort = value
-
-    @property
     def terradRpcEndpoint(self):
-        if self.terradPort == "80" or self.terradPort == "443":
-            return f"{self.terradProtocol}://{self.terradHost}"
+        return self._terradRpcEndpoint
 
-        return f"{self.terradProtocol}://" \
-               f"{self.terradHost}:{self.terradPort}"
+    @terradRpcEndpoint.setter
+    def terradRpcEndpoint(self, value):
+        self._terradRpcEndpoint = value
 
     def jsonEncode(self):
         return ConfigEncoder().encode(self)
@@ -88,7 +42,5 @@ class Config:
 class ConfigEncoder(JSONEncoder):
     def encode(self, o):
         return {
-            "terradProtocol": o.terradProtocol,
-            "terradHost": o.terradHost,
-            "terradPort": o.terradPort
+            "terradRpcEndpoint": o.terradRpcEndpoint
         }
