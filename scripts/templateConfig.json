@@ -1,0 +1,110 @@
+[
+  {
+    "token": "btc",
+    "networks": {
+      "regtest": {
+        "config": {
+          "bitcoincoreRpcEndpoint": "http://swapper:swapper@bitcoincore-regtest:8332",
+          "electrumRpcEndpoint": "http://swapper:swapper@electrum-regtest:30000",
+          "bitcoincoreZmqEndpoint": "tcp://bitcoincore-regtest:28332",
+          "bitcoinAddressCallbackHost": "http://connector:80",
+          "electrsEndpoint": "electrs-regtest:60001:t"
+        }
+      },
+      "testnet": {
+        "config": {
+          "bitcoincoreRpcEndpoint": "http://swapper:swapper@bitcoincore-testnet:8332",
+          "electrumRpcEndpoint": "http://swapper:swapper@electrum-testnet:30000",
+          "bitcoincoreZmqEndpoint": "tcp://bitcoincore-testnet:28332",
+          "bitcoinAddressCallbackHost": "http://connector:80",
+          "electrsEndpoint": "electrs-testnet:60001:t"
+        }
+      },
+      "mainnet": {
+        "config": {
+          "bitcoincoreRpcEndpoint": "http://swapper:swapper@bitcoincore-mainnet:8332",
+          "electrumRpcEndpoint": "http://swapper:swapper@electrum-mainnet:30000",
+          "bitcoincoreZmqEndpoint": "tcp://bitcoincore-mainnet:28332",
+          "bitcoinAddressCallbackHost": "http://connector:80",
+          "electrsEndpoint": "electrs-mainnet:60001:t"
+        }
+      }
+    }
+  },
+  {
+    "token": "eth",
+    "networks": {
+      "regtest": {
+        "config": {
+          "rpcEndpoint": "http://ethereumgo-regtest:8545",
+          "wsEndpoint": "ws://ethereumgo-regtest:8545"
+        }
+      },
+      "testnet": {
+        "config": {
+          "rpcEndpoint": "http://ethereumgo-testnet:8545",
+          "wsEndpoint": "ws://ethereumgo-testnet:8546"
+        }
+      },
+      "mainnet": {
+        "config": {
+          "rpcEndpoint": "http://ethereumgo-mainnet:8545",
+          "wsEndpoint": "ws://ethereumgo-mainnet:8546"
+        }
+      }
+    }
+  },
+  {
+    "token": "bch",
+    "networks": {
+      "regtest": {
+        "config": {
+          "bitcoinabcRpcEndpoint": "http://swapper:swapper@bitcoinabc-regtest:8332",
+          "electrumCashRpcEndpoint": "http://swapper:swapper@electrum-regtest:30000"
+        }
+      },
+      "testnet": {
+        "config": {
+          "bitcoinabcRpcEndpoint": "http://swapper:swapper@bitcoinabc-testnet:8332",
+          "electrumCashRpcEndpoint": "http://swapper:swapper@electrum-testnet:30000"
+        }
+      },
+      "mainnet": {
+        "config": {
+          "bitcoinabcRpcEndpoint": "http://swapper:swapper@bitcoinabc-mainnet:8332",
+          "electrumCashRpcEndpoint": "http://swapper:swapper@electrum-mainnet:30000"
+        }
+      }
+    }
+  },
+  {
+    "token": "luna",
+    "networks": {
+      "testnet": {
+        "config": {
+          "terradRpcEndpoint": "http://terrad-testnet:1317"
+        }
+      },
+      "mainnet": {
+        "config": {
+          "terradRpcEndpoint": "http://terrad-mainnet:1317"
+        }
+      }
+    }
+  },
+  {
+    "token": "xmr",
+    "networks": {
+      "testnet": {
+        "config": {
+          "monerodRpcEndpoint": "http://monerod-testnet:38081/json_rpc"
+        }
+      },
+      "mainnet": {
+        "config": {
+          "monerodRpcEndpoint": "http://monerod-mainnet:18081/json_rpc"
+        }
+      }
+    }
+  }
+]
