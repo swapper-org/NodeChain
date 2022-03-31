@@ -1,6 +1,0 @@
-{
-  "protocol": "http",
-  "host": "monerod",
-  "rpcPort": 38081,
-  "rpcPath": "json_rpc"
-}

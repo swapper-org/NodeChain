@@ -25,7 +25,7 @@ def addApi(args, token, network, port, defaultConfig=True):
         payload = {
             "coin": token,
             "network": network,
-            "config": {}
+            "config": utils.getDefaultConfig(token, network)
         }
 
     else:

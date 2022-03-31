@@ -1,6 +1,0 @@
-{
-  "protocol": "http",
-  "host": "ethereumgo",
-  "rpcPort": "8545",
-  "wsPort": "8545"
-}

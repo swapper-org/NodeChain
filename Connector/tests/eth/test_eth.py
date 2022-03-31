@@ -22,7 +22,8 @@ config = Config(
 )
 config.loadConfig(
     config={
-        "host": "localhost"
+        "rpcEndpoint": "http://localhost:8545",
+        "wsEndpoint": "http://localhost:8545"
     }
 )
 

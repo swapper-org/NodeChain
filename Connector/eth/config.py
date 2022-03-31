@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 from json import JSONEncoder
-from utils import utils
 
 
 class Config:
@@ -9,38 +8,13 @@ class Config:
 
         self._coin = coin
         self._networkName = networkName
-        self._protocol = ""
-        self._host = ""
-        self._rpcPort = ""
-        self._wsPort = ""
 
-    def __attachNetworkToHost(self, host):
-        return f"{host}-{self.networkName}"
+        self._rpcEndpoint = ""
+        self._wsEndpoint = ""
 
     def loadConfig(self, config):
-
-        defaultConfig, err = utils.loadDefaultPackageConf(self.coin)
-        if err is not None:
-            return False, err
-
-        self.protocol = config["protocol"] if "protocol" in config else defaultConfig["protocol"]
-        self.host = config["host"] if "host" in config else self.__attachNetworkToHost(defaultConfig["host"])
-
-        if "rpcPort" in config:
-            if config["rpcPort"].isdigit():
-                self.rpcPort = config["rpcPort"]
-            else:
-                return False, f"Value {config['rpcPort']} for rpcPort is not digit"
-        else:
-            self.rpcPort = defaultConfig["rpcPort"]
-
-        if "wsPort" in config:
-            if config["wsPort"].isdigit():
-                self.wsPort = config["wsPort"]
-            else:
-                return False, f"Value {config['wsPort']} for wsPort is not digit"
-        else:
-            self.wsPort = defaultConfig["wsPort"]
+        self.rpcEndpoint = config["rpcEndpoint"]
+        self.wsEndpoint = config["wsEndpoint"]
 
         return True, None
 
@@ -57,44 +31,20 @@ class Config:
         self._networkName = value
 
     @property
-    def protocol(self):
-        return self._protocol
-
-    @protocol.setter
-    def protocol(self, value):
-        self._protocol = value
-
-    @property
-    def host(self):
-        return self._host
-
-    @host.setter
-    def host(self, value):
-        self._host = value
-
-    @property
-    def rpcPort(self):
-        return self._rpcPort
-
-    @rpcPort.setter
-    def rpcPort(self, value):
-        self._rpcPort = value
-
-    @property
-    def wsPort(self):
-        return self._wsPort
-
-    @wsPort.setter
-    def wsPort(self, value):
-        self._wsPort = value
-
-    @property
     def rpcEndpoint(self):
-        return "{}://{}:{}".format(self.protocol, self.host, self.rpcPort)
+        return self._rpcEndpoint
+
+    @rpcEndpoint.setter
+    def rpcEndpoint(self, value):
+        self._rpcEndpoint = value
 
     @property
     def wsEndpoint(self):
-        return "{}://{}:{}".format(self.protocol, self.host, self.wsPort)
+        return self._wsEndpoint
+
+    @wsEndpoint.setter
+    def wsEndpoint(self, value):
+        self._wsEndpoint = value
 
     def jsonEncode(self):
         return ConfigEncoder().encode(self)
@@ -104,8 +54,6 @@ class ConfigEncoder(JSONEncoder):
 
     def encode(self, o):
         return {
-            "protocol": o.protocol,
-            "host": o.host,
-            "rpcPort": o.rpcPort,
-            "wsPort": o.wsPort
+            "rpcEndpoint": o.rpcEndpoint,
+            "wsEndpoint": o.wsEndpoint
         }

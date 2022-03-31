@@ -59,10 +59,6 @@ class Handler:
             logger.printError(f"Configuration {network} not added for {self.coin}")
             return False, f"Configuration {network} not added for {self.coin}"
 
-        defaultConf, err = utils.loadDefaultPackageConf(self.coin)
-        if err is not None:
-            return False, err
-
         ok, err = self.networksConfig[network].loadConfig(config=config)
         if not ok:
             logger.printError(f"Can not load config for {network} for {self.coin}: {err}")

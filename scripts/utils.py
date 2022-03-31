@@ -4,6 +4,7 @@ import json
 import logger
 
 AVAILABLE_CURRENCIES = "./Connector/.availableCurrencies.json"
+DEFAULT_CONFIG = "./scripts/config.json"
 
 
 def queryYesNo(question, default="yes"):
@@ -200,6 +201,14 @@ def getTokenConfiguration(token, network):
         for api in data:
             if api["token"] == token:
                 return api["networks"][network]["configurable"]
+
+
+def getDefaultConfig(token, network):
+    with open(DEFAULT_CONFIG) as f:
+        data = json.load(f)
+        for api in data:
+            if api["token"] == token:
+                return api["networks"][network]["config"]
 
 
 def formatApiData(args, data):
