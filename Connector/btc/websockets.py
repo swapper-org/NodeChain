@@ -143,13 +143,10 @@ class BlockWebSocket:
         broker = Broker()
 
         while True:
-
-            logger.printInfo("Esperando bloque BTC")
             payload = await zmqSocket.recv_multipart()
             topic = payload[0].decode("utf-8")
             message = payload[1]
 
-            logger.printInfo("Recibo algo")
             if topic == NEW_HASH_BLOCK_ZMQ_TOPIC:
 
                 blockHash = binascii.hexlify(message).decode("utf-8")
