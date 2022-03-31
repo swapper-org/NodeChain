@@ -15,7 +15,7 @@ services:
       retries: 10
 
   postgres-regtest:
-    build: ../../packages/nodechain-ethereum-indexer
+    build: ../../../packages/nodechain-ethereum-indexer
     image: nodechain-ethereum-indexer
     volumes:
       - ${BLOCKCHAIN_PATH}/postgres/development:/var/lib/postgresql/data
