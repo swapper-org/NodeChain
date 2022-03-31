@@ -25,7 +25,7 @@ config.loadConfig(
     config={
         "rpcEndpoint": "http://localhost:8545",
         "wsEndpoint": "http://localhost:8546",
-        "indexerEnspoint": "http://localhost:3000"
+        "indexerEndpoint": "http://localhost:3000"
     }
 )
 
