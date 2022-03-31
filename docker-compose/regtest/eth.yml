@@ -49,8 +49,3 @@ services:
         condition: service_healthy
       postgres-regtest:
         condition: service_healthy
-
-networks:
-  default:
-    external:
-      name: nodechain-network
