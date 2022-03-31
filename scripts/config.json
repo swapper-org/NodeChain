@@ -37,7 +37,7 @@
       "regtest": {
         "config": {
           "rpcEndpoint": "http://ethereumgo-regtest:8545",
-          "wsEndpoint": "ws://ethereumgo-regtest:8545"
+          "wsEndpoint": "ws://ethereumgo-regtest:8546"
         }
       },
       "testnet": {
