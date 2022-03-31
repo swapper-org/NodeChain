@@ -47,7 +47,6 @@ def addApi(args, token, network, port, defaultConfig=True):
     if args.verbose:
         logger.printInfo(f"Request payload: {payload}", verbosity=args.verbose)
     try:
-        # TODO: This localhost is pointing to the connector host. Might be configurable
         req = requests.post(
             url=f"http://localhost:{port}/admin/{ADD_CURRENCY}",
             json=payload,
