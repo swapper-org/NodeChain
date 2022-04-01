@@ -9,6 +9,7 @@ from eth.websockets import WebSocket
 from eth import utils
 from logger import logger
 from httputils.httpmethod import postHttpMethods
+from httputils.httpconnector import HTTPConnector
 from rpcutils.rpcconnector import RPCConnector
 from wsutils.wsmethod import wsMethods
 from wsutils.subscribers import ListenerSubscriber
@@ -23,7 +24,8 @@ config = Config(
 config.loadConfig(
     config={
         "rpcEndpoint": "http://localhost:8545",
-        "wsEndpoint": "http://localhost:8545"
+        "wsEndpoint": "http://localhost:8546",
+        "indexerEndpoint": "http://localhost:3000"
     }
 )
 
@@ -35,33 +37,8 @@ WebSocket(
 websocket.startWebSockets(COIN_SYMBOL, networkName)
 
 
-address1 = "0x625ACaEdeF812d2842eFd2Fb0294682A868455bd"
-privateKey1 = "0x6fa76995e9a39e852f893e8347c662453a5d517846d150bdf3ddf7601c4bc74c"
-
-address2 = "0x93261B4021dbd6200Df9B36B151f4ECF34889e94"
-
 sub = ListenerSubscriber()
 newBlocksSub = ListenerSubscriber()
-
-
-def makeTransaction(address1=address1, address2=address2, value=1, gas=2000000):
-
-    web3 = Web3(Web3.HTTPProvider(config.rpcEndpoint))
-
-    nonce = web3.eth.getTransactionCount(address1)
-
-    tx = {
-        "nonce": nonce,
-        "to": address2,
-        "value": web3.toWei(value, 'ether'),
-        "gas": gas,
-        "gasPrice": web3.toWei('50', 'gwei')
-    }
-
-    signedTx = web3.eth.account.sign_transaction(tx, privateKey1)
-    txHash = web3.eth.sendRawTransaction(signedTx.rawTransaction)
-
-    return signedTx.rawTransaction, txHash
 
 
 def makeEtherumgoRequest(method, params):
@@ -70,6 +47,57 @@ def makeEtherumgoRequest(method, params):
         return RPCConnector.request(config.rpcEndpoint, 1, method, params)
     except Exception as err:
         logger.printError(f"Can not make request to {config.rpcEndpoint}. {err}")
+        assert False
+
+
+makeEtherumgoRequest("personal_newAccount", [""])
+accounts = makeEtherumgoRequest("personal_listAccounts", [])
+
+address1 = accounts[0]
+address2 = accounts[1]
+
+
+def makeTransaction(address1=address1, address2=address2, value=1, gas=2000000):
+
+    txHash = makeEtherumgoRequest(
+        "personal_sendTransaction",
+        [
+            {
+                "from": address1,
+                "to": address2,
+                "value": hex(Web3.toWei(value, "ether")),
+                "gas": hex(Web3.toWei(gas, "wei"))
+            },
+            ""
+        ]
+    )
+
+    return txHash
+
+
+def makeHTTPGetRequest(endpoint, path, params):
+
+    try:
+        return HTTPConnector.get(
+            endpoint=endpoint,
+            path=path,
+            params=params
+        )
+    except Exception as err:
+        logger.printError(f"Can not make HTTP Get Request to {endpoint}. {err}")
+        assert False
+
+
+def makeHTTPPostRequest(endpoint, path, payload):
+
+    try:
+        return HTTPConnector.post(
+            endpoint=endpoint,
+            path=path,
+            json=payload
+        )
+    except Exception as err:
+        logger.printError(f"Can not make HTTP Get Request to {endpoint}. {err}")
         assert False
 
 
@@ -152,18 +180,18 @@ def testGetTransaction():
         logger.printError("Method getTransaction not loaded")
         assert False
 
-    _, txHash = makeTransaction()
+    txHash = makeTransaction()
 
     got = postHttpMethods[COIN_SYMBOL]["getTransaction"](
         {
-            "txHash": txHash.hex()
+            "txHash": txHash
         },
         config
     )
 
-    expected = makeEtherumgoRequest(GET_TRANSACTION_BY_HASH_METHOD, [txHash.hex()])
+    expected = makeEtherumgoRequest(GET_TRANSACTION_BY_HASH_METHOD, [txHash])
 
-    assert got["transaction"]["txHash"] == txHash.hex()
+    assert got["transaction"]["txHash"] == txHash
     assert got["transaction"]["fee"] == str(utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
     assert got["transaction"]["blockHash"] == expected["blockHash"]
     assert got["transaction"]["blockNumber"] == str(int(expected["blockNumber"], 16))
@@ -192,8 +220,7 @@ def testGetTransactions():
 
     txHashes = []
     for i in range(0, 2):
-        _, txHash = makeTransaction()
-        txHashes.append(txHash.hex())
+        txHashes.append(makeTransaction())
 
     got = postHttpMethods[COIN_SYMBOL]["getTransactions"](
         {
@@ -242,16 +269,11 @@ def testEstimateGas():
         logger.printError("Method estimateGas not loaded")
         assert False
 
-    web3 = Web3(Web3.HTTPProvider(config.rpcEndpoint))
-
-    nonce = web3.eth.getTransactionCount(address1)
-
     tx = {
-        "nonce": nonce,
+        "from": address1,
         "to": address2,
-        "value": str(web3.toWei(1, 'ether')),
-        "gas": "2000000",
-        "gasPrice": str(web3.toWei('50', 'gwei'))
+        "value": hex(Web3.toWei(1, "ether")),
+        "gas": hex(Web3.toWei(2000000, "wei"))
     }
 
     got = postHttpMethods[COIN_SYMBOL]["estimateGas"](
@@ -289,9 +311,9 @@ def testGetTransactionReceipt():
         logger.printError("Method getTransactionReceipt not loaded")
         assert False
 
-    _, txHash = makeTransaction()
-    got = postHttpMethods[COIN_SYMBOL]["getTransactionReceipt"]({"txHash": txHash.hex()}, config)
-    expected = makeEtherumgoRequest(GET_TRANSACTION_RECEIPT_METHOD, [txHash.hex()])
+    txHash = makeTransaction()
+    got = postHttpMethods[COIN_SYMBOL]["getTransactionReceipt"]({"txHash": txHash}, config)
+    expected = makeEtherumgoRequest(GET_TRANSACTION_RECEIPT_METHOD, [txHash])
 
     for key in expected:
         if key not in got:
@@ -400,25 +422,97 @@ def testBroadCastTransaction():
         logger.printError("Method getTransaction not loaded")
         assert False
 
-    web3 = Web3(Web3.HTTPProvider(config.rpcEndpoint))
-
-    nonce = web3.eth.getTransactionCount(address1)
-
     tx = {
-        "nonce": nonce,
+        "nonce": makeEtherumgoRequest("eth_getTransactionCount", [address1, "latest"]),
+        "from": address1,
         "to": address2,
-        "value": web3.toWei(1, 'ether'),
-        "gas": 2000000,
-        "gasPrice": web3.toWei('50', 'gwei')
+        "value": hex(Web3.toWei(1, "ether")),
+        "gas": hex(Web3.toWei(2000000, "wei")),
+        "gasPrice": hex(Web3.toWei('50', 'gwei'))
     }
 
-    signedTx = web3.eth.account.sign_transaction(tx, privateKey1)
+    signedTx = makeEtherumgoRequest("eth_signTransaction", [tx])
 
-    got = postHttpMethods[COIN_SYMBOL]["broadcastTransaction"]({"rawTransaction": signedTx.rawTransaction.hex()}, config)
+    got = postHttpMethods[COIN_SYMBOL]["broadcastTransaction"]({"rawTransaction": signedTx["raw"]}, config)
 
     expected = makeEtherumgoRequest(GET_TRANSACTION_BY_HASH_METHOD, [got["broadcasted"]])
 
     assert got["broadcasted"] == expected["hash"]
+
+
+def testGetAddressHistory():
+
+    if "getAddressHistory" not in postHttpMethods[COIN_SYMBOL]:
+        logger.printError("Method getAddressHistory not loaded")
+        assert False
+
+    for i in range(0, 25):
+        makeTransaction()
+
+    time.sleep(10)
+
+    makeEtherumgoRequest("miner_stop", [])
+
+    for i in range(0, 25):
+        makeTransaction()
+
+    expectedConfirmed = makeHTTPGetRequest(
+        endpoint=config.indexerEndpoint,
+        path=INDEXER_TXS_PATH,
+        params={
+            "and": f"(contract_to.eq.,or(txfrom.eq.{address1},txto.eq.{address1}))"
+        }
+    )
+
+    expectedPending = makeHTTPPostRequest(
+        endpoint=config.rpcEndpoint,
+        path=GRAPHQL_PATH,
+        payload={
+            "query": "query { pending { transactions { hash from { address } to { address } } } }"
+        }
+    )
+
+    pendingHashes = []
+
+    for tx in expectedPending["data"]["pending"]["transactions"]:
+        if tx["from"]["address"] == address1 or tx["to"]["address"] == address1:
+            pendingHashes.append(tx["hash"])
+
+    got = postHttpMethods[COIN_SYMBOL]["getAddressHistory"]({"address": address1}, config)
+
+    makeEtherumgoRequest("miner_start", [1])
+
+    for tx in expectedConfirmed:
+        assert tx["txhash"] in got["txHashes"]
+
+    for hash in pendingHashes:
+        assert hash in got["txHashes"]
+
+
+def testGetAddressesHistory():
+
+    if "getAddressesHistory" not in postHttpMethods[COIN_SYMBOL]:
+        logger.printError("Method getAddressesHistory not loaded")
+        assert False
+
+    addresses = [address1, address2]
+
+    time.sleep(10)
+
+    got = postHttpMethods[COIN_SYMBOL]["getAddressesHistory"]({"addresses": addresses}, config)
+
+    for addrHistory in got:
+
+        expected = makeHTTPGetRequest(
+            endpoint=config.indexerEndpoint,
+            path=INDEXER_TXS_PATH,
+            params={
+                "and": f"(contract_to.eq.,or(txfrom.eq.{addrHistory['address']},txto.eq.{addrHistory['address']}))"
+            }
+        )
+
+        for tx in expected:
+            assert tx["txhash"] in addrHistory["txHashes"]
 
 
 def testSubscribeAddressBalance():

@@ -47,7 +47,8 @@
         "dockerComposePath": "docker-compose/regtest/eth.yml",
         "configurable": [
           "rpcEndpoint",
-          "wsEndpoint"
+          "wsEndpoint",
+          "indexerEndpoint"
         ]
       },
       "testnet": {
@@ -55,7 +56,8 @@
         "dockerComposePath": "docker-compose/testnet/eth.yml",
         "configurable": [
           "rpcEndpoint",
-          "wsEndpoint"
+          "wsEndpoint",
+          "indexerEndpoint"
         ]
       },
       "mainnet": {
@@ -63,7 +65,8 @@
         "dockerComposePath": "docker-compose/mainnet/eth.yml",
         "configurable": [
           "rpcEndpoint",
-          "wsEndpoint"
+          "wsEndpoint",
+          "indexerEndpoint"
         ]
       }
     }

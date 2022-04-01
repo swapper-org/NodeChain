@@ -11,6 +11,7 @@ ESTIMATE_GAS_METHOD = "eth_estimateGas"
 SUBSCRIBE_METHOD = "eth_subscribe"
 SYNCING_METHOD = "eth_syncing"
 CALL_METHOD = "eth_call"
+TXPOOL_CONTENT = "txpool_content"
 
 NEW_HEADS_SUBSCRIPTION = "newHeads"
 
@@ -38,8 +39,14 @@ SUBSCRIBE_ADDRESS_BALANCE = "subscribetoaddressbalance"
 UNSUBSCRIBE_ADDRESS_BALANCE = "unsubscribefromaddressbalance"
 SYNCING = "syncing"
 CALL = "call"
+GET_ADDRESS_HISTORY = "getaddresshistory"
+GET_ADDRESSES_HISTORY = "getaddresseshistory"
 SUBSCRIBE_TO_NEW_BLOCKS = "subscribetonewblocks"
 UNSUBSCRIBE_FROM_NEW_BLOCKS = "unsubscribefromnewblocks"
+GET_PENDING_TRANSACTIONS = "getpendingtransactions"
+
+INDEXER_TXS_PATH = "/ethtxs"
+GRAPHQL_PATH = "/graphql"
 
 COIN_SYMBOL = "eth"
 DEFAULT_PKG_CONF = "defaultConf.json"

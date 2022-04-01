@@ -37,19 +37,22 @@
       "regtest": {
         "config": {
           "rpcEndpoint": "http://ethereumgo-regtest:8545",
-          "wsEndpoint": "ws://ethereumgo-regtest:8546"
+          "wsEndpoint": "ws://ethereumgo-regtest:8546",
+          "indexerEndpoint": "http://postgrest-regtest:3000"
         }
       },
       "testnet": {
         "config": {
           "rpcEndpoint": "http://ethereumgo-testnet:8545",
-          "wsEndpoint": "ws://ethereumgo-testnet:8546"
+          "wsEndpoint": "ws://ethereumgo-testnet:8546",
+          "indexerEndpoint": "http://postgrest-testnet:3000"
         }
       },
       "mainnet": {
         "config": {
           "rpcEndpoint": "http://ethereumgo-mainnet:8545",
-          "wsEndpoint": "ws://ethereumgo-mainnet:8546"
+          "wsEndpoint": "ws://ethereumgo-mainnet:8546",
+          "indexerEndpoint": "http://postgrest-mainnet:3000"
         }
       }
     }

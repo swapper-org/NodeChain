@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-from httputils import httpmethod, httputils
+from httputils import httpmethod, httputils, error as httpError
+from httputils.httpconnector import HTTPConnector
 from rpcutils import rpcmethod, error
 from rpcutils.rpcconnector import RPCConnector
 from logger import logger
@@ -656,6 +657,143 @@ def call(id, params, config):
 
     response = {
         "data": result
+    }
+
+    err = httputils.validateJSONSchema(response, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    return response
+
+
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
+def getAddressHistory(id, params, config):
+
+    logger.printInfo(
+        f"Executing RPC method getAddressHistory with id {id} and params {params}")
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_HISTORY)
+
+    err = httputils.validateJSONSchema(params, requestSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    pendingTxs = getAddressPendingTransactions(id, params, config)
+
+    try:
+        confirmedTxs = HTTPConnector.get(
+            endpoint=config.indexerEndpoint,
+            path=INDEXER_TXS_PATH,
+            params={
+                "and": f"(contract_to.eq.,or(txfrom.eq.{params['address']},txto.eq.{params['address']}))",
+                "order": "time.desc"
+            }
+        )
+    except httpError.Error as err:
+        raise error.RpcError(
+            id=id,
+            message=err.message,
+            code=err.code
+        )
+
+    confirmedTxsHashes = [tx["txhash"] for tx in confirmedTxs]
+    response = {
+        "address": params["address"],
+        "txHashes": confirmedTxsHashes + (list(set(pendingTxs["txHashes"]) - set(confirmedTxsHashes)))
+    }
+
+    err = httputils.validateJSONSchema(response, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    return response
+
+
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
+def getAddressesHistory(id, params, config):
+
+    logger.printInfo(
+        f"Executing RPC method getAddressesHistory with id {id} and params {params}")
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_HISTORY)
+
+    err = httputils.validateJSONSchema(params, requestSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    response = []
+    for address in params["addresses"]:
+        response.append(
+            getAddressHistory(
+                id=id,
+                params={
+                    "address": address
+                },
+                config=config
+            )
+        )
+
+    err = httputils.validateJSONSchema(response, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    return response
+
+
+def getAddressPendingTransactions(id, params, config):
+
+    logger.printInfo(
+        f"Executing RPC method getAddressPendingTransactions with id {id} and params {params}")
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_PENDING_TRANSACTIONS)
+
+    err = httputils.validateJSONSchema(params, requestSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    try:
+
+        pendingTransactions = HTTPConnector.post(
+            endpoint=config.rpcEndpoint,
+            path=GRAPHQL_PATH,
+            json={
+                "query": "query { pending { transactions { hash from { address } to { address } } } }"
+            }
+        )
+
+    except httpError.Error:
+        logger.printError("Could not retrieve pending transactions using Graphql query")
+        return []
+
+    txs = []
+
+    for tx in pendingTransactions["data"]["pending"]["transactions"]:
+        if tx["from"]["address"] == params["address"] or tx["to"]["address"] == params["address"]:
+            txs.append(tx["hash"])
+
+    response = {
+        "address": params["address"],
+        "txHashes": txs
     }
 
     err = httputils.validateJSONSchema(response, responseSchema)

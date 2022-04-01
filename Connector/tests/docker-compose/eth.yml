@@ -1,10 +1,56 @@
 version: "3"
 services:
-  ethereumgo:
-    image: trufflesuite/ganache-cli
-    command:
-      -p=8545 -h=0.0.0.0 -m="piece effort bind that embrace enrich remind powder sudden patient legend group"
+  ethereumgo-regtest:
+    image: ethereum/client-go:latest
+    command: --dev --cache 1024 --http --http.addr 0.0.0.0 --http.api eth,personal,web3,net,miner --http.port 8545 --http.vhosts '*' --ws --ws.port 8546 --ws.addr 0.0.0.0 --ws.origins '*' --ws.api eth,net,web3 --graphql
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
     ports:
       - 8545:8545
+      - 8546:8546
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:8545"]
+      interval: 10s
+      timeout: 15s
+      retries: 10
+
+  postgres-regtest:
+    build: ../../../packages/nodechain-ethereum-indexer
+    image: nodechain-ethereum-indexer
+    volumes:
+      - ${BLOCKCHAIN_PATH}/postgres/development:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: swapper
+      POSTGRES_PASSWORD: swapper
+      POSTGRES_DB: swapper
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres://swapper_writer:swapper_writer@localhost:5432/swapper"]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+
+  postgrest-regtest:
+    image: postgrest/postgrest
+    environment:
+      PGRST_DB_URI: postgres://swapper_reader:swapper_reader@postgres-regtest:5432/swapper
+      PGRST_DB_SCHEMAS: public
+      PGRST_DB_ANON_ROLE: swapper_reader
+    ports:
+      - 3000:3000
+    depends_on:
+      postgres-regtest:
+        condition: service_healthy
+
+  synchroniser-regtest:
+    image: guenoledc/eth-tx-storage
+    environment:
+      DB_NAME: postgres://swapper_writer:swapper_writer@postgres-regtest:5432/swapper
+      ETH_URL: ws://ethereumgo-regtest:8546
+      START_BLOCK: 0
+      CONFIRMATIONS_BLOCK: 0
+      PERIOD: 1
+    depends_on:
+      ethereumgo-regtest:
+        condition: service_healthy
+      postgres-regtest:
+        condition: service_healthy

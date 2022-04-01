@@ -52,10 +52,7 @@ class WebSocket:
                     rpcConstants.ID: random.randint(1, sys.maxsize),
                     rpcConstants.METHOD: SUBSCRIBE_METHOD,
                     rpcConstants.PARAMS: [
-                        NEW_HEADS_SUBSCRIPTION,
-                        {
-                            "includeTransactions": True
-                        }
+                        NEW_HEADS_SUBSCRIPTION
                     ]
                 }
 
