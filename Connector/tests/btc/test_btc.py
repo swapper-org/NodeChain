@@ -257,6 +257,8 @@ def testGetAddressHistory():
         logger.printError("getAddressHistory not loaded in RPCMethods")
         assert False
 
+    time.sleep(10)
+
     expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
 
     got = postHttpMethods[COIN_SYMBOL]["getAddressHistory"]({"address": address1}, config)
