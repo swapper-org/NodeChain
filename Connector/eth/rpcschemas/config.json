@@ -11,10 +11,15 @@
         "wsEndpoint": {
             "type": "string",
             "format": "uri"
+        },
+        "indexerEndpoint": {
+            "type": "string",
+            "format": "uri"
         }
     },
     "required": [
         "rpcEndpoint",
-        "wsEndpoint"
+        "wsEndpoint",
+        "indexerEndpoint"
     ]
 }
