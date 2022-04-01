@@ -4,19 +4,12 @@
   "description": "",
   "type": "object",
   "properties": {
-    "terradProtocol": {
-      "type": "string"
-    },
-    "terradHost": {
-      "type": "string"
-    },
-    "terradPort": {
-      "type": "string"
+    "terradRpcEndpoint": {
+      "type": "string",
+      "format": "uri"
     }
   },
   "required": [
-    "terradProtocol",
-    "terradHost",
-    "terradPort"
+    "terradRpcEndpoint"
   ]
 }
