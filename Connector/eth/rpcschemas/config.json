@@ -4,27 +4,17 @@
     "description": "",
     "type": "object",
     "properties": {
-        "protocol" : {
+        "rpcEndpoint" : {
             "type" : "string",
-            "enum": [
-                "http",
-                "https"
-            ]
+            "format": "uri"
         },
-        "host": {
-            "type": "string"
-        },
-        "rpcPort": {
-            "type": "string"
-        },
-        "wsPort": {
-            "type": "string"
+        "wsEndpoint": {
+            "type": "string",
+            "format": "uri"
         }
     },
     "required": [
-        "protocol",
-        "host",
-        "rpcPort",
-        "wsPort"
+        "rpcEndpoint",
+        "wsEndpoint"
     ]
 }

@@ -4,27 +4,12 @@
     "description": "",
     "type": "object",
     "properties": {
-        "protocol" : {
-            "type" : "string",
-            "enum": [
-                "http",
-                "https"
-            ]
-        },
-        "host": {
-            "type": "string"
-        },
-        "rpcPort": {
-            "type": "integer"
-        },
-        "rpcPath": {
-            "type": "string"
+        "monerodRpcEndpoint": {
+          "type": "string",
+          "format": "uri"
         }
-    },
-    "required": [
-        "protocol",
-        "host",
-        "rpcPort",
-        "rpcPath"
-    ]
+      },
+      "required": [
+        "monerodRpcEndpoint"
+      ]
 }

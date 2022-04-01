@@ -4,73 +4,32 @@
     "description": "",
     "type": "object",
     "properties": {
-        "bitcoincoreProtocol" : {
-            "type" : "string"
+        "bitcoincoreRpcEndpoint" : {
+            "type" : "string",
+            "format": "uri"
         },
-        "bitcoincoreHost": {
-            "type": "string"
-        },
-        "bitcoincorePort": {
-            "type": "string"
-        },
-        "bitcoincoreUser":{
-          "type": "string"
-        },
-        "bitcoincorePassword": {
-            "type": "string"
-        },
-        "bitcoincoreZmqProtocol": {
-            "type": "string"
-        },
-        "bitcoincoreCallbackProtocol": {
+        "electrumRpcEndpoint": {
             "type": "string",
-            "enum": [
-                "http",
-                "https"
-            ]
+            "format": "uri"
         },
-        "bitcoincoreCallbackHost": {
-            "type": "string"
+        "bitcoincoreZmqEndpoint": {
+            "type": "string",
+            "format": "uri"
         },
-        "bitcoincoreZmqPort": {
-            "type": "string"
+        "bitcoinAddressCallbackHost":{
+          "type": "string",
+            "format": "uri"
         },
-        "electrumProtocol": {
-            "type": "string"
-        },
-        "electrumHost": {
-            "type": "string"
-        },
-        "electrumPort": {
-            "type": "string"
-        },
-        "electrumUser": {
-            "type": "string"
-        },
-        "electrumPassword": {
-            "type": "string"
-        },
-        "electrumxHost": {
-            "type": "string"
-        },
-        "electrumxPort": {
-            "type": "string"
+        "electrsEndpoint": {
+            "type": "string",
+            "format": "uri"
         }
     },
     "required": [
-        "bitcoincoreProtocol",
-        "bitcoincoreHost",
-        "bitcoincorePort",
-        "bitcoincoreUser",
-        "bitcoincorePassword",
-        "bitcoincoreZmqProtocol",
-        "bitcoincoreZmqPort",
-        "electrumProtocol",
-        "electrumHost",
-        "electrumPort",
-        "electrumUser",
-        "electrumPassword",
-        "electrumxHost",
-        "electrumxPort"
+        "bitcoincoreRpcEndpoint",
+        "electrumRpcEndpoint",
+        "bitcoincoreZmqEndpoint",
+        "bitcoinAddressCallbackHost",
+        "electrsEndpoint"
     ]
 }

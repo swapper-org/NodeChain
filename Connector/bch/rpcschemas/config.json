@@ -4,47 +4,17 @@
     "description": "",
     "type": "object",
     "properties": {
-        "bitcoincoreProtocol" : {
-            "type" : "string"
+        "bitcoinabcRpcEndpoint" : {
+            "type" : "string",
+            "format": "uri"
         },
-        "bitcoincoreHost": {
-            "type": "string"
-        },
-        "bitcoincorePort": {
-            "type": "string"
-        },
-        "bitcoincoreUser":{
-          "type": "string"
-        },
-        "bitcoincorePassword": {
-            "type": "string"
-        },
-        "electrumCashProtocol": {
-            "type": "string"
-        },
-        "electrumCashHost": {
-            "type": "string"
-        },
-        "electrumCashPort": {
-            "type": "string"
-        },
-        "electrumCashUser": {
-            "type": "string"
-        },
-        "electrumCashPassword": {
-            "type": "string"
+        "electrumCashRpcEndpoint": {
+            "type": "string",
+            "format": "uri"
         }
     },
     "required": [
-        "bitcoincoreProtocol",
-        "bitcoincoreHost",
-        "bitcoincorePort",
-        "bitcoincoreUser",
-        "bitcoincorePassword",
-        "electrumCashProtocol",
-        "electrumCashHost",
-        "electrumCashPort",
-        "electrumCashUser",
-        "electrumCashPassword"
+        "bitcoinabcRpcEndpoint",
+        "electrumCashRpcEndpoint"
     ]
 }
