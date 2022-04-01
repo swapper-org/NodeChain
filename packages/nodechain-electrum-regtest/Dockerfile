@@ -1,7 +1,7 @@
 FROM python:3
 WORKDIR /usr/src/app
-ENV ELECTRUM_VERSION=4.1.5
-ENV ELECTRUM_FILE_HASH=91472e281f604a7a687faa4b339bf5e484bd2bec82a495ea45bfa014e52719a1
+ENV ELECTRUM_VERSION=4.2.1
+ENV ELECTRUM_FILE_HASH=d92c524c7f4fdfcd23d8a6826e45e382640eecadb3f35006e8f300fc43208170
 #Download electrum
 RUN wget -O Electrum-${ELECTRUM_VERSION}.tar.gz https://download.electrum.org/${ELECTRUM_VERSION}/Electrum-${ELECTRUM_VERSION}.tar.gz \
   && echo "${ELECTRUM_FILE_HASH} Electrum-${ELECTRUM_VERSION}.tar.gz" | sha256sum --check --status \
