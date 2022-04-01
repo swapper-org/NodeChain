@@ -5,19 +5,24 @@
     "type": "object",
     "properties": {
         "bitcoincoreRpcEndpoint" : {
-            "type" : "string"
+            "type" : "string",
+            "format": "uri"
         },
         "electrumRpcEndpoint": {
-            "type": "string"
+            "type": "string",
+            "format": "uri"
         },
         "bitcoincoreZmqEndpoint": {
-            "type": "string"
+            "type": "string",
+            "format": "uri"
         },
         "bitcoinAddressCallbackHost":{
-          "type": "string"
+          "type": "string",
+            "format": "uri"
         },
         "electrsEndpoint": {
-            "type": "string"
+            "type": "string",
+            "format": "uri"
         }
     },
     "required": [
