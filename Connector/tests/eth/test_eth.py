@@ -496,6 +496,9 @@ def testGetAddressesHistory():
         assert False
 
     addresses = [address1, address2]
+
+    time.sleep(10)
+
     got = postHttpMethods[COIN_SYMBOL]["getAddressesHistory"]({"addresses": addresses}, config)
 
     for addrHistory in got:
