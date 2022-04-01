@@ -4,73 +4,27 @@
     "description": "",
     "type": "object",
     "properties": {
-        "bitcoincoreProtocol" : {
+        "bitcoincoreRpcEndpoint" : {
             "type" : "string"
         },
-        "bitcoincoreHost": {
+        "electrumRpcEndpoint": {
             "type": "string"
         },
-        "bitcoincorePort": {
+        "bitcoincoreZmqEndpoint": {
             "type": "string"
         },
-        "bitcoincoreUser":{
+        "bitcoinAddressCallbackHost":{
           "type": "string"
         },
-        "bitcoincorePassword": {
-            "type": "string"
-        },
-        "bitcoincoreZmqProtocol": {
-            "type": "string"
-        },
-        "bitcoincoreCallbackProtocol": {
-            "type": "string",
-            "enum": [
-                "http",
-                "https"
-            ]
-        },
-        "bitcoincoreCallbackHost": {
-            "type": "string"
-        },
-        "bitcoincoreZmqPort": {
-            "type": "string"
-        },
-        "electrumProtocol": {
-            "type": "string"
-        },
-        "electrumHost": {
-            "type": "string"
-        },
-        "electrumPort": {
-            "type": "string"
-        },
-        "electrumUser": {
-            "type": "string"
-        },
-        "electrumPassword": {
-            "type": "string"
-        },
-        "electrumxHost": {
-            "type": "string"
-        },
-        "electrumxPort": {
+        "electrsEndpoint": {
             "type": "string"
         }
     },
     "required": [
-        "bitcoincoreProtocol",
-        "bitcoincoreHost",
-        "bitcoincorePort",
-        "bitcoincoreUser",
-        "bitcoincorePassword",
-        "bitcoincoreZmqProtocol",
-        "bitcoincoreZmqPort",
-        "electrumProtocol",
-        "electrumHost",
-        "electrumPort",
-        "electrumUser",
-        "electrumPassword",
-        "electrumxHost",
-        "electrumxPort"
+        "bitcoincoreRpcEndpoint",
+        "electrumRpcEndpoint",
+        "bitcoincoreZmqEndpoint",
+        "bitcoinAddressCallbackHost",
+        "electrsEndpoint"
     ]
 }
