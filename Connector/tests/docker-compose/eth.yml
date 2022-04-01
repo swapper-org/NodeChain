@@ -24,7 +24,7 @@ services:
       POSTGRES_PASSWORD: swapper
       POSTGRES_DB: swapper
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d postgres://swapper_writer:swapper_writer@postgres-regtest:5432/swapper"]
+      test: ["CMD-SHELL", "pg_isready -d postgres://swapper_writer:swapper_writer@localhost:5432/swapper"]
       interval: 5s
       timeout: 15s
       retries: 5
