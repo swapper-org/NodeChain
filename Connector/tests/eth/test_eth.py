@@ -312,6 +312,7 @@ def testGetTransactionReceipt():
         assert False
 
     txHash = makeTransaction()
+    time.sleep(10)
     got = postHttpMethods[COIN_SYMBOL]["getTransactionReceipt"]({"txHash": txHash}, config)
     expected = makeEtherumgoRequest(GET_TRANSACTION_RECEIPT_METHOD, [txHash])
 

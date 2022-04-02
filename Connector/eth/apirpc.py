@@ -788,7 +788,9 @@ def getAddressPendingTransactions(id, params, config):
     txs = []
 
     for tx in pendingTransactions["data"]["pending"]["transactions"]:
-        if tx["from"]["address"] == params["address"] or tx["to"]["address"] == params["address"]:
+        if tx["from"]["address"] == params["address"] or \
+                (tx["to"] is not None and tx["to"]["address"] == params["address"]):
+
             txs.append(tx["hash"])
 
     response = {
