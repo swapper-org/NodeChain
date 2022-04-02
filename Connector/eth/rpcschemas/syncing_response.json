@@ -10,10 +10,10 @@
         "syncPercentage":{
             "type": "string"
         },
-        "currentBlock":{
+        "currentBlockIndex":{
             "type": "string"
         },
-        "latestBlock":{
+        "latestBlockIndex":{
             "type": "string"
         }
     },

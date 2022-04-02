@@ -10,17 +10,17 @@
         "syncPercentage":{
             "type": "string"
         },
-        "currentBlock":{
+        "currentBlockIndex":{
             "type": "string"
         },
-        "latestBlock":{
+        "latestBlockIndex":{
             "type": "string"
         }
     },
     "required": [
         "syncing",
         "syncPercentage",
-        "currentBlock",
-        "latestBlock"
+        "currentBlockIndex",
+        "latestBlockIndex"
     ]
 }
