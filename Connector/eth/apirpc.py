@@ -806,3 +806,65 @@ def getAddressPendingTransactions(id, params, config):
         )
 
     return response
+
+
+@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
+def syncingTransctionsIndex(id, params, config):
+
+    logger.printInfo(f"Executing RPC method syncingTransctionIndex with id {id} and params {params}")
+
+    requestSchema, responseSchema = utils.getMethodSchemas(SYNCING_TRANSACTIONS_INDEX)
+
+    err = httputils.validateJSONSchema(params, requestSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    try:
+
+        indexerResponse = HTTPConnector.get(
+            endpoint=config.indexerEndpoint,
+            path=INDEXER_MAX_BLOCK_PATH,
+            headers={
+                "Accept": "application/vnd.pgrst.object+json"
+            }
+        )
+
+        maxBlock = indexerResponse["max"] if indexerResponse["max"] is not None else 0
+
+    except httpError.Error as err:
+        raise error.RpcError(
+            id=id,
+            message=err.message,
+            code=err.code
+        )
+
+    getHeightResponse = getHeight(
+        id=id,
+        params={},
+        config=config
+    )
+
+    percentage = utils.getSyncPercentage(
+        maxBlock,
+        int(getHeightResponse["latestBlockIndex"])
+    )
+
+    response = {
+        "syncing": maxBlock != 0 and maxBlock != int(getHeightResponse["latestBlockIndex"]),
+        "syncPercentage": f"{percentage}%",
+        "currentBlockIndex": str(maxBlock),
+        "latestBlockIndex": str(int(getHeightResponse["latestBlockIndex"])),
+    }
+
+    err = httputils.validateJSONSchema(response, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    return response
