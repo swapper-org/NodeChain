@@ -810,11 +810,11 @@ def getAddressPendingTransactions(id, params, config):
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
 @httpmethod.postHttpMethod(coin=COIN_SYMBOL)
-def syncingTransctionsIndex(id, params, config):
+def indexing(id, params, config):
 
-    logger.printInfo(f"Executing RPC method syncingTransctionIndex with id {id} and params {params}")
+    logger.printInfo(f"Executing RPC method indexing with id {id} and params {params}")
 
-    requestSchema, responseSchema = utils.getMethodSchemas(SYNCING_TRANSACTIONS_INDEX)
+    requestSchema, responseSchema = utils.getMethodSchemas(INDEXING)
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
@@ -854,8 +854,8 @@ def syncingTransctionsIndex(id, params, config):
     )
 
     response = {
-        "syncing": maxBlock != 0 and maxBlock != int(getHeightResponse["latestBlockIndex"]),
-        "syncPercentage": f"{percentage}%",
+        "indexing": maxBlock != 0 and maxBlock != int(getHeightResponse["latestBlockIndex"]),
+        "indexingPercentage": f"{percentage}%",
         "currentBlockIndex": str(maxBlock),
         "latestBlockIndex": str(int(getHeightResponse["latestBlockIndex"])),
     }

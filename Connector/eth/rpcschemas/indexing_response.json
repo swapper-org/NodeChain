@@ -4,10 +4,10 @@
     "description": "",
     "type": "object",
     "properties": {
-        "syncing": {
+        "indexing": {
             "type": "boolean"
         },
-        "syncPercentage":{
+        "indexingPercentage":{
             "type": "string"
         },
         "currentBlockIndex":{
@@ -18,8 +18,8 @@
         }
     },
     "required": [
-        "syncing",
-        "syncPercentage",
+        "indexing",
+        "indexingPercentage",
         "currentBlockIndex",
         "latestBlockIndex"
     ]
