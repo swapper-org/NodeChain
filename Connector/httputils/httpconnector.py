@@ -8,7 +8,7 @@ from .constants import INTERNAL_SERVER_ERROR_CODE
 class HTTPConnector:
 
     @staticmethod
-    def get(endpoint, path="", params=None):
+    def get(endpoint, path="", params=None, headers=None):
 
         response = None
         try:
@@ -17,7 +17,8 @@ class HTTPConnector:
 
             response = requests.get(
                 url=f"{endpoint}{path}",
-                params=params
+                params=params,
+                headers=headers
             )
             response.raise_for_status()
 
