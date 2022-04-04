@@ -48,7 +48,8 @@
                             "properties": {
                                 "address": {
                                     "type": [
-                                        "string"
+                                        "string",
+                                        "null"
                                     ]
                                 },
                                 "amount": {
@@ -61,10 +62,16 @@
                         "type": "object",
                         "properties": {
                             "blockHash": {
-                                "type": "string"
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
                             },
                             "blockNumber": {
-                                "type": "string"
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
                             },
                             "from": {
                                 "type": "string"
@@ -97,7 +104,10 @@
                                 ]
                             },
                             "transactionIndex": {
-                                "type": "string"
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
                             },
                             "v": {
                                 "type": "string"
