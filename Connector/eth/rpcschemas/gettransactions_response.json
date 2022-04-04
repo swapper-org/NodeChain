@@ -48,7 +48,8 @@
                             "properties": {
                                 "address": {
                                     "type": [
-                                        "string"
+                                        "string",
+                                        "null"
                                     ]
                                 },
                                 "amount": {
