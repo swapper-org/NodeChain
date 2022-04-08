@@ -9,7 +9,9 @@ from . import error
 rpcMethods = {}
 
 
-def rpcMethod(coin):
+def rpcMethod(coin, standard=None):
+
+    wrapperApiId = coin if standard is None else f"{coin}/{standard}"
 
     def _rpcMethod(function):
 
@@ -26,36 +28,37 @@ def rpcMethod(coin):
                 RESULT: response
             }
 
-        if coin not in rpcMethods:
-            logger.printInfo(f"Registering new JSON RPC method {function.__name__} for currency {coin}")
-            rpcMethods[coin] = {function.__name__: wrapper}
+        if wrapperApiId not in rpcMethods:
+            logger.printInfo(f"Registering new JSON RPC method {function.__name__} for wrapper API {wrapperApiId}")
+            rpcMethods[wrapperApiId] = {function.__name__: wrapper}
 
-        elif function.__name__ not in rpcMethods[coin]:
-            logger.printInfo(f"Registering new JSON RPC method {function.__name__} for currency {coin}")
-            rpcMethods[coin][function.__name__] = wrapper
+        elif function.__name__ not in rpcMethods[wrapperApiId]:
+            logger.printInfo(f"Registering new JSON RPC method {function.__name__} for wrapper API {wrapperApiId}")
+            rpcMethods[wrapperApiId][function.__name__] = wrapper
 
         else:
-            logger.printError(f"JSON RPC Method {function.__name__} already registered for currency {coin}")
+            logger.printError(f"JSON RPC Method {function.__name__} already registered for wrapper API {wrapperApiId}")
 
         return function
 
     return _rpcMethod
 
 
-async def callMethod(coin, config, request):
+async def callMethod(coin, config, request, standard=None):
 
     payload = httputils.parseJSONRequest(await request.read())
     rpcPayload = rpcutils.parseJsonRpcRequest(payload)
+    wrapperApiId = coin if standard is None else f"{coin}/{standard}"
 
-    if coin not in rpcMethods:
+    if wrapperApiId not in rpcMethods:
         raise error.RpcBadRequestError(
             id=rpcPayload[ID],
-            message=f"Calling {coin} method when currency is not supported"
+            message=f"Calling {wrapperApiId} method when wrapper API is not supported"
         )
-    if rpcPayload[METHOD] not in rpcMethods[coin]:
+    if rpcPayload[METHOD] not in rpcMethods[wrapperApiId]:
         raise error.RpcBadRequestError(
             id=rpcPayload[ID],
-            message=f"Calling unknown method {rpcPayload[METHOD]} for currency {coin}"
+            message=f"Calling unknown method {rpcPayload[METHOD]} for wrapper API {wrapperApiId}"
         )
 
-    return rpcMethods[coin][payload[METHOD]](rpcPayload, config)
+    return rpcMethods[wrapperApiId][payload[METHOD]](rpcPayload, config)

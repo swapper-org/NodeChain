@@ -31,3 +31,11 @@ def validateJSONSchema(payload, schemaFile):
         raise error.InternalServerError(f"Schema {schemaFile} not found: {err}")
 
     return None
+
+
+def isGetMethod(method):
+    return method == "GET"
+
+
+def isPostMethod(method):
+    return method == "POST"

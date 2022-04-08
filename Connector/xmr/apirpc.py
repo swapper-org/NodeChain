@@ -7,7 +7,7 @@ from . import utils
 from logger import logger
 
 
-@httpmethod.postHttpMethod(coin=COIN_SYMBOL)
+@httpmethod.httpMethod(coin=COIN_SYMBOL)
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
 def syncing(id, params, config):
 

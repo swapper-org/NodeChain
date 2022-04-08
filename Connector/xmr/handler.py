@@ -66,24 +66,26 @@ class Handler:
 
         return True, None
 
-    async def handleRequest(self, network, method, request):
+    async def handleRPCRequest(self, network, standard, request):
 
-        if rpcutils.isRpcEnpointPath(method):
-            return await rpcmethod.callMethod(
+        return await rpcmethod.callMethod(
+            coin=self.coin,
+            standard=standard,
+            request=request,
+            config=self.networksConfig[network]
+        )
+
+    async def handleHTTPRequest(self, network, standard, method, request):
+        try:
+            return await httpmethod.callMethod(
                 coin=self.coin,
+                standard=standard,
+                method=method,
                 request=request,
                 config=self.networksConfig[network]
             )
-        else:
-            try:
-                return await httpmethod.callMethod(
-                    coin=self.coin,
-                    method=method,
-                    request=request,
-                    config=self.networksConfig[network]
-                )
-            except error.RpcError as err:
-                raise err.parseToHttpError()
+        except error.RpcError as err:
+            raise err.parseToHttpError()
 
     @property
     def coin(self):

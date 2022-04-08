@@ -55,9 +55,14 @@ def runServer():
     router = Router()
     mainApp.add_routes(
         [
-            web.post("/{coin}/{network}/{method}", router.doRoute),
+            web.post("/{coin}/{network}/rpc", router.doRPCRoute),
+            web.post("/{coin}/{network}/{standard}/rpc", router.doRPCRoute),
             web.get("/{coin}/{network}/ws", router.doWsRoute),
-            web.post("/{coin}/{network}/callback/{callbackName}", router.handleCallback)
+            web.post("/{coin}/{network}/callback/{callbackName}", router.handleCallback),
+            web.post("/{coin}/{network}/{method}", router.doHTTPRoute),
+            web.get("/{coin}/{network}/{method}", router.doHTTPRoute),
+            web.post("/{coin}/{network}/{standard}/{method}", router.doHTTPRoute),
+            web.get("/{coin}/{network}/{standard}/{method}", router.doHTTPRoute)
         ]
     )
     cors = aiohttp_cors.setup(mainApp, defaults={
