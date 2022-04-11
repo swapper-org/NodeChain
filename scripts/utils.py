@@ -211,5 +211,16 @@ def getDefaultConfig(token, network):
                 return api["networks"][network]["config"]
 
 
+def checkDefaultConfig(token, network):
+    with open(DEFAULT_CONFIG) as f:
+        data = json.load(f)
+        for api in data:
+            if api["token"] == token:
+                for net in api["networks"]:
+                    if net == network:
+                        return True
+        return False
+
+
 def formatApiData(args, data):
     logger.printInfo(json.dumps(data, sort_keys=True, indent=4), verbosity=args.verbose)
