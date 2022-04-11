@@ -209,6 +209,7 @@ def getDefaultConfig(token, network):
         for api in data:
             if api["token"] == token:
                 return api["networks"][network]["config"]
+        return False
 
 
 def formatApiData(args, data):
