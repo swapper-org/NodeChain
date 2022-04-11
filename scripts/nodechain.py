@@ -345,32 +345,38 @@ def getDockerComposePath(token, network):
 
 
 # LOGIC
-# 1. START CONTAINERS
-# 2. REGISTER API IN CONNECTOR (WS NEED THE CONTAINERS RUNNING)
+# 1. ASK TO CONNECT TO LOCAL NODES OR PUBLIC URL
+# 2. START CONTAINERS
+# 3. REGISTER API IN CONNECTOR (WS NEED THE CONTAINERS RUNNING)
 def startApi(args, token, network):
-    path = getDockerComposePath(token, network)
-    logger.printInfo(f"Starting {token}{network}api node... This might take a while.")
-    if args.verbose:
-        logger.printEnvs()
-        logger.printInfo(f"Path to docker file: {path}", verbosity=args.verbose)
-
-    sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}{network}api", "up", "--build", "-d"],
-                          stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
-    err = sp.communicate()
-    if sp.returncode == 0:
-        logger.printInfo(f"{token}{network}api node started", verbosity=args.verbose)
-    else:
-        logger.printError(f"An error occurred while trying to start {token}{network}api: \n", verbosity=args.verbose)
-        logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
-        raise SystemExit
-
-    # Get port to make requests
-    bindUsedPort()
-
-    if utils.queryYesNo("Do you want to configure your API ", default="no"):
+    if utils.queryYesNo("Do you want to connect to a remote node?:", default="no"):
+        logger.printInfo("You need to configure the endpoints to the remote node.")
+        bindUsedPort()
         response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig=False)
+
     else:
-        response = endpoints.addApi(args, token, network, os.environ["PORT"])
+        path = getDockerComposePath(token, network)
+        logger.printInfo(f"Starting {token}{network}api node... This might take a while.")
+        if args.verbose:
+            logger.printEnvs()
+            logger.printInfo(f"Path to docker file: {path}", verbosity=args.verbose)
+
+        sp = subprocess.Popen(["docker-compose", "-f", f"{token}.yml", "-p", f"{token}{network}api", "up", "--build", "-d"], stdin=FNULL, stdout=FNULL, stderr=subprocess.PIPE, cwd=str(path))
+        err = sp.communicate()
+        if sp.returncode == 0:
+            logger.printInfo(f"{token}{network}api node started", verbosity=args.verbose)
+        else:
+            logger.printError(f"An error occurred while trying to start {token}{network}api: \n", verbosity=args.verbose)
+            logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
+            raise SystemExit
+
+        # Get port to make requests
+        bindUsedPort()
+
+        if utils.queryYesNo("Do you want to configure your API ", default="no"):
+            response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig=False)
+        else:
+            response = endpoints.addApi(args, token, network, os.environ["PORT"])
 
     # Already registered
     if not response:

@@ -3,7 +3,9 @@ from datetime import datetime
 
 
 def printInfo(*argv, sep='', end='\n', file=sys.stdout, flush=True):
-    print(f"[INFO][{datetime.now()}] ", *argv, sep=sep, end=end, file=file, flush=flush)
+    # TODO: Uncomment this line when a verbose mode is implemented
+    # print(f"[INFO][{datetime.now()}] ", *argv, sep=sep, end=end, file=file, flush=flush)
+    return
 
 
 def printWarning(*argv, sep='', end='\n', file=sys.stdout, flush=True):
