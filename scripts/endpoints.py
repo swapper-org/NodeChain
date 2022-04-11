@@ -30,6 +30,7 @@ def addApi(args, token, network, port, defaultConfig=True):
 
     else:
         configurable = utils.getTokenConfiguration(token, network)
+        logger.printInfo("You need to configure the endpoints to start the node.")
         userData = []
         for configOption in configurable:
             userData.append(utils.queryConfigurable(args, f"Please, introduce a value for {configOption}: ", configOption))
