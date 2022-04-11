@@ -349,12 +349,7 @@ def getDockerComposePath(token, network):
 # 2. START CONTAINERS
 # 3. REGISTER API IN CONNECTOR (WS NEED THE CONTAINERS RUNNING)
 def startApi(args, token, network):
-    if not utils.checkDefaultConfig(token, network) or utils.queryYesNo("Do you want to connect to a remote node?:", default="no"):
-        logger.printInfo("You need to configure the endpoints to the remote node.")
-        bindUsedPort()
-        response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig=False)
-
-    else:
+    if not utils.queryYesNo("Do you want to connect to a remote node?:", default="no"):
         os.chdir(ROOT_DIR)
         path = getDockerComposePath(token, network)
         logger.printInfo(f"Starting {token}{network}api node... This might take a while.")
@@ -371,13 +366,18 @@ def startApi(args, token, network):
             logger.printError(err[1].decode("ascii"), verbosity=args.verbose)
             raise SystemExit
 
-        # Get port to make requests
-        bindUsedPort()
+    # Get port to make requests
+    bindUsedPort()
+    defaultConfig = False
 
-        if utils.queryYesNo("Do you want to configure your API ", default="no"):
-            response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig=False)
+    if utils.queryYesNo("Do you want to use the default configuration for the API ", default="yes"):
+        if utils.checkDefaultConfig(token, network):
+            defaultConfig = True
         else:
-            response = endpoints.addApi(args, token, network, os.environ["PORT"])
+            logger.print("There is no default configuration for {token}, {network}", verbosity=args.verbose)
+            defaultConfig = False
+
+    response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig)
 
     # Already registered
     if not response:
