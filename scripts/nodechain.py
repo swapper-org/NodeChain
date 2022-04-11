@@ -110,7 +110,7 @@ def argumentHandler():
     parser.add_argument('-t', '--token', action="store",
                         dest='token', help="symbol of the token", default=None)
     parser.add_argument('-n', '--network', action="store", dest='network',
-                        help="network where to set up the blockchain", choices=['mainnet', 'testnet', 'regtest'], default=None)
+                        help="network where to set up the blockchain", default=None)
     parser.add_argument('-p', '--port', action="store", dest='port',
                         help="port to start the node", default=None)
     parser.add_argument('-sp', '--sslport', action="store",
