@@ -349,12 +349,13 @@ def getDockerComposePath(token, network):
 # 2. START CONTAINERS
 # 3. REGISTER API IN CONNECTOR (WS NEED THE CONTAINERS RUNNING)
 def startApi(args, token, network):
-    if utils.queryYesNo("Do you want to connect to a remote node?:", default="no"):
+    if not utils.checkDefaultConfig(token, network) or utils.queryYesNo("Do you want to connect to a remote node?:", default="no"):
         logger.printInfo("You need to configure the endpoints to the remote node.")
         bindUsedPort()
         response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig=False)
 
     else:
+        os.chdir(ROOT_DIR)
         path = getDockerComposePath(token, network)
         logger.printInfo(f"Starting {token}{network}api node... This might take a while.")
         if args.verbose:
