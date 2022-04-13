@@ -17,7 +17,7 @@ def getResponseMethodSchema(name):
     return RPC_JSON_SCHEMA_FOLDER + name + SCHEMA_CHAR_SEPARATOR + RESPONSE + SCHEMA_EXTENSION
 
 
-def getABIFilename(name):
+def getABISchema(name):
     return f"{ABI_FOLDER}{name}{SCHEMA_EXTENSION}"
 
 

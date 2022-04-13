@@ -26,7 +26,7 @@ def getAddressBalance(id, params, config):
         )
 
     abi = utils.getFunctionABI(
-        utils.getABIFilename(BALANCE_OF_METHOD_ECR20_ABI)
+        utils.getABISchema(BALANCE_OF_METHOD_ECR20_ABI)
     )
 
     contract = Web3().eth.contract(
