@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "",
+    "description": "",
+    "type": "object",
+    "properties": {
+        "contractAddresses": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "addresses": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": [
+        "addresses",
+        "contractAddresses"
+    ]
+}

@@ -14,21 +14,52 @@ class Router(object, metaclass=Singleton.Singleton):
     def __init__(self):
         self._availableCoins = {}
 
-    async def doRoute(self, request):
+    async def doRPCRoute(self, request):
 
         coin = request.match_info["coin"]
         network = request.match_info["network"]
-        method = request.match_info["method"]
+
+        standard = None
+        try:
+            standard = request.match_info["standard"]
+        except KeyError:
+            pass
 
         self.checkIsAvailableRoute(
             coin=coin,
             network=network
         )
 
-        coinHandler = currenciesHandler[coin]
-
-        response = await coinHandler.handleRequest(
+        response = await currenciesHandler[coin].handleRPCRequest(
             network=network,
+            standard=standard,
+            request=request
+        )
+
+        return web.Response(
+            text=json.dumps(response)
+        )
+
+    async def doHTTPRoute(self, request):
+
+        coin = request.match_info["coin"]
+        network = request.match_info["network"]
+        method = request.match_info["method"]
+
+        standard = None
+        try:
+            standard = request.match_info["standard"]
+        except KeyError:
+            pass
+
+        self.checkIsAvailableRoute(
+            coin=coin,
+            network=network
+        )
+
+        response = await currenciesHandler[coin].handleHTTPRequest(
+            network=network,
+            standard=standard,
             method=method,
             request=request
         )
