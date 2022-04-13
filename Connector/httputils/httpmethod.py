@@ -10,7 +10,7 @@ callbackMethods = {}
 
 def callbackMethod(callbackName, coin, standard=None):
 
-    wrappreApiId = coin if standard is None else f"{coin}/{standard}"
+    wrapperApiId = coin if standard is None else f"{coin}/{standard}"
 
     def _callbackMethod(function):
 
@@ -22,16 +22,16 @@ def callbackMethod(callbackName, coin, standard=None):
                 coin=coin
             )
 
-        if wrappreApiId not in callbackMethods:
-            logger.printInfo(f"Registering new callback method {callbackName} for wrapper API {wrappreApiId}")
-            callbackMethods[wrappreApiId] = {callbackName: wrapper}
+        if wrapperApiId not in callbackMethods:
+            logger.printInfo(f"Registering new callback method {callbackName} for wrapper API {wrapperApiId}")
+            callbackMethods[wrapperApiId] = {callbackName: wrapper}
 
         elif callbackName not in callbackMethods[coin]:
-            logger.printInfo(f"Registering new callback method {callbackName} for wrapper API {wrappreApiId}")
-            callbackMethods[wrappreApiId][callbackName] = wrapper
+            logger.printInfo(f"Registering new callback method {callbackName} for wrapper API {wrapperApiId}")
+            callbackMethods[wrapperApiId][callbackName] = wrapper
 
         else:
-            logger.printError(f"callback Method {callbackName} already registered for wrapper API {wrappreApiId}")
+            logger.printError(f"callback Method {callbackName} already registered for wrapper API {wrapperApiId}")
 
         return function
 
