@@ -374,7 +374,7 @@ def startApi(args, token, network):
         if utils.checkDefaultConfig(token, network):
             defaultConfig = True
         else:
-            logger.print("There is no default configuration for {token}, {network}", verbosity=args.verbose)
+            logger.printInfo("There is no default configuration for {token}, {network}", verbosity=args.verbose)
             defaultConfig = False
 
     response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig)

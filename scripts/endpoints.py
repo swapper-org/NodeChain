@@ -21,11 +21,18 @@ def addApi(args, token, network, port, defaultConfig=True):
         logger.printError(f"API {token} {network} is already registered: {response}", verbosity=args.verbose)
         return
 
+    # Get config file
+    if utils.checkCurrencyInConfig(utils.CUSTOM_CONFIG, token, network):
+        filename = utils.CUSTOM_CONFIG
+
+    elif utils.checkCurrencyInConfig(utils.DEFAULT_CONFIG, token, network):
+        filename = utils.DEFAULT_CONFIG
+
     if defaultConfig:
         payload = {
             "coin": token,
             "network": network,
-            "config": utils.getDefaultConfig(token, network)
+            "config": utils.getDefaultConfig(filename, token, network)
         }
 
     else:

@@ -4,7 +4,8 @@ import json
 import logger
 
 AVAILABLE_CURRENCIES = "./Connector/availableCurrencies.json"
-DEFAULT_CONFIG = "./scripts/config.json"
+DEFAULT_CONFIG = "./scripts/defaultConfig.json"
+CUSTOM_CONFIG = "./scripts/config.json"
 
 
 def queryYesNo(question, default="yes"):
@@ -203,23 +204,27 @@ def getTokenConfiguration(token, network):
                 return api["networks"][network]["configurable"]
 
 
-def getDefaultConfig(token, network):
-    with open(DEFAULT_CONFIG) as f:
+def getDefaultConfig(filename, token, network):
+    with open(filename) as f:
         data = json.load(f)
         for api in data:
             if api["token"] == token:
                 return api["networks"][network]["config"]
 
 
-def checkDefaultConfig(token, network):
-    with open(DEFAULT_CONFIG) as f:
+def checkCurrencyInConfig(filename, token, network):
+    with open(filename) as f:
         data = json.load(f)
         for api in data:
             if api["token"] == token:
                 for net in api["networks"]:
                     if net == network:
                         return True
-        return False
+    return False
+
+
+def checkDefaultConfig(token, network):
+    return True if (checkCurrencyInConfig(CUSTOM_CONFIG, token, network) or checkCurrencyInConfig(DEFAULT_CONFIG, token, network)) else False
 
 
 def formatApiData(args, data):
