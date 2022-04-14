@@ -349,7 +349,7 @@ def getDockerComposePath(token, network):
 # 2. START CONTAINERS
 # 3. REGISTER API IN CONNECTOR (WS NEED THE CONTAINERS RUNNING)
 def startApi(args, token, network):
-    if not utils.queryYesNo("Do you want to connect to a remote node?:", default="no"):
+    if utils.queryYesNo("Do you want to start a new local node instance?:", default="yes"):
         os.chdir(ROOT_DIR)
         path = getDockerComposePath(token, network)
         logger.printInfo(f"Starting {token}{network}api node... This might take a while.")
