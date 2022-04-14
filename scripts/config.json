@@ -1,14 +1,1 @@
-[
-  {
-    "token": "eth",
-    "networks": {
-      "testnet": {
-        "config": {
-          "rpcEndpoint": "https://ropsten.infura.io/v3/54935c51e64c4541b0b49b2b2eee1592",
-          "wsEndpoint": "wss://ropsten.infura.io/ws/v3/54935c51e64c4541b0b49b2b2eee1592",
-          "indexerEndpoint": "http://postgrest-regtest:3000"
-        }
-      }
-    }
-  }
-]
+[]
