@@ -40,7 +40,7 @@ def connectorQueries(args):
     else:
         os.environ["SSL_PORT"] = queryPort(args, "Port to start (SSL): ")
 
-    querySSL(args.config, args.certs)
+    querySSL(args.ssl, args.certs)
 
 
 def queryConfigurable(args, question, configurable):

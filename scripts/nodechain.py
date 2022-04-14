@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from email.policy import default
 import os
 import subprocess
 import docker
@@ -118,7 +119,9 @@ def argumentHandler():
     parser.add_argument('-b', '--blockchain', action="store", dest='blockchain_path',
                         help="path to store blockchain files", default=None)
     parser.add_argument('--ssl', action="store_true",
-                        dest='config', help="ssl config", default=False)
+                        dest='ssl', help="ssl config", default=False)
+    parser.add_argument('--defaultconfig', action="store_true",
+                        dest='config', help="use default configuration of on the node", default=False)
     parser.add_argument('-c', '--cert', action="store",
                         dest='certs', help="path to certs", default=None)
     parser.add_argument('-V', '--version', action="version",
@@ -180,7 +183,7 @@ def start(args):
             logger.printInfo(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
             updateApi(args, token, network)
             return
-        utils.queryPath(args, token, network)
+
         startApi(args, token, network)
 
 
@@ -351,6 +354,7 @@ def getDockerComposePath(token, network):
 def startApi(args, token, network):
     if utils.queryYesNo("Do you want to start a new local node instance?:", default="yes"):
         os.chdir(ROOT_DIR)
+        utils.queryPath(args, token, network)
         path = getDockerComposePath(token, network)
         logger.printInfo(f"Starting {token}{network}api node... This might take a while.")
         if args.verbose:
@@ -370,11 +374,17 @@ def startApi(args, token, network):
     bindUsedPort()
     defaultConfig = False
 
-    if utils.queryYesNo("Do you want to use the default configuration for the API ", default="yes"):
+    if args.config:
         if utils.checkDefaultConfig(token, network):
             defaultConfig = True
         else:
-            logger.printInfo("There is no default configuration for {token}, {network}", verbosity=args.verbose)
+            logger.printError("There is no default configuration for {token}, {network}", verbosity=args.verbose)
+            defaultConfig = False
+    elif utils.queryYesNo("Do you want to use the default configuration for the API ", default="yes"):
+        if utils.checkDefaultConfig(token, network):
+            defaultConfig = True
+        else:
+            logger.printError("There is no default configuration for {token}, {network}", verbosity=args.verbose)
             defaultConfig = False
 
     response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig)
