@@ -3,7 +3,7 @@ import os
 import json
 import logger
 
-AVAILABLE_CURRENCIES = "./Connector/.availableCurrencies.json"
+AVAILABLE_CURRENCIES = "./Connector/availableCurrencies.json"
 DEFAULT_CONFIG = "./scripts/config.json"
 
 
