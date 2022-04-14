@@ -22,7 +22,7 @@ services:
       - bitcoincore-mainnet
     environment:
       DAEMON_RPC_URL: bitcoincore-mainnet:8332
-      ELECTRUM_RPC_URL: 0.0.0.0:50001
+      ELECTRUM_RPC_URL: electrs-mainnet:50001
     volumes:
       - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
       - ${BLOCKCHAIN_PATH}/bitcoincore:/home/bitcoin/.bitcoin
@@ -34,6 +34,7 @@ services:
       - electrs-mainnet
     environment:
       NETWORK: ${NETWORK}
+      SERVER: electrs-mainnet:50001:t
 
 networks:
   default:
