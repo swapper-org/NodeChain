@@ -28,20 +28,20 @@ services:
     environment:
       REGTEST: 1
       DAEMON_RPC_URL: bitcoincore-regtest:8332
-      ELECTRUM_RPC_URL: 0.0.0.0:60401
+      ELECTRUM_RPC_URL: electrs-regtest:60401
       NETWORK: ${NETWORK}
     volumes:
       - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
       - ${BLOCKCHAIN_PATH}/bitcoincore:/home/bitcoin/.bitcoin
 
   electrum-regtest:
-    build: ../../packages/nodechain-electrum-regtest
+    build: ../../packages/nodechain-electrum
     image: electrum
     depends_on:
       - electrs-regtest
     environment:
-      REGTEST: 1
       NETWORK: ${NETWORK}
+      SERVER: electrs-regtest:60401:t
 
 networks:
   default:

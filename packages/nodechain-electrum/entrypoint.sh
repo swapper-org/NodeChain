@@ -1,7 +1,11 @@
 #!/bin/bash
 
-if [[ -n "${TESTNET}" ]]; then
-  electrum_args="--testnet -v"
+if [ "${NETWORK}" = "regtest" -o "${NETWORK}" = "testnet" ]; then
+  electrum_args="--${NETWORK} -v"
+fi
+
+if [ "${NETWORK}" = "regtest" ]; then
+  Electrum/run_electrum --offline setconfig host "0.0.0.0" $electrum_args
 fi
 
 Electrum/run_electrum --offline setconfig rpchost "electrum-${NETWORK}" $electrum_args
@@ -9,6 +13,6 @@ Electrum/run_electrum --offline setconfig rpcuser "swapper" $electrum_args
 Electrum/run_electrum --offline setconfig rpcpassword "swapper" $electrum_args
 Electrum/run_electrum --offline setconfig rpcport "30000" $electrum_args
 Electrum/run_electrum --offline setconfig oneserver "true" $electrum_args
-Electrum/run_electrum --offline setconfig server "electrs-${NETWORK}:60001:t" $electrum_args
+Electrum/run_electrum --offline setconfig server $SERVER $electrum_args
 
 Electrum/run_electrum daemon $electrum_args

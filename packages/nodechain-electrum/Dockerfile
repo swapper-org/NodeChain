@@ -22,7 +22,7 @@ RUN apt-get update \
 
 #Expose ports
 EXPOSE 30000
-ENV TESTNET=$TESTNET
+ENV NETWORK=$NETWORK
 
 #Run app
 COPY entrypoint.sh ./
