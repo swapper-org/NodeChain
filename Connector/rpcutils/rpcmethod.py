@@ -56,9 +56,9 @@ async def callMethod(coin, config, request, standard=None):
             message=f"Calling {wrapperApiId} method when wrapper API is not supported"
         )
     if rpcPayload[METHOD] not in rpcMethods[wrapperApiId]:
-        raise error.RpcBadRequestError(
+        raise error.RpcNotFoundError(
             id=rpcPayload[ID],
-            message=f"Calling unknown method {rpcPayload[METHOD]} for wrapper API {wrapperApiId}"
+            message=f"Calling unknown method for wrapper API {wrapperApiId}"
         )
 
     return rpcMethods[wrapperApiId][payload[METHOD]](rpcPayload, config)
