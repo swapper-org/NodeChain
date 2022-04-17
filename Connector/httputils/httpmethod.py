@@ -76,7 +76,7 @@ async def callMethod(coin, method, request, config, standard=None):
     if wrapperApiId not in httpMethods:
         raise error.BadRequestError(f"Calling {wrapperApiId} method when wrapper API is not supported")
     if method not in httpMethods[wrapperApiId]:
-        raise error.BadRequestError(f"Calling unknown method {method} for wrapper API {wrapperApiId}")
+        raise error.NotFoundError(f"Calling unknown method for wrapper API {wrapperApiId}")
 
     return httpMethods[wrapperApiId][method](payload, config)
 
@@ -89,6 +89,6 @@ async def callCallbackMethod(coin, callbackName, request, config, standard=None)
     if wrapperApiId not in callbackMethods:
         raise error.BadRequestError(f"Calling {wrapperApiId} method when wrapper API is not supported")
     if callbackName not in callbackMethods[coin]:
-        raise error.BadRequestError(f"Calling unknown method {callbackName} for wrapper API {wrapperApiId}")
+        raise error.NotFoundError(f"Calling unknown method for wrapper API {wrapperApiId}")
 
     return callbackMethods[wrapperApiId][callbackName](payload, config)
