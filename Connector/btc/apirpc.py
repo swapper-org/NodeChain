@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-from httputils import httpmethod, httputils
+from httputils import httputils
+from httputils.httpmethod import RouteTableDef
 from rpcutils import rpcmethod
 from logger import logger
 from rpcutils import error
@@ -9,7 +10,7 @@ from .constants import *
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getAddressHistory(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressHistory with id {id} and params {params}")
@@ -43,7 +44,7 @@ def getAddressHistory(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getAddressesHistory(id, params, config):
 
     logger.printInfo(
@@ -77,7 +78,7 @@ def getAddressesHistory(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getAddressBalance(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")
@@ -111,7 +112,7 @@ def getAddressBalance(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getAddressesBalance(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressesBalance with id {id} and params {params}")
@@ -144,7 +145,7 @@ def getAddressesBalance(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getAddressUnspent(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressUnspent with id {id} and params {params}")
@@ -183,7 +184,7 @@ def getAddressUnspent(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getAddressesUnspent(id, params, config):
 
     logger.printInfo(
@@ -225,7 +226,7 @@ def getAddressesUnspent(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getBlockByHash(id, params, config):
 
     logger.printInfo(f"Executing RPC method getBlockByHash with id {id} and params {params}")
@@ -254,7 +255,7 @@ def getBlockByHash(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getBlockByNumber(id, params, config):
 
     logger.printInfo(f"Executing RPC method getBlockByNumber with id {id} and params {params}")
@@ -283,7 +284,7 @@ def getBlockByNumber(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getFeePerByte(id, params, config):
 
     logger.printInfo(f"Executing RPC method getFeePerByte with id {id} and params {params}")
@@ -315,7 +316,7 @@ def getFeePerByte(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getHeight(id, params, config):
 
     logger.printInfo(
@@ -358,7 +359,7 @@ def getHeight(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getTransactionHex(id, params, config):
 
     logger.printInfo(f"Executing RPC method getTransactionHex with id {id} and params {params}")
@@ -389,7 +390,7 @@ def getTransactionHex(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getTransaction(id, params, config):
 
     logger.printInfo(f"Executing RPC method getTransaction with id {id} and params {params}")
@@ -460,7 +461,7 @@ def getTransaction(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getTransactions(id, params, config):
 
     logger.printInfo(f"Executing RPC method getTransactions with id {id} and params {params}")
@@ -497,7 +498,7 @@ def getTransactions(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getAddressTransactionCount(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressTransactionCount with id {id} and params {params}")
@@ -533,7 +534,7 @@ def getAddressTransactionCount(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def getAddressesTransactionCount(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressesTransactionCount with id {id} and params {params}")
@@ -563,7 +564,7 @@ def getAddressesTransactionCount(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def broadcastTransaction(id, params, config):
 
     logger.printInfo(f"Executing RPC method broadcastTransaction with id {id} and params {params}")
@@ -600,7 +601,7 @@ def broadcastTransaction(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def notify(id, params, config):
 
     logger.printInfo(f"Executing RPC method notify with id {id} and params {params}")
@@ -631,7 +632,7 @@ def notify(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL)
 def syncing(id, params, config):
 
     logger.printInfo(

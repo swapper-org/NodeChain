@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from web3 import Web3
 from rpcutils import rpcmethod, error
-from httputils import httpmethod
+from httputils.httpmethod import RouteTableDef
 from eth import apirpc as ethapirpc, utils as ethutils
 from eth.constants import COIN_SYMBOL
 from httputils import httputils
@@ -11,7 +11,7 @@ from . import utils
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 def getAddressBalance(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")
@@ -74,7 +74,7 @@ def getAddressBalance(id, params, config):
 
 
 @rpcmethod.rpcMethod(coin=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
-@httpmethod.httpMethod(coin=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
+@RouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 def getAddressesBalance(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")

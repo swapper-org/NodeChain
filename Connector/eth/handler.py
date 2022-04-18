@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from httputils.router import CurrencyHandler
 from httputils import httpmethod
-from rpcutils import rpcutils, rpcmethod, error
+from rpcutils import rpcmethod, error
 from wsutils import wsmethod, websocket, topics
 from wsutils.broker import Broker
 from logger import logger
@@ -110,7 +110,7 @@ class Handler:
 
     async def handleHTTPRequest(self, network, standard, method, request):
         try:
-            return await httpmethod.callMethod(
+            return await httpmethod.RouteTableDef.callMethod(
                 coin=self.coin,
                 standard=standard,
                 method=method,
