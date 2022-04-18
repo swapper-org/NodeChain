@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-from email.policy import default
 import os
 import subprocess
 import docker
@@ -23,6 +22,22 @@ def checkApiRunning(token, network):
     for container in client.containers.list():
         if "com.docker.compose.project" in client.containers.get(container.name).attrs["Config"]["Labels"] and client.containers.get(container.name).attrs["Config"]["Labels"]["com.docker.compose.project"] == f"{token}{network}api":
             return True
+
+
+def checkApiRegistered(args, token, network):
+    bindUsedPort()
+    status_code, response = endpoints.getApi(args, token, network, os.environ["PORT"])
+
+    # Check if API is registered
+    if status_code != 200:
+        logger.printError(f"Request to client could not be completed: {status_code}", verbosity=args.verbose)
+        return False
+
+    response = response.json()
+    if response["success"] is False:
+        logger.printError(f"API {token} {network} is not registered: {response}", verbosity=args.verbose)
+        return False
+    return True
 
 
 def checkAnyApiRunning():
@@ -227,7 +242,7 @@ def stop(args):
             network = networkMenu(args, token)
             if args.verbose:
                 logger.printInfo(f"Network selected: {network}")
-            if not checkApiRunning(token, network):
+            if not checkApiRunning(token, network) and not checkApiRegistered(args, token, network):
                 logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.", verbosity=args.verbose)
                 return
             stopApi(args, token, network)
