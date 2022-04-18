@@ -112,6 +112,16 @@ def querySSL(config, certs):
         return
 
 
+def isLocalInstance(args):
+    print(args)
+    if not args.local and not args.remote:
+        return queryYesNo("Do you want to start a new local node instance?:", default="yes")
+    elif not args.local:
+        return False
+    elif not args.remote:
+        return True
+
+
 def fillMenu(listFnc, choiceFnc, exitFnc):
     menu = {}
     counter = 1

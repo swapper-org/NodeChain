@@ -128,6 +128,11 @@ def argumentHandler():
                         version=f"NodeChain version {version}", help="software version", default=None)
     parser.add_argument("-v", "--verbose", help="Increase output verbosity", action="store_true")
 
+    # Create exclusive mutually group
+    ex = parser.add_mutually_exclusive_group()
+    ex.add_argument('--local', action="store_true", dest='local', help="use local node", default=False)
+    ex.add_argument('--remote', action="store_true", dest='remote', help="use remote node", default=False)
+
     # Create group to start and stop all apis at the same time
     all = argparse.ArgumentParser(add_help=False)
     all.add_argument('-a', '--all', action='store', dest="all", choices=['mainnet', 'testnet', 'regtest'], help='Network where to set up the blockchain', default=None)
@@ -352,7 +357,7 @@ def getDockerComposePath(token, network):
 # 2. START CONTAINERS
 # 3. REGISTER API IN CONNECTOR (WS NEED THE CONTAINERS RUNNING)
 def startApi(args, token, network):
-    if utils.queryYesNo("Do you want to start a new local node instance?:", default="yes"):
+    if utils.isLocalInstance(args):
         os.chdir(ROOT_DIR)
         utils.queryPath(args, token, network)
         path = getDockerComposePath(token, network)
