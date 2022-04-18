@@ -120,13 +120,16 @@ def argumentHandler():
                         help="path to store blockchain files", default=None)
     parser.add_argument('--ssl', action="store_true",
                         dest='ssl', help="ssl config", default=False)
-    parser.add_argument('--defaultconfig', action="store_true",
-                        dest='config', help="use default configuration of on the node", default=False)
     parser.add_argument('-c', '--cert', action="store",
                         dest='certs', help="path to certs", default=None)
     parser.add_argument('-V', '--version', action="version",
                         version=f"NodeChain version {version}", help="software version", default=None)
     parser.add_argument("-v", "--verbose", help="Increase output verbosity", action="store_true")
+
+    # exclusive mutually group for config
+    configEx = parser.add_mutually_exclusive_group()
+    configEx.add_argument("-g", "--config", action="store", dest="jsonConfig", help="JSON configuration as params", default=None)
+    configEx.add_argument('--defaultconfig', action="store_true", dest='config', help="use default configuration of on the node", default=False)
 
     # Create exclusive mutually group
     ex = parser.add_mutually_exclusive_group()
@@ -178,6 +181,8 @@ def start(args):
     if args.all:
         handleAllApisByNetwork(args, 'start')
     else:
+        if not utils.isJson(args.jsonConfig) and utils.isJson(args.jsonConfig) is not None:
+            return
         token = currencyMenu(args)
         if args.verbose:
             logger.printInfo(f"Token selected: {token}", verbosity=args.verbose)
@@ -377,20 +382,7 @@ def startApi(args, token, network):
 
     # Get port to make requests
     bindUsedPort()
-    defaultConfig = False
-
-    if args.config:
-        if utils.checkDefaultConfig(token, network):
-            defaultConfig = True
-        else:
-            logger.printError("There is no default configuration for {token}, {network}", verbosity=args.verbose)
-            defaultConfig = False
-    elif utils.queryYesNo("Do you want to use the default configuration for the API ", default="yes"):
-        if utils.checkDefaultConfig(token, network):
-            defaultConfig = True
-        else:
-            logger.printError("There is no default configuration for {token}, {network}", verbosity=args.verbose)
-            defaultConfig = False
+    defaultConfig = utils.isDefaultConfig(args, token, network)
 
     response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig)
 
