@@ -1,7 +1,8 @@
 #!/usr/bin/python
 from web3 import Web3
-from rpcutils import rpcmethod, error
-from httputils.httpmethod import RouteTableDef
+from rpcutils import error
+from rpcutils.rpcmethod import RouteTableDef as RpcRouteTableDef
+from httputils.httpmethod import RouteTableDef as HttpRouteTableDef
 from eth import apirpc as ethapirpc, utils as ethutils
 from eth.constants import COIN_SYMBOL
 from httputils import httputils
@@ -10,8 +11,8 @@ from .constants import *
 from . import utils
 
 
-@rpcmethod.rpcMethod(coin=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
-@RouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
+@RpcRouteTableDef.rpc(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
+@HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 def getAddressBalance(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")
@@ -73,8 +74,8 @@ def getAddressBalance(id, params, config):
     return response
 
 
-@rpcmethod.rpcMethod(coin=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
-@RouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
+@RpcRouteTableDef.rpc(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
+@HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 def getAddressesBalance(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")

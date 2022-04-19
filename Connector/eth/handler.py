@@ -101,7 +101,7 @@ class Handler:
 
     async def handleRPCRequest(self, network, standard, request):
 
-        return await rpcmethod.callMethod(
+        return await rpcmethod.RouteTableDef.callMethod(
             coin=self.coin,
             standard=standard,
             request=request,
