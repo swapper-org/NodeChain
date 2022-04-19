@@ -175,7 +175,7 @@ def testGetBlock():
     expectedHash = makeBitcoinCoreRequest(GET_BLOCK_HASH_METHOD, [blockNumber])
     expectedBlock = makeBitcoinCoreRequest(GET_BLOCK_METHOD, [expectedHash, 2])
 
-    gotByHash = RouteTableDef.httpMethods[COIN_SYMBOL]["getBlockByHash"]({"blockHash": expectedHash}, config)
+    gotByHash = RouteTableDef.httpMethods[COIN_SYMBOL]["getBlockByHash"].handler({"blockHash": expectedHash}, config)
 
     if not json.dumps(expectedBlock, sort_keys=True) == json.dumps(gotByHash, sort_keys=True):
         logger.printError(f"Get block by hash error. Expected  {expectedBlock} but Got{gotByHash}")
@@ -586,7 +586,7 @@ def testSubscribeToAddressBalance():
         logger.printError("Method subscribeToAddressBalance not loaded")
         assert False
 
-    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"].handler(
         sub,
         {
             "id": 0,
@@ -664,7 +664,7 @@ def testSubscribeToNewBlocks():
         logger.printError("Method subscribeToNewBlocks not loaded")
         assert False
 
-    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"].handler(
         newBlocksSub,
         {
             "id": 0,

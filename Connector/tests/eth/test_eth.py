@@ -665,7 +665,7 @@ def testUnsubscribeFromNewBlocks():
         logger.printError("Method unsubscribeFromNewBlocks not loaded")
         assert False
 
-    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"].handler(
         newBlocksSub,
         {
             "id": 0,
