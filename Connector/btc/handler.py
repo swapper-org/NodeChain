@@ -138,7 +138,7 @@ class Handler:
 
     async def handleWsRequest(self, network, request):
 
-        return await wsmethod.callMethod(
+        return await wsmethod.RouteTableDef.callMethod(
             coin=self.coin,
             request=request,
             config=self.networksConfig[network]
