@@ -8,7 +8,7 @@ from eth.constants import *
 from eth.websockets import WebSocket
 from eth import utils
 from logger import logger
-from httputils.httpmethod import httpMethods
+from httputils.httpmethod import RouteTableDef
 from httputils.httpconnector import HTTPConnector
 from rpcutils.rpcconnector import RPCConnector
 from wsutils.wsmethod import wsMethods
@@ -103,7 +103,7 @@ def makeHTTPPostRequest(endpoint, path, payload):
 
 def testGetAddressBalance():
 
-    if "getAddressBalance" not in httpMethods[COIN_SYMBOL]:
+    if "getAddressBalance" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getAddressBalance not loaded")
         assert False
 
@@ -117,20 +117,20 @@ def testGetAddressBalance():
         [address1, "pending"]
     )
 
-    got = httpMethods[COIN_SYMBOL]["getAddressBalance"]({"address": address1}, config)
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressBalance"].handler({"address": address1}, config)
 
     assert got["balance"]["confirmed"] == str(int(expectedPending, 16)) and got["balance"]["unconfirmed"] == str(int(expectedPending, 16) - int(expectedLatest, 16)) and address1 == got["address"]
 
 
 def testGetAddressesBalance():
 
-    if "getAddressesBalance" not in httpMethods[COIN_SYMBOL]:
+    if "getAddressesBalance" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getAddressBalance not loaded")
         assert False
 
     addresses = [address1, address2]
 
-    got = httpMethods[COIN_SYMBOL]["getAddressesBalance"]({"addresses": addresses}, config)
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressesBalance"].handler({"addresses": addresses}, config)
 
     for address in addresses:
 
@@ -160,11 +160,11 @@ def testGetAddressesBalance():
 
 def testGetHeight():
 
-    if "getHeight" not in httpMethods[COIN_SYMBOL]:
+    if "getHeight" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getHeight not loaded")
         assert False
 
-    got = httpMethods[COIN_SYMBOL]["getHeight"]({}, config)
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["getHeight"].handler({}, config)
 
     expected = makeEtherumgoRequest(
         GET_BLOCK_BY_NUMBER_METHOD,
@@ -176,13 +176,13 @@ def testGetHeight():
 
 def testGetTransaction():
 
-    if "getTransaction" not in httpMethods[COIN_SYMBOL]:
+    if "getTransaction" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getTransaction not loaded")
         assert False
 
     txHash = makeTransaction()
 
-    got = httpMethods[COIN_SYMBOL]["getTransaction"](
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["getTransaction"].handler(
         {
             "txHash": txHash
         },
@@ -214,7 +214,7 @@ def testGetTransaction():
 
 def testGetTransactions():
 
-    if "getTransactions" not in httpMethods[COIN_SYMBOL]:
+    if "getTransactions" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getTransaction not loaded")
         assert False
 
@@ -222,7 +222,7 @@ def testGetTransactions():
     for i in range(0, 2):
         txHashes.append(makeTransaction())
 
-    got = httpMethods[COIN_SYMBOL]["getTransactions"](
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["getTransactions"].handler(
         {
             "txHashes": txHashes
         },
@@ -265,7 +265,7 @@ def testGetTransactions():
 
 def testEstimateGas():
 
-    if "estimateGas" not in httpMethods[COIN_SYMBOL]:
+    if "estimateGas" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method estimateGas not loaded")
         assert False
 
@@ -276,7 +276,7 @@ def testEstimateGas():
         "gas": hex(Web3.toWei(2000000, "wei"))
     }
 
-    got = httpMethods[COIN_SYMBOL]["estimateGas"](
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["estimateGas"].handler(
         {
             "tx": tx
         },
@@ -289,11 +289,11 @@ def testEstimateGas():
 
 def testGetGasPrice():
 
-    if "getGasPrice" not in httpMethods[COIN_SYMBOL]:
+    if "getGasPrice" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getGasPrice not loaded")
         assert False
 
-    got = httpMethods[COIN_SYMBOL]["getGasPrice"](
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["getGasPrice"].handler(
         {},
         config
     )
@@ -307,13 +307,13 @@ def testGetGasPrice():
 
 def testGetTransactionReceipt():
 
-    if "getTransactionReceipt" not in httpMethods[COIN_SYMBOL]:
+    if "getTransactionReceipt" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getTransactionReceipt not loaded")
         assert False
 
     txHash = makeTransaction()
     time.sleep(10)
-    got = httpMethods[COIN_SYMBOL]["getTransactionReceipt"]({"txHash": txHash}, config)
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["getTransactionReceipt"].handler({"txHash": txHash}, config)
     expected = makeEtherumgoRequest(GET_TRANSACTION_RECEIPT_METHOD, [txHash])
 
     for key in expected:
@@ -329,11 +329,11 @@ def testGetTransactionReceipt():
 
 def testGetAddressTransactionCount():
 
-    if "getAddressTransactionCount" not in httpMethods[COIN_SYMBOL]:
+    if "getAddressTransactionCount" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getAddressTransactionCount not loaded")
         assert False
 
-    got = httpMethods[COIN_SYMBOL]["getAddressTransactionCount"](
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressTransactionCount"].handler(
         {
             "address": address1,
             "pending": True
@@ -352,7 +352,7 @@ def testGetAddressTransactionCount():
 
 def testGetAddressesTransactionCount():
 
-    if "getAddressesTransactionCount" not in httpMethods[COIN_SYMBOL]:
+    if "getAddressesTransactionCount" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getAddressesTransactionCount not loaded")
         assert False
 
@@ -369,7 +369,7 @@ def testGetAddressesTransactionCount():
         ]
     }
 
-    got = httpMethods[COIN_SYMBOL]["getAddressesTransactionCount"](addresses, config)
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressesTransactionCount"].handler(addresses, config)
 
     for index, address in enumerate(addresses["addresses"]):
 
@@ -388,19 +388,19 @@ def testGetAddressesTransactionCount():
 
 def testGetBlock():
 
-    if "getBlockByNumber" not in httpMethods[COIN_SYMBOL]:
+    if "getBlockByNumber" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getBlockByNumber not loaded")
         assert False
 
-    if "getBlockByHash" not in httpMethods[COIN_SYMBOL]:
+    if "getBlockByHash" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getBlockByHash not loaded")
         assert False
 
     expected = makeEtherumgoRequest(GET_BLOCK_BY_NUMBER_METHOD, ["0x1", True])
 
-    gotBlockByNumber = httpMethods[COIN_SYMBOL]["getBlockByNumber"]({"blockNumber": "1"}, config)
+    gotBlockByNumber = RouteTableDef.httpMethods[COIN_SYMBOL]["getBlockByNumber"].handler({"blockNumber": "1"}, config)
 
-    gotBlockByHash = httpMethods[COIN_SYMBOL]["getBlockByHash"]({"blockHash": expected["hash"]}, config)
+    gotBlockByHash = RouteTableDef.httpMethods[COIN_SYMBOL]["getBlockByHash"].handler({"blockHash": expected["hash"]}, config)
 
     if not json.dumps(expected["transactions"], sort_keys=True) == json.dumps(gotBlockByNumber["transactions"], sort_keys=True):
         logger.printError("getBlockByNumber failed")
@@ -415,11 +415,11 @@ def testGetBlock():
 
 def testBroadCastTransaction():
 
-    if "broadcastTransaction" not in httpMethods[COIN_SYMBOL]:
+    if "broadcastTransaction" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method broadcastTransaction not loaded")
         assert False
 
-    if "getTransaction" not in httpMethods[COIN_SYMBOL]:
+    if "getTransaction" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getTransaction not loaded")
         assert False
 
@@ -434,7 +434,7 @@ def testBroadCastTransaction():
 
     signedTx = makeEtherumgoRequest("eth_signTransaction", [tx])
 
-    got = httpMethods[COIN_SYMBOL]["broadcastTransaction"]({"rawTransaction": signedTx["raw"]}, config)
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["broadcastTransaction"].handler({"rawTransaction": signedTx["raw"]}, config)
 
     expected = makeEtherumgoRequest(GET_TRANSACTION_BY_HASH_METHOD, [got["broadcasted"]])
 
@@ -443,7 +443,7 @@ def testBroadCastTransaction():
 
 def testGetAddressHistory():
 
-    if "getAddressHistory" not in httpMethods[COIN_SYMBOL]:
+    if "getAddressHistory" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getAddressHistory not loaded")
         assert False
 
@@ -479,7 +479,7 @@ def testGetAddressHistory():
         if tx["from"]["address"] == address1 or tx["to"]["address"] == address1:
             pendingHashes.append(tx["hash"])
 
-    got = httpMethods[COIN_SYMBOL]["getAddressHistory"]({"address": address1}, config)
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressHistory"].handler({"address": address1}, config)
 
     makeEtherumgoRequest("miner_start", [1])
 
@@ -492,7 +492,7 @@ def testGetAddressHistory():
 
 def testGetAddressesHistory():
 
-    if "getAddressesHistory" not in httpMethods[COIN_SYMBOL]:
+    if "getAddressesHistory" not in RouteTableDef.httpMethods[COIN_SYMBOL]:
         logger.printError("Method getAddressesHistory not loaded")
         assert False
 
@@ -500,7 +500,7 @@ def testGetAddressesHistory():
 
     time.sleep(10)
 
-    got = httpMethods[COIN_SYMBOL]["getAddressesHistory"]({"addresses": addresses}, config)
+    got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressesHistory"].handler({"addresses": addresses}, config)
 
     for addrHistory in got:
 
