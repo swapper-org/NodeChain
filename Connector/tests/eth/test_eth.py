@@ -11,7 +11,7 @@ from logger import logger
 from httputils.httpmethod import RouteTableDef
 from httputils.httpconnector import HTTPConnector
 from rpcutils.rpcconnector import RPCConnector
-from wsutils.wsmethod import wsMethods
+from wsutils.wsmethod import RouteTableDef as WsRouteTableDef
 from wsutils.subscribers import ListenerSubscriber
 from wsutils import websocket
 
@@ -518,11 +518,11 @@ def testGetAddressesHistory():
 
 def testSubscribeAddressBalance():
 
-    if "subscribeToAddressBalance" not in wsMethods[COIN_SYMBOL]:
+    if "subscribeToAddressBalance" not in WsRouteTableDef.wsMethods[COIN_SYMBOL]:
         logger.printError("Method subscribeToAddressBalance not loaded")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"].handler(
         sub,
         {
             "id": 0,
@@ -538,7 +538,7 @@ def testSubscribeAddressBalance():
         logger.printError(f"Error in subscribe to address balance. Expected: True Got: {got['subscribed']}")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"].handler(
         sub,
         {
             "id": 0,
@@ -573,11 +573,11 @@ def testAdressBalanceWS():
 
 def testUnsubscribeFromAddressBalance():
 
-    if "unsubscribeFromAddressBalance" not in wsMethods[COIN_SYMBOL]:
+    if "unsubscribeFromAddressBalance" not in WsRouteTableDef.wsMethods[COIN_SYMBOL]:
         logger.printError("Method unsubscribeFromAddressBalance not loaded")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["unsubscribeFromAddressBalance"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["unsubscribeFromAddressBalance"].handler(
         sub,
         {
             "id": 0,
@@ -592,7 +592,7 @@ def testUnsubscribeFromAddressBalance():
         logger.printError(f"Error in unsubscribe from address balance. Expected: True Got: {got['unsubscribed']}")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["unsubscribeFromAddressBalance"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["unsubscribeFromAddressBalance"].handler(
         sub,
         {
             "id": 0,
@@ -612,11 +612,11 @@ def testUnsubscribeFromAddressBalance():
 
 def testSubscribeToNewBlocks():
 
-    if "subscribeToNewBlocks" not in wsMethods[COIN_SYMBOL]:
+    if "subscribeToNewBlocks" not in WsRouteTableDef.wsMethods[COIN_SYMBOL]:
         logger.printError("Method subscribeToNewBlocks not loaded")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"].handler(
         newBlocksSub,
         {
             "id": 0,
@@ -629,7 +629,7 @@ def testSubscribeToNewBlocks():
         logger.printError(f"Error in subscribe to new blocks. Expected: True Got: {got['subscribed']}")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"].handler(
         newBlocksSub,
         {
             "id": 0,
@@ -661,11 +661,11 @@ def testNewBlocksWS():
 
 def testUnsubscribeFromNewBlocks():
 
-    if "unsubscribeFromNewBlocks" not in wsMethods[COIN_SYMBOL]:
+    if "unsubscribeFromNewBlocks" not in WsRouteTableDef.wsMethods[COIN_SYMBOL]:
         logger.printError("Method unsubscribeFromNewBlocks not loaded")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"](
         newBlocksSub,
         {
             "id": 0,
@@ -678,7 +678,7 @@ def testUnsubscribeFromNewBlocks():
         logger.printError(f"Error in unsubscribe from new blocks. Expected: True Got: {got['unsubscribed']}")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"].handler(
         newBlocksSub,
         {
             "id": 0,

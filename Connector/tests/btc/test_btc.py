@@ -12,7 +12,7 @@ from rpcutils.rpcconnector import RPCConnector
 from httputils.httpmethod import RouteTableDef
 from rpcutils.error import RpcBadRequestError
 from wsutils.subscribers import ListenerSubscriber
-from wsutils.wsmethod import wsMethods
+from wsutils.wsmethod import RouteTableDef as WsRouteTableDef
 from wsutils.constants import *
 from wsutils import websocket
 
@@ -582,11 +582,11 @@ def testGetTransactions():
 
 def testSubscribeToAddressBalance():
 
-    if "subscribeToAddressBalance" not in wsMethods[COIN_SYMBOL]:
+    if "subscribeToAddressBalance" not in WsRouteTableDef.wsMethods[COIN_SYMBOL]:
         logger.printError("Method subscribeToAddressBalance not loaded")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"](
         sub,
         {
             "id": 0,
@@ -601,7 +601,7 @@ def testSubscribeToAddressBalance():
         logger.printError(f"Error in subscribe to address balance. Expected: True Got: {got[SUBSCRIBED]}")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["subscribeToAddressBalance"].handler(
         sub,
         {
             "id": 0,
@@ -621,11 +621,11 @@ def testSubscribeToAddressBalance():
 
 def testUnsubscribeFromAddressBalance():
 
-    if "unsubscribeFromAddressBalance" not in wsMethods[COIN_SYMBOL]:
+    if "unsubscribeFromAddressBalance" not in WsRouteTableDef.wsMethods[COIN_SYMBOL]:
         logger.printError("Method unsubscribeFromAddressBalance not loaded")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["unsubscribeFromAddressBalance"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["unsubscribeFromAddressBalance"].handler(
         sub,
         {
             "id": 0,
@@ -640,7 +640,7 @@ def testUnsubscribeFromAddressBalance():
         logger.printError(f"Error in unsubscribe from address balance. Expected: True Got: {got['unsubscribed']}")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["unsubscribeFromAddressBalance"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["unsubscribeFromAddressBalance"].handler(
         sub,
         {
             "id": 0,
@@ -660,11 +660,11 @@ def testUnsubscribeFromAddressBalance():
 
 def testSubscribeToNewBlocks():
 
-    if "subscribeToNewBlocks" not in wsMethods[COIN_SYMBOL]:
+    if "subscribeToNewBlocks" not in WsRouteTableDef.wsMethods[COIN_SYMBOL]:
         logger.printError("Method subscribeToNewBlocks not loaded")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"](
         newBlocksSub,
         {
             "id": 0,
@@ -677,7 +677,7 @@ def testSubscribeToNewBlocks():
         logger.printError(f"Error in subscribe to new blocks. Expected: True Got: {got[SUBSCRIBED]}")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["subscribeToNewBlocks"].handler(
         newBlocksSub,
         {
             "id": 0,
@@ -709,11 +709,11 @@ def testNewBlocksWS():
 
 def testUnsubscribeFromNewBlocks():
 
-    if "unsubscribeFromNewBlocks" not in wsMethods[COIN_SYMBOL]:
+    if "unsubscribeFromNewBlocks" not in WsRouteTableDef.wsMethods[COIN_SYMBOL]:
         logger.printError("Method unsubscribeFromNewBlocks not loaded")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"].handler(
         newBlocksSub,
         {
 
@@ -727,7 +727,7 @@ def testUnsubscribeFromNewBlocks():
         logger.printError(f"Error in unsubscribe from new blocks. Expected: True Got: {got[UNSUBSCRIBED]}")
         assert False
 
-    got = wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"](
+    got = WsRouteTableDef.wsMethods[COIN_SYMBOL]["unsubscribeFromNewBlocks"].handler(
         newBlocksSub,
         {
 
