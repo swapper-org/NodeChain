@@ -47,7 +47,7 @@ class RouteTableDef:
             RouteTableDef.rpcMethods[wrapperApiId] = {methodName: rpcMethod}
 
         elif not RouteTableDef._isMethodRegistered(wrapperApiId=wrapperApiId, methodName=methodName):
-            logger.printInfo(f"Registering new RPCrpcmethod.RouteTableDef method {methodName} for wrapper API {wrapperApiId}")
+            logger.printInfo(f"Registering new RPC method {methodName} for wrapper API {wrapperApiId}")
             RouteTableDef.rpcMethods[wrapperApiId][methodName] = rpcMethod
 
         else:
