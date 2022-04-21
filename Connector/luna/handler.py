@@ -1,9 +1,8 @@
 #!/usr/bin/python
 from httputils.router import CurrencyHandler
 from httputils import httpmethod
-from rpcutils import rpcutils, rpcmethod, error
+from rpcutils import rpcmethod, error
 from logger import logger
-from utils import utils
 from .config import Config
 from .constants import COIN_SYMBOL
 
@@ -68,7 +67,7 @@ class Handler:
 
     async def handleRPCRequest(self, network, standard, request):
 
-        return await rpcmethod.callMethod(
+        return await rpcmethod.RouteTableDef.callMethod(
             coin=self.coin,
             standard=standard,
             request=request,
@@ -77,7 +76,7 @@ class Handler:
 
     async def handleHTTPRequest(self, network, standard, method, request):
         try:
-            return await httpmethod.callMethod(
+            return await httpmethod.RouteTableDef.callMethod(
                 coin=self.coin,
                 standard=standard,
                 method=method,

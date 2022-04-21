@@ -1,14 +1,16 @@
 #!/usr/bin/python
-from httputils import httputils, httpmethod
+from httputils import httputils
+from httputils.httpmethod import RouteTableDef as HttpRouteTableDef
 from .constants import *
-from rpcutils import error, rpcmethod
+from rpcutils import error
+from rpcutils.rpcmethod import RouteTableDef as RpcRouteTableDef
 from rpcutils.rpcconnector import RPCConnector
 from . import utils
 from logger import logger
 
 
-@httpmethod.httpMethod(coin=COIN_SYMBOL)
-@rpcmethod.rpcMethod(coin=COIN_SYMBOL)
+@RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
+@HttpRouteTableDef.get(currency=COIN_SYMBOL)
 def syncing(id, params, config):
 
     logger.printInfo(f"Executing RPC method syncing with id {id} and params {params}")

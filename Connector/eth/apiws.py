@@ -2,13 +2,14 @@
 from logger import logger
 from httputils import httputils
 from rpcutils import error
-from wsutils import wsmethod, topics
+from wsutils import topics
+from wsutils.wsmethod import RouteTableDef
 from wsutils.broker import Broker
 from .constants import *
 from . import utils
 
 
-@wsmethod.wsMethod(coin=COIN_SYMBOL)
+@RouteTableDef.ws(currency=COIN_SYMBOL)
 def subscribeToAddressBalance(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method subscribeAddressBalance with id {id} and params {params}")
@@ -34,7 +35,7 @@ def subscribeToAddressBalance(subscriber, id, params, config):
     )
 
 
-@wsmethod.wsMethod(coin=COIN_SYMBOL)
+@RouteTableDef.ws(currency=COIN_SYMBOL)
 def unsubscribeFromAddressBalance(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method unsubscribeAddressBalance with id {id} and params {params}")
@@ -55,7 +56,7 @@ def unsubscribeFromAddressBalance(subscriber, id, params, config):
     )
 
 
-@wsmethod.wsMethod(coin=COIN_SYMBOL)
+@RouteTableDef.ws(currency=COIN_SYMBOL)
 def subscribeToNewBlocks(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method subscribeToNewBlock with id {id} and params {params}")
@@ -80,7 +81,7 @@ def subscribeToNewBlocks(subscriber, id, params, config):
     )
 
 
-@wsmethod.wsMethod(coin=COIN_SYMBOL)
+@RouteTableDef.ws(currency=COIN_SYMBOL)
 def unsubscribeFromNewBlocks(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method unsubscribeToNewBlockMine with id {id} and params {params}")

@@ -3,9 +3,128 @@ import sys
 import random
 from logger import logger
 from . import error, httputils
+from .constants import GET_METHOD, POST_METHOD
 
-httpMethods = {}
+
 callbackMethods = {}
+
+
+class HTTPMethod:
+
+    def __init__(self, type, handler):
+
+        self.type = type
+        self.handlerName = handler.__name__
+        self.handler = handler
+
+
+class RouteTableDef:
+
+    httpMethods = {}
+
+    @staticmethod
+    def _isWrapperApiRegistered(wrapperApiId):
+
+        return wrapperApiId in RouteTableDef.httpMethods
+
+    @staticmethod
+    def _isMethodRegistered(wrapperApiId, methodName):
+
+        if not RouteTableDef._isWrapperApiRegistered(wrapperApiId=wrapperApiId):
+            return False
+
+        return methodName in RouteTableDef.httpMethods[wrapperApiId]
+
+    @staticmethod
+    def _isAvailableMethodType(wrapperApiId, methodName, methodType):
+
+        if not RouteTableDef._isMethodRegistered(wrapperApiId=wrapperApiId, methodName=methodName):
+            return False
+
+        return RouteTableDef.httpMethods[wrapperApiId][methodName].type == methodType
+
+    @staticmethod
+    def _registerMethod(wrapperApiId, methodName, httpMethod):
+
+        if not RouteTableDef._isWrapperApiRegistered(wrapperApiId=wrapperApiId):
+            logger.printInfo(f"Registering new HTTP method {methodName} for wrapper API {wrapperApiId}")
+            RouteTableDef.httpMethods[wrapperApiId] = {methodName: httpMethod}
+
+        elif not RouteTableDef._isMethodRegistered(wrapperApiId=wrapperApiId, methodName=methodName):
+            logger.printInfo(f"Registering new HTTP method {methodName} for wrapper API {wrapperApiId}")
+            RouteTableDef.httpMethods[wrapperApiId][methodName] = httpMethod
+
+        else:
+            logger.printError(f"HTTP Method {methodName} already registered for wrapper API {wrapperApiId}")
+
+    @staticmethod
+    def get(currency, standard=None):
+
+        wrapperApiId = currency if standard is None else f"{currency}/{standard}"
+
+        def _get(function):
+
+            def wrapper(request, config):
+
+                return function(
+                    random.randint(0, sys.maxsize),
+                    request,
+                    config
+                )
+
+            RouteTableDef._registerMethod(
+                wrapperApiId=wrapperApiId,
+                methodName=function.__name__,
+                httpMethod=HTTPMethod(
+                    type=GET_METHOD,
+                    handler=wrapper
+                )
+            )
+
+            return function
+
+        return _get
+
+    @staticmethod
+    def post(currency, standard=None):
+
+        wrapperApiId = currency if standard is None else f"{currency}/{standard}"
+
+        def _post(function):
+
+            def wrapper(request, config):
+
+                return function(
+                    random.randint(0, sys.maxsize),
+                    request,
+                    config
+                )
+
+            RouteTableDef._registerMethod(
+                wrapperApiId=wrapperApiId,
+                methodName=function.__name__,
+                httpMethod=HTTPMethod(
+                    type=POST_METHOD,
+                    handler=wrapper
+                )
+            )
+
+            return function
+
+        return _post
+
+    @staticmethod
+    async def callMethod(coin, method, request, config, standard=None):
+
+        wrapperApiId = coin if standard is None else f"{coin}/{standard}"
+
+        if not RouteTableDef._isMethodRegistered(wrapperApiId=wrapperApiId, methodName=method):
+            raise error.NotFoundError("Not found")
+        elif not RouteTableDef._isAvailableMethodType(wrapperApiId=wrapperApiId, methodName=method, methodType=request.method):
+            raise error.MethodNotAllowedError("Method not allowed")
+
+        payload = httputils.parseJSONRequest(await request.read()) if not httputils.isGetMethod(request.method) else {}
+        return RouteTableDef.httpMethods[wrapperApiId][method].handler(payload, config)
 
 
 def callbackMethod(callbackName, coin, standard=None):
@@ -38,57 +157,14 @@ def callbackMethod(callbackName, coin, standard=None):
     return _callbackMethod
 
 
-def httpMethod(coin, standard=None):
-
-    wrapperApiId = coin if standard is None else f"{coin}/{standard}"
-
-    def _httpMethod(function):
-
-        def wrapper(request, config):
-
-            return function(
-                random.randint(0, sys.maxsize),
-                request,
-                config
-            )
-
-        if wrapperApiId not in httpMethods:
-            logger.printInfo(f"Registering new HTTP method {function.__name__} for wrapper API {wrapperApiId}")
-            httpMethods[wrapperApiId] = {function.__name__: wrapper}
-
-        elif function.__name__ not in httpMethods[wrapperApiId]:
-            logger.printInfo(f"Registering new HTTP method {function.__name__} for wrapper API {wrapperApiId}")
-            httpMethods[wrapperApiId][function.__name__] = wrapper
-
-        else:
-            logger.printError(f"HTTP Method {function.__name__} already registered for wrapper API {wrapperApiId}")
-
-        return function
-
-    return _httpMethod
-
-
-async def callMethod(coin, method, request, config, standard=None):
-
-    payload = httputils.parseJSONRequest(await request.read()) if not httputils.isGetMethod(request.method) else {}
-    wrapperApiId = coin if standard is None else f"{coin}/{standard}"
-
-    if wrapperApiId not in httpMethods:
-        raise error.BadRequestError(f"Calling {wrapperApiId} method when wrapper API is not supported")
-    if method not in httpMethods[wrapperApiId]:
-        raise error.BadRequestError(f"Calling unknown method {method} for wrapper API {wrapperApiId}")
-
-    return httpMethods[wrapperApiId][method](payload, config)
-
-
 async def callCallbackMethod(coin, callbackName, request, config, standard=None):
 
     payload = httputils.parseJSONRequest(await request.read())
     wrapperApiId = coin if standard is None else f"{coin}/{standard}"
 
     if wrapperApiId not in callbackMethods:
-        raise error.BadRequestError(f"Calling {wrapperApiId} method when wrapper API is not supported")
+        raise error.NotFoundError("Wrapper API not supported")
     if callbackName not in callbackMethods[coin]:
-        raise error.BadRequestError(f"Calling unknown method {callbackName} for wrapper API {wrapperApiId}")
+        raise error.NotFoundError("Method not found for  wrapper API")
 
     return callbackMethods[wrapperApiId][callbackName](payload, config)

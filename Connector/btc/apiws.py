@@ -1,14 +1,15 @@
 #!/usr/bin/python3
 from logger import logger
 from httputils import httputils
-from wsutils import wsmethod, topics
+from wsutils import topics
+from wsutils.wsmethod import RouteTableDef
 from wsutils.broker import Broker
 from rpcutils import error
 from . import apirpc, utils
 from .constants import *
 
 
-@wsmethod.wsMethod(coin=COIN_SYMBOL)
+@RouteTableDef.ws(currency=COIN_SYMBOL)
 def subscribeToAddressBalance(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method subscribeToAddressBalance with id {id} and params {params}")
@@ -49,7 +50,7 @@ def subscribeToAddressBalance(subscriber, id, params, config):
     return subscriber.subscribeToTopic(broker=broker, topic=topic)
 
 
-@wsmethod.wsMethod(coin=COIN_SYMBOL)
+@RouteTableDef.ws(currency=COIN_SYMBOL)
 def unsubscribeFromAddressBalance(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method unsubscribeFromAddressBalance with id {id} and params {params}")
@@ -69,7 +70,7 @@ def unsubscribeFromAddressBalance(subscriber, id, params, config):
     )
 
 
-@wsmethod.wsMethod(coin=COIN_SYMBOL)
+@RouteTableDef.ws(currency=COIN_SYMBOL)
 def subscribeToNewBlocks(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method subscribeToNewBlocks with id {id} and params {params}")
@@ -91,7 +92,7 @@ def subscribeToNewBlocks(subscriber, id, params, config):
     )
 
 
-@wsmethod.wsMethod(coin=COIN_SYMBOL)
+@RouteTableDef.ws(currency=COIN_SYMBOL)
 def unsubscribeFromNewBlocks(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method unsubscribeFromNewBlocks with id {id} and params {params}")
