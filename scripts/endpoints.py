@@ -1,6 +1,7 @@
 import requests
 import logger
 import utils
+import json
 
 ADD_CURRENCY = "addcoin"
 GET_CURRENCY = "getcoin"
@@ -21,26 +22,14 @@ def addApi(args, token, network, port, defaultConfig=True):
         logger.printError(f"API {token} {network} is already registered: {response}", verbosity=args.verbose)
         return
 
-    if defaultConfig:
-        payload = {
-            "coin": token,
-            "network": network,
-            "config": utils.getDefaultConfig(token, network)
-        }
+    # Get config file
+    if utils.checkCurrencyInConfig(utils.CUSTOM_CONFIG, token, network):
+        filename = utils.CUSTOM_CONFIG
 
-    else:
-        configurable = utils.getTokenConfiguration(token, network)
-        logger.printInfo("You need to configure the endpoints to start the node.")
-        userData = []
-        for configOption in configurable:
-            userData.append(utils.queryConfigurable(args, f"Please, introduce a value for {configOption}: ", configOption))
+    elif utils.checkCurrencyInConfig(utils.DEFAULT_CONFIG, token, network):
+        filename = utils.DEFAULT_CONFIG
 
-        config = dict(zip(configurable, userData))
-        payload = {
-            "coin": token,
-            "network": network,
-            "config": config
-        }
+    payload = utils.formatAddPayload(args, token, network, filename, defaultConfig)
 
     headers = {
         'Content-Type': 'application/json'

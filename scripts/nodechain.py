@@ -24,6 +24,22 @@ def checkApiRunning(token, network):
             return True
 
 
+def checkApiRegistered(args, token, network):
+    bindUsedPort()
+    status_code, response = endpoints.getApi(args, token, network, os.environ["PORT"])
+
+    # Check if API is registered
+    if status_code != 200:
+        logger.printError(f"Request to client could not be completed: {status_code}", verbosity=args.verbose)
+        return False
+
+    response = response.json()
+    if response["success"] is False:
+        logger.printError(f"API {token} {network} is not registered: {response}", verbosity=args.verbose)
+        return False
+    return True
+
+
 def checkAnyApiRunning():
     tokens = utils.listTokens()
     for container in client.containers.list():
@@ -118,12 +134,22 @@ def argumentHandler():
     parser.add_argument('-b', '--blockchain', action="store", dest='blockchain_path',
                         help="path to store blockchain files", default=None)
     parser.add_argument('--ssl', action="store_true",
-                        dest='config', help="ssl config", default=False)
+                        dest='ssl', help="ssl config", default=False)
     parser.add_argument('-c', '--cert', action="store",
                         dest='certs', help="path to certs", default=None)
     parser.add_argument('-V', '--version', action="version",
                         version=f"NodeChain version {version}", help="software version", default=None)
     parser.add_argument("-v", "--verbose", help="Increase output verbosity", action="store_true")
+
+    # exclusive mutually group for config
+    configEx = parser.add_mutually_exclusive_group()
+    configEx.add_argument("-g", "--config", action="store", dest="jsonConfig", help="JSON configuration as params", default=None)
+    configEx.add_argument('--defaultconfig', action="store_true", dest='config', help="use default configuration of on the node", default=False)
+
+    # Create exclusive mutually group
+    ex = parser.add_mutually_exclusive_group()
+    ex.add_argument('--local', action="store_true", dest='local', help="use local node", default=False)
+    ex.add_argument('--remote', action="store_true", dest='remote', help="use remote node", default=False)
 
     # Create group to start and stop all apis at the same time
     all = argparse.ArgumentParser(add_help=False)
@@ -170,6 +196,8 @@ def start(args):
     if args.all:
         handleAllApisByNetwork(args, 'start')
     else:
+        if not utils.isJson(args.jsonConfig) and utils.isJson(args.jsonConfig) is not None:
+            return
         token = currencyMenu(args)
         if args.verbose:
             logger.printInfo(f"Token selected: {token}", verbosity=args.verbose)
@@ -180,7 +208,7 @@ def start(args):
             logger.printInfo(f"The API {token} in {network} network is already started.", verbosity=args.verbose)
             updateApi(args, token, network)
             return
-        utils.queryPath(args, token, network)
+
         startApi(args, token, network)
 
 
@@ -214,7 +242,7 @@ def stop(args):
             network = networkMenu(args, token)
             if args.verbose:
                 logger.printInfo(f"Network selected: {network}")
-            if not checkApiRunning(token, network):
+            if not checkApiRunning(token, network) and not checkApiRegistered(args, token, network):
                 logger.printError(f"Can't stop the API {token} in {network}. Containers are not running.", verbosity=args.verbose)
                 return
             stopApi(args, token, network)
@@ -349,8 +377,9 @@ def getDockerComposePath(token, network):
 # 2. START CONTAINERS
 # 3. REGISTER API IN CONNECTOR (WS NEED THE CONTAINERS RUNNING)
 def startApi(args, token, network):
-    if not utils.queryYesNo("Do you want to connect to a remote node?:", default="no"):
+    if utils.isLocalInstance(args):
         os.chdir(ROOT_DIR)
+        utils.queryPath(args, token, network)
         path = getDockerComposePath(token, network)
         logger.printInfo(f"Starting {token}{network}api node... This might take a while.")
         if args.verbose:
@@ -368,14 +397,7 @@ def startApi(args, token, network):
 
     # Get port to make requests
     bindUsedPort()
-    defaultConfig = False
-
-    if utils.queryYesNo("Do you want to use the default configuration for the API ", default="yes"):
-        if utils.checkDefaultConfig(token, network):
-            defaultConfig = True
-        else:
-            logger.print("There is no default configuration for {token}, {network}", verbosity=args.verbose)
-            defaultConfig = False
+    defaultConfig = utils.isDefaultConfig(args, token, network)
 
     response = endpoints.addApi(args, token, network, os.environ["PORT"], defaultConfig)
 

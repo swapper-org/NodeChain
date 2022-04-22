@@ -3,8 +3,9 @@ import os
 import json
 import logger
 
-AVAILABLE_CURRENCIES = "./Connector/.availableCurrencies.json"
-DEFAULT_CONFIG = "./scripts/config.json"
+AVAILABLE_CURRENCIES = "./Connector/availableCurrencies.json"
+DEFAULT_CONFIG = "./scripts/defaultConfig.json"
+CUSTOM_CONFIG = "./scripts/config.json"
 
 
 def queryYesNo(question, default="yes"):
@@ -39,7 +40,7 @@ def connectorQueries(args):
     else:
         os.environ["SSL_PORT"] = queryPort(args, "Port to start (SSL): ")
 
-    querySSL(args.config, args.certs)
+    querySSL(args.ssl, args.certs)
 
 
 def queryConfigurable(args, question, configurable):
@@ -109,6 +110,32 @@ def querySSL(config, certs):
         os.environ["NGINX_CONFIG_PATH"] = "../nginx/nginx.conf"
         os.environ["CERT_PATH"] = "/etc/ssl/certs"
         return
+
+
+def isDefaultConfig(args, token, network):
+    if args.config:
+        if checkDefaultConfig(token, network):
+            return True
+        else:
+            logger.printError("There is no default configuration for {token}, {network}", verbosity=args.verbose)
+            return False
+    elif args.jsonConfig:
+        return False
+    elif queryYesNo("Do you want to use the default configuration for the API ", default="yes"):
+        if checkDefaultConfig(token, network):
+            return True
+        else:
+            logger.printError("There is no default configuration for {token}, {network}", verbosity=args.verbose)
+            return False
+
+
+def isLocalInstance(args):
+    if not args.local and not args.remote:
+        return queryYesNo("Do you want to start a new local node instance?:", default="yes")
+    elif not args.local:
+        return False
+    elif not args.remote:
+        return True
 
 
 def fillMenu(listFnc, choiceFnc, exitFnc):
@@ -203,24 +230,70 @@ def getTokenConfiguration(token, network):
                 return api["networks"][network]["configurable"]
 
 
-def getDefaultConfig(token, network):
-    with open(DEFAULT_CONFIG) as f:
+def getDefaultConfig(filename, token, network):
+    with open(filename) as f:
         data = json.load(f)
         for api in data:
             if api["token"] == token:
                 return api["networks"][network]["config"]
 
 
-def checkDefaultConfig(token, network):
-    with open(DEFAULT_CONFIG) as f:
+def checkCurrencyInConfig(filename, token, network):
+    with open(filename) as f:
         data = json.load(f)
         for api in data:
             if api["token"] == token:
                 for net in api["networks"]:
                     if net == network:
                         return True
+    return False
+
+
+def checkDefaultConfig(token, network):
+    return True if (checkCurrencyInConfig(CUSTOM_CONFIG, token, network) or checkCurrencyInConfig(DEFAULT_CONFIG, token, network)) else False
+
+
+def isJson(data):
+    if data is None:
+        return None
+    try:
+        json.loads(data)
+    except ValueError as err:
+        logger.printError(f"Error while parsing JSON argument configuration: {err}")
         return False
+    return True
 
 
 def formatApiData(args, data):
     logger.printInfo(json.dumps(data, sort_keys=True, indent=4), verbosity=args.verbose)
+
+
+def formatAddPayload(args, token, network, filename, defaultConfig):
+    if defaultConfig:
+        payload = {
+            "coin": token,
+            "network": network,
+            "config": getDefaultConfig(filename, token, network)
+        }
+
+    else:
+        if args.jsonConfig:
+            payload = {
+                "coin": token,
+                "network": network,
+                "config": json.loads(args.jsonConfig)
+            }
+        else:
+            configurable = getTokenConfiguration(token, network)
+            logger.printInfo("You need to configure the endpoints to start the node.")
+            userData = []
+            for configOption in configurable:
+                userData.append(queryConfigurable(args, f"Please, introduce a value for {configOption}: ", configOption))
+
+            config = dict(zip(configurable, userData))
+            payload = {
+                "coin": token,
+                "network": network,
+                "config": config
+            }
+    return payload
