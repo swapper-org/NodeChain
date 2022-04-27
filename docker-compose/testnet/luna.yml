@@ -8,6 +8,7 @@ services:
       NET: bombay-12
     volumes:
       - ${BLOCKCHAIN_PATH}/terrad:/root/.terra
+    restart: on-failure
 
 networks:
   default:
