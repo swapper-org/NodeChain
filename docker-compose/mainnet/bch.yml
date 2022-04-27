@@ -5,6 +5,12 @@ services:
     command: -rpcuser=swapper -rpcpassword=swapper -server=1 -rpcallowip=0.0.0.0/0 -rpcbind=bitcoinabc-mainnet -txindex=1 -rpcport=8332
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoinabc:/home/bitcoin/.bitcoin
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://swapper:swapper@bitcoinabc-mainnet:8332 -H 'content-type:text/plain;' --data-binary ''"]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+    restart: on-failure
 
   electrumx-mainnet:
     image: lukechilds/electrumx
