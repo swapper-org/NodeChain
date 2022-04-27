@@ -13,28 +13,38 @@ services:
       -zmqpubhashblock=tcp://0.0.0.0:28332
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoincore:/home/bitcoin/.bitcoin
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://swapper:swapper@bitcoincore-mainnet:8332 -H 'content-type:text/plain;' --data-binary ''"]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+    restart: on-failure
 
   electrs-mainnet:
     build: ../../packages/nodechain-electrs
     image: electrs
     command: -v --timestamp
-    depends_on:
-      - bitcoincore-mainnet
     environment:
       DAEMON_RPC_URL: bitcoincore-mainnet:8332
       ELECTRUM_RPC_URL: electrs-mainnet:50001
     volumes:
       - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
       - ${BLOCKCHAIN_PATH}/bitcoincore:/home/bitcoin/.bitcoin
+    depends_on:
+      bitcoincore-mainnet:
+        condition: service_healthy
+    restart: on-failure
 
   electrum-mainnet:
     build: ../../packages/nodechain-electrum
     image: electrum
-    depends_on:
-      - electrs-mainnet
     environment:
       NETWORK: ${NETWORK}
       SERVER: electrs-mainnet:50001:t
+    depends_on:
+      - electrs-mainnet
+    restart: on-failure
+
 
 networks:
   default:

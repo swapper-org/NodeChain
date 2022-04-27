@@ -8,7 +8,7 @@
           "electrumRpcEndpoint": "http://swapper:swapper@electrum-regtest:30000",
           "bitcoincoreZmqEndpoint": "tcp://bitcoincore-regtest:28332",
           "bitcoinAddressCallbackHost": "http://connector:80",
-          "electrsEndpoint": "electrs-regtest:60001:t"
+          "electrsEndpoint": "electrs-regtest:60401:t"
         }
       },
       "testnet": {
@@ -26,7 +26,7 @@
           "electrumRpcEndpoint": "http://swapper:swapper@electrum-mainnet:30000",
           "bitcoincoreZmqEndpoint": "tcp://bitcoincore-mainnet:28332",
           "bitcoinAddressCallbackHost": "http://connector:80",
-          "electrsEndpoint": "electrs-mainnet:60001:t"
+          "electrsEndpoint": "electrs-mainnet:50001:t"
         }
       }
     }
