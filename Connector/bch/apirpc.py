@@ -25,7 +25,7 @@ def getAddressHistory(id, params, config):
         )
 
     addrHistory = RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+        endpoint=config.electronCashRpcEndpoint,
         id=id,
         method=GET_ADDRESS_HISTORY_METHOD,
         params=[params["address"]]
@@ -99,7 +99,7 @@ def getAddressBalance(id, params, config):
         )
 
     connResponse = RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+        endpoint=config.electronCashRpcEndpoint,
         id=id,
         method=GET_ADDRESS_BALANCE_METHOD,
         params=[params["address"]]
@@ -178,7 +178,7 @@ def getAddressUnspent(id, params, config):
         )
 
     connResponse = RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+        endpoint=config.electronCashRpcEndpoint,
         id=id,
         method=GET_ADDRESS_UNSPENT_METHOD,
         params=[params["address"]])
@@ -517,7 +517,7 @@ def getAddressTransactionCount(id, params, config):
         )
 
     txs = RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+        endpoint=config.electronCashRpcEndpoint,
         id=id,
         method=GET_ADDRESS_HISTORY_METHOD,
         params=[params["address"]]
@@ -631,7 +631,7 @@ def notify(id, params, config):
         raise error.RpcBadRequestError(err.message)
 
     payload = RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+        endpoint=config.electronCashRpcEndpoint,
         id=id,
         method=NOTIFY_METHOD,
         params=[

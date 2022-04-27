@@ -60,22 +60,16 @@
   {
     "token": "bch",
     "networks": {
-      "regtest": {
-        "config": {
-          "bitcoinabcRpcEndpoint": "http://swapper:swapper@bitcoinabc-regtest:8332",
-          "electrumCashRpcEndpoint": "http://swapper:swapper@electrum-regtest:30000"
-        }
-      },
       "testnet": {
         "config": {
           "bitcoinabcRpcEndpoint": "http://swapper:swapper@bitcoinabc-testnet:8332",
-          "electrumCashRpcEndpoint": "http://swapper:swapper@electrum-testnet:30000"
+          "electronCashRpcEndpoint": "http://swapper:swapper@electron-testnet:30000"
         }
       },
       "mainnet": {
         "config": {
           "bitcoinabcRpcEndpoint": "http://swapper:swapper@bitcoinabc-mainnet:8332",
-          "electrumCashRpcEndpoint": "http://swapper:swapper@electrum-mainnet:30000"
+          "electronCashRpcEndpoint": "http://swapper:swapper@electron-mainnet:30000"
         }
       }
     }

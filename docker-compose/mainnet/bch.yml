@@ -17,12 +17,14 @@ services:
       COST_HARD_LIMIT: 0
     volumes:
       - ${BLOCKCHAIN_PATH}/electrumx:/data
+    restart: on-failure
 
-  electrum-mainnet:
+  electron-mainnet:
     build: ../../packages/nodechain-electron-cash
-    image: electrum
+    image: electron
     environment:
       NETWORK: ${NETWORK}
+    restart: on-failure
 
 networks:
   default:
