@@ -10,6 +10,7 @@ services:
       interval: 10s
       timeout: 15s
       retries: 10
+    restart: on-failure
 
   postgres-regtest:
     build: ../../packages/nodechain-ethereum-indexer
@@ -25,6 +26,7 @@ services:
       interval: 5s
       timeout: 15s
       retries: 5
+    restart: on-failure
   
   postgrest-regtest:
     image: postgrest/postgrest
@@ -35,6 +37,7 @@ services:
     depends_on:
       postgres-regtest:
         condition: service_healthy
+    restart: on-failure
 
   synchroniser-regtest:
     image: guenoledc/eth-tx-storage
@@ -49,3 +52,4 @@ services:
         condition: service_healthy
       postgres-regtest:
         condition: service_healthy
+    restart: on-failure

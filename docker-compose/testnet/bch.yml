@@ -5,6 +5,12 @@ services:
     command: -rpcuser=swapper -rpcpassword=swapper -server=1 -rpcallowip=0.0.0.0/0 -rpcbind=bitcoinabc-testnet -txindex=1 -testnet -rpcport=8332
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoinabc:/home/bitcoin/.bitcoin
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://swapper:swapper@bitcoinabc-testnet:8332 -H 'content-type:text/plain;' --data-binary ''"]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+    restart: on-failure
 
   electrumx-testnet:
     image: lukechilds/electrumx
@@ -18,13 +24,15 @@ services:
       NET: testnet
     volumes:
       - ${BLOCKCHAIN_PATH}/electrumx:/data
+    restart: on-failure
 
-  electrum-testnet:
+  electron-testnet:
     build: ../../packages/nodechain-electron-cash
-    image: electrum
+    image: electron
     environment:
       NETWORK: ${NETWORK}
       TESTNET: 1
+    restart: on-failure
 
 networks:
   default:

@@ -10,11 +10,11 @@ class Config:
         self._coin = coin
 
         self._bitcoinabcRpcEndpoint = ""
-        self._electrumCashRpcEndpoint = ""
+        self._electronCashRpcEndpoint = ""
 
     def loadConfig(self, config):
         self.bitcoinabcRpcEndpoint = config["bitcoinabcRpcEndpoint"]
-        self.electrumCashRpcEndpoint = config["electrumCashRpcEndpoint"]
+        self.electronCashRpcEndpoint = config["electronCashRpcEndpoint"]
 
         return True, None
 
@@ -39,12 +39,12 @@ class Config:
         self._bitcoinabcRpcEndpoint = value
 
     @property
-    def electrumCashRpcEndpoint(self):
-        return self._electrumCashRpcEndpoint
+    def electronCashRpcEndpoint(self):
+        return self._electronCashRpcEndpoint
 
-    @electrumCashRpcEndpoint.setter
-    def electrumCashRpcEndpoint(self, value):
-        self._electrumCashRpcEndpoint = value
+    @electronCashRpcEndpoint.setter
+    def electronCashRpcEndpoint(self, value):
+        self._electronCashRpcEndpoint = value
 
     def jsonEncode(self):
         return ConfigEncoder().encode(self)
@@ -54,5 +54,5 @@ class ConfigEncoder(JSONEncoder):
     def encode(self, o):
         return {
             "bitcoinabcRpcEndpoint": o.bitcoinabcRpcEndpoint,
-            "electrumCashRpcEndpoint": o.electrumCashRpcEndpoint
+            "electronCashRpcEndpoint": o.electronCashRpcEndpoint
         }
