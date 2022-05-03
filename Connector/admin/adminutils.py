@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from .constants import *
+from os import environ
 
 
 def getAdminMethodSchemas(name):
@@ -12,3 +13,7 @@ def getAdminRequestMethodSchema(name):
 
 def getAdminResponseMethodSchema(name):
     return f"{ADMIN_SCHEMA_FOLDER}{name}{ADMIN_SCHEMA_CHAR_SEPARATOR}response.json"
+
+
+def getApiKey():
+    return environ.get("API_KEY", None)
