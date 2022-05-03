@@ -40,12 +40,12 @@ services:
     restart: on-failure
 
   synchroniser-regtest:
-    image: guenoledc/eth-tx-storage
+    image: nodechain/eth-transactions-indexer
     environment:
       DB_NAME: postgres://swapper_writer:swapper_writer@postgres-regtest:5432/swapper
-      ETH_URL: ws://ethereumgo-regtest:8546
+      NODE_URL: ws://ethereumgo-regtest:8546
       START_BLOCK: 0
-      CONFIRMATIONS_BLOCK: 0
+      CONFIRMATIONS: 0
       PERIOD: 20
     depends_on:
       ethereumgo-regtest:

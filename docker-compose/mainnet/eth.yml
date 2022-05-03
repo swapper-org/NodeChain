@@ -40,13 +40,15 @@ services:
     restart: on-failure
 
   synchroniser-mainnet:
-    image: guenoledc/eth-tx-storage
+    image: nodechain/eth-transactions-indexer
     environment:
       DB_NAME: postgres://swapper_writer:swapper_writer@postgres-mainnet:5432/swapper
-      ETH_URL: ws://ethereumgo-mainnet:8546
-      START_BLOCK: 4370000
-      CONFIRMATIONS_BLOCK: 0
+      NODE_URL: /home/geth.ipc
+      START_BLOCK: 0
+      CONFIRMATIONS: 0
       PERIOD: 20
+    volumes:
+      - ${BLOCKCHAIN_PATH}/ethereumgo:/home
     depends_on:
       ethereumgo-mainnet:
         condition: service_healthy

@@ -40,13 +40,15 @@ services:
     restart: on-failure
 
   synchroniser-testnet:
-    image: guenoledc/eth-tx-storage
+    image: nodechain/eth-transactions-indexer
     environment:
       DB_NAME: postgres://swapper_writer:swapper_writer@postgres-testnet:5432/swapper
-      ETH_URL: ws://ethereumgo-testnet:8546
-      START_BLOCK: 1700000
-      CONFIRMATIONS_BLOCK: 0
+      NODE_URL: /home/ropsten/geth.ipc
+      START_BLOCK: 0
+      CONFIRMATIONS: 0
       PERIOD: 20
+    volumes:
+      - ${BLOCKCHAIN_PATH}/ethereumgo:/home
     depends_on:
       ethereumgo-testnet:
         condition: service_healthy
