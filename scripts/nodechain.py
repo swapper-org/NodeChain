@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import logger
 import endpoints
+from dotenv import load_dotenv
 
 
 # "token" argument is never used. Is declared to prevent errors
@@ -173,6 +174,10 @@ def argumentHandler():
         parser.print_help()
         parser.exit()
     else:
+        if args.verbose:
+            logger.printInfo("Loading .env file", verbosity=args.verbose)
+        load_dotenv()
+
         args.func(args)
 
     return args

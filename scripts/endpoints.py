@@ -2,6 +2,7 @@ import requests
 import logger
 import utils
 import json
+import os
 
 ADD_CURRENCY = "addcoin"
 GET_CURRENCY = "getcoin"
@@ -32,7 +33,8 @@ def addApi(args, token, network, port, defaultConfig=True):
     payload = utils.formatAddPayload(args, token, network, filename, defaultConfig)
 
     headers = {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-api-key': os.environ.get("API_KEY", "")
     }
     if args.verbose:
         logger.printInfo(f"Request payload: {payload}", verbosity=args.verbose)
@@ -57,7 +59,8 @@ def getApi(args, token, network, port):
         "network": network,
     }
     headers = {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-api-key': os.environ.get("API_KEY", "")
     }
     if args.verbose:
         logger.printInfo(f"Request payload: {payload}", verbosity=args.verbose)
@@ -97,7 +100,8 @@ def removeApi(args, token, network, port):
         "network": network,
     }
     headers = {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-api-key': os.environ.get("API_KEY", "")
     }
     if args.verbose:
         logger.printInfo(f"Request payload: {payload}", verbosity=args.verbose)
@@ -147,7 +151,8 @@ def updateApi(args, token, network, port):
         "config": config
     }
     headers = {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-api-key': os.environ.get("API_KEY", "")
     }
     if args.verbose:
         logger.printInfo(f"Request payload: {payload}", verbosity=args.verbose)
