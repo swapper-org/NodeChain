@@ -325,7 +325,7 @@ def getBlockByHash(id, params, config):
         method=GET_BLOCK_BY_HASH_METHOD,
         params=[
             params["blockHash"],
-            True
+            True if "verbosity" not in params else params["verbosity"] == VERBOSITY_MORE_MODE
         ]
     )
 
@@ -556,18 +556,19 @@ def getBlockByNumber(id, params, config):
             message=err.message
         )
 
-    if isinstance(params["blockNumber"], int):
-        blockNumber = hex(params["blockNumber"])
-    elif not params["blockNumber"].startswith('0x'):
-        blockNumber = hex(int(params["blockNumber"]))
-    else:
-        blockNumber = params["blockNumber"]
+    blockNumber = params["blockNumber"]
+
+    if blockNumber != "latest" and not blockNumber.startswith('0x'):
+        blockNumber = hex(int(blockNumber))
 
     block = RPCConnector.request(
         endpoint=config.rpcEndpoint,
         id=id,
         method=GET_BLOCK_BY_NUMBER_METHOD,
-        params=[blockNumber, True]
+        params=[
+            blockNumber,
+            True if "verbosity" not in params else params["verbosity"] == VERBOSITY_MORE_MODE
+        ]
     )
 
     if block is None:
