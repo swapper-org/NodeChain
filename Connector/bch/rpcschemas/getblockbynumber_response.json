@@ -4,150 +4,161 @@
     "description": "",
     "type": "object",
     "properties": {
-        "hash": {
-            "type": "string"
-        },
-        "confirmations": {
-            "type": "integer"
-        },
-        "strippedsize": {
-            "type": "integer"
-        },
-        "weight": {
-            "type": "integer"
-        },
-        "height": {
-            "type": "integer"
-        },
-        "version": {
-            "type": "number"
-        },
-        "versionHex": {
-            "type": "string"
-        },
-        "time": {
-            "type": "integer"
-        },
-        "mediantime": {
-            "type": "integer"
-        },
-        "nonce": {
-            "type": "integer"
-        },
-        "bits": {
-            "type": "string"
-        },
-        "difficulty": {
-            "type": "number"
-        },
-        "chainwork": {
-            "type": "string"
-        },
-        "nTx": {
-            "type": "integer"
-        },
-        "previousblockhash": {
-            "type": "string"
-        },
-        "nextblockhash": {
-            "type": "string"
-        },
-        "tx": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "txid": {
-                        "type": "string"
-                    },
-                    "hash": {
-                        "type": "string"
-                    },
-                    "version": {
-                        "type": "integer"
-                    },
-                    "size": {
-                        "type": "integer"
-                    },
-                    "vsize": {
-                        "type": "integer"
-                    },
-                    "weight": {
-                        "type": "integer"
-                    },
-                    "locktime": {
-                        "type": "integer"
-                    },
-                    "hex": {
-                        "type": "string"
-                    },
-                    "vin": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "coinbase": {
-                                    "type": "string"
-                                },
-                                "sequence": {
-                                    "type": "integer"
-                                },
-                                "txid": {
-                                    "type": "string"
-                                },
-                                "vout": {
-                                    "type": "integer"
-                                },
-                                "scriptSig": {
+        "block": {
+            "type": [
+                "object",
+                "string"
+            ],
+            "properties": {
+                "hash": {
+                    "type": "string"
+                },
+                "confirmations": {
+                    "type": "integer"
+                },
+                "strippedsize": {
+                    "type": "integer"
+                },
+                "weight": {
+                    "type": "integer"
+                },
+                "height": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "number"
+                },
+                "versionHex": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "integer"
+                },
+                "mediantime": {
+                    "type": "integer"
+                },
+                "nonce": {
+                    "type": "integer"
+                },
+                "bits": {
+                    "type": "string"
+                },
+                "difficulty": {
+                    "type": "number"
+                },
+                "chainwork": {
+                    "type": "string"
+                },
+                "nTx": {
+                    "type": "integer"
+                },
+                "previousblockhash": {
+                    "type": "string"
+                },
+                "nextblockhash": {
+                    "type": "string"
+                },
+                "tx": {
+                    "type": "array",
+                    "items": {
+                        "type": [
+                            "object",
+                            "string"
+                        ],
+                        "properties": {
+                            "txid": {
+                                "type": "string"
+                            },
+                            "hash": {
+                                "type": "string"
+                            },
+                            "version": {
+                                "type": "integer"
+                            },
+                            "size": {
+                                "type": "integer"
+                            },
+                            "vsize": {
+                                "type": "integer"
+                            },
+                            "weight": {
+                                "type": "integer"
+                            },
+                            "locktime": {
+                                "type": "integer"
+                            },
+                            "hex": {
+                                "type": "string"
+                            },
+                            "vin": {
+                                "type": "array",
+                                "items": {
                                     "type": "object",
                                     "properties": {
-                                        "asm": {
+                                        "coinbase": {
                                             "type": "string"
                                         },
-                                        "hex": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "txinwitness": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "vout": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "value": {
-                                    "type": "number"
-                                },
-                                "n": {
-                                    "type": "integer"
-                                },
-                                "scriptPubKey": {
-                                    "type": "object",
-                                    "properties": {
-                                        "asm": {
-                                            "type": "string"
-                                        },
-                                        "hex": {
-                                            "type": "string"
-                                        },
-                                        "reqSigs": {
+                                        "sequence": {
                                             "type": "integer"
                                         },
-                                        "type": {
+                                        "txid": {
                                             "type": "string"
                                         },
-                                        "addresses": {
+                                        "vout": {
+                                            "type": "integer"
+                                        },
+                                        "scriptSig": {
+                                            "type": "object",
+                                            "properties": {
+                                                "asm": {
+                                                    "type": "string"
+                                                },
+                                                "hex": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "txinwitness": {
                                             "type": "array",
                                             "items": {
                                                 "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "vout": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "value": {
+                                            "type": "number"
+                                        },
+                                        "n": {
+                                            "type": "integer"
+                                        },
+                                        "scriptPubKey": {
+                                            "type": "object",
+                                            "properties": {
+                                                "asm": {
+                                                    "type": "string"
+                                                },
+                                                "hex": {
+                                                    "type": "string"
+                                                },
+                                                "reqSigs": {
+                                                    "type": "integer"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "addresses": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
                                             }
                                         }
                                     }

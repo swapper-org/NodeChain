@@ -73,3 +73,7 @@ def sortUnspentOutputs(outputs):
         return outputs['txHash']
     except KeyError:
         return ''
+
+
+def isHexNumber(number: str):
+    return any(number.startswith(prefix) for prefix in ["0x", "0X"])
