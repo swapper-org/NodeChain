@@ -259,7 +259,7 @@ def getBlockByHash(id, params, config):
         raise error.RpcBadRequestError(id=id, message=err.message)
 
     block = RPCConnector.request(
-        endpoint=config.bitcoincoreRpcEndpoint,
+        endpoint=config.config.bitcoinabcRpcEndpoint,
         id=id,
         method=GET_BLOCK_METHOD,
         params=[
@@ -300,7 +300,7 @@ def getBlockByNumber(id, params, config):
     else:
 
         blockHash = RPCConnector.request(
-            endpoint=config.bitcoincoreRpcEndpoint,
+            endpoint=config.config.bitcoinabcRpcEndpoint,
             id=id,
             method=GET_BLOCK_HASH_METHOD,
             params=[
