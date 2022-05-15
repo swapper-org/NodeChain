@@ -170,7 +170,7 @@ def testGetBlock():
         logger.printError("getBlockByHash not loaded in RPCMethods")
         assert False
 
-    blockNumber = "1"
+    blockNumber = 1
 
     expectedHash = makeBitcoinCoreRequest(GET_BLOCK_HASH_METHOD, [blockNumber])
     expectedBlock = makeBitcoinCoreRequest(GET_BLOCK_METHOD, [expectedHash, 2])
@@ -181,7 +181,7 @@ def testGetBlock():
         logger.printError(f"Get block by hash error. Expected  {expectedBlock} but Got{gotByHash}")
         assert False
 
-    gotByNumber = RouteTableDef.httpMethods[COIN_SYMBOL]["getBlockByNumber"].handler({"blockNumber": blockNumber}, config)
+    gotByNumber = RouteTableDef.httpMethods[COIN_SYMBOL]["getBlockByNumber"].handler({"blockNumber": str(blockNumber)}, config)
 
     if not json.dumps(expectedBlock, sort_keys=True) == json.dumps(gotByNumber["block"], sort_keys=True):
         logger.printError(f"Get block by number error. Expected  {expectedBlock} but Got{gotByNumber}")
@@ -523,12 +523,8 @@ def testGetTransaction():
             "transaction": {
                 "txId": expectedTransaction["txid"],
                 "txHash": expectedTransaction["hash"],
-<<<<<<< HEAD
                 "blockNumber": str(expectedBlock["height"]),
                 "timestamp": str(expectedBlock["time"]),
-=======
-                "blockNumber": str(expectedBlock["block"]["height"]),
->>>>>>> 4cd2b63 (BTC Bug fix)
                 "fee": str(txDetails["fee"]),
                 "inputs": txDetails["inputs"],
                 "outputs": txDetails["outputs"],
