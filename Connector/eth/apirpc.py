@@ -334,14 +334,16 @@ def getBlockByHash(id, params, config):
             id=id,
             message=f"Block with hash {params['blockHash']} could not be retrieve from node")
 
-    err = httputils.validateJSONSchema(block, responseSchema)
+    response = {"block": block}
+
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
         raise error.RpcBadRequestError(
             id=id,
             message=err.message
         )
 
-    return block
+    return response
 
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
@@ -558,7 +560,7 @@ def getBlockByNumber(id, params, config):
 
     blockNumber = params["blockNumber"]
 
-    if blockNumber != "latest" and not blockNumber.startswith('0x'):
+    if blockNumber != "latest" and not utils.isHexNumber(blockNumber):
         blockNumber = hex(int(blockNumber))
 
     block = RPCConnector.request(
@@ -577,14 +579,16 @@ def getBlockByNumber(id, params, config):
             message=f"Block number {blockNumber} could not be retrieve from node"
         )
 
-    err = httputils.validateJSONSchema(block, responseSchema)
+    response = {"block": block}
+
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
         raise error.RpcBadRequestError(
             id=id,
             message=err.message
         )
 
-    return block
+    return response
 
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
