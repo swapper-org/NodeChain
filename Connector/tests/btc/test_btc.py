@@ -170,7 +170,7 @@ def testGetBlock():
         logger.printError("getBlockByHash not loaded in RPCMethods")
         assert False
 
-    blockNumber = 1
+    blockNumber = "1"
 
     expectedHash = makeBitcoinCoreRequest(GET_BLOCK_HASH_METHOD, [blockNumber])
     expectedBlock = makeBitcoinCoreRequest(GET_BLOCK_METHOD, [expectedHash, 2])
@@ -523,8 +523,12 @@ def testGetTransaction():
             "transaction": {
                 "txId": expectedTransaction["txid"],
                 "txHash": expectedTransaction["hash"],
+<<<<<<< HEAD
                 "blockNumber": str(expectedBlock["height"]),
                 "timestamp": str(expectedBlock["time"]),
+=======
+                "blockNumber": str(expectedBlock["block"]["height"]),
+>>>>>>> 4cd2b63 (BTC Bug fix)
                 "fee": str(txDetails["fee"]),
                 "inputs": txDetails["inputs"],
                 "outputs": txDetails["outputs"],
