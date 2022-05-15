@@ -177,13 +177,13 @@ def testGetBlock():
 
     gotByHash = RouteTableDef.httpMethods[COIN_SYMBOL]["getBlockByHash"].handler({"blockHash": expectedHash}, config)
 
-    if not json.dumps(expectedBlock, sort_keys=True) == json.dumps(gotByHash, sort_keys=True):
+    if not json.dumps(expectedBlock, sort_keys=True) == json.dumps(gotByHash["block"], sort_keys=True):
         logger.printError(f"Get block by hash error. Expected  {expectedBlock} but Got{gotByHash}")
         assert False
 
     gotByNumber = RouteTableDef.httpMethods[COIN_SYMBOL]["getBlockByNumber"].handler({"blockNumber": blockNumber}, config)
 
-    if not json.dumps(expectedBlock, sort_keys=True) == json.dumps(gotByNumber, sort_keys=True):
+    if not json.dumps(expectedBlock, sort_keys=True) == json.dumps(gotByNumber["block"], sort_keys=True):
         logger.printError(f"Get block by number error. Expected  {expectedBlock} but Got{gotByNumber}")
         assert False
 
