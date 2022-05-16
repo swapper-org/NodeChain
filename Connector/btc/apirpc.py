@@ -5,6 +5,7 @@ from rpcutils.rpcmethod import RouteTableDef as RpcRouteTableDef
 from logger import logger
 from rpcutils import error
 from rpcutils.rpcconnector import RPCConnector
+from rpcutils.rpcsocketconnector import RPCSocketConnector
 from . import utils
 from .constants import *
 
@@ -21,11 +22,12 @@ def getAddressHistory(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    addrHistory = RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+    addrHistory = RPCSocketConnector.request(
+        hostname=config.electrsHost,
+        port=config.electrsPort,
         id=id,
-        method=GET_ADDRESS_HISTORY_METHOD,
-        params=[params["address"]]
+        method="blockchain.scripthash.get_history",
+        params=[utils.scriptHash.addressToScriptHash(params["address"])]
     )
 
     response = {
@@ -89,11 +91,12 @@ def getAddressBalance(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    connResponse = RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+    connResponse = RPCSocketConnector.request(
+        hostname=config.electrsHost,
+        port=config.electrsPort,
         id=id,
-        method=GET_ADDRESS_BALANCE_METHOD,
-        params=[params["address"]]
+        method="blockchain.scripthash.get_balance",
+        params=[utils.scriptHash.addressToScriptHash(params["address"])]
     )
 
     response = {
@@ -156,11 +159,13 @@ def getAddressUnspent(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    connResponse = RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+    connResponse = RPCSocketConnector.request(
+        hostname=config.electrsHost,
+        port=config.electrsPort,
         id=id,
-        method=GET_ADDRESS_UNSPENT_METHOD,
-        params=[params["address"]])
+        method="blockchain.scripthash.listunspent",
+        params=[utils.scriptHash.addressToScriptHash(params["address"])]
+    )
 
     response = []
 
@@ -509,11 +514,12 @@ def getAddressTransactionCount(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    txs = RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+    txs = RPCSocketConnector.request(
+        hostname=config.electrsHost,
+        port=config.electrsPort,
         id=id,
-        method=GET_ADDRESS_HISTORY_METHOD,
-        params=[params["address"]]
+        method="blockchain.scripthash.get_history",
+        params=[utils.scriptHash.addressToScriptHash(params["address"])]
     )
 
     pending = 0

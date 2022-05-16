@@ -11,7 +11,8 @@
           "electrumRpcEndpoint",
           "bitcoincoreZmqEndpoint",
           "bitcoinAddressCallbackHost",
-          "electrsEndpoint"
+          "electrsHost",
+          "electrsPort"
         ]
       },
       "testnet": {
@@ -22,7 +23,8 @@
           "electrumRpcEndpoint",
           "bitcoincoreZmqEndpoint",
           "bitcoinAddressCallbackHost",
-          "electrsEndpoint"
+          "electrsHost",
+          "electrsPort"
         ]
       },
       "mainnet": {
@@ -33,7 +35,8 @@
           "electrumRpcEndpoint",
           "bitcoincoreZmqEndpoint",
           "bitcoinAddressCallbackHost",
-          "electrsEndpoint"
+          "electrsHost",
+          "electrsPort"
         ]
       }
     }

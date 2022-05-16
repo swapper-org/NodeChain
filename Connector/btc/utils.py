@@ -1,4 +1,8 @@
 #!/usr/bin/python3
+import hashlib
+import base58
+import bech32
+import binascii
 import math
 from decimal import Decimal
 import random
@@ -144,3 +148,45 @@ def sortUnspentOutputs(outputs):
         return outputs['txHash']
     except KeyError:
         return ''
+
+class scriptHash:
+    @staticmethod
+    def script_to_scripthash(script):
+        return hashlib.sha256(script).digest()[::-1].hex()
+
+    @staticmethod
+    def bitstring_to_bytes(s):
+        return int(s, 2).to_bytes((len(s) + 7) // 8, byteorder='big')
+
+    @staticmethod
+    def demod(intarray):
+        result = []
+        for x in intarray:
+            result.append(format(x, "05b"))
+        return scriptHash.bitstring_to_bytes(''.join(result))[1:]
+
+    @staticmethod
+    def bech32_to_script(address):
+        bech32_decoded = bech32.bech32_decode(address)
+        hash160hex = scriptHash.demod(bech32_decoded[1]).hex()
+        return binascii.unhexlify("0014" + hash160hex)
+
+    @staticmethod
+    def p2pkh_address_to_script(address):
+        hash160hex = base58.b58decode(address)[1:21].hex()
+        return binascii.unhexlify("76a914" + hash160hex + "88ac")
+
+    @staticmethod
+    def p2sh_address_to_script(address):
+        hash160hex = base58.b58decode(address)[1:21].hex()
+        return binascii.unhexlify("a914" + hash160hex + "87")
+
+    @staticmethod
+    def addressToScriptHash(address):
+        if address.startswith("1") or address.startswith("m") or address.startswith("n"):
+            return scriptHash.script_to_scripthash(scriptHash.p2pkh_address_to_script(address))
+        if address.startswith("2") or address.startswith("3"):
+            return scriptHash.script_to_scripthash(scriptHash.p2sh_address_to_script(address))
+        if address.startswith("bc1") or address.startswith("tb1"):
+            return scriptHash.script_to_scripthash(scriptHash.bech32_to_script(address))
+        raise Exception("Invalid address")

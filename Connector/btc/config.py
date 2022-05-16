@@ -14,13 +14,16 @@ class Config:
         self._bitcoincoreZmqEndpoint = ""
         self._bitcoinAddressCallbackHost = ""
         self._electrsEndpoint = ""
+        self._electrsHost = ""
+        self._electrsPort = ""
 
     def loadConfig(self, config):
         self.bitcoincoreRpcEndpoint = config["bitcoincoreRpcEndpoint"]
         self.electrumRpcEndpoint = config["electrumRpcEndpoint"]
         self.bitcoincoreZmqEndpoint = config["bitcoincoreZmqEndpoint"]
         self.bitcoinAddressCallbackHost = config["bitcoinAddressCallbackHost"]
-        self.electrsEndpoint = config["electrsEndpoint"]
+        self.electrsHost = config["electrsHost"]
+        self.electrsPort = config["electrsPort"]
 
         return True, None
 
@@ -67,14 +70,22 @@ class Config:
     @bitcoinAddressCallbackHost.setter
     def bitcoinAddressCallbackHost(self, value):
         self._bitcoinAddressCallbackHost = value
-
+        
     @property
-    def electrsEndpoint(self):
-        return self._electrsEndpoint
+    def electrsHost(self):
+        return self._electrsHost
 
-    @electrsEndpoint.setter
-    def electrsEndpoint(self, value):
-        self._electrsEndpoint = value
+    @electrsHost.setter
+    def electrsHost(self, value):
+        self._electrsHost = value
+        
+    @property
+    def electrsPort(self):
+        return self._electrsPort
+
+    @electrsPort.setter
+    def electrsPort(self, value):
+        self._electrsPort = value
 
     def jsonEncode(self):
         return ConfigEncoder().encode(self)
@@ -87,5 +98,6 @@ class ConfigEncoder(JSONEncoder):
             "electrumRpcEndpoint": o.electrumRpcEndpoint,
             "bitcoincoreZmqEndpoint": o.bitcoincoreZmqEndpoint,
             "bitcoinAddressCallbackHost": o.bitcoinAddressCallbackHost,
-            "electrsEndpoint": o.electrsEndpoint
+            "electrsHost": o.electrsHost,
+            "electrsPort": o.electrsPort
         }
