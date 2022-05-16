@@ -6,7 +6,7 @@
   <a href="https://ethereum.stackexchange.com/users/70542/swapper-market"><b>Ethereum StackExchange</b></a> •
   <a href="https://twitter.com/swapper_market"><b>Twitter</b></a> •
   <a href="https://medium.com/@swapper_market"><b>Medium</b></a> •
-  <a href="https://docs.nodechain.swapper.market"><b>Docs</b></a>
+  <a href="https://phoenix-7.gitbook.io/nodechain-en/"><b>Docs</b></a>
 </p>
 
 <p align="center">
