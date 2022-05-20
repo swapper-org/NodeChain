@@ -1,11 +1,9 @@
 <h1 align="center">NodeChain</h1>
 
 <p align="center">
-  <a href="https://www.reddit.com/user/swapper_market"><b>Reddit</b></a> •
-  <a href="https://bitcointalk.org/index.php?action=profile;u=3282789"><b>Bitcointalk</b></a> •
-  <a href="https://ethereum.stackexchange.com/users/70542/swapper-market"><b>Ethereum StackExchange</b></a> •
-  <a href="https://twitter.com/swapper_market"><b>Twitter</b></a> •
-  <a href="https://medium.com/@swapper_market"><b>Medium</b></a> •
+  <a href="https://www.reddit.com/r/SwapperDex"><b>Reddit</b></a> •
+  <a href="https://twitter.com/SwapperDex"><b>Twitter</b></a> •
+  <a href="https://medium.com/@SwapperDex"><b>Medium</b></a> •
   <a href="https://phoenix-7.gitbook.io/nodechain-en/"><b>Docs</b></a>
 </p>
 
@@ -21,12 +19,13 @@ In short, it allows the user to build and manage their own nodes natively withou
 
 This repository contains all the code related to the RPC and WS APIs, including the connection to the APIs of the native nodes of each blockchain.
 
+All the documentation related to the project can be found [here](https://phoenix-7.gitbook.io/nodechain-en/).
+
 <hr>
 
 ## Getting Started
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-See deployment for notes on how to deploy the project on a live system.
+ 
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
 ### Prerequisites
 
@@ -35,73 +34,56 @@ See deployment for notes on how to deploy the project on a live system.
 - [Python3](https://www.python.org/downloads/)
 - [Pip](https://pypi.org/project/pip/)
 
-## Running NodeChain
+### Download the project
 
-1. Follow the [CONTRIBUTING.md](https://github.com/swapper-org/NodeChain/blob/master/CONTRIBUTING.md) guidelines to clone
-   the repository.
-
-2. Navigate to `/scripts` and install the requirements:
+The first thing to do is to download the project from GitHub. To do this we will use the command-line. Follow the [CONTRIBUTING.md](https://github.com/swapper-org/NodeChain/blob/master/CONTRIBUTING.md) guidelines before cloning the repository.
 
 ```sh
-~$ pip install -r "requirements.txt"
+$ git clone git@github.com:swapper-org/NodeChain.git
 ```
 
-3. Run the script to build any API:
+### Install dependencies
 
+Depending on your setup, you will need to install the requirements.txt file dependencies if you have not installed them previously:
 ```sh
-~$ python3 nodechain.py start
+# Go to the scripts folder
+$ cd scripts
+
+# Install via pip
+$ pip install -r "requirements.txt"
 ```
 
-4. Follow the steps of the script:
-   - Choose an environment.
-   - Choose an API to build.
-   - Choose a port where you want to build the API.
-   - Choose a path where you want to store the Blockchain.
-   - Choose a port where you want to bind SSL port.
-   - Choose if you want to add SSL to your node.
+# Run NodeChain
 
-_(To activate SSL note that you need to have the files `nodechain_cert.key` and `nodechain_cert.crt` in the certificates directory)_
+You are ready to start your node. Just type:
+```sh
+$ python3 nodechain.py start
+
+# or
+
+$ ./nodechain.py start
+```
 
 ### Flags
 
-You can also run NodeChain from command line without using the UI. You can get more information running:
+You can get more information about NodeChain:
 
 ```sh
 ~$ python3 nodechain.py -h
 ```
 
-## Stop nodes
-
-1. Navigate to `/scripts` and run the script to stop any running API:
-
-```sh
-~$ python3 nodechain.py stop
-```
-
-2. Choose the environment to show running nodes
-3. Choose the API you want to stop.
-
-## Check API status
-
-1. Navigate to `/scripts` and run the script to stop any running API:
-
-```sh
-~$ python3 nodechain.py status
-```
-
-2. Choose the environment to show running nodes
-3. Choose the API you want to check.
-
 ## Usage
 
 NodeChain uses the JSON RPC protocol for API requests. The API provides the following endpoints:
 
-- `https://<URL-SERVER>:<PORT>/rpc` for RPC requests.
-- `wss://<URL-SERVER>:<PORT>/ws` for real time requests.
+- `https://<URL-SERVER>:<PORT>/<TOKEN>/<NETWORK>/rpc` for RPC requests.
+- `wss://<URL-SERVER>:<PORT>/<TOKEN>/<NETWORK>/ws` for real time requests.
 
 We also support REST API (HTTP)
 
-- GET / POST `https://<URL-SERVER>:<PORT>/<METHOD>` for HTTP requests
+- GET / POST `https://<URL-SERVER>:<PORT>/<TOKEN>/<NETWORK>/<METHOD>` for HTTP requests
+
+More information can be founded [here](https://phoenix-7.gitbook.io/nodechain-en/reference/api-reference).
 
 ## Environments
 
@@ -138,39 +120,11 @@ You can lint with the following command:
 
 As optional, you can create a [GitHub Hook](https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks) to automatically check that your code follows the linting rules before commiting your changes.
 
-Follow the steps to create a pre-commit hook
-
-1. Create the file `pre-commit` inside the path `.git/hooks/` of your local repository with this content:
-
-```sh
-#!/bin/bash
-
-ROOT_DIR="$(git rev-parse --show-toplevel)"
-
-echo "Running Flake8"
-flake8 ${ROOT_DIR} --statistics
-```
-
-2. Assign it execution permission
-
-```sh
-~$ chmod +x .git/hooks/pre-commit
-
-```
+You can find the tutorial to lint automatically with hooks [here](https://phoenix-7.gitbook.io/nodechain-en/develop/how-to/lint-automatically-with-hooks).
 
 ### Local testing
 
-You can do the local testing manually:
-
-1. Lint the project using the instructions above.
-
-2. Use the `scripts/buildapi.py` script to launch NodeChain in regtest network locally and select the token you want to test
-
-3. Run tests inside the Connector docker image with the following command where you have to replace ${TOKEN} by the token symbol you are testing in lower case
-
-```sh
-docker exec -it ${TOKEN}_regtest_api_connector_1 bash -c "cd Connector && python -m pytest -c tests/${TOKEN}/pytest_${TOKEN}.ini -s --cov=${TOKEN}/ --cov=logger/ --cov=rpcutils/ --cov=wsutils/ tests/${TOKEN}"
-```
+Do you need to test your changes without download the whole blockchain?. Follow the [tutorial](https://phoenix-7.gitbook.io/nodechain-en/develop/how-to/run-tests-locally) and help to improve NodeChain!
 
 ### CircleCI testing
 
@@ -191,10 +145,10 @@ Please read [Contribution Guidelines](https://github.com/swapper-org/NodeChain/b
 
 ## Docs
 
-We use [Swagger](https://swagger.io/) for docs.
-All the documentation concerning Nodechain is available at [NodeChain Docs](https://docs.nodechain.swapper.market)
+We use GitBook for docs.
+All the documentation concerning Nodechain is available at [NodeChain Docs](https://phoenix-7.gitbook.io/nodechain-en)
 
-All changes to the documentation must be made in the [NodeChain-docs](https://github.com/swapper-org/NodeChain-docs) repository.
+All changes to the RPC/WS documentation must be made in the [NodeChain-docs](https://github.com/swapper-org/NodeChain-docs) repository.
 
 ## Version
 
@@ -206,11 +160,16 @@ This software is licensed under the MIT License. See [LICENSE](LICENSE) for the 
 
 ## Motivation and Vision
 
-The main goal of the project is to give the user an easy way to be able to build their own blockchain nodes without external services, either in built on their own local machines or on production servers.
-We believe in decentralizing the world and work to make it easily accessible to everyone.
+The main goal of the project is to give the user an easy way to be able to build their own blockchain nodes without external services, either inbuilt on their own local machines or on production servers.
+
+In developing NodeChain we seek to incorporate purely native services and protocols, avoiding unofficial dependencies.
+
+**We believe in decentralizing the world and work to make it easily accessible to everyone.**
+
+NodeChain is a project by the community and for the community. We stand firm in the context of collaboration by growing the Blockchain ecosystem and enabling the scalability of projects in a simple way.
+
+Growing the ecosystem around NodeChain is an arduous but necessary task. For this reason, we thank all the contributors who give part of their time.
 
 ## Related projects
 
-- [Electrum](https://github.com/spesmilo/electrum)
-- [ElectrumX](https://github.com/spesmilo/electrumx)
-- [Electron Cash](https://github.com/Electron-Cash/Electron-Cash)
+Thanks to every project that make NodeChain possible. You can see the list [here](https://phoenix-7.gitbook.io/nodechain-en/learn/ecosystem/acknowledgments).
