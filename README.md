@@ -53,7 +53,7 @@ $ cd scripts
 $ pip install -r "requirements.txt"
 ```
 
-# Run NodeChain
+### Run NodeChain
 
 You are ready to start your node. Just type:
 ```sh
