@@ -190,7 +190,7 @@ def testGetTransaction():
     )
 
     expected = makeEtherumgoRequest(GET_TRANSACTION_BY_HASH_METHOD, [txHash])
-    expectedBlock = makeEtherumgoRequest(GET_BLOCK_BY_NUMBER_METHOD, [expected["blockNumber"]])
+    expectedBlock = makeEtherumgoRequest(GET_BLOCK_BY_NUMBER_METHOD, [expected["blockNumber"], True])
 
     assert got["transaction"]["txHash"] == txHash
     assert got["transaction"]["fee"] == str(utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
@@ -234,7 +234,7 @@ def testGetTransactions():
     for txHash in txHashes:
 
         expected = makeEtherumgoRequest(GET_TRANSACTION_BY_HASH_METHOD, [txHash])
-        expectedBlock = makeEtherumgoRequest(GET_BLOCK_BY_NUMBER_METHOD, [expected["blockNumber"]])
+        expectedBlock = makeEtherumgoRequest(GET_BLOCK_BY_NUMBER_METHOD, [expected["blockNumber"], True])
 
         found = False
         for gotTransaction in got["transactions"]:
