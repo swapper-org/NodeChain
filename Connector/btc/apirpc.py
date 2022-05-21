@@ -412,6 +412,7 @@ def getTransaction(id, params, config):
         )
 
         # Check if transaction is confirmed, and obtain block number
+        blockNumber = timestamp = None
         if "blockhash" in transaction["rawTransaction"]:
             transactionBlock = getBlockByHash(
                 id=id,
@@ -422,8 +423,7 @@ def getTransaction(id, params, config):
                 config=config
             )
             blockNumber = transactionBlock["height"]
-        else:
-            blockNumber = None
+            timestamp = transactionBlock["time"]
 
         transactionDetails = utils.decodeTransactionDetails(transaction["rawTransaction"], id, config)
 
@@ -438,7 +438,8 @@ def getTransaction(id, params, config):
             "transaction": {
                 "txId": transaction["rawTransaction"]["txid"],
                 "txHash": transaction["rawTransaction"]["hash"],
-                "blockNumber": str(blockNumber) if blockNumber is not None else blockNumber,
+                "blockNumber": str(blockNumber) if blockNumber is not None else None,
+                "timestamp": str(timestamp) if timestamp is not None else None,
                 "fee": str(transactionDetails["fee"]),
                 "inputs": transactionDetails["inputs"],
                 "outputs": transactionDetails["outputs"],

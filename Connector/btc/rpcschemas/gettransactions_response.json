@@ -27,6 +27,12 @@
                             "null"
                         ]
                     },
+                    "timestamp": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                     "fee": {
                         "type": "string"
                     },
