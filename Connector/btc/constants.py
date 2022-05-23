@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 COIN_SYMBOL = "btc"
 
-GET_ADDRESS_HISTORY_METHOD = "getaddresshistory"
-GET_ADDRESS_BALANCE_METHOD = "getaddressbalance"
-GET_ADDRESS_UNSPENT_METHOD = "getaddressunspent"
+GET_HISTORY_METHOD = "blockchain.scripthash.get_history"
+GET_BALANCE_METHOD = "blockchain.scripthash.get_balance"
+LIST_UNSPENT_METHOD = "blockchain.scripthash.listunspent"
 GET_BLOCK_METHOD = "getblock"
 GET_BLOCK_HASH_METHOD = "getblockhash"
 GET_BLOCK_COUNT_METHOD = "getblockcount"
@@ -107,3 +107,5 @@ SUBSCRIBE_ADDRESS_BALANCE = "subscribetoaddressbalance"
 UNSUBSCRIBE_ADDRESS_BALANCE = "unsubscribefromaddressbalance"
 SUBSCRIBE_TO_NEW_BLOCKS = "subscribetonewblocks"
 UNSUBSCRIBE_FROM_NEW_BLOCKS = "unsubscribefromnewblocks"
+
+INVALID_ADDRESS_ERROR="Invalid address"

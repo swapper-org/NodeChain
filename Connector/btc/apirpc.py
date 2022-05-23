@@ -22,12 +22,17 @@ def getAddressHistory(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
+    try:
+        scriptHash = utils.scriptHash.addressToScriptHash(params["address"])
+    except err:
+        raise error.RpcBadRequestError(id=id, message=INVALID_ADDRESS_ERROR)
+
     addrHistory = RPCSocketConnector.request(
-        hostname=config.electrsHost,
-        port=config.electrsPort,
+        hostname=config.electrsEndpoint.split(":")[0],
+        port=config.electrsEndpoint.split(":")[1],
         id=id,
-        method="blockchain.scripthash.get_history",
-        params=[utils.scriptHash.addressToScriptHash(params["address"])]
+        method=GET_HISTORY_METHOD,
+        params=[scriptHash]
     )
 
     response = {
@@ -91,12 +96,18 @@ def getAddressBalance(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
+    try:
+        scriptHash = utils.scriptHash.addressToScriptHash(params["address"])
+    except err:
+        raise error.RpcBadRequestError(id=id, message=INVALID_ADDRESS_ERROR)
+
+
     connResponse = RPCSocketConnector.request(
-        hostname=config.electrsHost,
-        port=config.electrsPort,
+        hostname=config.electrsEndpoint.split(":")[0],
+        port=config.electrsEndpoint.split(":")[1],
         id=id,
-        method="blockchain.scripthash.get_balance",
-        params=[utils.scriptHash.addressToScriptHash(params["address"])]
+        method=GET_BALANCE_METHOD,
+        params=[scriptHash]
     )
 
     response = {
@@ -159,12 +170,17 @@ def getAddressUnspent(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
+    try:
+        scriptHash = utils.scriptHash.addressToScriptHash(params["address"])
+    except err:
+        raise error.RpcBadRequestError(id=id, message=INVALID_ADDRESS_ERROR)
+
     connResponse = RPCSocketConnector.request(
-        hostname=config.electrsHost,
-        port=config.electrsPort,
+        hostname=config.electrsEndpoint.split(":")[0],
+        port=config.electrsEndpoint.split(":")[1],
         id=id,
-        method="blockchain.scripthash.listunspent",
-        params=[utils.scriptHash.addressToScriptHash(params["address"])]
+        method=LIST_UNSPENT_METHOD,
+        params=[scriptHash]
     )
 
     response = []
@@ -514,12 +530,17 @@ def getAddressTransactionCount(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
+    try:
+        scriptHash = utils.scriptHash.addressToScriptHash(params["address"])
+    except err:
+        raise error.RpcBadRequestError(id=id, message=INVALID_ADDRESS_ERROR)
+
     txs = RPCSocketConnector.request(
-        hostname=config.electrsHost,
-        port=config.electrsPort,
+        hostname=config.electrsEndpoint.split(":")[0],
+        port=config.electrsEndpoint.split(":")[1],
         id=id,
-        method="blockchain.scripthash.get_history",
-        params=[utils.scriptHash.addressToScriptHash(params["address"])]
+        method=GET_HISTORY_METHOD,
+        params=[scriptHash]
     )
 
     pending = 0
