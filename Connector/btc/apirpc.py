@@ -101,7 +101,6 @@ def getAddressBalance(id, params, config):
     except err:
         raise error.RpcBadRequestError(id=id, message=INVALID_ADDRESS_ERROR)
 
-
     connResponse = RPCSocketConnector.request(
         hostname=config.electrsEndpoint.split(":")[0],
         port=config.electrsEndpoint.split(":")[1],

@@ -67,7 +67,7 @@ class Config:
     @bitcoinAddressCallbackHost.setter
     def bitcoinAddressCallbackHost(self, value):
         self._bitcoinAddressCallbackHost = value
-        
+
     @property
     def electrsEndpoint(self):
         return self._electrsEndpoint

@@ -108,4 +108,4 @@ UNSUBSCRIBE_ADDRESS_BALANCE = "unsubscribefromaddressbalance"
 SUBSCRIBE_TO_NEW_BLOCKS = "subscribetonewblocks"
 UNSUBSCRIBE_FROM_NEW_BLOCKS = "unsubscribefromnewblocks"
 
-INVALID_ADDRESS_ERROR="Invalid address"
+INVALID_ADDRESS_ERROR = "Invalid address"

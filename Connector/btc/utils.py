@@ -149,6 +149,7 @@ def sortUnspentOutputs(outputs):
     except KeyError:
         return ''
 
+
 class scriptHash:
     @staticmethod
     def script_to_scripthash(script):
