@@ -24,7 +24,7 @@ def getAddressHistory(id, params, config):
 
     try:
         scriptHash = utils.scriptHash.addressToScriptHash(params["address"])
-    except err:
+    except Exception as e:
         raise error.RpcBadRequestError(id=id, message=INVALID_ADDRESS_ERROR)
 
     addrHistory = RPCSocketConnector.request(
@@ -98,7 +98,7 @@ def getAddressBalance(id, params, config):
 
     try:
         scriptHash = utils.scriptHash.addressToScriptHash(params["address"])
-    except err:
+    except Exception as e:
         raise error.RpcBadRequestError(id=id, message=INVALID_ADDRESS_ERROR)
 
     connResponse = RPCSocketConnector.request(
@@ -171,7 +171,7 @@ def getAddressUnspent(id, params, config):
 
     try:
         scriptHash = utils.scriptHash.addressToScriptHash(params["address"])
-    except err:
+    except Exception as e:
         raise error.RpcBadRequestError(id=id, message=INVALID_ADDRESS_ERROR)
 
     connResponse = RPCSocketConnector.request(
@@ -531,7 +531,7 @@ def getAddressTransactionCount(id, params, config):
 
     try:
         scriptHash = utils.scriptHash.addressToScriptHash(params["address"])
-    except err:
+    except Exception as e:
         raise error.RpcBadRequestError(id=id, message=INVALID_ADDRESS_ERROR)
 
     txs = RPCSocketConnector.request(
