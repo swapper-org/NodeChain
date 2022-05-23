@@ -29,7 +29,7 @@ def getAddressHistory(id, params, config):
 
     addrHistory = RPCSocketConnector.request(
         hostname=config.electrsEndpoint.split(":")[0],
-        port=config.electrsEndpoint.split(":")[1],
+        port=int(config.electrsEndpoint.split(":")[1]),
         id=id,
         method=GET_HISTORY_METHOD,
         params=[scriptHash]
@@ -103,7 +103,7 @@ def getAddressBalance(id, params, config):
 
     connResponse = RPCSocketConnector.request(
         hostname=config.electrsEndpoint.split(":")[0],
-        port=config.electrsEndpoint.split(":")[1],
+        port=int(config.electrsEndpoint.split(":")[1]),
         id=id,
         method=GET_BALANCE_METHOD,
         params=[scriptHash]
@@ -176,7 +176,7 @@ def getAddressUnspent(id, params, config):
 
     connResponse = RPCSocketConnector.request(
         hostname=config.electrsEndpoint.split(":")[0],
-        port=config.electrsEndpoint.split(":")[1],
+        port=int(config.electrsEndpoint.split(":")[1]),
         id=id,
         method=LIST_UNSPENT_METHOD,
         params=[scriptHash]
@@ -466,7 +466,7 @@ def getTransaction(id, params, config):
             }
         }
 
-    except error.RpcBadRequestErrorrr:
+    except error.RpcBadRequestError:
         logger.printError(f"Transaction {params['txHash']} could not be retrieve: {err}")
         return {"transaction": None}
 
@@ -536,7 +536,7 @@ def getAddressTransactionCount(id, params, config):
 
     txs = RPCSocketConnector.request(
         hostname=config.electrsEndpoint.split(":")[0],
-        port=config.electrsEndpoint.split(":")[1],
+        port=int(config.electrsEndpoint.split(":")[1]),
         id=id,
         method=GET_HISTORY_METHOD,
         params=[scriptHash]
