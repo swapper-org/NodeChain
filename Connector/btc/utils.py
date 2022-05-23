@@ -188,6 +188,6 @@ class scriptHash:
             return scriptHash.script_to_scripthash(scriptHash.p2pkh_address_to_script(address))
         if address.startswith("2") or address.startswith("3"):
             return scriptHash.script_to_scripthash(scriptHash.p2sh_address_to_script(address))
-        if address.startswith("bc1") or address.startswith("tb1"):
+        if address.startswith("bc1") or address.startswith("tb1") or address.startswith("bcrt1"):
             return scriptHash.script_to_scripthash(scriptHash.bech32_to_script(address))
         raise Exception("Invalid address")
