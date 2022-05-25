@@ -28,7 +28,7 @@ config.loadConfig(
         "electrumRpcEndpoint": "http://swapper:swapper@localhost:30000",
         "bitcoincoreZmqEndpoint": "tcp://localhost:28332",
         "bitcoinAddressCallbackHost": "http://connector:80",
-        "electrsEndpoint": "localhost:60001:t"
+        "electrsEndpoint": "localhost:60401:t"
     }
 )
 
