@@ -1,9 +1,9 @@
 #!/usr/bin/python
 import json
-import os
-from httputils import error, httputils
+from httputils import error
 from logger import logger
 from .constants import *
+from functools import lru_cache
 
 
 def getAvailableCurrenciesFile():
@@ -75,3 +75,14 @@ def isAvailableNetworkForCurrency(coin, network):
     except FileNotFoundError as err:
         logger.printError(f"File {availableCurrenciesFile} could not be found")
         raise error.InternalServerError(f"File {availableCurrenciesFile} could not be found:{err}")
+
+
+@lru_cache(maxsize=150)
+def openSchemaFile(schemaFile):
+
+    try:
+        with open(schemaFile) as file:
+            return json.load(file)
+    except FileNotFoundError as err:
+        logger.printError(f"Schema {schemaFile} not found: {err}")
+        raise error.InternalServerError("Unknown error")
