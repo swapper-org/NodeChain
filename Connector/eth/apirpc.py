@@ -218,12 +218,27 @@ def getTransaction(id, params, config):
         logger.printWarning("Could not get transaction from node")
         return {"transaction": None}
 
+    blockNumber = timestamp = None
+    if transaction["blockNumber"] is not None:
+        blockNumber = transaction["blockNumber"]
+
+        block = getBlockByNumber(
+            id=id,
+            params={
+                "blockNumber": blockNumber
+            },
+            config=config
+        )
+
+        timestamp = block["timestamp"]
+
     response = {
         "transaction": {
             "txHash": params["txHash"],
             "fee": str(utils.toWei(transaction["gasPrice"]) * utils.toWei(transaction["gas"])),
             "blockHash": transaction["blockHash"],
-            "blockNumber": str(int(transaction["blockNumber"], 16)) if transaction["blockNumber"] is not None else None,
+            "blockNumber": str(int(blockNumber, 16)) if blockNumber is not None else None,
+            "timestamp": str(int(timestamp, 16)) if timestamp is not None else None,
             "data": transaction,
             "inputs": [
                 {

@@ -25,6 +25,9 @@
                 "fee": {
                     "type": "string"
                 },
+                "timestamp": {
+                    "type": "string"
+                },
                 "inputs": {
                     "type": "array",
                     "items": {
