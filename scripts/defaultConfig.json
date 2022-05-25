@@ -8,8 +8,7 @@
           "electrumRpcEndpoint": "http://swapper:swapper@electrum-regtest:30000",
           "bitcoincoreZmqEndpoint": "tcp://bitcoincore-regtest:28332",
           "bitcoinAddressCallbackHost": "http://connector:80",
-          "electrsHost": "electrs-regtest",
-          "electrsPort": "60401"
+          "electrsEndpoint": "electrs-regtest:60401:t"
         }
       },
       "testnet": {
@@ -18,8 +17,7 @@
           "electrumRpcEndpoint": "http://swapper:swapper@electrum-testnet:30000",
           "bitcoincoreZmqEndpoint": "tcp://bitcoincore-testnet:28332",
           "bitcoinAddressCallbackHost": "http://connector:80",
-          "electrsHost": "electrs-testnet",
-          "electrsPort": "60001"
+          "electrsEndpoint": "electrs-testnet:60001:t"
         }
       },
       "mainnet": {
@@ -28,8 +26,7 @@
           "electrumRpcEndpoint": "http://swapper:swapper@electrum-mainnet:30000",
           "bitcoincoreZmqEndpoint": "tcp://bitcoincore-mainnet:28332",
           "bitcoinAddressCallbackHost": "http://connector:80",
-          "electrsHost": "electrs-mainnet",
-          "electrsPort": "50001"
+          "electrsEndpoint": "electrs-mainnet:50001:t"
         }
       }
     }

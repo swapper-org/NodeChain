@@ -92,7 +92,7 @@ jobs:
           command: |
             sleep 5 && nc -vz localhost 8332
             sleep 5 && nc -vz localhost 28332
-            #sleep 5 && nc -vz localhost 30000
+            sleep 5 && nc -vz localhost 60401
       - run:
           name: BitcoinCore set up
           command: |
