@@ -35,6 +35,8 @@ services:
     volumes:
       - ${BLOCKCHAIN_PATH}/electrs:/build/.electrs
       - ${BLOCKCHAIN_PATH}/bitcoincode:/home/bitcoin/.bitcoin
+    ports:
+      - 60401:60401
 
   electrum-regtest:
     build: ../../../packages/nodechain-electrum
