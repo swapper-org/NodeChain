@@ -44,7 +44,7 @@ def makeBitcoinCoreRequest(method, params):
 
 
 def makeElectrsRequest(method, params):
-    return RPCSocketConnector.request(config.electrsEndpoint.split(":")[0], config.electrsEndpoint.split(":")[1], 1, method, params)
+    return RPCSocketConnector.request(config.electrsEndpoint.split(":")[0], int(config.electrsEndpoint.split(":")[1]), 1, method, params)
 
 
 def mineBlocksToAddress(address, numBlocks=1):
