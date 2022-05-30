@@ -124,32 +124,32 @@ def argumentHandler():
         description='Nodechain allows the user to build and manage their own nodes natively without having to rely on external services.',
         prog="Nodechain")
     parser.add_argument('-t', '--token', action="store",
-                        dest='token', help="symbol of the token", default=None)
+                        dest='token', help="Symbol of the token", default=None)
     parser.add_argument('-n', '--network', action="store", dest='network',
-                        help="network where to set up the blockchain", default=None)
+                        help="Network of the token", default=None)
     parser.add_argument('-p', '--port', action="store", dest='port',
-                        help="port to start the node", default=None)
+                        help="Port to start the node", default=None)
     parser.add_argument('-sp', '--sslport', action="store",
-                        dest='ssl_port', help="ssl port", default=None)
+                        help="Port to start the node (SSL)", dest='ssl_port', default=None)
     parser.add_argument('-b', '--blockchain', action="store", dest='blockchain_path',
-                        help="path to store blockchain files", default=None)
+                        help="Path to store Nodechain files", default=None)
     parser.add_argument('--ssl', action="store_true",
-                        dest='ssl', help="ssl config", default=False)
+                        help="Indicates whether to enable ssl or not", dest='ssl', default=False)
     parser.add_argument('-c', '--cert', action="store",
-                        dest='certs', help="path to certs", default=None)
+                        help="Path where ssl certs are stored. They should be named nodechain_cert.crt for the cert and nodechain_cert.key for the key", dest='certs', default=None)
     parser.add_argument('-V', '--version', action="version",
-                        version=f"NodeChain version {version}", help="software version", default=None)
-    parser.add_argument("-v", "--verbose", help="Increase output verbosity", action="store_true")
+                        version=f"NodeChain version {version}", help="Displays software version information", default=None)
+    parser.add_argument("-v", "--verbose", help="If it is set to 0, no output is printed", action="store_true")
 
     # exclusive mutually group for config
     configEx = parser.add_mutually_exclusive_group()
     configEx.add_argument("-g", "--config", action="store", dest="jsonConfig", help="JSON configuration as params", default=None)
-    configEx.add_argument('--defaultconfig', action="store_true", dest='config', help="use default configuration of on the node", default=False)
+    configEx.add_argument('--defaultconfig', action="store_true", dest='config', help="Use default configuration of on the node", default=False)
 
     # Create exclusive mutually group
     ex = parser.add_mutually_exclusive_group()
-    ex.add_argument('--local', action="store_true", dest='local', help="use local node", default=False)
-    ex.add_argument('--remote', action="store_true", dest='remote', help="use remote node", default=False)
+    ex.add_argument('--local', action="store_true", dest='local', help="If set, local node instance is started", default=False)
+    ex.add_argument('--remote', action="store_true", dest='remote', help="If set, no local node instance is started", default=False)
 
     # Create group to start and stop all apis at the same time
     all = argparse.ArgumentParser(add_help=False)

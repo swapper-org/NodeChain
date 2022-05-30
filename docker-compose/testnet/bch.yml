@@ -10,7 +10,7 @@ services:
       interval: 5s
       timeout: 15s
       retries: 5
-    restart: on-failure
+    restart: on-failure:5
 
   electrumx-testnet:
     image: lukechilds/electrumx
@@ -24,7 +24,7 @@ services:
       NET: testnet
     volumes:
       - ${BLOCKCHAIN_PATH}/electrumx:/data
-    restart: on-failure
+    restart: on-failure:5
 
   electron-testnet:
     build: ../../packages/nodechain-electron-cash
@@ -32,7 +32,7 @@ services:
     environment:
       NETWORK: ${NETWORK}
       TESTNET: 1
-    restart: on-failure
+    restart: on-failure:5
 
 networks:
   default:

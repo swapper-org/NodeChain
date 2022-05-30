@@ -10,7 +10,7 @@ services:
       interval: 10s
       timeout: 15s
       retries: 10
-    restart: on-failure
+    restart: on-failure:5
 
   postgres-mainnet:
     build: ../../packages/nodechain-ethereum-indexer
@@ -26,7 +26,7 @@ services:
       interval: 5s
       timeout: 15s
       retries: 5
-    restart: on-failure
+    restart: on-failure:5
   
   postgrest-mainnet:
     image: postgrest/postgrest
@@ -37,7 +37,7 @@ services:
     depends_on:
       postgres-mainnet:
         condition: service_healthy
-    restart: on-failure
+    restart: on-failure:5
 
   synchroniser-mainnet:
     image: nodechain/eth-transactions-indexer
@@ -54,7 +54,7 @@ services:
         condition: service_healthy
       postgres-mainnet:
         condition: service_healthy
-    restart: on-failure
+    restart: on-failure:5
 
 networks:
   default:
