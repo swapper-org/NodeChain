@@ -18,7 +18,7 @@ services:
       interval: 5s
       timeout: 15s
       retries: 5
-    restart: on-failure
+    restart: on-failure:5
 
   electrs-mainnet:
     build: ../../packages/nodechain-electrs
@@ -33,7 +33,7 @@ services:
     depends_on:
       bitcoincore-mainnet:
         condition: service_healthy
-    restart: on-failure
+    restart: on-failure:5
 
   electrum-mainnet:
     build: ../../packages/nodechain-electrum
@@ -43,7 +43,7 @@ services:
       SERVER: electrs-mainnet:50001:t
     depends_on:
       - electrs-mainnet
-    restart: on-failure
+    restart: on-failure:5
 
 
 networks:

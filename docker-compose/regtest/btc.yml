@@ -23,7 +23,7 @@ services:
       interval: 5s
       timeout: 15s
       retries: 5
-    restart: on-failure
+    restart: on-failure:5
 
   electrs-regtest:
     build: ../../packages/nodechain-electrs
@@ -40,7 +40,7 @@ services:
     depends_on:
       bitcoincore-regtest:
         condition: service_healthy
-    restart: on-failure
+    restart: on-failure:5
     
 
   electrum-regtest:
@@ -51,7 +51,7 @@ services:
       SERVER: electrs-regtest:60401:t
     depends_on:
       - electrs-regtest
-    restart: on-failure
+    restart: on-failure:5
 
 networks:
   default:
