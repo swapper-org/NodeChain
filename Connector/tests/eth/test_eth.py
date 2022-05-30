@@ -196,7 +196,7 @@ def testGetTransaction():
     assert got["transaction"]["fee"] == str(utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
     assert got["transaction"]["blockHash"] == expected["blockHash"]
     assert got["transaction"]["blockNumber"] == str(int(expected["blockNumber"], 16))
-    assert got["transaction"]["timestamp"] == str(int(expectedBlock["timestamp"], 16))
+    assert got["transaction"]["timestamp"] == str(int(expectedBlock["block"]["timestamp"], 16))
     assert json.dumps(got["transaction"]["data"], sort_keys=True) == json.dumps(expected, sort_keys=True)
     assert json.dumps(got["transaction"]["inputs"][0], sort_keys=True) == json.dumps(
         {
@@ -246,7 +246,7 @@ def testGetTransactions():
                     utils.toWei(expected["gas"]) * utils.toWei(expected["gasPrice"]))
                 assert gotTransaction["transaction"]["blockHash"] == expected["blockHash"]
                 assert gotTransaction["transaction"]["blockNumber"] == str(int(expected["blockNumber"], 16))
-                assert gotTransaction["transaction"]["timestamp"] == str(int(expectedBlock["timestamp"], 16))
+                assert gotTransaction["transaction"]["timestamp"] == str(int(expectedBlock["block"]["timestamp"], 16))
                 assert json.dumps(gotTransaction["transaction"]["data"], sort_keys=True) == json.dumps(expected, sort_keys=True)
                 assert json.dumps(gotTransaction["transaction"]["inputs"][0], sort_keys=True) == json.dumps(
                     {
