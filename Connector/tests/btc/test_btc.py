@@ -523,8 +523,8 @@ def testGetTransaction():
             "transaction": {
                 "txId": expectedTransaction["txid"],
                 "txHash": expectedTransaction["hash"],
-                "blockNumber": str(expectedBlock["block"]["height"]),
-                "timestamp": str(expectedBlock["block"]["time"]),
+                "blockNumber": str(expectedBlock["height"]),
+                "timestamp": str(expectedBlock["time"]),
                 "fee": str(txDetails["fee"]),
                 "inputs": txDetails["inputs"],
                 "outputs": txDetails["outputs"],
@@ -569,8 +569,8 @@ def testGetTransactions():
                         "transaction": {
                             "txId": expectedTransaction["txid"],
                             "txHash": expectedTransaction["hash"],
-                            "blockNumber": str(expectedBlock["block"]["height"]),
-                            "timestamp": str(expectedBlock["block"]["time"]),
+                            "blockNumber": str(expectedBlock["height"]),
+                            "timestamp": str(expectedBlock["time"]),
                             "fee": str(txDetails["fee"]),
                             "inputs": txDetails["inputs"],
                             "outputs": txDetails["outputs"],
