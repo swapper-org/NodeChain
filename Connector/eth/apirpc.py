@@ -230,7 +230,7 @@ def getTransaction(id, params, config):
             config=config
         )
 
-        timestamp = block["timestamp"]
+        timestamp = block["block"]["timestamp"]
 
     response = {
         "transaction": {

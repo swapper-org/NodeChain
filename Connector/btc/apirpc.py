@@ -440,8 +440,8 @@ def getTransaction(id, params, config):
                 },
                 config=config
             )
-            blockNumber = transactionBlock["height"]
-            timestamp = transactionBlock["time"]
+            blockNumber = transactionBlock["block"]["height"]
+            timestamp = transactionBlock["block"]["time"]
 
         transactionDetails = utils.decodeTransactionDetails(transaction["rawTransaction"], id, config)
 
