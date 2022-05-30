@@ -709,7 +709,7 @@ def getAddressHistory(id, params, config):
             endpoint=config.indexerEndpoint,
             path=INDEXER_TXS_PATH,
             params={
-                "and": f"(contract_to.eq.,or(txfrom.eq.{params['address']},txto.eq.{params['address']}))",
+                "and": f"(and(status.eq.true,or(txfrom.eq.{params['address']},txto.eq.{params['address']},contract_to.like.*{params['address'][2:]})))",
                 "order": "time.desc"
             }
         )
@@ -800,7 +800,10 @@ def getAddressPendingTransactions(id, params, config):
 
     except httpError.Error:
         logger.printError("Could not retrieve pending transactions using Graphql query")
-        return []
+        return {
+            "address": params["address"],
+            "txHashes": []
+        }
 
     txs = []
 

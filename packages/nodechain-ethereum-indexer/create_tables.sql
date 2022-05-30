@@ -8,7 +8,7 @@ CREATE TABLE public.ethtxs
     gas bigint,
     gasprice bigint,
     block integer,
-    txhash citext COLLATE pg_catalog."default",
+    txhash citext COLLATE pg_catalog."default" PRIMARY KEY,
     value numeric,
     contract_to citext COLLATE pg_catalog."default",
     contract_value citext COLLATE pg_catalog."default",
