@@ -247,11 +247,13 @@ def getBlockByHash(id, params, config):
         ]
     )
 
-    err = httputils.validateJSONSchema(block, responseSchema)
+    response = {"block": block}
+
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    return block
+    return response
 
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
@@ -266,12 +268,28 @@ def getBlockByNumber(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    blockHash = RPCConnector.request(
-        endpoint=config.bitcoincoreRpcEndpoint,
-        id=id,
-        method=GET_BLOCK_HASH_METHOD,
-        params=[params["blockNumber"]]
-    )
+    if params["blockNumber"] == "latest":
+
+        blockHeight = getHeight(
+            id=id,
+            params={},
+            config=config
+        )
+        blockHash = blockHeight["latestBlockHash"]
+
+    else:
+
+        blockHash = RPCConnector.request(
+            endpoint=config.bitcoincoreRpcEndpoint,
+            id=id,
+            method=GET_BLOCK_HASH_METHOD,
+            params=[
+                int(
+                    params["blockNumber"],
+                    (16 if utils.isHexNumber(params["blockNumber"]) else 10)
+                )
+            ]
+        )
 
     return getBlockByHash(
         id=id,
@@ -422,8 +440,8 @@ def getTransaction(id, params, config):
                 },
                 config=config
             )
-            blockNumber = transactionBlock["height"]
-            timestamp = transactionBlock["time"]
+            blockNumber = transactionBlock["block"]["height"]
+            timestamp = transactionBlock["block"]["time"]
 
         transactionDetails = utils.decodeTransactionDetails(transaction["rawTransaction"], id, config)
 

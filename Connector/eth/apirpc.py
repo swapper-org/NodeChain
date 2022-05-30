@@ -230,7 +230,7 @@ def getTransaction(id, params, config):
             config=config
         )
 
-        timestamp = block["timestamp"]
+        timestamp = block["block"]["timestamp"]
 
     response = {
         "transaction": {
@@ -325,7 +325,7 @@ def getBlockByHash(id, params, config):
         method=GET_BLOCK_BY_HASH_METHOD,
         params=[
             params["blockHash"],
-            True
+            True if "verbosity" not in params else params["verbosity"] == VERBOSITY_MORE_MODE
         ]
     )
 
@@ -334,14 +334,16 @@ def getBlockByHash(id, params, config):
             id=id,
             message=f"Block with hash {params['blockHash']} could not be retrieve from node")
 
-    err = httputils.validateJSONSchema(block, responseSchema)
+    response = {"block": block}
+
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
         raise error.RpcBadRequestError(
             id=id,
             message=err.message
         )
 
-    return block
+    return response
 
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
@@ -556,18 +558,19 @@ def getBlockByNumber(id, params, config):
             message=err.message
         )
 
-    if isinstance(params["blockNumber"], int):
-        blockNumber = hex(params["blockNumber"])
-    elif not params["blockNumber"].startswith('0x'):
-        blockNumber = hex(int(params["blockNumber"]))
-    else:
-        blockNumber = params["blockNumber"]
+    blockNumber = params["blockNumber"]
+
+    if blockNumber != "latest" and not utils.isHexNumber(blockNumber):
+        blockNumber = hex(int(blockNumber))
 
     block = RPCConnector.request(
         endpoint=config.rpcEndpoint,
         id=id,
         method=GET_BLOCK_BY_NUMBER_METHOD,
-        params=[blockNumber, True]
+        params=[
+            blockNumber,
+            True if "verbosity" not in params else params["verbosity"] == VERBOSITY_MORE_MODE
+        ]
     )
 
     if block is None:
@@ -576,14 +579,16 @@ def getBlockByNumber(id, params, config):
             message=f"Block number {blockNumber} could not be retrieve from node"
         )
 
-    err = httputils.validateJSONSchema(block, responseSchema)
+    response = {"block": block}
+
+    err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
         raise error.RpcBadRequestError(
             id=id,
             message=err.message
         )
 
-    return block
+    return response
 
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)

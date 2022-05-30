@@ -6,6 +6,13 @@
     "properties": {
         "blockHash" : {
             "type": "string"
+        },
+        "verbosity": {
+            "type": "integer",
+            "enum": [
+                1,
+                2
+            ]
         }
     },
     "required": [

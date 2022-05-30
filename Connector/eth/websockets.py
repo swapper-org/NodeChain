@@ -135,7 +135,7 @@ class WebSocket:
                                            f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
                                            f"{topics.ADDRESS_BALANCE_TOPIC}"):
 
-            if utils.isAddressInBlock(address, block):
+            if utils.isAddressInBlock(address, block["block"]):
 
                 try:
                     balanceResponse = apirpc.getAddressBalance(

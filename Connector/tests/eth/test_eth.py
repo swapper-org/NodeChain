@@ -406,11 +406,11 @@ def testGetBlock():
 
     gotBlockByHash = RouteTableDef.httpMethods[COIN_SYMBOL]["getBlockByHash"].handler({"blockHash": expected["hash"]}, config)
 
-    if not json.dumps(expected["transactions"], sort_keys=True) == json.dumps(gotBlockByNumber["transactions"], sort_keys=True):
+    if not json.dumps(expected["transactions"], sort_keys=True) == json.dumps(gotBlockByNumber["block"]["transactions"], sort_keys=True):
         logger.printError("getBlockByNumber failed")
         assert False
 
-    if not json.dumps(expected["transactions"], sort_keys=True) == json.dumps(gotBlockByHash["transactions"], sort_keys=True):
+    if not json.dumps(expected["transactions"], sort_keys=True) == json.dumps(gotBlockByHash["block"]["transactions"], sort_keys=True):
         logger.printError("getBlockByHash failed")
         assert False
 

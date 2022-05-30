@@ -4,8 +4,29 @@
     "description": "",
     "type": "object",
     "properties": {
-        "blockNumber" : {
-            "type": "integer"
+        "blockNumber": {
+            "type": "string",
+            "oneOf": [
+               {
+                   "pattern": "^[0-9]+$"
+               },
+               {
+                   "enum": [
+                       "latest"
+                   ]
+               },
+               {
+                   "pattern": "0[xX][0-9a-fA-F]"
+               }
+            ]
+        },
+        "verbosity": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ]
         }
     },
     "required": [

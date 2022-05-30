@@ -50,5 +50,8 @@ INDEXER_TXS_PATH = "/ethtxs"
 INDEXER_MAX_BLOCK_PATH = "/max_block"
 GRAPHQL_PATH = "/graphql"
 
+VERBOSITY_MORE_MODE = 2
+VERBOSITY_LESS_MODE = 1
+
 COIN_SYMBOL = "eth"
 DEFAULT_PKG_CONF = "defaultConf.json"

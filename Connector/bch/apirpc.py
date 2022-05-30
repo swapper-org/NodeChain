@@ -250,53 +250,73 @@ def getAddressesUnspent(id, params, config):
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 def getBlockByHash(id, params, config):
-
     logger.printInfo(f"Executing RPC method getBlockByHash with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_HASH)
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     block = RPCConnector.request(
-        endpoint=config.bitcoinabcRpcEndpoint,
+        endpoint=config.config.bitcoinabcRpcEndpoint,
         id=id,
         method=GET_BLOCK_METHOD,
         params=[
             params["blockHash"],
-            VERBOSITY_MORE_MODE
+            params["verbosity"] if "verbosity" in params else VERBOSITY_MORE_MODE
         ]
     )
 
-    err = httputils.validateJSONSchema(block, responseSchema)
-    if err is not None:
-        raise error.RpcBadRequestError(err.message)
+    response = {"block": block}
 
-    return block
+    err = httputils.validateJSONSchema(response, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(id=id, message=err.message)
+
+    return response
 
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 def getBlockByNumber(id, params, config):
-
     logger.printInfo(f"Executing RPC method getBlockByNumber with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_NUMBER)
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(err.message)
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
-    blockHash = RPCConnector.request(
-        endpoint=config.bitcoinabcRpcEndpoint,
-        id=id,
-        method=GET_BLOCK_HASH_METHOD,
-        params=[params["blockNumber"]])
+    if params["blockNumber"] == "latest":
+
+        blockHeight = getHeight(
+            id=id,
+            params={},
+            config=config
+        )
+        blockHash = blockHeight["latestBlockHash"]
+
+    else:
+
+        blockHash = RPCConnector.request(
+            endpoint=config.config.bitcoinabcRpcEndpoint,
+            id=id,
+            method=GET_BLOCK_HASH_METHOD,
+            params=[
+                int(
+                    params["blockNumber"],
+                    (16 if utils.isHexNumber(params["blockNumber"]) else 10)
+                )
+            ]
+        )
 
     return getBlockByHash(
         id=id,
-        params={"blockHash": blockHash},
+        params={
+            "blockHash": blockHash,
+            "verbosity": params["verbosity"] if "verbosity" in params else VERBOSITY_MORE_MODE
+        },
         config=config
     )
 

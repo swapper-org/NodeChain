@@ -58,3 +58,7 @@ def toWei(amount):
 
 def toHex(amount):
     return hex(amount)
+
+
+def isHexNumber(number: str):
+    return any(number.startswith(prefix) for prefix in ["0x", "0X"])
