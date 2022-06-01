@@ -6,6 +6,23 @@
     "properties": {
         "address": {
             "type" : "string"
+        },
+        "page": {
+            "type": "integer",
+            "default": 0
+        },
+        "pageSize": {
+            "type": "integer",
+            "maximum": 50,
+            "default": 50
+        },
+        "order": {
+            "type": "string",
+            "enum": [
+                "asc",
+                "desc"
+            ],
+            "default": "desc"
         }
     },
     "required": [

@@ -6,6 +6,7 @@ from logger import logger
 from rpcutils import error
 from rpcutils.rpcconnector import RPCConnector
 from . import utils
+from utils import utils as globalUtils
 from .constants import *
 
 
@@ -28,13 +29,24 @@ def getAddressHistory(id, params, config):
         params=[params["address"]]
     )
 
+    txs = [item["tx_hash"] for item in addrHistory]
+    leftSize = "order" not in params or params["order"] == "desc"
+
+    paginatedTxs = globalUtils.paginate(
+        elements=txs,
+        page=params["page"] if "page" in params else None,
+        pageSize=params["pageSize"] if "pageSize" in params else None,
+        size="left" if leftSize else "right"
+    )
+
     response = {
         "address": params["address"],
-        "txHashes": []
+        "txHashes": paginatedTxs if not leftSize else paginatedTxs[::-1],
+        "maxPage": globalUtils.getMaxPage(
+            numElements=len(txs),
+            pageSize=params["pageSize"] if "pageSize" in params else None
+        )
     }
-
-    for item in addrHistory:
-        response["txHashes"].append(item["tx_hash"])
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
