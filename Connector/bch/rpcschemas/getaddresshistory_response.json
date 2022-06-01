@@ -12,6 +12,9 @@
             "items": {
                 "type" : "string"
             }
+        },
+        "maxPage": {
+            "type": "string"
         }
     },
     "required": [
