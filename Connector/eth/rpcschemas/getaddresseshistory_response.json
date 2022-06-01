@@ -9,6 +9,9 @@
         "address": {
             "type": "string"
         },
+        "maxPage": {
+            "type": "string"
+        },
         "txHashes": {
             "type" : "array",
             "items": {
@@ -18,7 +21,8 @@
     },
     "required": [
         "address",
-        "txHashes"
+        "txHashes",
+        "maxPage"
     ]
   }
 }

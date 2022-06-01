@@ -86,3 +86,43 @@ def openSchemaFile(schemaFile):
     except FileNotFoundError as err:
         logger.printError(f"Schema {schemaFile} not found: {err}")
         raise error.InternalServerError("Unknown error")
+
+
+def getMaxPage(numElements, pageSize=None):
+
+    if not pageSize:
+        pageSize = DEFAULT_PAGE_SIZE
+
+    return numElements // pageSize if (numElements % pageSize) == 0 else (numElements // pageSize) + 1
+
+
+def paginate(elements, page=None, pageSize=None, size="left"):
+
+    if size == "left":
+        return lpaginate(elements=elements, page=page, pageSize=pageSize)
+    if size == "right":
+        return rpaginate(elements=elements, page=page, pageSize=pageSize)
+
+    raise ValueError("Value not valid for size paramert. Allowed values are 'left', 'right'")
+
+
+def lpaginate(elements, page=None, pageSize=None):
+
+    if not pageSize:
+        pageSize = DEFAULT_PAGE_SIZE
+
+    if not page:
+        page = DEFAULT_PAGE
+
+    return elements[pageSize * page:pageSize * (page + 1)]
+
+
+def rpaginate(elements, page=None, pageSize=None):
+
+    if not pageSize:
+        pageSize = DEFAULT_PAGE_SIZE
+
+    if not page:
+        page = DEFAULT_PAGE
+
+    return elements[len(elements) - (pageSize * (page + 1)):len(elements) - pageSize * page]
