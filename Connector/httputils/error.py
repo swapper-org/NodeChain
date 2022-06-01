@@ -66,6 +66,12 @@ class ConflictError(Error):
         super().__init__(message=message, code=CONFLICT_ERROR_CODE)
 
 
+class UnauthorizedError(Error):
+
+    def __init__(self, message):
+        super().__init__(message=message, code=UNAUTHORIZED_ERROR_CODE)
+
+
 class ErrorEncoder(JSONEncoder):
 
     def encode(self, o):

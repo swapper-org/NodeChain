@@ -3,6 +3,8 @@ services:
   connector:
     build: ../Connector
     image: connector
+    environment:
+      API_KEY: ${API_KEY}
 
   nginx:
     image: nginx

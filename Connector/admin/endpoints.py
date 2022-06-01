@@ -15,6 +15,10 @@ routes = web.RouteTableDef()
 async def addCoin(request):
 
     logger.printInfo("Executing addCoin method")
+
+    if "x-api-key" not in request.headers or request.headers["x-api-key"] != adminutils.getApiKey():
+        raise error.UnauthorizedError("Unauthorized")
+
     payload = httputils.parseJSONRequest(await request.read())
 
     requestSchema, responseSchema = adminutils.getAdminMethodSchemas(ADD_COIN_METHOD)
@@ -43,6 +47,10 @@ async def addCoin(request):
 async def removeCoin(request):
 
     logger.printInfo("Executing removeCoin method")
+
+    if "x-api-key" not in request.headers or request.headers["x-api-key"] != adminutils.getApiKey():
+        raise error.UnauthorizedError("Unauthorized")
+
     payload = httputils.parseJSONRequest(await request.read())
 
     requestSchema, responseSchema = adminutils.getAdminMethodSchemas(REMOVE_COIN_METHOD)
@@ -70,6 +78,10 @@ async def removeCoin(request):
 async def getCoin(request):
 
     logger.printInfo("Executing getCoin method")
+
+    if "x-api-key" not in request.headers or request.headers["x-api-key"] != adminutils.getApiKey():
+        raise error.UnauthorizedError("Unauthorized")
+
     payload = httputils.parseJSONRequest(await request.read())
 
     requestSchema, responseSchema = adminutils.getAdminMethodSchemas(GET_COIN_METHOD)
@@ -97,6 +109,10 @@ async def getCoin(request):
 async def updateCoin(request):
 
     logger.printInfo("Executing getCoin method")
+
+    if "x-api-key" not in request.headers or request.headers["x-api-key"] != adminutils.getApiKey():
+        raise error.UnauthorizedError("Unauthorized")
+
     payload = httputils.parseJSONRequest(await request.read())
 
     requestSchema, responseSchema = adminutils.getAdminMethodSchemas(UPDATE_COIN_METHOD)
