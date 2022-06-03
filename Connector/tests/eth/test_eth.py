@@ -14,6 +14,7 @@ from rpcutils.rpcconnector import RPCConnector
 from wsutils.wsmethod import RouteTableDef as WsRouteTableDef
 from wsutils.subscribers import ListenerSubscriber
 from wsutils import websocket
+from utils import utils as globalUtils
 
 
 networkName = "regtest"
@@ -465,7 +466,8 @@ def testGetAddressHistory():
         endpoint=config.indexerEndpoint,
         path=INDEXER_TXS_PATH,
         params={
-            "and": f"(contract_to.eq.,or(txfrom.eq.{address1},txto.eq.{address1}))"
+            "and": f"(and(status.eq.true,or(txfrom.eq.{address1},txto.eq.{address1},contract_to.like.*{address1[2:]})))",
+            "order": "time.desc"
         }
     )
 
@@ -483,14 +485,12 @@ def testGetAddressHistory():
         if tx["from"]["address"] == address1 or tx["to"]["address"] == address1:
             pendingHashes.append(tx["hash"])
 
+    expectedHashes = globalUtils.removeDuplicates(pendingHashes + expectedConfirmed)
     got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressHistory"].handler({"address": address1}, config)
 
     makeEtherumgoRequest("miner_start", [1])
 
-    for tx in expectedConfirmed:
-        assert tx["txhash"] in got["txHashes"]
-
-    for hash in pendingHashes:
+    for hash in globalUtils.paginate(expectedHashes):
         assert hash in got["txHashes"]
 
 
@@ -512,11 +512,12 @@ def testGetAddressesHistory():
             endpoint=config.indexerEndpoint,
             path=INDEXER_TXS_PATH,
             params={
-                "and": f"(contract_to.eq.,or(txfrom.eq.{addrHistory['address']},txto.eq.{addrHistory['address']}))"
+                "and": f"(and(status.eq.true,or(txfrom.eq.{addrHistory['address']},txto.eq.{addrHistory['address']},contract_to.like.*{addrHistory['address'][2:]})))",
+                "order": "time.desc"
             }
         )
 
-        for tx in expected:
+        for tx in globalUtils.paginate(expected):
             assert tx["txhash"] in addrHistory["txHashes"]
 
 
