@@ -20,6 +20,6 @@
     "required": [
         "address",
         "txHashes",
-        "integer"
+        "maxPage"
     ]
 }
