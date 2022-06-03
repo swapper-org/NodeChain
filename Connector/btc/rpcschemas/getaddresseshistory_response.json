@@ -16,7 +16,7 @@
             }
         },
         "maxPage": {
-            "type": "string"
+            "type": "integer"
         }
     },
     "required": [
