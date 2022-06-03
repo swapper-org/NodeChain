@@ -485,7 +485,7 @@ def testGetAddressHistory():
         if tx["from"]["address"] == address1 or tx["to"]["address"] == address1:
             pendingHashes.append(tx["hash"])
 
-    expectedHashes = globalUtils.removeDuplicates(pendingHashes + expectedConfirmed)
+    expectedHashes = globalUtils.removeDuplicates(pendingHashes + [txConfirmed["txhash"] for txConfirmed in expectedConfirmed])
     got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressHistory"].handler({"address": address1}, config)
 
     makeEtherumgoRequest("miner_start", [1])

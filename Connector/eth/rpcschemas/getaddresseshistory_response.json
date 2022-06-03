@@ -10,7 +10,7 @@
             "type": "string"
         },
         "maxPage": {
-            "type": "string"
+            "type": "integer"
         },
         "txHashes": {
             "type" : "array",
