@@ -96,14 +96,22 @@ def getMaxPage(numElements, pageSize=None):
     return numElements // pageSize if (numElements % pageSize) == 0 else (numElements // pageSize) + 1
 
 
-def paginate(elements, page=None, pageSize=None, size="left"):
+def removeDuplicates(elements):
 
-    if size == "left":
+    seen = set()
+    seen_add = seen.add
+    return [x for x in elements if not (x in seen or seen_add(x))]
+
+
+def paginate(elements, page=None, pageSize=None, side="left"):
+
+    if side == "left":
         return lpaginate(elements=elements, page=page, pageSize=pageSize)
-    if size == "right":
+    if side == "right":
         return rpaginate(elements=elements, page=page, pageSize=pageSize)
 
-    raise ValueError("Value not valid for size paramert. Allowed values are 'left', 'right'")
+    logger.printError("Value for side parameter not valid in paginate function")
+    raise error.InternalServerError("Internal server error")
 
 
 def lpaginate(elements, page=None, pageSize=None):

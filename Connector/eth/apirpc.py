@@ -726,20 +726,19 @@ def getAddressHistory(id, params, config):
             code=err.code
         )
 
-    confirmedTxsHashes = [tx["txhash"] for tx in confirmedTxs]
-    txs = pendingTxs["txHashes"] + (list(set(confirmedTxsHashes) - set(pendingTxs["txHashes"])))
+    txs = globalUtils.removeDuplicates(pendingTxs["txHashes"] + [tx["txhash"] for tx in confirmedTxs])
     leftSize = "order" not in params or params["order"] == "desc"
 
     paginatedTxs = globalUtils.paginate(
         elements=txs,
         page=params["page"] if "page" in params else None,
         pageSize=params["pageSize"] if "pageSize" in params else None,
-        size="left" if leftSize else "right"
+        side="left" if leftSize else "right"
     )
 
     response = {
         "address": params["address"],
-        "txHashes": paginatedTxs if not leftSize else paginatedTxs[::-1],
+        "txHashes": paginatedTxs if leftSize else paginatedTxs[::-1],
         "maxPage": globalUtils.getMaxPage(
             numElements=len(txs),
             pageSize=params["pageSize"] if "pageSize" in params else None
