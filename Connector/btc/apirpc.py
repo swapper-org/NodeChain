@@ -30,18 +30,18 @@ def getAddressHistory(id, params, config):
     )
 
     txs = [item["tx_hash"] for item in addrHistory]
-    leftSize = "order" not in params or params["order"] == "desc"
+    leftSide = "order" not in params or params["order"] == "desc"
 
     paginatedTxs = globalUtils.paginate(
         elements=txs,
         page=params["page"] if "page" in params else None,
         pageSize=params["pageSize"] if "pageSize" in params else None,
-        size="left" if leftSize else "right"
+        side="left" if leftSide else "right"
     )
 
     response = {
         "address": params["address"],
-        "txHashes": paginatedTxs if not leftSize else paginatedTxs[::-1],
+        "txHashes": paginatedTxs if leftSide else paginatedTxs[::-1],
         "maxPage": globalUtils.getMaxPage(
             numElements=len(txs),
             pageSize=params["pageSize"] if "pageSize" in params else None
