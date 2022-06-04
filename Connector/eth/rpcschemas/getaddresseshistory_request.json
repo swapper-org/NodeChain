@@ -12,12 +12,14 @@
         },
         "page": {
             "type": "integer",
-            "default": 0
+            "default": 0,
+            "minimum": 0
         },
         "pageSize": {
             "type": "integer",
             "maximum": 50,
-            "default": 50
+            "default": 50,
+            "minimum": 0
         },
         "order": {
             "type": "string",
