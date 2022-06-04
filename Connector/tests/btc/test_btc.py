@@ -264,7 +264,7 @@ def testGetAddressHistory():
 
     got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressHistory"].handler({"address": address1}, config)
 
-    expectedTxHashes = {item["tx_hash"]: False for item in globalUtils.paginate(expected)}
+    expectedTxHashes = {item["tx_hash"]: False for item in globalUtils.paginate(expected[::-1])}
 
     for gotTxHash in got["txHashes"]:
         if gotTxHash in expectedTxHashes:
