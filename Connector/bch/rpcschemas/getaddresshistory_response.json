@@ -14,11 +14,12 @@
             }
         },
         "maxPage": {
-            "type": "string"
+            "type": "integer"
         }
     },
     "required": [
         "address",
-        "txHashes"
+        "txHashes",
+        "maxPage"
     ]
 }
