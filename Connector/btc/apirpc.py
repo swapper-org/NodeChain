@@ -29,7 +29,7 @@ def getAddressHistory(id, params, config):
         params=[params["address"]]
     )
 
-    txs = [item["tx_hash"] for item in addrHistory]
+    txs = [item["tx_hash"] for item in addrHistory[::-1]]
     leftSide = "order" not in params or params["order"] == "desc"
 
     paginatedTxs = globalUtils.paginate(

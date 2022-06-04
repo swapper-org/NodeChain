@@ -295,7 +295,7 @@ def testGetAddressesHistory():
 
     for addressHistory in got:
         expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [addressHistory["address"]])
-        expectedTxHashes = {item["tx_hash"]: False for item in globalUtils.paginate(expected)}
+        expectedTxHashes = {item["tx_hash"]: False for item in globalUtils.paginate(expected[::-1])}
 
         for gotTxHash in addressHistory["txHashes"]:
             if gotTxHash in expectedTxHashes:
