@@ -15,6 +15,7 @@ from wsutils.subscribers import ListenerSubscriber
 from wsutils.wsmethod import RouteTableDef as WsRouteTableDef
 from wsutils.constants import *
 from wsutils import websocket
+from utils import utils as globalUtils
 
 networkName = "regtest"
 
@@ -263,7 +264,7 @@ def testGetAddressHistory():
 
     got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressHistory"].handler({"address": address1}, config)
 
-    expectedTxHashes = {item["tx_hash"]: False for item in expected}
+    expectedTxHashes = {item["tx_hash"]: False for item in globalUtils.paginate(expected[::-1])}
 
     for gotTxHash in got["txHashes"]:
         if gotTxHash in expectedTxHashes:
@@ -294,7 +295,7 @@ def testGetAddressesHistory():
 
     for addressHistory in got:
         expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [addressHistory["address"]])
-        expectedTxHashes = {item["tx_hash"]: False for item in expected}
+        expectedTxHashes = {item["tx_hash"]: False for item in globalUtils.paginate(expected[::-1])}
 
         for gotTxHash in addressHistory["txHashes"]:
             if gotTxHash in expectedTxHashes:

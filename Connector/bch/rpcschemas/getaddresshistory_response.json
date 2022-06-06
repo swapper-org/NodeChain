@@ -12,10 +12,14 @@
             "items": {
                 "type" : "string"
             }
+        },
+        "maxPage": {
+            "type": "integer"
         }
     },
     "required": [
         "address",
-        "txHashes"
+        "txHashes",
+        "maxPage"
     ]
 }

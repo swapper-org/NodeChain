@@ -1,17 +1,36 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
-  "title": "",
-  "description": "",
-  "type": "object",
-  "properties": {
-      "addresses": {
-          "type": "array",
-          "items": {
-              "type": "string"
-          }
-      }
-  },
-  "required": [
-      "addresses"
-  ]
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "",
+    "description": "",
+    "type": "object",
+    "properties": {
+        "addresses": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "page": {
+            "type": "integer",
+            "default": 0,
+            "minimum": 0
+        },
+        "pageSize": {
+            "type": "integer",
+            "maximum": 50,
+            "minimum": 0,
+            "default": 50
+        },
+        "order": {
+            "type": "string",
+            "enum": [
+                "asc",
+                "desc"
+            ],
+            "default": "desc"
+        }
+    },
+    "required": [
+        "addresses"
+    ]
 }

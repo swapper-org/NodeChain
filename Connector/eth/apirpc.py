@@ -8,6 +8,7 @@ from rpcutils.rpcconnector import RPCConnector
 from logger import logger
 from .constants import *
 from . import utils
+from utils import utils as globalUtils
 
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
@@ -725,10 +726,23 @@ def getAddressHistory(id, params, config):
             code=err.code
         )
 
-    confirmedTxsHashes = [tx["txhash"] for tx in confirmedTxs]
+    txs = globalUtils.removeDuplicates(pendingTxs["txHashes"] + [tx["txhash"] for tx in confirmedTxs])
+    leftSize = "order" not in params or params["order"] == "desc"
+
+    paginatedTxs = globalUtils.paginate(
+        elements=txs,
+        page=params["page"] if "page" in params else None,
+        pageSize=params["pageSize"] if "pageSize" in params else None,
+        side="left" if leftSize else "right"
+    )
+
     response = {
         "address": params["address"],
-        "txHashes": confirmedTxsHashes + (list(set(pendingTxs["txHashes"]) - set(confirmedTxsHashes)))
+        "txHashes": paginatedTxs if leftSize else paginatedTxs[::-1],
+        "maxPage": globalUtils.getMaxPage(
+            numElements=len(txs),
+            pageSize=params["pageSize"] if "pageSize" in params else None
+        )
     }
 
     err = httputils.validateJSONSchema(response, responseSchema)

@@ -7,6 +7,7 @@ from rpcutils import error
 from rpcutils.rpcconnector import RPCConnector
 from . import utils
 from .constants import *
+from utils import utils as globalUtils
 
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
@@ -19,10 +20,7 @@ def getAddressHistory(id, params, config):
 
     err = httputils.validateJSONSchema(params, requestSchema)
     if err is not None:
-        raise error.RpcBadRequestError(
-            id=id,
-            message=err.message
-        )
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     addrHistory = RPCConnector.request(
         endpoint=config.electronCashRpcEndpoint,
@@ -31,20 +29,28 @@ def getAddressHistory(id, params, config):
         params=[params["address"]]
     )
 
+    txs = [item["tx_hash"] for item in addrHistory[::-1]]
+    leftSide = "order" not in params or params["order"] == "desc"
+
+    paginatedTxs = globalUtils.paginate(
+        elements=txs,
+        page=params["page"] if "page" in params else None,
+        pageSize=params["pageSize"] if "pageSize" in params else None,
+        side="left" if leftSide else "right"
+    )
+
     response = {
         "address": params["address"],
-        "txHashes": []
+        "txHashes": paginatedTxs if leftSide else paginatedTxs[::-1],
+        "maxPage": globalUtils.getMaxPage(
+            numElements=len(txs),
+            pageSize=params["pageSize"] if "pageSize" in params else None
+        )
     }
-
-    for item in addrHistory:
-        response["txHashes"].append(item["tx_hash"])
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
-        raise error.RpcBadRequestError(
-            id=id,
-            message=err.message
-        )
+        raise error.RpcBadRequestError(id=id, message=err.message)
 
     return response
 
