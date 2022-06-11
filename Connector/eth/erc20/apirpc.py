@@ -125,3 +125,100 @@ async def getAddressesBalance(id, params, config):
         )
 
     return response
+
+
+@RpcRouteTableDef.rpc(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
+@HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
+def getTransaction(id, params, config):
+
+    logger.printInfo(
+        f"Executing RPC method getTransaction with id {id} and params {params}"
+    )
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION)
+
+    err = httputils.validateJSONSchema(params, requestSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    transaction = ethapirpc.getTransaction(
+        id=id,
+        params=params,
+        config=config
+    )
+
+    if not transaction["transaction"]:
+        return transaction
+
+    abi = utils.getFunctionABI(
+        utils.getABISchema(TRANSFER_METHOD_ERC_20_ABI)
+    )
+
+    contract = Web3().eth.contract(
+        address=Web3.toChecksumAddress(transaction["transaction"]["data"]["to"]),
+        abi=[abi]
+    )
+
+    try:
+
+        func_obj, func_params = contract.decode_function_input(transaction["transaction"]["data"]["input"])
+        transaction["transaction"]["inputs"][0]["amount"] = str(func_params["_value"])
+        transaction["transaction"]["outputs"][0]["address"] = func_params["_to"]
+        transaction["transaction"]["outputs"][0]["amount"] = str(func_params["_value"])
+
+    except ValueError as err:
+
+        logger.printError(f"Can not decode transaction input. Transaction hash is not erc-20 transfer. {err}")
+        raise error.RpcBadRequestError(
+            id=id,
+            message="Transaction input data not corresponding to erc-20 transfer"
+        )
+
+    err = httputils.validateJSONSchema(transaction, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    return transaction
+
+
+@RpcRouteTableDef.rpc(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
+@HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
+def getTransactions(id, params, config):
+
+    logger.printInfo(f"Executing RPC method getTransactions with id {id} and params {params}")
+
+    requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTIONS)
+
+    err = httputils.validateJSONSchema(params, requestSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(id=id, message=err.message)
+
+    response = {
+        "transactions": []
+    }
+
+    for txHash in params["txHashes"]:
+        response["transactions"].append(
+            getTransaction(
+                id=id,
+                params={
+                    "txHash": txHash
+                },
+                config=config
+            )
+        )
+
+    err = httputils.validateJSONSchema(response, responseSchema)
+    if err is not None:
+        raise error.RpcBadRequestError(
+            id=id,
+            message=err.message
+        )
+
+    return response
