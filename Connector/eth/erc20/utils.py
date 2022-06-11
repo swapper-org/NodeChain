@@ -3,6 +3,7 @@ import json
 from .constants import *
 from logger import logger
 from httputils import error
+from functools import lru_cache
 
 
 def getMethodSchemas(name):
@@ -21,6 +22,7 @@ def getABISchema(name):
     return f"{ABI_FOLDER}{name}{SCHEMA_EXTENSION}"
 
 
+@lru_cache(maxsize=9)
 def getFunctionABI(fileName):
 
     try:
