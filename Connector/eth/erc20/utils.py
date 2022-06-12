@@ -4,6 +4,7 @@ from .constants import *
 from logger import logger
 from httputils import error
 from functools import lru_cache
+from web3 import Web3
 
 
 def getMethodSchemas(name):
@@ -36,16 +37,16 @@ def getFunctionABI(fileName):
 def addressIsInvolvedInTx(address, contract, transaction):
 
     # Transaction is made to the desire erc-20 contract
-    if transaction["to"] is None or transaction["to"] != contract.address:
+    if transaction["to"] is None or Web3.toChecksumAddress(transaction["to"]["address"]) != Web3.toChecksumAddress(contract.address):
         return False
 
     # Transaction is made from the desire address
-    if transaction["from"]["address"] == address:
+    if Web3.toChecksumAddress(transaction["from"]["address"]) == Web3.toChecksumAddress(address):
         return True
 
     # Transaction is made to the desire address
     try:
         func_obj, func_params = contract.decode_function_input(transaction["inputData"])
-        return func_params["_to"] == address
+        return Web3.toChecksumAddress(func_params["_to"]) == Web3.toChecksumAddress(address)
     except ValueError:
         return False

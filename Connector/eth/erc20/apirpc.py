@@ -345,8 +345,8 @@ def getAddressPendingTransactions(address, contractAddress, config):
             }
         )
 
-    except httpError.Error:
-        logger.printError("Could not retrieve pending transactions using Graphql query")
+    except httpError.Error as err:
+        logger.printError(f"Could not retrieve pending transactions using Graphql query. {err}")
         return []
 
     txs = []
