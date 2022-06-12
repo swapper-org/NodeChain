@@ -19,7 +19,7 @@
             "type": "integer",
             "maximum": 50,
             "default": 50,
-            "minimum": 0
+            "minimum": 1
         },
         "order": {
             "type": "string",
@@ -28,6 +28,14 @@
                 "desc"
             ],
             "default": "desc"
+        },
+        "status": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "confirmed",
+                "all"
+            ]
         }
     },
     "required": [
