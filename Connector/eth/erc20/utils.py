@@ -31,3 +31,21 @@ def getFunctionABI(fileName):
     except FileNotFoundError as err:
         logger.printError(f"Schema {fileName} not found: {err}")
         raise error.InternalServerError(f"Schema {fileName} not found: {err}")
+
+
+def addressIsInvolvedInTx(address, contract, transaction):
+
+    # Transaction is made to the desire erc-20 contract
+    if transaction["to"] is None or transaction["to"] != contract.address:
+        return False
+
+    # Transaction is made from the desire address
+    if transaction["from"]["address"] == address:
+        return True
+
+    # Transaction is made to the desire address
+    try:
+        func_obj, func_params = contract.decode_function_input(transaction["inputData"])
+        return func_params["_to"] == address
+    except ValueError:
+        return False
