@@ -28,6 +28,15 @@
                 "desc"
             ],
             "default": "desc"
+        },
+        "status": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "confirmed",
+                "all"
+            ],
+            "default": "all"
         }
     },
     "required": [
