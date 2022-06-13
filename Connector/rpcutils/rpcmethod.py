@@ -60,9 +60,9 @@ class RouteTableDef:
 
         def _rpc(function):
 
-            def wrapper(request, config):
+            async def wrapper(request, config):
 
-                response = function(
+                response = await function(
                     request[ID],
                     request[PARAMS],
                     config
@@ -105,4 +105,4 @@ class RouteTableDef:
         ):
             raise error.RpcMethodNotAllowedError("Method not allowed")
 
-        return RouteTableDef.rpcMethods[wrapperApiId][payload[METHOD]].handler(rpcPayload, config)
+        return await RouteTableDef.rpcMethods[wrapperApiId][payload[METHOD]].handler(rpcPayload, config)

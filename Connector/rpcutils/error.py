@@ -98,6 +98,19 @@ class RpcNotFoundError(RpcError):
         return error.NotFoundError(message=self.message)
 
 
+class RpcBadGatewayError(RpcError):
+
+    def __init__(self, id, message):
+        super().__init__(
+            id=id,
+            message=message,
+            code=METHOD_NOT_ALLOWED_CODE
+        )
+
+    def parseToHttpError(self):
+        return error.MethodNotAllowedError(message=self.message)
+
+
 class RpcErrorEncoder(JSONEncoder):
 
     def encode(self, o):

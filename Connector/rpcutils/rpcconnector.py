@@ -1,14 +1,15 @@
 #!/usr/bin/python
-import requests
+import aiohttp
 from logger import logger
 from . import error
 from .constants import *
+import asyncio
 
 
 class RPCConnector():
 
     @staticmethod
-    def request(endpoint, id, method, params):
+    async def request(endpoint, id, method, params):
 
         try:
 
@@ -21,28 +22,25 @@ class RPCConnector():
 
             logger.printInfo(f"Making RPC Request to {endpoint}. Payload: {payload}")
 
-            response = requests.post(
-                url=endpoint,
-                json=payload,
-                headers={
-                    'Content-type': JSON_CONTENT_TYPE
-                }
-            )
+            await asyncio.sleep(5)
 
+            async with aiohttp.ClientSession() as session:
+                async with session.post(endpoint, json=payload) as resp:
+                    if resp.status != 200:
+                        raise error.RpcBadGatewayError(id=id, message="Bad Gateway")
+                    try:
+                        response = await resp.json()
+                    except Exception as e:
+                        logger.printError(f"Json in client response is not supported: {str(e)}")
+                        raise error.RpcInternalServerError(
+                            id=id,
+                            message=f"Json in client response is not supported: {str(e)}"
+                        )
         except Exception as e:
             logger.printError(f"Request to client could not be completed: {str(e)}")
             raise error.RpcBadRequestError(
                 id=id,
                 message=f"Request to client could not be completed: {str(e)}"
-            )
-
-        try:
-            response = response.json()
-        except Exception as e:
-            logger.printError(f"Json in client response is not supported: {str(e)}")
-            raise error.RpcInternalServerError(
-                id=id,
-                message=f"Json in client response is not supported: {str(e)}"
             )
 
         logger.printInfo(f"Response received from {endpoint}: {response}")
