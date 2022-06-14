@@ -35,12 +35,12 @@ class Handler:
 
         self.networksConfig[network] = pkgConfig
 
-        # WebSocket(
-        #     coin=self.coin,
-        #     config=self.networksConfig[network]
-        # )
+        WebSocket(
+            coin=self.coin,
+            config=self.networksConfig[network]
+        )
 
-        # websocket.startWebSockets(self.coin, network)
+        websocket.startWebSockets(self.coin, network)
 
         return True, None
 
