@@ -290,7 +290,7 @@ async def getBlockByNumber(id, params, config):
 
     if params["blockNumber"] == "latest":
 
-        blockHeight = getHeight(
+        blockHeight = await getHeight(
             id=id,
             params={},
             config=config
