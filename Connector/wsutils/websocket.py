@@ -41,7 +41,7 @@ class WebSocket:
         return ws
 
 
-def startWebSockets(coin, networkName):
+async def startWebSockets(coin, networkName):
 
     if coin not in webSockets:
         logger.printInfo(f"There are no websockets for {coin} currency")
@@ -52,7 +52,7 @@ def startWebSockets(coin, networkName):
         return
 
     for webSocket in webSockets[coin][networkName]:
-        webSocket.start()
+        await webSocket.start()
 
 
 async def stopWebSockets(coin, networkName):

@@ -17,7 +17,7 @@ class Handler:
         self._coin = coin
         self._networksConfig = {}
 
-    def addConfig(self, network, config):
+    async def addConfig(self, network, config):
 
         if network in self.networksConfig:
             logger.printError(f"Configuration {network} already added for {self.coin}")
@@ -40,7 +40,7 @@ class Handler:
             config=self.networksConfig[network]
         )
 
-        websocket.startWebSockets(self.coin, network)
+        await websocket.startWebSockets(self.coin, network)
 
         return True, None
 

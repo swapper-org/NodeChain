@@ -3,10 +3,9 @@ import aiohttp
 from logger import logger
 from . import error
 from .constants import *
-import asyncio
 
 
-class RPCConnector():
+class RPCConnector:
 
     @staticmethod
     async def request(endpoint, id, method, params):
@@ -28,7 +27,7 @@ class RPCConnector():
                     response = await resp.json()
                 except aiohttp.ContentTypeError as err:
                     logger.printError(f"Json in client response is not supported: {str(err)}")
-                    raise error.BadGatewayError("Bad Gateway")
+                    raise error.RpcBadGatewayError(id=id, message="Bad Gateway")
 
         logger.printInfo(f"Response received from {endpoint}: {response}")
 

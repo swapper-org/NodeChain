@@ -106,7 +106,7 @@ class Router(object, metaclass=Singleton.Singleton):
             text=json.dumps(response)
         )
 
-    def addCoin(self, coin, network, config):
+    async def addCoin(self, coin, network, config):
 
         ok, err = self.checkCoinNetworkIntegrity(coin=coin, network=network)
         if not ok:
@@ -123,7 +123,7 @@ class Router(object, metaclass=Singleton.Singleton):
             }
 
         coinHandler = currenciesHandler[coin]
-        ok, err = coinHandler.addConfig(network=network, config=config)
+        ok, err = await coinHandler.addConfig(network=network, config=config)
         if not ok:
             return {
                 "success": False,

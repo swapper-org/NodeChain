@@ -24,7 +24,7 @@ class WebSocket:
         self._session = None
         self._loop = None
 
-    def start(self):
+    async def start(self):
 
         logger.printInfo("Starting WS for Ethereum")
 
@@ -37,10 +37,10 @@ class WebSocket:
 
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
-        asyncio.ensure_future(self.ethereumClientCallback(), loop=self.loop)
+        asyncio.ensure_future(self.ethereumClient(), loop=self.loop)
         self.loop.run_forever()
 
-    async def ethereumClientCallback(self):
+    async def ethereumClient(self):
 
         while True:
             async with ClientWebSocket(self.config.wsEndpoint) as session:
