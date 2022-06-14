@@ -11,7 +11,7 @@ from logger import logger
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.get(currency=COIN_SYMBOL)
-def syncing(id, params, config):
+async def syncing(id, params, config):
 
     logger.printInfo(f"Executing RPC method syncing with id {id} and params {params}")
 
@@ -24,7 +24,7 @@ def syncing(id, params, config):
             message=err.message
         )
 
-    blockchainInfo = RPCConnector.request(
+    blockchainInfo = await RPCConnector.request(
         endpoint=config.rpcEndpoint,
         id=id,
         method=GET_INFO,
@@ -39,7 +39,7 @@ def syncing(id, params, config):
         )
 
     if not blockchainInfo["synchronized"]:
-        syncInfo = RPCConnector.request(
+        syncInfo = await RPCConnector.request(
             endpoint=config.rpcEndpoint,
             id=id,
             method=GET_SYNC_INFO,
