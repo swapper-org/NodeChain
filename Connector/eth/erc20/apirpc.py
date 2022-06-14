@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import asyncio
 from web3 import Web3
 from rpcutils import error
 from rpcutils.rpcmethod import RouteTableDef as RpcRouteTableDef
@@ -13,7 +14,7 @@ from . import utils
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
-def getAddressBalance(id, params, config):
+async def getAddressBalance(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")
 
@@ -44,7 +45,7 @@ def getAddressBalance(id, params, config):
 
     for contractAddress in params["contractAddresses"]:
 
-        result = ethapirpc.call(
+        result = await ethapirpc.call(
             id=id,
             params={
                 "transaction": {
@@ -76,7 +77,7 @@ def getAddressBalance(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
-def getAddressesBalance(id, params, config):
+async def getAddressesBalance(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")
 
@@ -93,18 +94,27 @@ def getAddressesBalance(id, params, config):
     for contractAddress in params["contractAddresses"]:
         response[contractAddress] = []
 
+    tasks = []
+
     for address in params["addresses"]:
 
-        addressBalances = getAddressBalance(
-            id=id,
-            params={
-                "address": address,
-                "contractAddresses": params["contractAddresses"]
-            },
-            config=config
+        tasks.append(
+            asyncio.ensure_future(
+                getAddressBalance(
+                    id=id,
+                    params={
+                        "address": address,
+                        "contractAddresses": params["contractAddresses"]
+                    },
+                    config=config
+                )
+            )
         )
 
-        for contractAddress, addressBalance in addressBalances.items():
+    originalResponses = await asyncio.gather(*tasks)
+
+    for originalResponse in originalResponses:
+        for contractAddress, addressBalance in originalResponse.items():
             response[contractAddress].append(addressBalance)
 
     err = httputils.validateJSONSchema(response, responseSchema)

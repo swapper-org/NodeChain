@@ -72,6 +72,12 @@ class UnauthorizedError(Error):
         super().__init__(message=message, code=UNAUTHORIZED_ERROR_CODE)
 
 
+class BadGatewayError(Error):
+
+    def __init__(self, message):
+        super().__init__(message=message, code=BAD_GATEWAY_CODE)
+
+
 class ErrorEncoder(JSONEncoder):
 
     def encode(self, o):
