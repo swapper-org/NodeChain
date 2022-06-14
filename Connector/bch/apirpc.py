@@ -195,19 +195,24 @@ async def getAddressUnspent(id, params, config):
         method=GET_ADDRESS_UNSPENT_METHOD,
         params=[params["address"]])
 
-    response = []
-
+    outputs = []
     for tx in connResponse:
+        outputs.append(
+            {
+                "txHash": tx["tx_hash"],
+                "vout": str(tx["tx_pos"]),
+                "status": {
+                    "confirmed": tx["height"] != 0,
+                    "blockHeight": str(tx["height"])
+                },
+                "value": str(tx["value"])
+            }
+        )
 
-        response.append({
-            "txHash": tx["tx_hash"],
-            "vout": str(tx["tx_pos"]),
-            "status": {
-                "confirmed": tx["height"] != 0,
-                "blockHeight": str(tx["height"])
-            },
-            "value": str(tx["value"])
-        })
+    response = {
+        "address": params["address"],
+        "outputs": outputs
+    }
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
@@ -249,9 +254,7 @@ async def getAddressesUnspent(id, params, config):
             )
         )
 
-    response = {
-        "outputs": await asyncio.gather(*tasks)
-    }
+    response = await asyncio.gather(*tasks)
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
