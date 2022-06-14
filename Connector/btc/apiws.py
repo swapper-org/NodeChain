@@ -10,7 +10,7 @@ from .constants import *
 
 
 @RouteTableDef.ws(currency=COIN_SYMBOL)
-def subscribeToAddressBalance(subscriber, id, params, config):
+async def subscribeToAddressBalance(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method subscribeToAddressBalance with id {id} and params {params}")
 
@@ -33,7 +33,7 @@ def subscribeToAddressBalance(subscriber, id, params, config):
 
     if not broker.isTopic(addrBalanceTopic):
 
-        response = apirpc.notify(
+        response = await apirpc.notify(
             id=id,
             params={
                 "address": params["address"],
@@ -51,7 +51,7 @@ def subscribeToAddressBalance(subscriber, id, params, config):
 
 
 @RouteTableDef.ws(currency=COIN_SYMBOL)
-def unsubscribeFromAddressBalance(subscriber, id, params, config):
+async def unsubscribeFromAddressBalance(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method unsubscribeFromAddressBalance with id {id} and params {params}")
 
@@ -71,7 +71,7 @@ def unsubscribeFromAddressBalance(subscriber, id, params, config):
 
 
 @RouteTableDef.ws(currency=COIN_SYMBOL)
-def subscribeToNewBlocks(subscriber, id, params, config):
+async def subscribeToNewBlocks(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method subscribeToNewBlocks with id {id} and params {params}")
 
@@ -93,7 +93,7 @@ def subscribeToNewBlocks(subscriber, id, params, config):
 
 
 @RouteTableDef.ws(currency=COIN_SYMBOL)
-def unsubscribeFromNewBlocks(subscriber, id, params, config):
+async def unsubscribeFromNewBlocks(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method unsubscribeFromNewBlocks with id {id} and params {params}")
 

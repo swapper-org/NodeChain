@@ -60,9 +60,9 @@ class RouteTableDef:
 
         def _ws(function):
 
-            def wrapper(subscriber, rpcPayload, config):
+            async def wrapper(subscriber, rpcPayload, config):
 
-                return function(subscriber, rpcPayload[ID], rpcPayload[PARAMS], config)
+                return await function(subscriber, rpcPayload[ID], rpcPayload[PARAMS], config)
 
             RouteTableDef._registerMethod(
                 wrapperApiId=wrapperApiId,
