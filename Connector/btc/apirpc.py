@@ -233,7 +233,9 @@ async def getAddressesUnspent(id, params, config):
             )
         )
 
-    response = await asyncio.gather(*tasks)
+    response = {
+        "outputs": await asyncio.gather(*tasks)
+    }
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
