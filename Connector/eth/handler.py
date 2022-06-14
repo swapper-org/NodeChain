@@ -35,12 +35,12 @@ class Handler:
 
         self.networksConfig[network] = pkgConfig
 
-        WebSocket(
-            coin=self.coin,
-            config=self.networksConfig[network]
-        )
+        # WebSocket(
+        #    coin=self.coin,
+        #    config=self.networksConfig[network]
+        # )
 
-        await websocket.startWebSockets(self.coin, network)
+        # await websocket.startWebSockets(self.coin, network)
 
         return True, None
 
@@ -58,8 +58,8 @@ class Handler:
             logger.printError(f"Configuration {network} not added for {self.coin}")
             return False, f"Configuration {network} not added for {self.coin}"
 
-        await websocket.stopWebSockets(coin=self.coin,
-                                       networkName=network)
+        # await websocket.stopWebSockets(coin=self.coin,
+        #                                networkName=network)
 
         broker = Broker()
         pkgTopics = broker.getSubTopics(topicName=f"{self.coin}{topics.TOPIC_SEPARATOR}{network}")
@@ -78,24 +78,24 @@ class Handler:
             logger.printError(f"Configuration {network} not added for {self.coin}")
             return False, f"Configuration {network} not added for {self.coin}"
 
-        await websocket.stopWebSockets(coin=self.coin,
-                                       networkName=network
-                                       )
+        # await websocket.stopWebSockets(coin=self.coin,
+        #                                networkName=network
+        #                                )
 
         ok, err = self.networksConfig[network].loadConfig(config=config)
         if not ok:
             logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
             return ok, err
 
-        WebSocket(
-            coin=self.coin,
-            config=self.networksConfig[network]
-        )
+        # WebSocket(
+        #     coin=self.coin,
+        #     config=self.networksConfig[network]
+        # )
 
-        websocket.startWebSockets(
-            coin=self.coin,
-            networkName=network
-        )
+        # websocket.startWebSockets(
+        #     coin=self.coin,
+        #     networkName=network
+        # )
 
         return True, None
 
