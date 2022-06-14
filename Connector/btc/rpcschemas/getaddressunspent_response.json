@@ -6,6 +6,9 @@
     "items": {
         "type": "object",
         "properties": {
+            "address": {
+                "type": "string"
+            },
             "txHash": {
                 "type": "string"
             },
@@ -32,6 +35,7 @@
             }
         },
         "required": [
+            "address",
             "txHash",
             "vout",
             "status",
