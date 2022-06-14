@@ -28,7 +28,7 @@ async def addCoin(request):
         raise error.BadRequestError(message=err.message)
 
     router = Router()
-    response = router.addCoin(
+    response = await router.addCoin(
         coin=payload["coin"],
         network=payload["network"],
         config=payload["config"]
