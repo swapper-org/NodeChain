@@ -9,41 +9,48 @@
             "address": {
                 "type": "string"
             },
-            "txHash": {
-                "type": "string"
-            },
-            "vout": {
-                "type": "string"
-            },
-            "status": {
-                "type": "object",
-                "properties": {
-                    "confirmed": {
-                        "type": "boolean"
+            "outputs": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "txHash": {
+                            "type": "string"
+                        },
+                        "vout": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "object",
+                            "properties": {
+                                "confirmed": {
+                                    "type": "boolean"
+                                },
+                                "blockHeight": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "confirmed",
+                                "blockHeight"
+                            ]
+                        },
+                        "value": {
+                            "type" : "string"
+                        }
                     },
-                    "blockHeight": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "confirmed",
-                    "blockHeight"
-                ]
-            },
-            "value": {
-                "type" : "string"
+                    "required": [
+                        "txHash",
+                        "vout",
+                        "status",
+                        "value"
+                    ]
+                }
             }
         },
         "required": [
             "address",
-            "txHash",
-            "vout",
-            "status",
-            "value"
+            "outputs"
         ]
-    },
-    "required": [
-        "address",
-        "outputs"
-    ]
+    }
 }
