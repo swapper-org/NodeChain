@@ -723,12 +723,18 @@ async def getAddressHistory(id, params, config):
             message=err.message
         )
 
-    txs = []
     if "status" not in params or params["status"] in ["pending", "all"]:
-        txs += getAddressPendingTransactions(address=params["address"], config=config)
-    
+        pendingTask = getAddressPendingTransactions(address=params["address"], config=config)
+
     if "status" not in params or params["status"] in ["confirmed", "all"]:
-        txs += getAddressConfirmedTransactions(address=params["address"], config=config)
+        confirmedTask = getAddressConfirmedTransactions(address=params["address"], config=config)
+
+    txs = []
+    if pendingTask in locals():
+        txs += await pendingTask
+
+    if confirmedTask in locals():
+        txs += await confirmedTask
 
     txs = globalUtils.removeDuplicates(txs)
 
@@ -802,11 +808,11 @@ async def getAddressesHistory(id, params, config):
     return response
 
 
-def getAddressPendingTransactions(address, config):
+async def getAddressPendingTransactions(address, config):
 
     try:
 
-        pendingTransactions = HTTPConnector.post(
+        pendingTransactions = await HTTPConnector.post(
             endpoint=config.rpcEndpoint,
             path=GRAPHQL_PATH,
             json={
@@ -827,10 +833,10 @@ def getAddressPendingTransactions(address, config):
     return txs
 
 
-def getAddressConfirmedTransactions(address, config):
+async def getAddressConfirmedTransactions(address, config):
 
     try:
-        txs = HTTPConnector.get(
+        txs = await HTTPConnector.get(
             endpoint=config.indexerEndpoint,
             path=INDEXER_TXS_PATH,
             params={
