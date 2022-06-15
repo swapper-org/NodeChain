@@ -92,10 +92,6 @@ async def getAddressesBalance(id, params, config):
             message=err.message
         )
 
-    response = {}
-    for contractAddress in params["contractAddresses"]:
-        response[contractAddress] = []
-
     tasks = []
 
     for address in params["addresses"]:
@@ -112,6 +108,10 @@ async def getAddressesBalance(id, params, config):
                 )
             )
         )
+
+    response = {}
+    for contractAddress in params["contractAddresses"]:
+        response[contractAddress] = []
 
     originalResponses = await asyncio.gather(*tasks)
 
@@ -131,7 +131,7 @@ async def getAddressesBalance(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
-def getTransaction(id, params, config):
+async def getTransaction(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getTransaction with id {id} and params {params}"
@@ -146,7 +146,7 @@ def getTransaction(id, params, config):
             message=err.message
         )
 
-    transaction = ethapirpc.getTransaction(
+    transaction = await ethapirpc.getTransaction(
         id=id,
         params=params,
         config=config
@@ -191,7 +191,7 @@ def getTransaction(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
-def getTransactions(id, params, config):
+async def getTransactions(id, params, config):
 
     logger.printInfo(f"Executing RPC method getTransactions with id {id} and params {params}")
 
@@ -201,20 +201,23 @@ def getTransactions(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    response = {
-        "transactions": []
-    }
-
+    tasks = []
     for txHash in params["txHashes"]:
-        response["transactions"].append(
-            getTransaction(
-                id=id,
-                params={
-                    "txHash": txHash
-                },
-                config=config
+        tasks.append(
+            asyncio.ensure_future(
+                getTransaction(
+                    id=id,
+                    params={
+                        "txHash": txHash
+                    },
+                    config=config
+                )
             )
         )
+
+    response = {
+        "transactions": await asyncio.gather(*tasks)
+    }
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
@@ -228,7 +231,7 @@ def getTransactions(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
-def getAddressHistory(id, params, config):
+async def getAddressHistory(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressHistory with id {id} and params {params}")
 
@@ -246,21 +249,27 @@ def getAddressHistory(id, params, config):
 
     for contractAddress in params["contractAddresses"]:
 
-        txs = []
-
         if "status" not in params or params["status"] in ["pending", "all"]:
-            txs = txs + getAddressPendingTransactions(
+            pendingTask = getAddressPendingTransactions(
                 address=params["address"],
                 contractAddress=contractAddress,
                 config=config
             )
 
         if "status" not in params or params["status"] in ["confirmed", "all"]:
-            txs = txs + getAddressConfirmedTransactions(
+            confirmedTask = getAddressConfirmedTransactions(
                 address=params["address"],
                 contractAddress=contractAddress,
                 config=config
             )
+
+        txs = []
+
+        if pendingTask in locals():
+            txs += await pendingTask
+
+        if confirmedTask in locals():
+            txs += await confirmedTask
 
         paginatedTxs = globalutils.paginate(
             elements=txs,
@@ -290,7 +299,7 @@ def getAddressHistory(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
-def getAddressesHistory(id, params, config):
+async def getAddressesHistory(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getAddressesHistory with id {id} and params {params}")
@@ -304,23 +313,32 @@ def getAddressesHistory(id, params, config):
             message=err.message
         )
 
+    tasks = []
+
+    for address in params["addresses"]:
+
+        tasks.append(
+            asyncio.ensure_future(
+                getAddressHistory(
+                    id=id,
+                    params={
+                        "address": address,
+                        "contractAddresses": params["contractAddresses"]
+                    },
+                    config=config
+                )
+            )
+        )
+
     response = {}
 
     for contractAddress in params["contractAddresses"]:
         response[contractAddress] = []
 
-    for address in params["addresses"]:
+    originalResponses = await asyncio.gather(*tasks)
 
-        addressHistories = getAddressHistory(
-            id=id,
-            params={
-                "address": address,
-                "contractAddresses": params["contractAddresses"]
-            },
-            config=config
-        )
-
-        for contractAddress, addressBalance in addressHistories.items():
+    for originalResponse in originalResponses:
+        for contractAddress, addressBalance in originalResponse.items():
             response[contractAddress].append(addressBalance)
 
     err = httputils.validateJSONSchema(response, responseSchema)
@@ -333,11 +351,11 @@ def getAddressesHistory(id, params, config):
     return response
 
 
-def getAddressPendingTransactions(address, contractAddress, config):
+async def getAddressPendingTransactions(address, contractAddress, config):
 
     try:
 
-        pendingTransactions = HTTPConnector.post(
+        pendingTask = HTTPConnector.post(
             endpoint=config.rpcEndpoint,
             path=GRAPHQL_PATH,
             json={
@@ -360,6 +378,8 @@ def getAddressPendingTransactions(address, contractAddress, config):
         abi=[abi]
     )
 
+    pendingTransactions = await pendingTask
+
     for tx in pendingTransactions["data"]["pending"]["transactions"]:
         if utils.addressIsInvolvedInTx(address=address, contract=contract, transaction=tx):
             txs.append(tx["hash"])
@@ -367,10 +387,10 @@ def getAddressPendingTransactions(address, contractAddress, config):
     return txs
 
 
-def getAddressConfirmedTransactions(address, contractAddress, config):
+async def getAddressConfirmedTransactions(address, contractAddress, config):
 
     try:
-        txs = HTTPConnector.get(
+        txs = await HTTPConnector.get(
             endpoint=config.indexerEndpoint,
             path=INDEXER_TXS_PATH,
             params={
