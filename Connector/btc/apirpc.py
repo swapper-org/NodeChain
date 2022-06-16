@@ -495,7 +495,7 @@ async def getTransaction(id, params, config):
             blockNumber = transactionBlock["block"]["height"]
             timestamp = transactionBlock["block"]["time"]
 
-        transactionDetails = utils.decodeTransactionDetails(transaction["rawTransaction"], id, config)
+        transactionDetails = await utils.decodeTransactionDetails(transaction["rawTransaction"], id, config)
 
         # Converting all transaction details to str
 
