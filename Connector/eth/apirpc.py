@@ -723,37 +723,33 @@ async def getAddressHistory(id, params, config):
             message=err.message
         )
 
-    pendingTxs = getAddressPendingTransactions(id, params, config)
+    if "status" not in params or params["status"] in ["pending", "all"]:
+        pendingTask = getAddressPendingTransactions(address=params["address"], config=config)
 
-    try:
-        confirmedTxs = await HTTPConnector.get(
-            endpoint=config.indexerEndpoint,
-            path=INDEXER_TXS_PATH,
-            params={
-                "and": f"(and(status.eq.true,or(txfrom.eq.{params['address']},txto.eq.{params['address']},contract_to.like.*{params['address'][2:]})))",
-                "order": "time.desc"
-            }
-        )
-    except httpError.Error as err:
-        raise error.RpcError(
-            id=id,
-            message=err.message,
-            code=err.code
-        )
+    if "status" not in params or params["status"] in ["confirmed", "all"]:
+        confirmedTask = getAddressConfirmedTransactions(address=params["address"], config=config)
 
-    txs = globalUtils.removeDuplicates(pendingTxs["txHashes"] + [tx["txhash"] for tx in confirmedTxs])
-    leftSize = "order" not in params or params["order"] == "desc"
+    txs = []
+    if pendingTask in locals():
+        txs += await pendingTask
+
+    if confirmedTask in locals():
+        txs += await confirmedTask
+
+    txs = globalUtils.removeDuplicates(txs)
+
+    recentFirst = "order" not in params or params["order"] == "desc"
 
     paginatedTxs = globalUtils.paginate(
         elements=txs,
         page=params["page"] if "page" in params else None,
         pageSize=params["pageSize"] if "pageSize" in params else None,
-        side="left" if leftSize else "right"
+        side="left" if recentFirst else "right"
     )
 
     response = {
         "address": params["address"],
-        "txHashes": paginatedTxs if leftSize else paginatedTxs[::-1],
+        "txHashes": paginatedTxs if recentFirst else paginatedTxs[::-1],
         "maxPage": globalUtils.getMaxPage(
             numElements=len(txs),
             pageSize=params["pageSize"] if "pageSize" in params else None
@@ -812,23 +808,11 @@ async def getAddressesHistory(id, params, config):
     return response
 
 
-def getAddressPendingTransactions(id, params, config):
-
-    logger.printInfo(
-        f"Executing RPC method getAddressPendingTransactions with id {id} and params {params}")
-
-    requestSchema, responseSchema = utils.getMethodSchemas(GET_PENDING_TRANSACTIONS)
-
-    err = httputils.validateJSONSchema(params, requestSchema)
-    if err is not None:
-        raise error.RpcBadRequestError(
-            id=id,
-            message=err.message
-        )
+async def getAddressPendingTransactions(address, config):
 
     try:
 
-        pendingTransactions = HTTPConnector.post(
+        pendingTransactions = await HTTPConnector.post(
             endpoint=config.rpcEndpoint,
             path=GRAPHQL_PATH,
             json={
@@ -838,32 +822,37 @@ def getAddressPendingTransactions(id, params, config):
 
     except httpError.Error:
         logger.printError("Could not retrieve pending transactions using Graphql query")
-        return {
-            "address": params["address"],
-            "txHashes": []
-        }
+        return []
 
     txs = []
 
     for tx in pendingTransactions["data"]["pending"]["transactions"]:
-        if tx["from"]["address"] == params["address"] or \
-                (tx["to"] is not None and tx["to"]["address"] == params["address"]):
-
+        if utils.isAddressInvolvedInTx(address=address, tx=tx):
             txs.append(tx["hash"])
 
-    response = {
-        "address": params["address"],
-        "txHashes": txs
-    }
+    return txs
 
-    err = httputils.validateJSONSchema(response, responseSchema)
-    if err is not None:
-        raise error.RpcBadRequestError(
-            id=id,
-            message=err.message
+
+async def getAddressConfirmedTransactions(address, config):
+
+    try:
+        txs = await HTTPConnector.get(
+            endpoint=config.indexerEndpoint,
+            path=INDEXER_TXS_PATH,
+            params={
+                "and": f"(and(status.eq.true,or(txfrom.eq.{address},txto.eq.{address})))",
+                "order": "time.desc"
+            }
         )
 
-    return response
+    except httpError.Error as err:
+        raise error.RpcError(
+            id=id,
+            message=err.message,
+            code=err.code
+        )
+
+    return [tx["txhash"] for tx in txs]
 
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)

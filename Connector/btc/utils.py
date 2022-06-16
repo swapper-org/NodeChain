@@ -71,7 +71,7 @@ class AddrBalanceTopicCloseHandler:
             raise error.RpcBadRequestError(id=id, message=f"Can not unsubscribe {self.topicName} to node")
 
 
-def decodeTransactionDetails(txDecoded, id, config):
+async def decodeTransactionDetails(txDecoded, id, config):
 
     outputs = []
     for output in txDecoded["vout"]:
@@ -104,7 +104,7 @@ def decodeTransactionDetails(txDecoded, id, config):
             )
             break
 
-        transaction = apirpc.getTransactionHex(
+        transaction = await apirpc.getTransactionHex(
             id=id,
             params={
                 "txHash": txInput["txid"],

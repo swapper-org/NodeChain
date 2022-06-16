@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from logger import logger
 from .constants import *
+from web3 import Web3
 
 
 def ensureHash(hashAddr):
@@ -62,3 +63,10 @@ def toHex(amount):
 
 def isHexNumber(number: str):
     return any(number.startswith(prefix) for prefix in ["0x", "0X"])
+
+
+def isAddressInvolvedInTx(address, tx):
+
+    addr = Web3.toChecksumAddress(address)
+    return (Web3.toChecksumAddress(tx["from"]["address"]) == addr) or \
+           (tx["to"] is not None and Web3.toChecksumAddress(tx["to"]["address"]) == addr)

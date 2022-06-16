@@ -4,11 +4,14 @@
     "description": "",
     "type": "object",
     "properties": {
-        "addresses": {
+        "contractAddresses": {
             "type": "array",
             "items": {
                 "type": "string"
             }
+        },
+        "address": {
+            "type": "string"
         },
         "page": {
             "type": "integer",
@@ -18,8 +21,8 @@
         "pageSize": {
             "type": "integer",
             "maximum": 50,
-            "default": 50,
-            "minimum": 1
+            "minimum": 1,
+            "default": 50
         },
         "order": {
             "type": "string",
@@ -28,17 +31,10 @@
                 "desc"
             ],
             "default": "desc"
-        },
-        "status": {
-            "type": "string",
-            "enum": [
-                "pending",
-                "confirmed",
-                "all"
-            ]
         }
     },
     "required": [
-        "addresses"
+        "address",
+        "contractAddresses"
     ]
 }
