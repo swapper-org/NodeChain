@@ -10,7 +10,7 @@ from . import utils
 
 
 @RouteTableDef.ws(currency=COIN_SYMBOL)
-def subscribeToAddressBalance(subscriber, id, params, config):
+async def subscribeToAddressBalance(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method subscribeAddressBalance with id {id} and params {params}")
 
@@ -36,7 +36,7 @@ def subscribeToAddressBalance(subscriber, id, params, config):
 
 
 @RouteTableDef.ws(currency=COIN_SYMBOL)
-def unsubscribeFromAddressBalance(subscriber, id, params, config):
+async def unsubscribeFromAddressBalance(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method unsubscribeAddressBalance with id {id} and params {params}")
 
@@ -57,7 +57,7 @@ def unsubscribeFromAddressBalance(subscriber, id, params, config):
 
 
 @RouteTableDef.ws(currency=COIN_SYMBOL)
-def subscribeToNewBlocks(subscriber, id, params, config):
+async def subscribeToNewBlocks(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method subscribeToNewBlock with id {id} and params {params}")
 
@@ -82,7 +82,7 @@ def subscribeToNewBlocks(subscriber, id, params, config):
 
 
 @RouteTableDef.ws(currency=COIN_SYMBOL)
-def unsubscribeFromNewBlocks(subscriber, id, params, config):
+async def unsubscribeFromNewBlocks(subscriber, id, params, config):
 
     logger.printInfo(f"Executing WS method unsubscribeToNewBlockMine with id {id} and params {params}")
 

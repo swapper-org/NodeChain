@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import asyncio
 from httputils import httputils
 from httputils.httpmethod import RouteTableDef as HttpRouteTableDef
 from rpcutils.rpcmethod import RouteTableDef as RpcRouteTableDef
@@ -12,7 +13,7 @@ from utils import utils as globalUtils
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getAddressHistory(id, params, config):
+async def getAddressHistory(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressHistory with id {id} and params {params}")
 
@@ -22,7 +23,7 @@ def getAddressHistory(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    addrHistory = RPCConnector.request(
+    addrHistory = await RPCConnector.request(
         endpoint=config.electronCashRpcEndpoint,
         id=id,
         method=GET_ADDRESS_HISTORY_METHOD,
@@ -57,7 +58,7 @@ def getAddressHistory(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getAddressesHistory(id, params, config):
+async def getAddressesHistory(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getAddressesHistory with id {id} and params {params}"
@@ -69,18 +70,21 @@ def getAddressesHistory(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(err.message)
 
-    response = []
+    tasks = []
 
     for address in params["addresses"]:
-        response.append(
-            getAddressHistory(
-                id,
-                {
-                    "address": address
-                },
-                config=config
+        tasks.append(
+            asyncio.ensure_future(
+                getAddressHistory(
+                    id,
+                    {
+                        "address": address
+                    },
+                    config=config
+                )
             )
         )
+    response = await asyncio.gather(*tasks)
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
@@ -91,7 +95,7 @@ def getAddressesHistory(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getAddressBalance(id, params, config):
+async def getAddressBalance(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")
 
@@ -104,7 +108,7 @@ def getAddressBalance(id, params, config):
             message=err.message
         )
 
-    connResponse = RPCConnector.request(
+    connResponse = await RPCConnector.request(
         endpoint=config.electronCashRpcEndpoint,
         id=id,
         method=GET_ADDRESS_BALANCE_METHOD,
@@ -131,7 +135,7 @@ def getAddressBalance(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getAddressesBalance(id, params, config):
+async def getAddressesBalance(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressesBalance with id {id} and params {params}")
 
@@ -144,19 +148,21 @@ def getAddressesBalance(id, params, config):
             message=err.message
         )
 
-    response = []
+    tasks = []
 
     for address in params["addresses"]:
-
-        response.append(
-            getAddressBalance(
-                id=id,
-                params={
-                    "address": address
-                },
-                config=config
+        tasks.append(
+            asyncio.ensure_future(
+                getAddressBalance(
+                    id=id,
+                    params={
+                        "address": address
+                    },
+                    config=config
+                )
             )
         )
+    response = await asyncio.gather(*tasks)
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
@@ -170,7 +176,7 @@ def getAddressesBalance(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getAddressUnspent(id, params, config):
+async def getAddressUnspent(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressUnspent with id {id} and params {params}")
 
@@ -183,25 +189,30 @@ def getAddressUnspent(id, params, config):
             message=err.message
         )
 
-    connResponse = RPCConnector.request(
+    connResponse = await RPCConnector.request(
         endpoint=config.electronCashRpcEndpoint,
         id=id,
         method=GET_ADDRESS_UNSPENT_METHOD,
         params=[params["address"]])
 
-    response = []
-
+    outputs = []
     for tx in connResponse:
+        outputs.append(
+            {
+                "txHash": tx["tx_hash"],
+                "vout": str(tx["tx_pos"]),
+                "status": {
+                    "confirmed": tx["height"] != 0,
+                    "blockHeight": str(tx["height"])
+                },
+                "value": str(tx["value"])
+            }
+        )
 
-        response.append({
-            "txHash": tx["tx_hash"],
-            "vout": str(tx["tx_pos"]),
-            "status": {
-                "confirmed": tx["height"] != 0,
-                "blockHeight": str(tx["height"])
-            },
-            "value": str(tx["value"])
-        })
+    response = {
+        "address": params["address"],
+        "outputs": outputs
+    }
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
@@ -215,7 +226,7 @@ def getAddressUnspent(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getAddressesUnspent(id, params, config):
+async def getAddressesUnspent(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressesUnspent with id {id} and params {params}")
 
@@ -228,20 +239,22 @@ def getAddressesUnspent(id, params, config):
             message=err.message
         )
 
-    response = []
+    tasks = []
 
-    for address in params["address"]:
-
-        response.append({
-            "address": address,
-            "outputs": getAddressUnspent(
-                id=id,
-                params={
-                    "address": address
-                },
-                config=config
+    for address in params["addresses"]:
+        tasks.append(
+            asyncio.ensure_future(
+                getAddressUnspent(
+                    id=id,
+                    params={
+                        "address": address
+                    },
+                    config=config
+                )
             )
-        })
+        )
+
+    response = await asyncio.gather(*tasks)
 
     err = httputils.validateJSONSchema(response, responseSchema)
     if err is not None:
@@ -255,7 +268,7 @@ def getAddressesUnspent(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getBlockByHash(id, params, config):
+async def getBlockByHash(id, params, config):
     logger.printInfo(f"Executing RPC method getBlockByHash with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_HASH)
@@ -264,7 +277,7 @@ def getBlockByHash(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    block = RPCConnector.request(
+    block = await RPCConnector.request(
         endpoint=config.config.bitcoinabcRpcEndpoint,
         id=id,
         method=GET_BLOCK_METHOD,
@@ -285,7 +298,7 @@ def getBlockByHash(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getBlockByNumber(id, params, config):
+async def getBlockByNumber(id, params, config):
     logger.printInfo(f"Executing RPC method getBlockByNumber with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_NUMBER)
@@ -296,7 +309,7 @@ def getBlockByNumber(id, params, config):
 
     if params["blockNumber"] == "latest":
 
-        blockHeight = getHeight(
+        blockHeight = await getHeight(
             id=id,
             params={},
             config=config
@@ -305,7 +318,7 @@ def getBlockByNumber(id, params, config):
 
     else:
 
-        blockHash = RPCConnector.request(
+        blockHash = await RPCConnector.request(
             endpoint=config.config.bitcoinabcRpcEndpoint,
             id=id,
             method=GET_BLOCK_HASH_METHOD,
@@ -317,7 +330,7 @@ def getBlockByNumber(id, params, config):
             ]
         )
 
-    return getBlockByHash(
+    return await getBlockByHash(
         id=id,
         params={
             "blockHash": blockHash,
@@ -329,7 +342,7 @@ def getBlockByNumber(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getFeePerByte(id, params, config):
+async def getFeePerByte(id, params, config):
 
     logger.printInfo(f"Executing RPC method getFeePerByte with id {id} and params {params}")
 
@@ -342,7 +355,7 @@ def getFeePerByte(id, params, config):
             message=err.message
         )
 
-    feePerByte = RPCConnector.request(
+    feePerByte = await RPCConnector.request(
         endpoint=config.bitcoinabcRpcEndpoint,
         id=id,
         method=ESTIMATE_SMART_FEE_METHOD,
@@ -366,7 +379,7 @@ def getFeePerByte(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.get(currency=COIN_SYMBOL)
-def getHeight(id, params, config):
+async def getHeight(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method getHeight with id {id} and params {params}")
@@ -381,14 +394,14 @@ def getHeight(id, params, config):
         )
 
     latestBlockHeight = int(
-        RPCConnector.request(
+        await RPCConnector.request(
             endpoint=config.bitcoinabcRpcEndpoint,
             id=id,
             method=GET_BLOCK_COUNT_METHOD,
             params=[]
         )
     )
-    latestBlockHash = RPCConnector.request(
+    latestBlockHash = await RPCConnector.request(
         endpoint=config.bitcoinabcRpcEndpoint,
         id=id,
         method=GET_BLOCK_HASH_METHOD,
@@ -415,7 +428,7 @@ def getHeight(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getTransactionHex(id, params, config):
+async def getTransactionHex(id, params, config):
 
     logger.printInfo(f"Executing RPC method getTransactionHex with id {id} and params {params}")
 
@@ -428,7 +441,7 @@ def getTransactionHex(id, params, config):
             message=err.message
         )
 
-    rawTransaction = RPCConnector.request(
+    rawTransaction = await RPCConnector.request(
         endpoint=config.bitcoinabcRpcEndpoint,
         id=id,
         method=GET_TRANSACTION_METHOD,
@@ -449,7 +462,7 @@ def getTransactionHex(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getTransaction(id, params, config):
+async def getTransaction(id, params, config):
 
     logger.printInfo(f"Executing RPC method getTransaction with id {id} and params {params}")
 
@@ -464,7 +477,7 @@ def getTransaction(id, params, config):
 
     try:
         # Parameters: TransactionId, include_watchonly, verbose
-        transaction = RPCConnector.request(
+        transaction = await RPCConnector.request(
             endpoint=config.bitcoinabcRpcEndpoint,
             id=id,
             method=GET_TRANSACTION_METHOD,
@@ -481,7 +494,7 @@ def getTransaction(id, params, config):
         if "generated" not in transaction:
 
             for vin in transaction["decoded"]["vin"]:
-                inputTransaction = RPCConnector.request(
+                inputTransaction = await RPCConnector.request(
                     endpoint=config.bitcoinabcRpcEndpoint,
                     id=id,
                     method=GET_TRANSACTION_METHOD,
@@ -529,7 +542,7 @@ def getTransaction(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getAddressTransactionCount(id, params, config):
+async def getAddressTransactionCount(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressTransactionCount with id {id} and params {params}")
 
@@ -542,7 +555,7 @@ def getAddressTransactionCount(id, params, config):
             message=err.message
         )
 
-    txs = RPCConnector.request(
+    txs = await RPCConnector.request(
         endpoint=config.electronCashRpcEndpoint,
         id=id,
         method=GET_ADDRESS_HISTORY_METHOD,
@@ -571,7 +584,7 @@ def getAddressTransactionCount(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def getAddressesTransactionCount(id, params, config):
+async def getAddressesTransactionCount(id, params, config):
 
     logger.printInfo(f"Executing RPC method getAddressesTransactionCount with id {id} and params {params}")
 
@@ -584,16 +597,20 @@ def getAddressesTransactionCount(id, params, config):
             message=err.message
         )
 
-    transactionCounts = []
+    tasks = []
 
     for address in params["addresses"]:
-        transactionCounts.append(
-            getAddressTransactionCount(
-                id=id,
-                params=address,
-                config=config
+        tasks.append(
+            asyncio.ensure_future(
+                getAddressTransactionCount(
+                    id=id,
+                    params=address,
+                    config=config
+                )
             )
         )
+
+    transactionCounts = await asyncio.gather(*tasks)
 
     err = httputils.validateJSONSchema(transactionCounts, responseSchema)
     if err is not None:
@@ -607,7 +624,7 @@ def getAddressesTransactionCount(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def broadcastTransaction(id, params, config):
+async def broadcastTransaction(id, params, config):
 
     logger.printInfo(f"Executing RPC method broadcastTransaction with id {id} and params {params}")
 
@@ -620,7 +637,7 @@ def broadcastTransaction(id, params, config):
             message=err.message
         )
 
-    hash = RPCConnector.request(
+    hash = await RPCConnector.request(
         endpoint=config.bitcoinabcRpcEndpoint,
         id=id,
         method=SEND_RAW_TRANSACTION_METHOD,
@@ -646,7 +663,7 @@ def broadcastTransaction(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
-def notify(id, params, config):
+async def notify(id, params, config):
 
     logger.printInfo(f"Executing RPC method notify with id {id} and params {params}")
 
@@ -656,7 +673,7 @@ def notify(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(err.message)
 
-    payload = RPCConnector.request(
+    payload = await RPCConnector.request(
         endpoint=config.electronCashRpcEndpoint,
         id=id,
         method=NOTIFY_METHOD,
@@ -677,7 +694,7 @@ def notify(id, params, config):
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.get(currency=COIN_SYMBOL)
-def syncing(id, params, config):
+async def syncing(id, params, config):
 
     logger.printInfo(
         f"Executing RPC method syncing with id {id} and params {params}")
@@ -688,7 +705,7 @@ def syncing(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(err.message)
 
-    blockchainInfo = RPCConnector.request(
+    blockchainInfo = await RPCConnector.request(
         endpoint=config.bitcoinabcRpcEndpoint,
         id=id,
         method=GET_BLOCKCHAIN_INFO,

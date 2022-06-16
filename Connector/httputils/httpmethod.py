@@ -64,9 +64,9 @@ class RouteTableDef:
 
         def _get(function):
 
-            def wrapper(request, config):
+            async def wrapper(request, config):
 
-                return function(
+                return await function(
                     random.randint(0, sys.maxsize),
                     request,
                     config
@@ -92,9 +92,9 @@ class RouteTableDef:
 
         def _post(function):
 
-            def wrapper(request, config):
+            async def wrapper(request, config):
 
-                return function(
+                return await function(
                     random.randint(0, sys.maxsize),
                     request,
                     config
@@ -124,7 +124,7 @@ class RouteTableDef:
             raise error.MethodNotAllowedError("Method not allowed")
 
         payload = httputils.parseJSONRequest(await request.read()) if not httputils.isGetMethod(request.method) else {}
-        return RouteTableDef.httpMethods[wrapperApiId][method].handler(payload, config)
+        return await RouteTableDef.httpMethods[wrapperApiId][method].handler(payload, config)
 
 
 def callbackMethod(callbackName, coin, standard=None):

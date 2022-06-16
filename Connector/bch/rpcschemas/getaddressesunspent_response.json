@@ -1,56 +1,56 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
-  "title": "",
-  "description": "",
-  "type": "array",
-  "items": {
-      "type": "object",
-      "properties": {
-          "address": {
-            "type": "string"
-          },
-          "outputs": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                  "txHash": {
-                      "type": "string"
-                  },
-                  "vout": {
-                      "type": "string"
-                  },
-                  "status": {
-                      "type": "object",
-                      "properties": {
-                          "confirmed": {
-                              "type": "boolean"
-                          },
-                          "blockHeight": {
-                              "type": "string"
-                          }
-                      },
-                      "required": [
-                          "confirmed",
-                          "blockHeight"
-                      ]
-                  },
-                  "value": {
-                      "type" : "string"
-                  }
-              },
-              "required": [
-                  "txHash",
-                  "vout",
-                  "status",
-                  "value"
-              ]
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "",
+    "description": "",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "address": {
+                "type": "string"
+            },
+            "outputs": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "txHash": {
+                            "type": "string"
+                        },
+                        "vout": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "object",
+                            "properties": {
+                                "confirmed": {
+                                    "type": "boolean"
+                                },
+                                "blockHeight": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "confirmed",
+                                "blockHeight"
+                            ]
+                        },
+                        "value": {
+                            "type" : "string"
+                        }
+                    },
+                    "required": [
+                        "txHash",
+                        "vout",
+                        "status",
+                        "value"
+                    ]
+                }
             }
-          }
-      },
-      "required": [
-          "address",
-          "outputs"
-      ]
-  }
+        },
+        "required": [
+            "address",
+            "outputs"
+        ]
+    }
 }

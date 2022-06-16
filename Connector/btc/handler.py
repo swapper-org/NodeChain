@@ -17,7 +17,7 @@ class Handler:
         self._coin = coin
         self._networksConfig = {}
 
-    def addConfig(self, network, config):
+    async def addConfig(self, network, config):
 
         if network in self.networksConfig:
             logger.printError(f"Configuration {network} already added for {self.coin}")
@@ -35,20 +35,20 @@ class Handler:
 
         self.networksConfig[network] = pkgConfig
 
-        AddressBalanceWs(
-            coin=self.coin,
-            config=self.networksConfig[network]
-        )
+        # AddressBalanceWs(
+        #     coin=self.coin,
+        #     config=self.networksConfig[network]
+        # )
 
-        BlockWebSocket(
-            coin=self.coin,
-            config=self.networksConfig[network]
-        )
+        # BlockWebSocket(
+        #     coin=self.coin,
+        #     config=self.networksConfig[network]
+        # )
 
-        websocket.startWebSockets(
-            coin=self.coin,
-            networkName=network
-        )
+        # await websocket.startWebSockets(
+        #     coin=self.coin,
+        #     networkName=network
+        # )
 
         return True, None
 
@@ -68,10 +68,10 @@ class Handler:
 
         del self.networksConfig[network]
 
-        await websocket.stopWebSockets(
-            coin=self.coin,
-            networkName=network
-        )
+        # await websocket.stopWebSockets(
+        #    coin=self.coin,
+        #     networkName=network
+        # )
 
         broker = Broker()
         pkgTopics = broker.getSubTopics(topicName=f"{self.coin}{topics.TOPIC_SEPARATOR}{network}")
@@ -93,25 +93,25 @@ class Handler:
             logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
             return ok, err
 
-        await websocket.stopWebSockets(
-            coin=self.coin,
-            networkName=network
-        )
+        # await websocket.stopWebSockets(
+        #     coin=self.coin,
+        #     networkName=network
+        # )
 
-        AddressBalanceWs(
-            coin=self.coin,
-            config=self.networksConfig[network]
-        )
+        # AddressBalanceWs(
+        #     coin=self.coin,
+        #     config=self.networksConfig[network]
+        # )
 
-        BlockWebSocket(
-            coin=self.coin,
-            config=self.networksConfig[network]
-        )
+        # BlockWebSocket(
+        #     coin=self.coin,
+        #     config=self.networksConfig[network]
+        # )
 
-        websocket.startWebSockets(
-            coin=self.coin,
-            networkName=network
-        )
+        # websocket.startWebSockets(
+        #     coin=self.coin,
+        #     networkName=network
+        # )
 
         return True, None
 

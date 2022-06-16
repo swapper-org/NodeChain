@@ -27,7 +27,7 @@ class AddressBalanceWs:
         self._coin = coin
         self._config = config
 
-    def start(self):
+    async def start(self):
 
         # TODO: Check this is working properly
         broker = Broker()
@@ -35,7 +35,7 @@ class AddressBalanceWs:
                                                      f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
                                                      f"{topics.ADDRESS_BALANCE_TOPIC}"
                                            ):
-            apirpc.notify(
+            await apirpc.notify(
                 id=random.randint(1, sys.maxsize),
                 params={
                     "address": address,
@@ -54,7 +54,7 @@ class AddressBalanceWs:
                                                      f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
                                                      f"{topics.ADDRESS_BALANCE_TOPIC}"
                                            ):
-            apirpc.notify(
+            await apirpc.notify(
                 id=random.randint(1, sys.maxsize),
                 params={
                     "address": address,
@@ -73,7 +73,7 @@ class AddressBalanceWs:
 
 
 @httpmethod.callbackMethod(callbackName=ADDR_BALANCE_CALLBACK_NAME, coin=COIN_SYMBOL)
-def addressBalanceCallback(request, config, coin):
+async def addressBalanceCallback(request, config, coin):
 
     # TODO: Check the call is made from config [electrumHost]
 
@@ -88,7 +88,7 @@ def addressBalanceCallback(request, config, coin):
         return
 
     id = random.randint(1, sys.maxsize)
-    response = apirpc.getAddressBalance(
+    response = await apirpc.getAddressBalance(
         id=id,
         params={
             "address": request["address"]
@@ -114,7 +114,7 @@ class BlockWebSocket:
         self._config = config
         self._loop = None
 
-    def start(self):
+    async def start(self):
 
         logger.printInfo("Starting Block WS for Bitcoin")
         threading.Thread(
@@ -134,13 +134,10 @@ class BlockWebSocket:
 
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
-        asyncio.ensure_future(self.newBlocksWorker(zmqSocket), loop=self.loop)
+        asyncio.ensure_future(self.newBlocksClient(zmqSocket), loop=self.loop)
         self.loop.run_forever()
 
-    async def newBlocksWorker(self, zmqSocket):
-
-        newBlockPub = Publisher()
-        broker = Broker()
+    async def newBlocksClient(self, zmqSocket):
 
         while True:
             payload = await zmqSocket.recv_multipart()
@@ -152,33 +149,40 @@ class BlockWebSocket:
                 blockHash = binascii.hexlify(message).decode("utf-8")
                 logger.printInfo(f"New message for [{topic}]: {blockHash}")
 
-                try:
+                await self.bitcoinWSWorker(blockHash)
 
-                    block = apirpc.getBlockByHash(
-                        id=random.randint(1, sys.maxsize),
-                        params={
-                            "blockHash": blockHash
-                        },
-                        config=self.config
-                    )
+    async def bitcoinWSWorker(self, blockHash):
 
-                    newBlockPub.publish(
-                        broker=broker,
-                        topic=f"{self.coin}{topics.TOPIC_SEPARATOR}"
-                              f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
-                              f"{topics.NEW_BLOCKS_TOPIC}",
-                        message=block
-                    )
+        newBlockPub = Publisher()
+        broker = Broker()
 
-                except error.RpcBadRequestError as err:
-                    logger.printError(f"Error getting block {blockHash}: {err}")
-                    newBlockPub.publish(
-                        broker=broker,
-                        topic=f"{self.coin}{topics.TOPIC_SEPARATOR}"
-                              f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
-                              f"{topics.NEW_BLOCKS_TOPIC}",
-                        message=err.jsonEncode()
-                    )
+        try:
+
+            block = await apirpc.getBlockByHash(
+                id=random.randint(1, sys.maxsize),
+                params={
+                    "blockHash": blockHash
+                },
+                config=self.config
+            )
+
+            newBlockPub.publish(
+                broker=broker,
+                topic=f"{self.coin}{topics.TOPIC_SEPARATOR}"
+                      f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
+                      f"{topics.NEW_BLOCKS_TOPIC}",
+                message=block
+            )
+
+        except error.RpcBadRequestError as err:
+            logger.printError(f"Error getting block {blockHash}: {err}")
+            newBlockPub.publish(
+                broker=broker,
+                topic=f"{self.coin}{topics.TOPIC_SEPARATOR}"
+                      f"{self.config.networkName}{topics.TOPIC_SEPARATOR}"
+                      f"{topics.NEW_BLOCKS_TOPIC}",
+                message=err.jsonEncode()
+            )
 
     async def stop(self):
         self.loop.stop()

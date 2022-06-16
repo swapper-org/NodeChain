@@ -24,7 +24,7 @@ class WebSocket:
         self._session = None
         self._loop = None
 
-    def start(self):
+    async def start(self):
 
         logger.printInfo("Starting WS for Ethereum")
 
@@ -37,10 +37,10 @@ class WebSocket:
 
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
-        asyncio.ensure_future(self.ethereumClientCallback(), loop=self.loop)
+        asyncio.ensure_future(self.ethereumClient(), loop=self.loop)
         self.loop.run_forever()
 
-    async def ethereumClientCallback(self):
+    async def ethereumClient(self):
 
         while True:
             async with ClientWebSocket(self.config.wsEndpoint) as session:
@@ -77,13 +77,7 @@ class WebSocket:
                             try:
                                 payload = json.loads(msg.data)
                                 if rpcConstants.PARAMS in payload:
-
-                                    threading.Thread(
-                                        target=self.ethereumWSWorker,
-                                        args=(payload[rpcConstants.PARAMS],),
-                                        daemon=True
-                                    ).start()
-
+                                    await self.ethereumWSWorker(payload[rpcConstants.PARAMS])
                                 else:
                                     logger.printError(f"No params in {self.coin} ws node message")
                             except Exception as e:
@@ -95,7 +89,7 @@ class WebSocket:
                 if not closed:
                     await session.close()
 
-    def ethereumWSWorker(self, params):
+    async def ethereumWSWorker(self, params):
 
         blockNumber = params[rpcConstants.RESULT]["number"]
 
@@ -107,7 +101,7 @@ class WebSocket:
         id = random.randint(1, sys.maxsize)
 
         try:
-            block = apirpc.getBlockByNumber(
+            block = await apirpc.getBlockByNumber(
                 random.randint(1, sys.maxsize),
                 {
                     "blockNumber": blockNumber
@@ -138,7 +132,7 @@ class WebSocket:
             if utils.isAddressInBlock(address, block["block"]):
 
                 try:
-                    balanceResponse = apirpc.getAddressBalance(
+                    balanceResponse = await apirpc.getAddressBalance(
                         id,
                         {
                             "address": address
