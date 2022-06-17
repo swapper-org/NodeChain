@@ -355,10 +355,10 @@ async def getAddressPendingTransactions(address, contractAddress, config):
 
     try:
 
-        pendingTask = HTTPConnector.post(
+        pendingTransactions = await HTTPConnector.post(
             endpoint=config.rpcEndpoint,
             path=GRAPHQL_PATH,
-            json={
+            data={
                 "query": "query { pending { transactions { hash from { address } to { address } inputData } } }"
             }
         )
@@ -377,8 +377,6 @@ async def getAddressPendingTransactions(address, contractAddress, config):
         address=Web3.toChecksumAddress(contractAddress),
         abi=[abi]
     )
-
-    pendingTransactions = await pendingTask
 
     for tx in pendingTransactions["data"]["pending"]["transactions"]:
         if utils.addressIsInvolvedInTx(address=address, contract=contract, transaction=tx):
