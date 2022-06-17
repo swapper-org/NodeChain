@@ -42,7 +42,7 @@ async def getAddressHistory(id, params, config):
 
             mid = (left + right) // 2
 
-            tx = getTransaction(
+            tx = await getTransaction(
                 id=int(time.time()),
                 params={
                     "txHash": txs[mid]
