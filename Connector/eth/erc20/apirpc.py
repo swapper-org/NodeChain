@@ -265,10 +265,10 @@ async def getAddressHistory(id, params, config):
 
         txs = []
 
-        if pendingTask in locals():
+        if 'pendingTask' in locals():
             txs += await pendingTask
 
-        if confirmedTask in locals():
+        if 'confirmedTask' in locals():
             txs += await confirmedTask
 
         paginatedTxs = globalutils.paginate(

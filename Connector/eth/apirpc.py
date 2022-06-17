@@ -730,10 +730,10 @@ async def getAddressHistory(id, params, config):
         confirmedTask = getAddressConfirmedTransactions(address=params["address"], config=config)
 
     txs = []
-    if pendingTask in locals():
+    if 'pendingTask' in locals():
         txs += await pendingTask
 
-    if confirmedTask in locals():
+    if 'confirmedTask' in locals():
         txs += await confirmedTask
 
     txs = globalUtils.removeDuplicates(txs)
