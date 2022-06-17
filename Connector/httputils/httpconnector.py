@@ -27,14 +27,14 @@ class HTTPConnector:
         return response
 
     @staticmethod
-    async def post(endpoint, path="", data=None, json=None):
+    async def post(endpoint, path="", data=None):
 
         logger.printInfo(f"Making HTTP Post request to {endpoint}.")
 
         async with aiohttp.ClientSession() as session:
-            async with session.post(endpoint, json=data) as resp:
+            async with session.post(f"{endpoint}{path}", json=data) as resp:
                 if resp.status != 200:
-                    raise error.RpcBadGatewayError(id=id, message="Bad Gateway")
+                    raise error.BadGatewayError(message="Bad Gateway")
                 try:
                     response = await resp.json()
                 except aiohttp.ContentTypeError as err:

@@ -815,7 +815,7 @@ async def getAddressPendingTransactions(address, config):
         pendingTransactions = await HTTPConnector.post(
             endpoint=config.rpcEndpoint,
             path=GRAPHQL_PATH,
-            json={
+            data={
                 "query": "query { pending { transactions { hash from { address } to { address } } } }"
             }
         )
