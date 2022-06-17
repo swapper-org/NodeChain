@@ -9,6 +9,7 @@ from rpcutils.rpcconnector import RPCConnector
 from . import utils
 from .constants import *
 from utils import utils as globalUtils
+import time
 
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
@@ -31,6 +32,33 @@ async def getAddressHistory(id, params, config):
     )
 
     txs = [item["tx_hash"] for item in addrHistory[::-1]]
+    firstConfirmedTx = -1
+
+    if "status" in params and params["status"] in ["pending", "confirmed"]:
+
+        (left, right) = (0, len(txs) - 1)
+
+        while left <= right:
+
+            mid = (left + right) // 2
+
+            tx = await getTransaction(
+                id=int(time.time()),
+                params={
+                    "txHash": txs[mid]
+                },
+                config=config
+            )
+
+            if not tx["transaction"]["blockNumber"]:
+                firstConfirmedTx = mid
+                right = mid - 1
+            else:
+                left = mid + 1
+
+    if firstConfirmedTx != -1 and "status" in params:
+        txs = txs[:firstConfirmedTx - 1] if params["status"] == "pending" else txs[firstConfirmedTx:]
+
     leftSide = "order" not in params or params["order"] == "desc"
 
     paginatedTxs = globalUtils.paginate(
