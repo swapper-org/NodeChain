@@ -50,14 +50,16 @@ async def getAddressHistory(id, params, config):
                 config=config
             )
 
-            if not tx["transaction"]["blockNumber"]:
+            if tx["transaction"]["blockNumber"]:
                 firstConfirmedTx = mid
                 right = mid - 1
             else:
                 left = mid + 1
 
-    if firstConfirmedTx != -1 and "status" in params:
-        txs = txs[:firstConfirmedTx - 1] if params["status"] == "pending" else txs[firstConfirmedTx:]
+        if firstConfirmedTx == -1 and params["status"] == "confirmed":
+            txs = []
+        else:
+            txs = txs[:firstConfirmedTx] if params["status"] == "pending" else txs[firstConfirmedTx:]
 
     leftSide = "order" not in params or params["order"] == "desc"
 
