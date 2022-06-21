@@ -9,6 +9,7 @@ from btc.websockets import BlockWebSocket
 from btc.utils import convertToSatoshi, sortUnspentOutputs, decodeTransactionDetails
 from logger import logger
 from rpcutils.rpcconnector import RPCConnector
+from rpcutils.rpcsocketconnector import RPCSocketConnector
 from httputils.httpmethod import RouteTableDef
 from rpcutils.error import RpcBadRequestError
 from wsutils.subscribers import ListenerSubscriber
@@ -29,7 +30,7 @@ config.loadConfig(
         "electrumRpcEndpoint": "http://swapper:swapper@localhost:30000",
         "bitcoincoreZmqEndpoint": "tcp://localhost:28332",
         "bitcoinAddressCallbackHost": "http://connector:80",
-        "electrsEndpoint": "localhost:60001:t"
+        "electrsEndpoint": "localhost:60401:t"
     }
 )
 
@@ -45,11 +46,11 @@ def makeRequest(endpoint, method, params):
 
 
 def makeBitcoinCoreRequest(method, params):
-    return makeRequest(config.bitcoincoreRpcEndpoint, method, params)
+    return RPCConnector.request(config.bitcoincoreRpcEndpoint, 1, method, params)
 
 
-def makeElectrumRequest(method, params):
-    return makeRequest(config.electrumRpcEndpoint, method, params)
+def makeElectrsRequest(method, params):
+    return RPCSocketConnector.request(config.electrsEndpoint.split(":")[0], int(config.electrsEndpoint.split(":")[1]), 1, method, params)
 
 
 def mineBlocksToAddress(address, numBlocks=1):
@@ -260,7 +261,7 @@ def testGetAddressHistory():
 
     time.sleep(10)
 
-    expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
+    expected = makeElectrsRequest(GET_HISTORY_METHOD, [address1])
 
     got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressHistory"].handler({"address": address1}, config)
 
@@ -294,7 +295,7 @@ def testGetAddressesHistory():
     got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressesHistory"].handler({"addresses": addresses}, config)
 
     for addressHistory in got:
-        expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [addressHistory["address"]])
+        expected = makeElectrsRequest(GET_HISTORY_METHOD, [addressHistory["address"]])
         expectedTxHashes = {item["tx_hash"]: False for item in globalUtils.paginate(expected[::-1])}
 
         for gotTxHash in addressHistory["txHashes"]:
@@ -318,7 +319,7 @@ def testGetAddressBalance():
         logger.printError("getAddressBalance not loaded in RPCMethods")
         assert False
 
-    expected = makeElectrumRequest("getaddressbalance", [address1])
+    expected = makeElectrsRequest(GET_BALANCE_METHOD, [address1])
     got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressBalance"].handler({"address": address1}, config)
 
     assert convertToSatoshi(expected["confirmed"]) == got["balance"]["confirmed"] and convertToSatoshi(expected["unconfirmed"]) == got["balance"]["unconfirmed"] and address1 == got["address"]
@@ -336,7 +337,7 @@ def testGetAddressesBalance():
 
     for addressBalance in got:
 
-        expected = makeElectrumRequest("getaddressbalance", [addressBalance["address"]])
+        expected = makeElectrsRequest(GET_BALANCE_METHOD, [addressBalance["address"]])
 
         if convertToSatoshi(expected["confirmed"]) != addressBalance["balance"]["confirmed"] or convertToSatoshi(expected["unconfirmed"]) != addressBalance["balance"]["unconfirmed"]:
             logger.printError(f"Error getting balance for {addressBalance['address']}. Expected: {expected}. Got: {addressBalance['balance']}")
@@ -351,7 +352,7 @@ def testGetTransactionHex():
         logger.printError("getTransactionHex not loaded in RPCMethods")
         assert False
 
-    addressHistory = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
+    addressHistory = makeElectrsRequest(GET_HISTORY_METHOD, [address1])
     txHash = addressHistory[0]["tx_hash"]
 
     expected = makeBitcoinCoreRequest(GET_RAW_TRANSACTION_METHOD, [txHash])
@@ -384,7 +385,7 @@ def testGetAddressesTransactionCount():
 
     for index, address in enumerate(addresses["addresses"]):
 
-        expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address["address"]])
+        expected = makeElectrsRequest(GET_HISTORY_METHOD, [address["address"]])
 
         pendingCount = 0
         for tx in expected:
@@ -407,7 +408,7 @@ def testGetAddressTransactionCount():
 
     pending = True
 
-    expected = makeElectrumRequest(GET_ADDRESS_HISTORY_METHOD, [address1])
+    expected = makeElectrsRequest(GET_HISTORY_METHOD, [address1])
     got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressTransactionCount"].handler(
         {
             "address": address1,
@@ -435,7 +436,7 @@ def testGetAddressUnspent():
         logger.printError("getAddressUnspent not loaded in RPCMethods")
         assert False
 
-    expected = makeElectrumRequest(GET_ADDRESS_UNSPENT_METHOD, [address1])
+    expected = makeElectrsRequest(LIST_UNSPENT_METHOD, [address1])
 
     got = RouteTableDef.httpMethods[COIN_SYMBOL]["getAddressUnspent"].handler({"address": address1}, config)
 
@@ -473,7 +474,7 @@ def testGetAddressesUnspent():
 
     for addressUnspent in got:
         addressUnspent["outputs"].sort(key=sortUnspentOutputs, reverse=False)
-        expected = makeElectrumRequest(GET_ADDRESS_UNSPENT_METHOD, [addressUnspent["address"]])
+        expected = makeElectrsRequest(LIST_UNSPENT_METHOD, [addressUnspent["address"]])
 
         txs = []
 

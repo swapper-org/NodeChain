@@ -8,10 +8,6 @@
             "type" : "string",
             "format": "uri"
         },
-        "electrumRpcEndpoint": {
-            "type": "string",
-            "format": "uri"
-        },
         "bitcoincoreZmqEndpoint": {
             "type": "string",
             "format": "uri"
@@ -27,7 +23,6 @@
     },
     "required": [
         "bitcoincoreRpcEndpoint",
-        "electrumRpcEndpoint",
         "bitcoincoreZmqEndpoint",
         "bitcoinAddressCallbackHost",
         "electrsEndpoint"
