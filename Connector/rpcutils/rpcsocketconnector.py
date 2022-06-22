@@ -44,7 +44,7 @@ class RPCSocketConnector:
             logger.printError(f"Can not connect to node: {str(e)}")
             raise error.RpcNotFoundError(
                 id=id,
-                message="Not found"
+                message="Node not found"
             )
 
         try:
@@ -53,16 +53,16 @@ class RPCSocketConnector:
             logger.printError(f"Response from node is not JSON format: {str(e)}")
             raise error.RpcBadGatewayError(
                 id=id,
-                message="Bad Gateway"
+                message="Bad gateway"
             )
 
         logger.printInfo(f"Response received from {hostname}:{port}: {response}")
 
-        if ERROR in response and response[ERROR] is not None:
-            logger.printError(f"Exception occurred in server: {response[ERROR]}")
+        if "error" in response and response["error"] is not None:
+            logger.printError(f"Exception occurred in server: {response['error']}")
             raise error.RpcBadRequestError(
                 id=id,
                 message="Bad request"
             )
 
-        return response[RESULT]
+        return response["result"]
