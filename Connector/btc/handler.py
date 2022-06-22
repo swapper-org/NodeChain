@@ -73,12 +73,12 @@ class Handler:
         #     networkName=network
         # )
 
-        broker = Broker()
-        pkgTopics = broker.getSubTopics(topicName=f"{self.coin}{topics.TOPIC_SEPARATOR}{network}")
+        # broker = Broker()
+        # pkgTopics = broker.getSubTopics(topicName=f"{self.coin}{topics.TOPIC_SEPARATOR}{network}")
 
-        for topic in list(pkgTopics):
-            for subscriber in list(broker.getTopicSubscribers(topic)):
-                subscriber.close(broker=broker)
+        # for topic in list(pkgTopics):
+        #     for subscriber in list(broker.getTopicSubscribers(topic)):
+        #         subscriber.close(broker=broker)
 
         return True, None
 

@@ -75,7 +75,6 @@ class ConfigEncoder(JSONEncoder):
     def encode(self, o):
         return {
             "bitcoincoreRpcEndpoint": o.bitcoincoreRpcEndpoint,
-            "electrumRpcEndpoint": o.electrumRpcEndpoint,
             "bitcoincoreZmqEndpoint": o.bitcoincoreZmqEndpoint,
             "bitcoinAddressCallbackHost": o.bitcoinAddressCallbackHost,
             "electrsEndpoint": o.electrsEndpoint
