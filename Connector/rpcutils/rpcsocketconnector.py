@@ -10,7 +10,7 @@ from .constants import *
 class RPCSocketConnector:
 
     @staticmethod
-    async def request(hostname, port, id, method, params):
+    async def request(endpoint, id, method, params):
 
         try:
 
@@ -20,6 +20,16 @@ class RPCSocketConnector:
                 "params": params,
                 "jsonrpc": JSON_RPC_VERSION
             }
+
+            try:
+                hostname, port = endpoint.split(":")[:2]
+                port = int(port)
+            except ValueError as e:
+                logger.printError(f"Node endpoint bad format: {e}")
+                raise error.RpcBadRequestError(
+                    id=id,
+                    message="Bad request"
+                )
 
             logger.printInfo(f"Making RPC socket request to {hostname}:{port}. Payload: {payload}")
 

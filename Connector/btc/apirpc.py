@@ -31,8 +31,7 @@ async def getAddressHistory(id, params, config):
         raise error.RpcBadRequestError(id=id, message="Bad request")
 
     addrHistory = await RPCSocketConnector.request(
-        hostname=config.electrsEndpoint.split(":")[0],
-        port=int(config.electrsEndpoint.split(":")[1]),
+        endpoint=config.electrsEndpoint,
         id=id,
         method=GET_HISTORY_METHOD,
         params=[scriptHash]
@@ -150,8 +149,7 @@ async def getAddressBalance(id, params, config):
 
     connResponse = await RPCSocketConnector.request(
         id=id,
-        hostname=config.electrsEndpoint.split(":")[0],
-        port=int(config.electrsEndpoint.split(":")[1]),
+        endpoint=config.electrsEndpoint,
         method=GET_BALANCE_METHOD,
         params=[scriptHash]
     )
@@ -224,8 +222,7 @@ async def getAddressUnspent(id, params, config):
         raise error.RpcBadRequestError(id=id, message="Bad request")
 
     connResponse = await RPCSocketConnector.request(
-        hostname=config.electrsEndpoint.split(":")[0],
-        port=int(config.electrsEndpoint.split(":")[1]),
+        endpoint=config.electrsEndpoint,
         id=id,
         method=LIST_UNSPENT_METHOD,
         params=[scriptHash]
@@ -613,8 +610,7 @@ async def getAddressTransactionCount(id, params, config):
         raise error.RpcBadRequestError(id=id, message="Bad request")
 
     txs = await RPCSocketConnector.request(
-        hostname=config.electrsEndpoint.split(":")[0],
-        port=int(config.electrsEndpoint.split(":")[1]),
+        endpoint=config.electrsEndpoint,
         id=id,
         method=GET_HISTORY_METHOD,
         params=[scriptHash]
