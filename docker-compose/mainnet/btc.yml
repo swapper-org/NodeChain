@@ -35,17 +35,6 @@ services:
         condition: service_healthy
     restart: on-failure:5
 
-  electrum-mainnet:
-    build: ../../packages/nodechain-electrum
-    image: electrum
-    environment:
-      NETWORK: ${NETWORK}
-      SERVER: electrs-mainnet:50001:t
-    depends_on:
-      - electrs-mainnet
-    restart: on-failure:5
-
-
 networks:
   default:
     external:

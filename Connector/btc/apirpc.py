@@ -6,6 +6,7 @@ from rpcutils.rpcmethod import RouteTableDef as RpcRouteTableDef
 from logger import logger
 from rpcutils import error
 from rpcutils.rpcconnector import RPCConnector
+from rpcutils.rpcsocketconnector import RPCSocketConnector
 from . import utils
 from utils import utils as globalUtils
 from .constants import *
@@ -24,11 +25,16 @@ async def getAddressHistory(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    addrHistory = await RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+    try:
+        scriptHash = utils.ScriptHash.addressToScriptHash(params["address"])
+    except ValueError:
+        raise error.RpcBadRequestError(id=id, message="Bad request")
+
+    addrHistory = await RPCSocketConnector.request(
+        endpoint=config.electrsEndpoint,
         id=id,
-        method=GET_ADDRESS_HISTORY_METHOD,
-        params=[params["address"]]
+        method=GET_HISTORY_METHOD,
+        params=[scriptHash]
     )
 
     txs = [item["tx_hash"] for item in addrHistory[::-1]]
@@ -135,11 +141,17 @@ async def getAddressBalance(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    connResponse = await RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+    try:
+        scriptHash = utils.ScriptHash.addressToScriptHash(params["address"])
+    except ValueError:
+        logger.printError("Can not parse address to scripthash")
+        raise error.RpcBadRequestError(id=id, message="Bad request")
+
+    connResponse = await RPCSocketConnector.request(
         id=id,
-        method=GET_ADDRESS_BALANCE_METHOD,
-        params=[params["address"]]
+        endpoint=config.electrsEndpoint,
+        method=GET_BALANCE_METHOD,
+        params=[scriptHash]
     )
 
     response = {
@@ -204,11 +216,17 @@ async def getAddressUnspent(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    connResponse = await RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+    try:
+        scriptHash = utils.ScriptHash.addressToScriptHash(params["address"])
+    except ValueError:
+        raise error.RpcBadRequestError(id=id, message="Bad request")
+
+    connResponse = await RPCSocketConnector.request(
+        endpoint=config.electrsEndpoint,
         id=id,
-        method=GET_ADDRESS_UNSPENT_METHOD,
-        params=[params["address"]])
+        method=LIST_UNSPENT_METHOD,
+        params=[scriptHash]
+    )
 
     outputs = []
     for tx in connResponse:
@@ -586,11 +604,16 @@ async def getAddressTransactionCount(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    txs = await RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
+    try:
+        scriptHash = utils.ScriptHash.addressToScriptHash(params["address"])
+    except ValueError:
+        raise error.RpcBadRequestError(id=id, message="Bad request")
+
+    txs = await RPCSocketConnector.request(
+        endpoint=config.electrsEndpoint,
         id=id,
-        method=GET_ADDRESS_HISTORY_METHOD,
-        params=[params["address"]]
+        method=GET_HISTORY_METHOD,
+        params=[scriptHash]
     )
 
     pending = 0
@@ -681,35 +704,36 @@ async def broadcastTransaction(id, params, config):
     return response
 
 
-@RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
-@HttpRouteTableDef.post(currency=COIN_SYMBOL)
-async def notify(id, params, config):
+# @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
+# @HttpRouteTableDef.post(currency=COIN_SYMBOL)
+# async def notify(id, params, config):
 
-    logger.printInfo(f"Executing RPC method notify with id {id} and params {params}")
+#     logger.printInfo(f"Executing RPC method notify with id {id} and params {params}")
 
-    requestSchema, responseSchema = utils.getMethodSchemas(NOTIFY)
+#     requestSchema, responseSchema = utils.getMethodSchemas(NOTIFY)
 
-    err = httputils.validateJSONSchema(params, requestSchema)
-    if err is not None:
-        raise error.RpcBadRequestError(id=id, message=err.message)
+#     err = httputils.validateJSONSchema(params, requestSchema)
+#     if err is not None:
+#         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    payload = await RPCConnector.request(
-        endpoint=config.electrumRpcEndpoint,
-        id=id,
-        method=NOTIFY_METHOD,
-        params=[
-            params["address"],
-            params["callBackEndpoint"]
-        ]
-    )
+#     payload = await RPCSocketConnector.request(
+#         hostname=config.electrsEndpoint.split(":")[0],
+#         port=config.electrsEndpoint.split(":")[1],
+#         id=id,
+#         method=NOTIFY_METHOD,
+#         params=[
+#             params["address"],
+#             params["callBackEndpoint"]
+#         ]
+#     )
 
-    response = {"success": payload}
+#     response = {"success": payload}
 
-    err = httputils.validateJSONSchema(response, responseSchema)
-    if err is not None:
-        raise error.RpcBadRequestError(id=id, message=err.message)
+#     err = httputils.validateJSONSchema(response, responseSchema)
+#     if err is not None:
+#         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    return response
+#     return response
 
 
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)

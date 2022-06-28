@@ -4,33 +4,30 @@
     "token": "btc",
     "networks": {
       "regtest": {
-        "services": ["bitcoincore", "electrs", "electrum"],
+        "services": ["bitcoincore", "electrs"],
         "dockerComposePath": "docker-compose/regtest/btc.yml",
         "configurable": [
           "bitcoincoreRpcEndpoint",
-          "electrumRpcEndpoint",
           "bitcoincoreZmqEndpoint",
           "bitcoinAddressCallbackHost",
           "electrsEndpoint"
         ]
       },
       "testnet": {
-        "services": ["bitcoincore", "electrs", "electrum"],
+        "services": ["bitcoincore", "electrs"],
         "dockerComposePath": "docker-compose/testnet/btc.yml",
         "configurable": [
           "bitcoincoreRpcEndpoint",
-          "electrumRpcEndpoint",
           "bitcoincoreZmqEndpoint",
           "bitcoinAddressCallbackHost",
           "electrsEndpoint"
         ]
       },
       "mainnet": {
-        "services": ["bitcoincore", "electrs", "electrum"],
+        "services": ["bitcoincore", "electrs"],
         "dockerComposePath": "docker-compose/mainnet/btc.yml",
         "configurable": [
           "bitcoincoreRpcEndpoint",
-          "electrumRpcEndpoint",
           "bitcoincoreZmqEndpoint",
           "bitcoinAddressCallbackHost",
           "electrsEndpoint"

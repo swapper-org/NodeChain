@@ -41,17 +41,6 @@ services:
       bitcoincore-regtest:
         condition: service_healthy
     restart: on-failure:5
-    
-
-  electrum-regtest:
-    build: ../../packages/nodechain-electrum
-    image: electrum
-    environment:
-      NETWORK: ${NETWORK}
-      SERVER: electrs-regtest:60401:t
-    depends_on:
-      - electrs-regtest
-    restart: on-failure:5
 
 networks:
   default:

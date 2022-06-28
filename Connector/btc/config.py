@@ -17,7 +17,6 @@ class Config:
 
     def loadConfig(self, config):
         self.bitcoincoreRpcEndpoint = config["bitcoincoreRpcEndpoint"]
-        self.electrumRpcEndpoint = config["electrumRpcEndpoint"]
         self.bitcoincoreZmqEndpoint = config["bitcoincoreZmqEndpoint"]
         self.bitcoinAddressCallbackHost = config["bitcoinAddressCallbackHost"]
         self.electrsEndpoint = config["electrsEndpoint"]
@@ -43,14 +42,6 @@ class Config:
     @bitcoincoreRpcEndpoint.setter
     def bitcoincoreRpcEndpoint(self, value):
         self._bitcoincoreRpcEndpoint = value
-
-    @property
-    def electrumRpcEndpoint(self):
-        return self._electrumRpcEndpoint
-
-    @electrumRpcEndpoint.setter
-    def electrumRpcEndpoint(self, value):
-        self._electrumRpcEndpoint = value
 
     @property
     def bitcoincoreZmqEndpoint(self):
@@ -84,7 +75,6 @@ class ConfigEncoder(JSONEncoder):
     def encode(self, o):
         return {
             "bitcoincoreRpcEndpoint": o.bitcoincoreRpcEndpoint,
-            "electrumRpcEndpoint": o.electrumRpcEndpoint,
             "bitcoincoreZmqEndpoint": o.bitcoincoreZmqEndpoint,
             "bitcoinAddressCallbackHost": o.bitcoinAddressCallbackHost,
             "electrsEndpoint": o.electrsEndpoint
