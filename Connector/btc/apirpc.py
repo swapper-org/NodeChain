@@ -157,8 +157,8 @@ async def getAddressBalance(id, params, config):
     response = {
         "address": params["address"],
         "balance": {
-            "confirmed": utils.convertToSatoshi(connResponse["confirmed"]),
-            "unconfirmed": utils.convertToSatoshi(connResponse["unconfirmed"])
+            "confirmed": str(connResponse["confirmed"]),
+            "unconfirmed": str(connResponse["unconfirmed"])
         }
     }
 
