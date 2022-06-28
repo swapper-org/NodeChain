@@ -5,7 +5,6 @@
       "regtest": {
         "config": {
           "bitcoincoreRpcEndpoint": "http://swapper:swapper@bitcoincore-regtest:8332",
-          "electrumRpcEndpoint": "http://swapper:swapper@electrum-regtest:30000",
           "bitcoincoreZmqEndpoint": "tcp://bitcoincore-regtest:28332",
           "bitcoinAddressCallbackHost": "http://connector:80",
           "electrsEndpoint": "electrs-regtest:60401:t"
@@ -14,7 +13,6 @@
       "testnet": {
         "config": {
           "bitcoincoreRpcEndpoint": "http://swapper:swapper@bitcoincore-testnet:8332",
-          "electrumRpcEndpoint": "http://swapper:swapper@electrum-testnet:30000",
           "bitcoincoreZmqEndpoint": "tcp://bitcoincore-testnet:28332",
           "bitcoinAddressCallbackHost": "http://connector:80",
           "electrsEndpoint": "electrs-testnet:60001:t"
@@ -23,7 +21,6 @@
       "mainnet": {
         "config": {
           "bitcoincoreRpcEndpoint": "http://swapper:swapper@bitcoincore-mainnet:8332",
-          "electrumRpcEndpoint": "http://swapper:swapper@electrum-mainnet:30000",
           "bitcoincoreZmqEndpoint": "tcp://bitcoincore-mainnet:28332",
           "bitcoinAddressCallbackHost": "http://connector:80",
           "electrsEndpoint": "electrs-mainnet:50001:t"
