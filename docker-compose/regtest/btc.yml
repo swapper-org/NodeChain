@@ -16,6 +16,7 @@ services:
       -deprecatedrpc=generate
       -fallbackfee=0.0001
       -zmqpubhashblock=tcp://0.0.0.0:28332
+      -rpcthreads=128
     volumes:
       - ${BLOCKCHAIN_PATH}/bitcoincore:/home/bitcoin/.bitcoin
     healthcheck:

@@ -3,6 +3,7 @@ import aiohttp
 from logger import logger
 from . import error
 from .constants import *
+from http import HTTPStatus
 
 
 class RPCConnector:
@@ -21,7 +22,7 @@ class RPCConnector:
 
         async with aiohttp.ClientSession() as session:
             async with session.post(endpoint, json=payload) as resp:
-                if resp.status != 200:
+                if resp.status != HTTPStatus.OK:
                     raise error.RpcBadGatewayError(id=id, message="Bad Gateway")
                 try:
                     response = await resp.json()

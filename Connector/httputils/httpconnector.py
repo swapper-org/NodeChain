@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from logger import logger
 from . import error
-from .constants import INTERNAL_SERVER_ERROR_CODE
+from http import HTTPStatus
 import aiohttp
 
 
@@ -14,7 +14,7 @@ class HTTPConnector:
 
         async with aiohttp.ClientSession() as session:
             async with session.get(f"{endpoint}{path}", headers=headers, params=params) as resp:
-                if resp.status != 200:
+                if resp.status != HTTPStatus.OK:
                     raise error.BadGatewayError("Bad Gateway")
                 try:
                     response = await resp.json()
@@ -33,7 +33,7 @@ class HTTPConnector:
 
         async with aiohttp.ClientSession() as session:
             async with session.post(f"{endpoint}{path}", json=data) as resp:
-                if resp.status != 200:
+                if resp.status != HTTPStatus.OK:
                     raise error.BadGatewayError(message="Bad Gateway")
                 try:
                     response = await resp.json()

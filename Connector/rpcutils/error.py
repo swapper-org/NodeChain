@@ -104,7 +104,7 @@ class RpcBadGatewayError(RpcError):
         super().__init__(
             id=id,
             message=message,
-            code=METHOD_NOT_ALLOWED_CODE
+            code=BAD_GATEWAY_CODE
         )
 
     def parseToHttpError(self):
