@@ -2,7 +2,28 @@ version: "3"
 services:
   ethereumgo-testnet:
     image: ethereum/client-go:latest
-    command: --http --http.addr=ethereumgo-testnet --ropsten --cache=1024 --http.port=8545 --syncmode=full --gcmode=archive --ws --ws.addr=ethereumgo-testnet --ws.port=8546 --ws.origins=connector --http.vhosts=ethereumgo-testnet --graphql --graphql.vhosts=ethereumgo-testnet
+    command:
+      --http
+      --http.addr=ethereumgo-testnet
+      --http.api="eth,net,engine,admin"
+      --ropsten
+      --cache=1024
+      --http.port=8545
+      --syncmode=full
+      --gcmode=archive
+      --ws
+      --ws.api="eth,net,engine,admin"
+      --ws.addr=ethereumgo-testnet
+      --ws.port=8546
+      --ws.origins=connector
+      --http.vhosts=ethereumgo-testnet
+      --graphql
+      --graphql.vhosts=ethereumgo-testnet
+      --authrpc.jwtsecret=/root/.ethereum/jwt.hex
+      --authrpc.addr=ethereumgo-testnet
+      --authrpc.port=8551
+      --authrpc.vhosts=ethereumgo-testnet
+      --override.terminaltotaldifficulty=50000000000000000
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
     healthcheck:
@@ -10,6 +31,27 @@ services:
       interval: 10s
       timeout: 15s
       retries: 5
+    restart: on-failure:5
+
+  beacon-node-testnet:
+    image: prysmaticlabs/prysm-beacon-chain
+    command:
+      --datadir=/data
+      --http-web3provider=http://ethereumgo-testnet:8551
+      --accept-terms-of-use
+      --ropsten
+      --jwt-secret=/data/jwt.hex
+      --rpc-host=0.0.0.0
+      --genesis-state=/data/genesis.ssz
+      --rpc-host=beacon-node-testnet
+      --rpc-port=4000
+      --grpc-gateway-host=beacon-node-testnet
+      --grpc-gateway-port=3500
+    volumes:
+      - ${BLOCKCHAIN_PATH}/prysm:/data
+    depends_on:
+      ethereumgo-testnet:
+        condition: service_healthy
     restart: on-failure:5
 
   postgres-testnet:
