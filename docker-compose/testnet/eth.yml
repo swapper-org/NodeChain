@@ -1,7 +1,7 @@
 version: "3"
 services:
   ethereumgo-testnet:
-    image: ethereum/client-go:latest
+    image: ethereum/client-go:stable
     command:
       --http
       --http.addr=ethereumgo-testnet
@@ -19,10 +19,6 @@ services:
       --http.vhosts=ethereumgo-testnet
       --graphql
       --graphql.vhosts=ethereumgo-testnet
-      --authrpc.jwtsecret=/root/.ethereum/jwt.hex
-      --authrpc.addr=ethereumgo-testnet
-      --authrpc.port=8551
-      --authrpc.vhosts=ethereumgo-testnet
       --override.terminaltotaldifficulty=50000000000000000
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
@@ -34,21 +30,18 @@ services:
     restart: on-failure:5
 
   beacon-node-testnet:
-    image: prysmaticlabs/prysm-beacon-chain
-    command:
-      --datadir=/data
-      --http-web3provider=http://ethereumgo-testnet:8551
-      --accept-terms-of-use
-      --ropsten
-      --jwt-secret=/data/jwt.hex
-      --rpc-host=0.0.0.0
-      --genesis-state=/data/genesis.ssz
-      --rpc-host=beacon-node-testnet
-      --rpc-port=4000
-      --grpc-gateway-host=beacon-node-testnet
-      --grpc-gateway-port=3500
+    build: ../../packages/nodechain-ethereum-consensus
+    environment:
+      NETWORK: ropsten
+      HTTP_WEB3_PROVIDER: /home/ropsten/geth.ipc
+      DATA_DIR: /data
+      RPC_HOST: beacon-node-testnet
+      RPC_PORT: 4000
+      GRPC_GATEWAY_HOST: beacon-node-testnet
+      GRPC_GATEWAY_PORT: 3500
     volumes:
       - ${BLOCKCHAIN_PATH}/prysm:/data
+      - ${BLOCKCHAIN_PATH}/ethereumgo:/home
     depends_on:
       ethereumgo-testnet:
         condition: service_healthy
