@@ -42,7 +42,9 @@ if [[ -n ${GRPC_GATEWAY_PORT} ]]; then
 fi
 
 if [[ -n ${DATA_DIR} ]]; then
-    dataDir="--datadir=${DATA_DIR}"
+    dataDir="--datadir=${DATA_DIR}/${NETWORK}"
+else
+    dataDir="--datadir=/data/${NETWORK}"
 fi
 
 # Installing dependencies 
