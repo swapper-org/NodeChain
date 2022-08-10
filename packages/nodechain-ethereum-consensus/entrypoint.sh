@@ -53,13 +53,11 @@ apt install -y curl gnupg
 
 
 # Download Prysm
-declare -A versions=(
-    [ropsten]=v2.1.4-rc.1
-)
+declare -A versions=( )
 
 if [[ -n ${versions[$NETWORK]} ]]; then
     echo "Prysm version: ${versions[$NETWORK]}"
-    export USE_PRYSM_VERSION=v2.1.4-rc.1
+    export USE_PRYSM_VERSION=${versions[$NETWORK]}
 else
     echo "Using stable version of Prysm"
 fi
