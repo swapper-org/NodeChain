@@ -9,7 +9,7 @@ services:
       --ropsten
       --cache=1024
       --http.port=8545
-      --syncmode=full
+      --syncmode=snap
       --gcmode=archive
       --ws
       --ws.api="eth,net,engine,admin"
