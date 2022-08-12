@@ -5,14 +5,12 @@ services:
     command:
       --http
       --http.addr=ethereumgo-testnet
-      --http.api="eth,net,engine,admin"
       --ropsten
       --cache=1024
       --http.port=8545
       --syncmode=snap
       --gcmode=archive
       --ws
-      --ws.api="eth,net,engine,admin"
       --ws.addr=ethereumgo-testnet
       --ws.port=8546
       --ws.origins=connector

@@ -5,14 +5,12 @@ services:
     command: 
       --http 
       --http.addr=ethereumgo-mainnet
-      --http.api="eth,net,engine,admin"
       --cache=1024 
       --http.port=8545 
       --syncmode=snap 
       --gcmode=archive 
       --ws 
       --ws.addr=ethereumgo-mainnet
-      --ws.api="eth,net,engine,admin"
       --ws.port=8546 
       --ws.origins=connector 
       --http.vhosts=ethereumgo-mainnet 
