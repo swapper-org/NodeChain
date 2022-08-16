@@ -1,8 +1,21 @@
 version: "3"
 services:
   ethereumgo-mainnet:
-    image: ethereum/client-go:latest
-    command: --http --http.addr=ethereumgo-mainnet --cache=1024 --http.port=8545 --syncmode=full --gcmode=archive --ws --ws.addr=ethereumgo-mainnet --ws.port=8546 --ws.origins=connector --http.vhosts=ethereumgo-mainnet --graphql --graphql.vhosts=ethereumgo-mainnet
+    image: ethereum/client-go:stable
+    command: 
+      --http 
+      --http.addr=ethereumgo-mainnet
+      --cache=1024 
+      --http.port=8545 
+      --syncmode=snap 
+      --gcmode=archive 
+      --ws 
+      --ws.addr=ethereumgo-mainnet
+      --ws.port=8546 
+      --ws.origins=connector 
+      --http.vhosts=ethereumgo-mainnet 
+      --graphql 
+      --graphql.vhosts=ethereumgo-mainnet
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
     healthcheck:
@@ -10,6 +23,24 @@ services:
       interval: 10s
       timeout: 15s
       retries: 10
+    restart: on-failure:5
+  
+  beacon-node-mainnet:
+    build: ../../packages/nodechain-ethereum-consensus
+    environment:
+      NETWORK: mainnet
+      HTTP_WEB3_PROVIDER: /home/geth.ipc
+      DATA_DIR: /data
+      RPC_HOST: beacon-node-mainnet
+      RPC_PORT: 4000
+      GRPC_GATEWAY_HOST: beacon-node-mainnet
+      GRPC_GATEWAY_PORT: 3500
+    volumes:
+      - ${BLOCKCHAIN_PATH}/prysm:/data
+      - ${BLOCKCHAIN_PATH}/ethereumgo:/home
+    depends_on:
+      ethereumgo-mainnet:
+        condition: service_healthy
     restart: on-failure:5
 
   postgres-mainnet:

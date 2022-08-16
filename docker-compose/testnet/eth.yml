@@ -1,8 +1,23 @@
 version: "3"
 services:
   ethereumgo-testnet:
-    image: ethereum/client-go:latest
-    command: --http --http.addr=ethereumgo-testnet --ropsten --cache=1024 --http.port=8545 --syncmode=full --gcmode=archive --ws --ws.addr=ethereumgo-testnet --ws.port=8546 --ws.origins=connector --http.vhosts=ethereumgo-testnet --graphql --graphql.vhosts=ethereumgo-testnet
+    image: ethereum/client-go:stable
+    command:
+      --http
+      --http.addr=ethereumgo-testnet
+      --ropsten
+      --cache=1024
+      --http.port=8545
+      --syncmode=snap
+      --gcmode=archive
+      --ws
+      --ws.addr=ethereumgo-testnet
+      --ws.port=8546
+      --ws.origins=connector
+      --http.vhosts=ethereumgo-testnet
+      --graphql
+      --graphql.vhosts=ethereumgo-testnet
+      --override.terminaltotaldifficulty=50000000000000000
     volumes:
       - ${BLOCKCHAIN_PATH}/ethereumgo:/root/.ethereum
     healthcheck:
@@ -10,6 +25,24 @@ services:
       interval: 10s
       timeout: 15s
       retries: 5
+    restart: on-failure:5
+
+  beacon-node-testnet:
+    build: ../../packages/nodechain-ethereum-consensus
+    environment:
+      NETWORK: ropsten
+      HTTP_WEB3_PROVIDER: /home/ropsten/geth.ipc
+      DATA_DIR: /data
+      RPC_HOST: beacon-node-testnet
+      RPC_PORT: 4000
+      GRPC_GATEWAY_HOST: beacon-node-testnet
+      GRPC_GATEWAY_PORT: 3500
+    volumes:
+      - ${BLOCKCHAIN_PATH}/prysm:/data
+      - ${BLOCKCHAIN_PATH}/ethereumgo:/home
+    depends_on:
+      ethereumgo-testnet:
+        condition: service_healthy
     restart: on-failure:5
 
   postgres-testnet:
