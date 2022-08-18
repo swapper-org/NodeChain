@@ -153,6 +153,8 @@ class Router(object, metaclass=Singleton.Singleton):
         else:
             self._availableCoins[coin][network] = None
 
+        utils.saveConfig(coin=coin, network=network, config=config)
+
         return {
             "success": True,
             "message": "Network added successfully"
@@ -187,6 +189,8 @@ class Router(object, metaclass=Singleton.Singleton):
 
         coinHandler = currenciesHandler[coin]
         ok, err = await coinHandler.removeConfig(network)
+
+        utils.removeConfig(coin=coin, network=network)
 
         return {
             "success": ok,
@@ -255,6 +259,8 @@ class Router(object, metaclass=Singleton.Singleton):
 
         coinHandler = currenciesHandler[coin]
         ok, err = await coinHandler.updateConfig(network, config)
+
+        utils.saveConfig(coin=coin, network=network, config=config)
 
         return {
             "success": ok,

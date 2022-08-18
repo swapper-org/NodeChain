@@ -25,6 +25,15 @@ async def onShutdown(app):
         await sub.close(broker.Broker())
 
 
+async def onStartup(app):
+
+    backUpConfigs = utils.getBackupConfigs()
+
+    for coin, networks in backUpConfigs.items():
+        for networkName, netwrokConfig in networks.items():
+            await Router().addCoin(coin=coin, network=networkName, config=netwrokConfig)
+
+
 def runServer():
 
     mainApp = App(middlewares=[
@@ -34,6 +43,7 @@ def runServer():
 
     mainApp.on_response_prepare.append(onPrepare)
     mainApp.on_shutdown.append(onShutdown)
+    mainApp.on_startup.append(onStartup)
 
     modules = [
         "admin",
