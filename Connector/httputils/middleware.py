@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from aiohttp import web
 import json
-from logger import logger
+from logger.logger import Logger
 from .constants import *
 from . import error
 
@@ -26,7 +26,7 @@ async def errorHandler(request, handler):
     try:
         return await handler(request)
     except error.Error as err:
-        logger.printError(f"Returning error in error handler {err.jsonEncode()}")
+        Logger.printError(f"Returning error in error handler {err.jsonEncode()}")
         return web.Response(
             status=err.code,
             text=json.dumps(err.jsonEncode())
@@ -40,7 +40,7 @@ async def errorHandler(request, handler):
             )
         )
     except Exception as err:
-        logger.printError("Returning unknown error in error handler")
+        Logger.printError("Returning unknown error in error handler")
         return web.Response(
             status=INTERNAL_SERVER_ERROR_CODE,
             text=json.dumps(

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import json
 from httputils import error
-from logger import logger
+from logger.logger import Logger
 from .constants import *
 from functools import lru_cache
 
@@ -17,13 +17,13 @@ def getConfigProperty(propertyName):
             config = json.load(fp)
 
             if propertyName not in config:
-                logger.printError(f"Configuration property {propertyName} could not be found")
-                raise error.InternalServerError(f"Configuration property {propertyName} could not be found")
+                Logger.printError(f"Configuration property {propertyName} could not be found")
+                raise error.InternalServerError()
             return config[propertyName]
 
     except Exception as e:
-        logger.printError(f"Can not open configuration file: {str(e)}")
-        raise error.InternalServerError(f"Can not open configuration file: {str(e)}")
+        Logger.printError(f"Can not open configuration file: {str(e)}")
+        raise error.InternalServerError()
 
 
 def getAvailableCurrencies():

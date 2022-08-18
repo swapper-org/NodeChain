@@ -8,7 +8,7 @@ from httputils.app import App, appModules
 from httputils.constants import JSON_CONTENT_TYPE
 from rpcutils import middleware as rpcMiddleware
 from wsutils import broker
-from logger import logger
+from logger.logger import Logger
 from utils import utils
 
 
@@ -19,7 +19,7 @@ async def onPrepare(request, response):
 
 async def onShutdown(app):
 
-    logger.printInfo("Application is shutting down")
+    Logger.printInfo("Application is shutting down")
 
     for subscriberID, sub in list(broker.Broker().subs.items()):
         await sub.close(broker.Broker())
@@ -40,14 +40,12 @@ def runServer():
         "info"
     ]
 
-    logger.printInfo("Registering app modules")
+    Logger.printInfo("Registering app modules")
 
     availableCurrencies = utils.getAvailableCurrencies()
 
     for module in (modules + availableCurrencies):
         importlib.__import__(module)
-
-    logger.printInfo("Loading app modules")
 
     for appModule in appModules:
         mainApp.add_subapp(appModule, appModules[appModule])
@@ -75,9 +73,8 @@ def runServer():
     for route in list(mainApp.router.routes()):
         cors.add(route)
 
-    logger.printInfo("Starting connector")
+    Logger.printInfo("Starting connector")
 
-    # TODO: Do not hardcode port
     web.run_app(mainApp, port=80)
 
 

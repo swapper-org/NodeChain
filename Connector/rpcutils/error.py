@@ -33,7 +33,7 @@ class RpcError(Exception):
 
 class RpcBadRequestError(RpcError):
 
-    def __init__(self, id: int, message: str):
+    def __init__(self, id: int, message: str = "Bad request"):
         super().__init__(id=id, message=message, code=BAD_REQUEST_CODE)
 
     def parseToHttpError(self):
@@ -42,7 +42,7 @@ class RpcBadRequestError(RpcError):
 
 class RpcMethodNotAllowedError(RpcError):
 
-    def __init__(self, id: int, message: str):
+    def __init__(self, id: int, message: str = "Method not allowed"):
         super().__init__(id=id, message=message, code=METHOD_NOT_ALLOWED_CODE)
 
     def parseToHttpError(self):
@@ -51,7 +51,7 @@ class RpcMethodNotAllowedError(RpcError):
 
 class RpcInternalServerError(RpcError):
 
-    def __init__(self, id: int, message: str):
+    def __init__(self, id: int, message: str = "Internal server error"):
         super().__init__(id=id, message=message, code=INTERNAL_SERVER_ERROR_CODE)
 
     def parseToHttpError(self):
@@ -60,7 +60,7 @@ class RpcInternalServerError(RpcError):
 
 class RpcNotFoundError(RpcError):
 
-    def __init__(self, id: int, message: str):
+    def __init__(self, id: int, message: str = "Not found"):
         super().__init__(id=id, message=message, code=NOT_FOUND_CODE)
 
     def parseToHttpError(self):
@@ -69,7 +69,7 @@ class RpcNotFoundError(RpcError):
 
 class RpcBadGatewayError(RpcError):
 
-    def __init__(self, id: int, message: str):
+    def __init__(self, id: int, message: str = "Bad gateway"):
         super().__init__(id=id, message=message, code=BAD_GATEWAY_CODE)
 
     def parseToHttpError(self):

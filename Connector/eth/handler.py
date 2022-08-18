@@ -4,7 +4,7 @@ from httputils import httpmethod
 from rpcutils import rpcmethod, error
 from wsutils import wsmethod, websocket, topics
 from wsutils.broker import Broker
-from logger import logger
+from logger.logger import Logger
 from .websockets import WebSocket
 from .config import Config
 from .constants import COIN_SYMBOL
@@ -20,8 +20,8 @@ class Handler:
     async def addConfig(self, network, config):
 
         if network in self.networksConfig:
-            logger.printError(f"Configuration {network} already added for {self.coin}")
-            return False, f"Configuration {network} already added for {self.coin}"
+            Logger.printWarning(f"Configuration {network} already added for {self.coin}")
+            return False, "Configuration already added"
 
         pkgConfig = Config(
             coin=self.coin,
@@ -30,7 +30,7 @@ class Handler:
 
         ok, err = pkgConfig.loadConfig(config=config)
         if not ok:
-            logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
+            Logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
             return ok, err
 
         self.networksConfig[network] = pkgConfig
@@ -47,16 +47,16 @@ class Handler:
     def getConfig(self, network):
 
         if network not in self.networksConfig:
-            logger.printError(f"Configuration {network} not added for {self.coin}")
-            return None, f"Configuration {network} not added for {self.coin}"
+            Logger.printWarning(f"Configuration {network} not added for {self.coin}")
+            return None, "Configuration not added"
 
         return self.networksConfig[network].jsonEncode(), None
 
     async def removeConfig(self, network):
 
         if network not in self.networksConfig:
-            logger.printError(f"Configuration {network} not added for {self.coin}")
-            return False, f"Configuration {network} not added for {self.coin}"
+            Logger.printWarning(f"Configuration {network} not added for {self.coin}")
+            return False, "Configuration not added"
 
         # await websocket.stopWebSockets(coin=self.coin,
         #                                networkName=network)
@@ -75,8 +75,8 @@ class Handler:
     async def updateConfig(self, network, config):
 
         if network not in self.networksConfig:
-            logger.printError(f"Configuration {network} not added for {self.coin}")
-            return False, f"Configuration {network} not added for {self.coin}"
+            Logger.printWarning(f"Configuration {network} not added for {self.coin}")
+            return False, "Configuration not added"
 
         # await websocket.stopWebSockets(coin=self.coin,
         #                                networkName=network
@@ -84,7 +84,7 @@ class Handler:
 
         ok, err = self.networksConfig[network].loadConfig(config=config)
         if not ok:
-            logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
+            Logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
             return ok, err
 
         # WebSocket(

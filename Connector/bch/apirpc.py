@@ -3,7 +3,7 @@ import asyncio
 from httputils import httputils
 from httputils.httpmethod import RouteTableDef as HttpRouteTableDef
 from rpcutils.rpcmethod import RouteTableDef as RpcRouteTableDef
-from logger import logger
+from logger.logger import Logger
 from rpcutils import error
 from rpcutils.rpcconnector import RPCConnector
 from . import utils
@@ -16,7 +16,7 @@ import time
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getAddressHistory(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getAddressHistory with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getAddressHistory with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_HISTORY)
 
@@ -90,9 +90,7 @@ async def getAddressHistory(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getAddressesHistory(id, params, config):
 
-    logger.printInfo(
-        f"Executing RPC method getAddressesHistory with id {id} and params {params}"
-    )
+    Logger.printDebug(f"Executing RPC method getAddressesHistory with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_HISTORY)
 
@@ -127,7 +125,7 @@ async def getAddressesHistory(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getAddressBalance(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getAddressBalance with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_BALANCE)
 
@@ -167,7 +165,7 @@ async def getAddressBalance(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getAddressesBalance(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getAddressesBalance with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getAddressesBalance with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_BALANCE)
 
@@ -208,7 +206,7 @@ async def getAddressesBalance(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getAddressUnspent(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getAddressUnspent with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getAddressUnspent with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_UNSPENT)
 
@@ -258,7 +256,7 @@ async def getAddressUnspent(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getAddressesUnspent(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getAddressesUnspent with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getAddressesUnspent with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_UNSPENT)
 
@@ -299,7 +297,8 @@ async def getAddressesUnspent(id, params, config):
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getBlockByHash(id, params, config):
-    logger.printInfo(f"Executing RPC method getBlockByHash with id {id} and params {params}")
+
+    Logger.printDebug(f"Executing RPC method getBlockByHash with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_HASH)
 
@@ -329,7 +328,8 @@ async def getBlockByHash(id, params, config):
 @RpcRouteTableDef.rpc(currency=COIN_SYMBOL)
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getBlockByNumber(id, params, config):
-    logger.printInfo(f"Executing RPC method getBlockByNumber with id {id} and params {params}")
+
+    Logger.printDebug(f"Executing RPC method getBlockByNumber with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_BLOCK_BY_NUMBER)
 
@@ -374,7 +374,7 @@ async def getBlockByNumber(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getFeePerByte(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getFeePerByte with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getFeePerByte with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_FEE_PER_BYTE)
 
@@ -392,8 +392,8 @@ async def getFeePerByte(id, params, config):
         params=[params["confirmations"]])
 
     if "feerate" not in feePerByte:
-        logger.printError("Response without feerate field. No fee rate found")
-        raise error.RpcInternalServerError("Response without feerate field. No fee rate found")
+        Logger.printError("Response without feerate field. No fee rate found")
+        raise error.RpcBadGatewayError(id=id)
 
     response = {"feePerByte": utils.convertKbToBytes(utils.convertToSatoshi(feePerByte["feerate"]))}
 
@@ -411,8 +411,7 @@ async def getFeePerByte(id, params, config):
 @HttpRouteTableDef.get(currency=COIN_SYMBOL)
 async def getHeight(id, params, config):
 
-    logger.printInfo(
-        f"Executing RPC method getHeight with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getHeight with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_HEIGHT)
 
@@ -460,7 +459,7 @@ async def getHeight(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getTransactionHex(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getTransactionHex with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getTransactionHex with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION_HEX)
 
@@ -494,7 +493,7 @@ async def getTransactionHex(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getTransaction(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getTransaction with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getTransaction with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION)
 
@@ -557,7 +556,7 @@ async def getTransaction(id, params, config):
         }
 
     except error.RpcBadRequestError as err:
-        logger.printError(f"Transaction {params['txHash']} could not be retrieve: {err}")
+        Logger.printError(f"Transaction {params['txHash']} could not be retrieve: {err}")
         return {"transaction": None}
 
     err = httputils.validateJSONSchema(response, responseSchema)
@@ -574,7 +573,7 @@ async def getTransaction(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getAddressTransactionCount(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getAddressTransactionCount with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getAddressTransactionCount with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_TRANSACTION_COUNT)
 
@@ -616,7 +615,7 @@ async def getAddressTransactionCount(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def getAddressesTransactionCount(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getAddressesTransactionCount with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getAddressesTransactionCount with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_TRANSACTION_COUNT)
 
@@ -656,7 +655,7 @@ async def getAddressesTransactionCount(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def broadcastTransaction(id, params, config):
 
-    logger.printInfo(f"Executing RPC method broadcastTransaction with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method broadcastTransaction with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(BROADCAST_TRANSACTION)
 
@@ -674,8 +673,8 @@ async def broadcastTransaction(id, params, config):
         params=[params["rawTransaction"]])
 
     if hash is None:
-        logger.printError(f"Transaction could not be broadcasted. Raw Transaction: {params['rawTransaction']}")
-        raise error.RpcBadRequestError("Transaction could not be broadcasted")
+        Logger.printError(f"Transaction could not be broadcasted. Raw Transaction: {params['rawTransaction']}")
+        raise error.RpcBadGatewayError(id=id)
 
     response = {
         "broadcasted": hash
@@ -695,7 +694,7 @@ async def broadcastTransaction(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL)
 async def notify(id, params, config):
 
-    logger.printInfo(f"Executing RPC method notify with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method notify with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(NOTIFY)
 
@@ -726,8 +725,7 @@ async def notify(id, params, config):
 @HttpRouteTableDef.get(currency=COIN_SYMBOL)
 async def syncing(id, params, config):
 
-    logger.printInfo(
-        f"Executing RPC method syncing with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method syncing with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(SYNCING)
 
@@ -743,8 +741,8 @@ async def syncing(id, params, config):
     )
 
     if blockchainInfo is None:
-        logger.printWarning("Could not get blockchain info from node")
-        raise error.RpcBadRequestError("Could not get blockchain info from node")
+        Logger.printError("Could not get blockchain info from node")
+        raise error.RpcBadGatewayError(id=id)
 
     if blockchainInfo["blocks"] != blockchainInfo["headers"]:
         response = {

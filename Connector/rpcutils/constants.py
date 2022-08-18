@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 METHOD = "method"
 PARAMS = "params"
 JSON_RPC = "jsonrpc"

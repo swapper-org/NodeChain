@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from logger import logger
+from logger.logger import Logger
 from httputils import httputils
 from rpcutils import error
 from wsutils import topics
@@ -12,7 +12,7 @@ from . import utils
 @RouteTableDef.ws(currency=COIN_SYMBOL)
 async def subscribeToAddressBalance(subscriber, id, params, config):
 
-    logger.printInfo(f"Executing WS method subscribeAddressBalance with id {id} and params {params}")
+    Logger.printDebug(f"Executing WS method subscribeAddressBalance with id {id} and params {params}")
 
     requestSchema = utils.getWSRequestMethodSchema(SUBSCRIBE_ADDRESS_BALANCE)
 
@@ -38,7 +38,7 @@ async def subscribeToAddressBalance(subscriber, id, params, config):
 @RouteTableDef.ws(currency=COIN_SYMBOL)
 async def unsubscribeFromAddressBalance(subscriber, id, params, config):
 
-    logger.printInfo(f"Executing WS method unsubscribeAddressBalance with id {id} and params {params}")
+    Logger.printDebug(f"Executing WS method unsubscribeAddressBalance with id {id} and params {params}")
 
     requestSchema = utils.getWSRequestMethodSchema(UNSUBSCRIBE_ADDRESS_BALANCE)
 
@@ -59,7 +59,7 @@ async def unsubscribeFromAddressBalance(subscriber, id, params, config):
 @RouteTableDef.ws(currency=COIN_SYMBOL)
 async def subscribeToNewBlocks(subscriber, id, params, config):
 
-    logger.printInfo(f"Executing WS method subscribeToNewBlock with id {id} and params {params}")
+    Logger.printDebug(f"Executing WS method subscribeToNewBlock with id {id} and params {params}")
 
     requestSchema = utils.getWSRequestMethodSchema(SUBSCRIBE_TO_NEW_BLOCKS)
 
@@ -84,7 +84,7 @@ async def subscribeToNewBlocks(subscriber, id, params, config):
 @RouteTableDef.ws(currency=COIN_SYMBOL)
 async def unsubscribeFromNewBlocks(subscriber, id, params, config):
 
-    logger.printInfo(f"Executing WS method unsubscribeToNewBlockMine with id {id} and params {params}")
+    Logger.printDebug(f"Executing WS method unsubscribeToNewBlockMine with id {id} and params {params}")
 
     requestSchema = utils.getWSRequestMethodSchema(UNSUBSCRIBE_FROM_NEW_BLOCKS)
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from aiohttp import web
 import json
-from logger import logger
+from logger.logger import Logger
 from httputils.app import appModule
 from httputils.router import Router
 from httputils import httputils, error
@@ -14,10 +14,10 @@ routes = web.RouteTableDef()
 @routes.post(f"/{ADD_COIN_METHOD}")
 async def addCoin(request):
 
-    logger.printInfo("Executing addCoin method")
+    Logger.printDebug("Executing addCoin method")
 
     if "x-api-key" not in request.headers or request.headers["x-api-key"] != adminutils.getApiKey():
-        raise error.UnauthorizedError("Unauthorized")
+        raise error.UnauthorizedError()
 
     payload = httputils.parseJSONRequest(await request.read())
 
@@ -46,10 +46,10 @@ async def addCoin(request):
 @routes.post(f"/{REMOVE_COIN_METHOD}")
 async def removeCoin(request):
 
-    logger.printInfo("Executing removeCoin method")
+    Logger.printDebug("Executing removeCoin method")
 
     if "x-api-key" not in request.headers or request.headers["x-api-key"] != adminutils.getApiKey():
-        raise error.UnauthorizedError("Unauthorized")
+        raise error.UnauthorizedError()
 
     payload = httputils.parseJSONRequest(await request.read())
 
@@ -77,10 +77,10 @@ async def removeCoin(request):
 @routes.post(f"/{GET_COIN_METHOD}")
 async def getCoin(request):
 
-    logger.printInfo("Executing getCoin method")
+    Logger.printDebug("Executing getCoin method")
 
     if "x-api-key" not in request.headers or request.headers["x-api-key"] != adminutils.getApiKey():
-        raise error.UnauthorizedError("Unauthorized")
+        raise error.UnauthorizedError()
 
     payload = httputils.parseJSONRequest(await request.read())
 
@@ -108,10 +108,10 @@ async def getCoin(request):
 @routes.post(f"/{UPDATE_COIN_METHOD}")
 async def updateCoin(request):
 
-    logger.printInfo("Executing getCoin method")
+    Logger.printDebug("Executing getCoin method")
 
     if "x-api-key" not in request.headers or request.headers["x-api-key"] != adminutils.getApiKey():
-        raise error.UnauthorizedError("Unauthorized")
+        raise error.UnauthorizedError()
 
     payload = httputils.parseJSONRequest(await request.read())
 

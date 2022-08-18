@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from logger import logger
+from logger.logger import Logger
 from .constants import *
 from web3 import Web3
 
@@ -19,11 +19,11 @@ def getMethodSchemas(name):
 
 
 def getRequestMethodSchema(name):
-    return RPC_JSON_SCHEMA_FOLDER + name + SCHEMA_CHAR_SEPARATOR + REQUEST + SCHEMA_EXTENSION
+    return f"{RPC_JSON_SCHEMA_FOLDER}{name}{SCHEMA_CHAR_SEPARATOR}{REQUEST}{SCHEMA_EXTENSION}"
 
 
 def getResponseMethodSchema(name):
-    return RPC_JSON_SCHEMA_FOLDER + name + SCHEMA_CHAR_SEPARATOR + RESPONSE + SCHEMA_EXTENSION
+    return f"{RPC_JSON_SCHEMA_FOLDER}{name}{SCHEMA_CHAR_SEPARATOR}{RESPONSE}{SCHEMA_EXTENSION}"
 
 
 def getWSMethodSchemas(name):
@@ -31,11 +31,11 @@ def getWSMethodSchemas(name):
 
 
 def getWSRequestMethodSchema(name):
-    return WS_JSON_SCHEMA_FOLDER + name + SCHEMA_CHAR_SEPARATOR + REQUEST + SCHEMA_EXTENSION
+    return f"{WS_JSON_SCHEMA_FOLDER}{name}{SCHEMA_CHAR_SEPARATOR}{REQUEST}{SCHEMA_EXTENSION}"
 
 
 def getWSResponseMethodSchema(name):
-    return WS_JSON_SCHEMA_FOLDER + name + SCHEMA_CHAR_SEPARATOR + RESPONSE + SCHEMA_EXTENSION
+    return f"{WS_JSON_SCHEMA_FOLDER}{name}{SCHEMA_CHAR_SEPARATOR}{RESPONSE}{SCHEMA_EXTENSION}"
 
 
 def isAddressInBlock(address, block):
@@ -50,7 +50,7 @@ def getSyncPercentage(currentBlock, latestBlock):
 
 
 def closingAddrBalanceTopic(topicName):
-    logger.printInfo(f"No need to handle topic [{topicName}] close")
+    Logger.printDebug(f"No need to handle topic [{topicName}] close")
 
 
 def toWei(amount):

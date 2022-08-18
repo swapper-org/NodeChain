@@ -9,7 +9,7 @@ import sys
 import threading
 import zmq
 import zmq.asyncio
-from logger import logger
+from logger.logger import Logger
 from rpcutils import rpcutils, error
 from wsutils import wsutils, topics
 from wsutils.broker import Broker
@@ -20,6 +20,7 @@ from wsutils import websocket
 from httputils import httpmethod
 
 
+"""
 @websocket.WebSocket
 class AddressBalanceWs:
 
@@ -84,7 +85,7 @@ async def addressBalanceCallback(request, config, coin):
                        f"{request['address']}"
 
     if not broker.isTopic(addrBalanceTopic):
-        logger.printWarning("There are no subscribers")
+        Logger.printWarning("There are no subscribers")
         return
 
     id = random.randint(1, sys.maxsize)
@@ -116,7 +117,7 @@ class BlockWebSocket:
 
     async def start(self):
 
-        logger.printInfo("Starting Block WS for Bitcoin")
+        Logger.printDebug("Starting Block WS for Bitcoin")
         threading.Thread(
             target=self.newBlocksThread,
             daemon=True
@@ -124,7 +125,7 @@ class BlockWebSocket:
 
     def newBlocksThread(self):
 
-        logger.printInfo("Configuring ZMQ Socket")
+        Logger.printDebug("Configuring ZMQ Socket")
 
         zmqContext = zmq.asyncio.Context()
         zmqSocket = zmqContext.socket(zmq.SUB)
@@ -147,7 +148,7 @@ class BlockWebSocket:
             if topic == NEW_HASH_BLOCK_ZMQ_TOPIC:
 
                 blockHash = binascii.hexlify(message).decode("utf-8")
-                logger.printInfo(f"New message for [{topic}]: {blockHash}")
+                Logger.printDebug(f"New message for [{topic}]: {blockHash}")
 
                 await self.bitcoinWSWorker(blockHash)
 
@@ -175,7 +176,7 @@ class BlockWebSocket:
             )
 
         except error.RpcBadRequestError as err:
-            logger.printError(f"Error getting block {blockHash}: {err}")
+            Logger.printError(f"Error getting block {blockHash}: {err}")
             newBlockPub.publish(
                 broker=broker,
                 topic=f"{self.coin}{topics.TOPIC_SEPARATOR}"
@@ -202,3 +203,4 @@ class BlockWebSocket:
     @loop.setter
     def loop(self, value):
         self._loop = value
+"""

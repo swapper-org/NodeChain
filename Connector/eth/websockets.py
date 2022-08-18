@@ -5,7 +5,7 @@ import json
 import random
 import sys
 import threading
-from logger import logger
+from logger.logger import Logger
 from rpcutils import rpcutils, constants as rpcConstants, error
 from wsutils.clientwebsocket import ClientWebSocket
 from wsutils import topics, websocket
@@ -26,7 +26,7 @@ class WebSocket:
 
     async def start(self):
 
-        logger.printInfo("Starting WS for Ethereum")
+        Logger.printDebug("Starting WS for Ethereum")
 
         threading.Thread(
             target=self.ethereumWSThread,
@@ -45,7 +45,7 @@ class WebSocket:
         while True:
             async with ClientWebSocket(self.config.wsEndpoint) as session:
                 self.session = session
-                logger.printInfo(f"Connecting to {self.config.wsEndpoint}")
+                Logger.printDebug(f"Connecting to {self.config.wsEndpoint}")
                 await session.connect()
 
                 payload = {
@@ -56,8 +56,8 @@ class WebSocket:
                     ]
                 }
 
-                logger.printInfo(f"Subscribing to {NEW_HEADS_SUBSCRIPTION}")
-                logger.printInfo(f"Making request {payload} to {self.config.wsEndpoint}")
+                Logger.printDebug(f"Subscribing to {NEW_HEADS_SUBSCRIPTION}")
+                Logger.printDebug(f"Making request {payload} to {self.config.wsEndpoint}")
 
                 await session.send(payload)
 
@@ -66,8 +66,7 @@ class WebSocket:
 
                     if msg.type == aiohttp.WSMsgType.TEXT:
 
-                        logger.printInfo(
-                            f"Message received for {self.coin} websocket from {self.config.wsEndpoint}: {msg.data}")
+                        Logger.printInfo(f"Message received for {self.coin} websocket from {self.config.wsEndpoint}: {msg.data}")
 
                         if msg.data == 'close':
                             closed = True
@@ -79,9 +78,9 @@ class WebSocket:
                                 if rpcConstants.PARAMS in payload:
                                     await self.ethereumWSWorker(payload[rpcConstants.PARAMS])
                                 else:
-                                    logger.printError(f"No params in {self.coin} ws node message")
+                                    Logger.printError(f"No params in {self.coin} ws node message")
                             except Exception as e:
-                                logger.printError(f"Payload is not JSON message: {e}")
+                                Logger.printError(f"Payload is not JSON message: {e}")
 
                     elif msg.type == aiohttp.WSMsgType.ERROR:
                         break
@@ -93,8 +92,8 @@ class WebSocket:
 
         blockNumber = params[rpcConstants.RESULT]["number"]
 
-        logger.printInfo(f"Getting new block to check addresses subscribed for. Block number: "
-                         f"{params[rpcConstants.RESULT]['number']}")
+        Logger.printDebug(f"Getting new block to check addresses subscribed for. Block number: "
+                          f"{params[rpcConstants.RESULT]['number']}")
 
         broker = Broker()
         publisher = Publisher()
@@ -121,7 +120,7 @@ class WebSocket:
             )
 
         except error.RpcBadRequestError as err:
-            logger.printError(f"Can not get new block. {err}")
+            Logger.printError(f"Can not get new block. {err}")
             publisher.publish(broker, topics.NEW_BLOCKS_TOPIC, err.jsonEncode())
             return
 
@@ -150,7 +149,7 @@ class WebSocket:
                         )
                     )
                 except error.RpcBadRequestError as err:
-                    logger.printError(f"Can not get address balance for [{address}] {err}")
+                    Logger.printError(f"Can not get address balance for [{address}] {err}")
                     publisher.publish(broker, topics.NEW_BLOCKS_TOPIC, err.jsonEncode())
                     return
 

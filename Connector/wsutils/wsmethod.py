@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import aiohttp
-from logger import logger
+from logger.logger import Logger
 from httputils import httputils, error as httpError
 from rpcutils import rpcutils, error
 from rpcutils.constants import *
@@ -43,15 +43,15 @@ class RouteTableDef:
     def _registerMethod(wrapperApiId, methodName, wsMethod):
 
         if not RouteTableDef._isWrapperApiRegistered(wrapperApiId=wrapperApiId):
-            logger.printInfo(f"Registering new WS method {methodName} for wrapper API {wrapperApiId}")
+            Logger.printDebug(f"Registering new WS method {methodName} for wrapper API {wrapperApiId}")
             RouteTableDef.wsMethods[wrapperApiId] = {methodName: wsMethod}
 
         elif not RouteTableDef._isMethodRegistered(wrapperApiId=wrapperApiId, methodName=methodName):
-            logger.printInfo(f"Registering new WS method method {methodName} for wrapper API {wrapperApiId}")
+            Logger.printDebug(f"Registering new WS method method {methodName} for wrapper API {wrapperApiId}")
             RouteTableDef.wsMethods[wrapperApiId][methodName] = wsMethod
 
         else:
-            logger.printError(f"WS Method {methodName} already registered for wrapper API {wrapperApiId}")
+            Logger.printDebug(f"WS Method {methodName} already registered for wrapper API {wrapperApiId}")
 
     @staticmethod
     def ws(currency, standard=None):
@@ -102,10 +102,7 @@ class RouteTableDef:
                         await subscriber.close(broker.Broker())
 
                     elif coin not in RouteTableDef.wsMethods or rpcPayload[METHOD] not in RouteTableDef.wsMethods[coin]:
-                        raise error.RpcNotFoundError(
-                            id=rpcPayload[ID],
-                            message="Not found"
-                        )
+                        raise error.RpcNotFoundError(id=rpcPayload[ID])
 
                     else:
                         response = await RouteTableDef.wsMethods[coin][rpcPayload[METHOD]].handler(
@@ -117,16 +114,13 @@ class RouteTableDef:
                             id=rpcPayload[ID],
                             params=response
                         )
-                        logger.printInfo(f"Sending WS response to requestor: {rpcResponse}")
+                        Logger.printDebug(f"Sending WS response to requestor: {rpcResponse}")
 
                         await subscriber.sendMessage(rpcResponse)
 
                 elif msg.type == aiohttp.WSMsgType.ERROR:
-                    logger.printError('WS connection closed with exception %s' % subscriber.websocket.exception())
-                    raise error.RpcInternalServerError(
-                        id=-1,
-                        message='WS connection closed with exception %s' % subscriber.websocket.exception()
-                    )
+                    Logger.printError('WS connection closed with exception %s' % subscriber.websocket.exception())
+                    raise error.RpcInternalServerError(id=-1)
 
         except error.RpcError as err:
             response = rpcutils.generateRPCResultResponse(
@@ -134,7 +128,7 @@ class RouteTableDef:
                 err.jsonEncode()
             )
 
-            logger.printError(f"Sending RPC error response to requester: {response}")
+            Logger.printError(f"Sending RPC error response to requester: {response}")
 
             await subscriber.sendMessage(response)
             await subscriber.close(broker.Broker())
@@ -145,7 +139,7 @@ class RouteTableDef:
                 err.jsonEncode()
             )
 
-            logger.printError(f"Sending RPC http response to requester: {response}")
+            Logger.printError(f"Sending RPC http response to requester: {response}")
 
             await subscriber.sendMessage(response)
             await subscriber.close(broker.Broker())
