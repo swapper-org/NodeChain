@@ -140,6 +140,7 @@ class Router(object, metaclass=Singleton.Singleton):
 
         coinHandler = currenciesHandler[coin]
         ok, err = await coinHandler.addConfig(network=network, config=config)
+
         if not ok:
             return {
                 "success": False,
@@ -190,7 +191,8 @@ class Router(object, metaclass=Singleton.Singleton):
         coinHandler = currenciesHandler[coin]
         ok, err = await coinHandler.removeConfig(network)
 
-        utils.removeConfig(coin=coin, network=network)
+        if ok:
+            utils.removeConfig(coin=coin, network=network)
 
         return {
             "success": ok,
@@ -260,7 +262,8 @@ class Router(object, metaclass=Singleton.Singleton):
         coinHandler = currenciesHandler[coin]
         ok, err = await coinHandler.updateConfig(network, config)
 
-        utils.saveConfig(coin=coin, network=network, config=config)
+        if ok:
+            utils.saveConfig(coin=coin, network=network, config=config)
 
         return {
             "success": ok,
