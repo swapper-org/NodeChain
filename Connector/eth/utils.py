@@ -70,3 +70,7 @@ def isAddressInvolvedInTx(address, tx):
     addr = Web3.toChecksumAddress(address)
     return (Web3.toChecksumAddress(tx["from"]["address"]) == addr) or \
            (tx["to"] is not None and Web3.toChecksumAddress(tx["to"]["address"]) == addr)
+
+
+def getConfigSchema():
+    return f"{RPC_JSON_SCHEMA_FOLDER}config{SCHEMA_EXTENSION}"
