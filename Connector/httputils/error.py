@@ -6,7 +6,7 @@ from json import JSONEncoder
 class Error(Exception):
 
     def __init__(self, message: str, code: int):
-        super().__init__(self._message)
+        super().__init__(message)
         self._message = message
         self._code = code
 

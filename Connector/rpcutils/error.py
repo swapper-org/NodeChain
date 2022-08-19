@@ -7,7 +7,7 @@ from json import JSONEncoder
 class RpcError(Exception):
 
     def __init__(self, id: int, message: str, code: int):
-        super().__init__(self._message)
+        super().__init__(message)
         self._id = id
         self._code = code
         self._message = message
