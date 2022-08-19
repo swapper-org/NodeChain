@@ -1,13 +1,12 @@
 #!/usr/bin/python
 from httputils.router import CurrencyHandler
-from httputils import httpmethod
+from httputils import httpmethod, httputils, error as httpError
 from rpcutils import rpcmethod, error
-from wsutils import wsmethod, websocket, topics
-from wsutils.broker import Broker
+from wsutils import wsmethod
 from logger.logger import Logger
-from .websockets import AddressBalanceWs, BlockWebSocket
 from .config import Config
 from .constants import COIN_SYMBOL
+from . import utils
 
 
 @CurrencyHandler
@@ -22,6 +21,12 @@ class Handler:
         if network in self.networksConfig:
             Logger.printWarning(f"Configuration {network} already added for {self.coin}")
             return False, "Configuration already added"
+
+        configSchema = utils.getConfigSchema()
+
+        err = httputils.validateJSONSchema(config, configSchema)
+        if err is not None:
+            raise httpError.BadRequestError(message=err.message)
 
         pkgConfig = Config(
             coin=self.coin,
@@ -58,7 +63,14 @@ class Handler:
             Logger.printWarning(f"Configuration {network} not added for {self.coin}")
             return None, f"Configuration {network} not added for {self.coin}"
 
-        return self.networksConfig[network].jsonEncode(), None
+        response = self.networksConfig[network].jsonEncode()
+        configSchema = utils.getConfigSchema()
+
+        err = httputils.validateJSONSchema(response, configSchema)
+        if err is not None:
+            raise httpError.BadRequestError(message=err.message)
+
+        return response, None
 
     async def removeConfig(self, network):
 
@@ -88,10 +100,16 @@ class Handler:
             Logger.printWarning(f"Configuration {network} not added for {self.coin}")
             return False, "Configuration not added"
 
+        configSchema = utils.getConfigSchema()
+
+        err = httputils.validateJSONSchema(config, configSchema)
+        if err is not None:
+            raise httpError.BadRequestError(message=err.message)
+
         ok, err = self.networksConfig[network].loadConfig(config=config)
         if not ok:
             Logger.printError(f"Can not load config for {network} for {self.coin}: {err}")
-            return ok, err
+            return False, err
 
         # await websocket.stopWebSockets(
         #     coin=self.coin,

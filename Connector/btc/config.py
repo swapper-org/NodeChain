@@ -16,11 +16,14 @@ class Config:
         self._electrsEndpoint = ""
 
     def loadConfig(self, config):
-        self.bitcoincoreRpcEndpoint = config["bitcoincoreRpcEndpoint"]
-        self.bitcoincoreZmqEndpoint = config["bitcoincoreZmqEndpoint"]
-        self.bitcoinAddressCallbackHost = config["bitcoinAddressCallbackHost"]
-        self.electrsEndpoint = config["electrsEndpoint"]
 
+        try:
+            self.bitcoincoreRpcEndpoint = config["bitcoincoreRpcEndpoint"]
+            self.bitcoincoreZmqEndpoint = config["bitcoincoreZmqEndpoint"]
+            self.bitcoinAddressCallbackHost = config["bitcoinAddressCallbackHost"]
+            self.electrsEndpoint = config["electrsEndpoint"]
+        except KeyError:
+            return False, "Can not load config"
         return True, None
 
     @property
