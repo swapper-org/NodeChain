@@ -1,10 +1,11 @@
 #!/usr/bin/python
 from httputils.router import CurrencyHandler
-from httputils import httpmethod
+from httputils import httpmethod, httputils, error as httpError
 from rpcutils import rpcmethod, error
 from logger.logger import Logger
 from .config import Config
 from .constants import COIN_SYMBOL
+from . import utils
 
 
 @CurrencyHandler
@@ -19,6 +20,12 @@ class Handler:
         if network in self.networksConfig:
             Logger.printWarning(f"Configuration {network} already added for {self.coin}")
             return False, "Configuration already added"
+
+        configSchema = utils.getConfigSchema()
+
+        err = httputils.validateJSONSchema(config, configSchema)
+        if err is not None:
+            raise httpError.BadRequestError(message=err.message)
 
         pkgConfig = Config(
             coin=self.coin,
@@ -40,7 +47,15 @@ class Handler:
             Logger.printWarning(f"Configuration {network} not added for {self.coin}")
             return None, "Configuration not added"
 
-        return self.networksConfig[network].jsonEncode(), None
+        response = self.networksConfig[network].jsonEncode()
+
+        configSchema = utils.getConfigSchema()
+
+        err = httputils.validateJSONSchema(response, configSchema)
+        if err is not None:
+            raise httpError.BadRequestError(message=err.message)
+
+        return response, None
 
     async def removeConfig(self, network):
 
@@ -57,6 +72,12 @@ class Handler:
         if network not in self.networksConfig:
             Logger.printWarning(f"Configuration {network} not added for {self.coin}")
             return False, f"Configuration {network} not added for {self.coin}"
+
+        configSchema = utils.getConfigSchema()
+
+        err = httputils.validateJSONSchema(config, configSchema)
+        if err is not None:
+            raise httpError.BadRequestError(message=err.message)
 
         ok, err = self.networksConfig[network].loadConfig(config=config)
         if not ok:
