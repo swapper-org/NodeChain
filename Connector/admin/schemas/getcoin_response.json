@@ -10,12 +10,6 @@
         "message": {
             "type": "string"
         },
-        "coin": {
-            "type": "string"
-        },
-        "network": {
-            "type": "string"
-        },
         "config": {
             "type": "object"
         }
