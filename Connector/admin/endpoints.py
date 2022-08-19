@@ -17,6 +17,7 @@ async def addCoin(request):
     Logger.printDebug("Executing addCoin method")
 
     if "x-api-key" not in request.headers or request.headers["x-api-key"] != adminutils.getApiKey():
+        Logger.printWarning("Unauthorized call to addCoin admin method")
         raise error.UnauthorizedError()
 
     payload = httputils.parseJSONRequest(await request.read())
@@ -27,8 +28,7 @@ async def addCoin(request):
     if err is not None:
         raise error.BadRequestError(message=err.message)
 
-    router = Router()
-    response = await router.addCoin(
+    response = await Router().addCoin(
         coin=payload["coin"],
         network=payload["network"],
         config=payload["config"]
@@ -49,6 +49,7 @@ async def removeCoin(request):
     Logger.printDebug("Executing removeCoin method")
 
     if "x-api-key" not in request.headers or request.headers["x-api-key"] != adminutils.getApiKey():
+        Logger.printWarning("Unauthorized call to removeCoin admin method")
         raise error.UnauthorizedError()
 
     payload = httputils.parseJSONRequest(await request.read())
@@ -59,8 +60,7 @@ async def removeCoin(request):
     if err is not None:
         raise error.BadRequestError(message=err.message)
 
-    router = Router()
-    response = await router.removeCoin(
+    response = await Router().removeCoin(
         coin=payload["coin"],
         network=payload["network"]
     )
@@ -80,6 +80,7 @@ async def getCoin(request):
     Logger.printDebug("Executing getCoin method")
 
     if "x-api-key" not in request.headers or request.headers["x-api-key"] != adminutils.getApiKey():
+        Logger.printWarning("Unauthorized call to getCoin admin method")
         raise error.UnauthorizedError()
 
     payload = httputils.parseJSONRequest(await request.read())
@@ -90,8 +91,7 @@ async def getCoin(request):
     if err is not None:
         raise error.BadRequestError(message=err.message)
 
-    router = Router()
-    response = router.getCoin(
+    response = Router().getCoin(
         coin=payload["coin"],
         network=payload["network"]
     )
@@ -111,6 +111,7 @@ async def updateCoin(request):
     Logger.printDebug("Executing getCoin method")
 
     if "x-api-key" not in request.headers or request.headers["x-api-key"] != adminutils.getApiKey():
+        Logger.printWarning("Unauthorized call to updateCoin admin method")
         raise error.UnauthorizedError()
 
     payload = httputils.parseJSONRequest(await request.read())
@@ -121,8 +122,7 @@ async def updateCoin(request):
     if err is not None:
         raise error.BadRequestError(message=err.message)
 
-    router = Router()
-    response = await router.updateCoin(
+    response = await Router().updateCoin(
         coin=payload["coin"],
         network=payload["network"],
         config=payload["config"]
