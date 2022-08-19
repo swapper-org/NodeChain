@@ -10,20 +10,6 @@ loggingModes = {
     5: logging.CRITICAL
 }
 
-DEFAULT_MODE = 2
-
-mode = os.environ.get("verbose", DEFAULT_MODE)
-
-format = '[%(levelname)s] [%(asctime)s] %(message)s'
-dateFormat = '%H:%M:%S %d-%m-%Y'
-
-
-logging.basicConfig(
-    level=loggingModes[mode],
-    format=format,
-    datefmt=dateFormat
-)
-
 
 class Logger:
 
@@ -46,3 +32,25 @@ class Logger:
     @staticmethod
     def printCritical(msg: str, exc_info: bool = True):
         logging.critical(msg, exc_info=exc_info)
+
+
+DEFAULT_MODE = 2
+
+mode = os.environ.get("verbose", DEFAULT_MODE)
+
+
+try:
+    mode = int(mode)
+except ValueError:
+    Logger.printError(f"Verbose value {mode} not valid. Using default mode: {DEFAULT_MODE}")
+    mode = DEFAULT_MODE
+
+format = '[%(levelname)s] [%(asctime)s] %(message)s'
+dateFormat = '%H:%M:%S %d-%m-%Y'
+
+
+logging.basicConfig(
+    level=loggingModes[mode],
+    format=format,
+    datefmt=dateFormat
+)
