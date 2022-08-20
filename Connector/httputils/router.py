@@ -264,11 +264,11 @@ class Router(object, metaclass=Singleton.Singleton):
     def checkIsAvailableRoute(self, coin, network):
 
         if coin not in self._availableCoins:
-            Logger.printError(f"Currency {coin} has not been previously added")
+            Logger.printWarning(f"Currency {coin} has not been previously added")
             return False, "Currency not added"
 
         if network not in self._availableCoins[coin]:
-            Logger.printError(f"{network} network for {coin} has not been previously added")
+            Logger.printWarning(f"{network} network for {coin} has not been previously added")
             return False, "Network not added for currency"
 
         return True, None
