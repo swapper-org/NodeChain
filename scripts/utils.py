@@ -2,10 +2,22 @@ import sys
 import os
 import json
 import logger
+from enum import Enum
 
 AVAILABLE_CURRENCIES = "./Connector/availableCurrencies.json"
 DEFAULT_CONFIG = "./scripts/defaultConfig.json"
 CUSTOM_CONFIG = "./scripts/config.json"
+
+
+class ConnectorVerbose(Enum):
+    debug = '1'
+    info = '2'
+    warning = '3'
+    error = '4'
+    critical = '5'
+
+    def __str__(self) -> str:
+        return self.value
 
 
 def queryYesNo(question, default="yes"):
@@ -42,6 +54,8 @@ def connectorQueries(args):
 
     querySSL(args.ssl, args.certs)
 
+    os.environ["VERBOSE"] = args.cVerbose if args.cVerbose else queryConnectorVerbose(args)
+
 
 def queryConfigurable(args, question, configurable):
     while True:
@@ -51,6 +65,22 @@ def queryConfigurable(args, question, configurable):
             sys.stdout.write(f"Please respond with with a valid text for {configurable}")
         else:
             return response
+
+
+def queryConnectorVerbose(args):
+
+    while True:
+        response = input(f"Enter connector verbose mode. Available values {[i.value for i in ConnectorVerbose]}: ")
+        if not response:
+            logger.printError("Can't configure with empty answers.", verbosity=args.verbose)
+            sys.stdout.write("Please respond with with a valid text for the connector verbose mode")
+        else:
+            try:
+                if int(response) in [int(i.value) for i in ConnectorVerbose]:
+                    return response
+                logger.printError("Not valid value")
+            except ValueError:
+                logger.printError("Not valid value")
 
 
 def queryPort(args, question):

@@ -36,7 +36,7 @@ class Logger:
 
 DEFAULT_MODE = 2
 
-mode = os.environ.get("verbose", DEFAULT_MODE)
+mode = os.environ.get("VERBOSE", DEFAULT_MODE)
 
 
 try:
