@@ -92,18 +92,16 @@ async def getAddressesBalance(id, params, config):
             message=err.message
         )
 
+    _params = {param: params[param] for param in params if param != "addresses"}
     tasks = []
 
     for address in params["addresses"]:
-
+        _params["address"] = address
         tasks.append(
             asyncio.ensure_future(
                 getAddressBalance(
                     id=id,
-                    params={
-                        "address": address,
-                        "contractAddresses": params["contractAddresses"]
-                    },
+                    params=_params,
                     config=config
                 )
             )
@@ -250,17 +248,21 @@ async def getAddressHistory(id, params, config):
     for contractAddress in params["contractAddresses"]:
 
         if "status" not in params or params["status"] in ["pending", "all"]:
-            pendingTask = getAddressPendingTransactions(
-                address=params["address"],
-                contractAddress=contractAddress,
-                config=config
+            pendingTask = asyncio.ensure_future(
+                getAddressPendingTransactions(
+                    address=params["address"],
+                    contractAddress=contractAddress,
+                    config=config
+                )
             )
 
         if "status" not in params or params["status"] in ["confirmed", "all"]:
-            confirmedTask = getAddressConfirmedTransactions(
-                address=params["address"],
-                contractAddress=contractAddress,
-                config=config
+            confirmedTask = asyncio.ensure_future(
+                getAddressConfirmedTransactions(
+                    address=params["address"],
+                    contractAddress=contractAddress,
+                    config=config
+                )
             )
 
         txs = []
@@ -313,18 +315,16 @@ async def getAddressesHistory(id, params, config):
             message=err.message
         )
 
+    _params = {param: params[param] for param in params if param != "addresses"}
     tasks = []
 
     for address in params["addresses"]:
-
+        _params["address"] = address
         tasks.append(
             asyncio.ensure_future(
                 getAddressHistory(
                     id=id,
-                    params={
-                        "address": address,
-                        "contractAddresses": params["contractAddresses"]
-                    },
+                    params=_params,
                     config=config
                 )
             )
