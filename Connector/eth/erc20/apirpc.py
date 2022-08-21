@@ -388,11 +388,14 @@ async def getAddressPendingTransactions(address, contractAddress, config):
 async def getAddressConfirmedTransactions(address, contractAddress, config):
 
     try:
+
+        addressPrefixLength = 24
+
         txs = await HTTPConnector.get(
             endpoint=config.indexerEndpoint,
             path=INDEXER_TXS_PATH,
             params={
-                "and": f"(and(status.eq.true,txto.eq.{contractAddress},or(txfrom.eq.{address},contract_to.like.*{address[2:]})))",
+                "and": f"(and(status.eq.true,txto.eq.{contractAddress},or(txfrom.eq.{address},contract_to.eq.{'0'*addressPrefixLength}{address[2:]})))",
                 "order": "time.desc"
             }
         )
