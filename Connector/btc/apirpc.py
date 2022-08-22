@@ -646,16 +646,14 @@ async def getAddressesTransactionCount(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    _params = {param: params[param] for param in params if param != "addresses"}
     tasks = []
 
     for address in params["addresses"]:
-        _params["address"] = address
         tasks.append(
             asyncio.ensure_future(
                 getAddressTransactionCount(
                     id=id,
-                    params=_params,
+                    params=address,
                     config=config
                 )
             )
