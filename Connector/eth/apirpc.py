@@ -188,6 +188,7 @@ async def broadcastTransaction(id, params, config):
             message=err.message
         )
 
+    Logger.printWarning("Broadcasted transaction in Ethereum network: " + str(hash))
     return response
 
 
