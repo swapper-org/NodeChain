@@ -239,7 +239,6 @@ async def getAddressHistory(id, params, config):
             message=err.message
         )
 
-    response = {}
     recentFirst = "order" not in params or params["order"] == "desc"
 
     if "status" not in params or params["status"] in ["pending", "all"]:
@@ -267,15 +266,15 @@ async def getAddressHistory(id, params, config):
 
     if 'confirmedTask' in locals():
         confirmedTransactions = await confirmedTask
-        if 'pendingTask' not in locals():
-            txs = confirmedTransactions
-        else:
-            for contractAddress, hashes in confirmedTransactions.items():
-                if contractAddress in txs:
-                    txs[contractAddress] += hashes
-                else:
-                    txs[contractAddress] = hashes
 
+        if not txs:
+            txs = {contractAddress: [] for contractAddress in params["contractAddresses"]}
+
+        for contractAddress in params["contractAddresses"]:
+            if Web3.toChecksumAddress(contractAddress) in confirmedTransactions:
+                txs[contractAddress] += confirmedTransactions[Web3.toChecksumAddress(contractAddress)]
+
+    response = {}
     for contractAddress, hashes in txs.items():
 
         paginatedTxs = globalutils.paginate(
@@ -289,7 +288,7 @@ async def getAddressHistory(id, params, config):
             "address": params["address"],
             "txHashes": paginatedTxs if recentFirst else paginatedTxs[::-1],
             "maxPage": globalutils.getMaxPage(
-                numElements=len(txs),
+                numElements=len(txs[contractAddress]),
                 pageSize=params["pageSize"] if "pageSize" in params else None
             )
         }
