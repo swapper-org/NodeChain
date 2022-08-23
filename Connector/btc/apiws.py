@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from logger import logger
+from logger.logger import Logger
 from httputils import httputils
 from wsutils import topics
 from wsutils.wsmethod import RouteTableDef
@@ -8,11 +8,11 @@ from rpcutils import error
 from . import apirpc, utils
 from .constants import *
 
-
+"""
 @RouteTableDef.ws(currency=COIN_SYMBOL)
 async def subscribeToAddressBalance(subscriber, id, params, config):
 
-    logger.printInfo(f"Executing WS method subscribeToAddressBalance with id {id} and params {params}")
+    Logger.printDebug(f"Executing WS method subscribeToAddressBalance with id {id} and params {params}")
 
     requestSchema = utils.getWSRequestMethodSchema(SUBSCRIBE_ADDRESS_BALANCE)
 
@@ -44,8 +44,8 @@ async def subscribeToAddressBalance(subscriber, id, params, config):
         )
 
         if not response["success"]:
-            logger.printError(f"Can not subscribe {params['address']} to node")
-            raise error.RpcBadRequestError(f"Can not subscribe {params['address']} to node")
+            Logger.printError(f"Can not subscribe {params['address']} to node")
+            raise error.RpcBadGatewayError(id=id)
 
     return subscriber.subscribeToTopic(broker=broker, topic=topic)
 
@@ -53,7 +53,7 @@ async def subscribeToAddressBalance(subscriber, id, params, config):
 @RouteTableDef.ws(currency=COIN_SYMBOL)
 async def unsubscribeFromAddressBalance(subscriber, id, params, config):
 
-    logger.printInfo(f"Executing WS method unsubscribeFromAddressBalance with id {id} and params {params}")
+    Logger.printDebug(f"Executing WS method unsubscribeFromAddressBalance with id {id} and params {params}")
 
     requestSchema = utils.getWSRequestMethodSchema(UNSUBSCRIBE_ADDRESS_BALANCE)
 
@@ -73,7 +73,7 @@ async def unsubscribeFromAddressBalance(subscriber, id, params, config):
 @RouteTableDef.ws(currency=COIN_SYMBOL)
 async def subscribeToNewBlocks(subscriber, id, params, config):
 
-    logger.printInfo(f"Executing WS method subscribeToNewBlocks with id {id} and params {params}")
+    Logger.printDebug(f"Executing WS method subscribeToNewBlocks with id {id} and params {params}")
 
     requestSchema = utils.getWSRequestMethodSchema(SUBSCRIBE_TO_NEW_BLOCKS)
 
@@ -95,7 +95,7 @@ async def subscribeToNewBlocks(subscriber, id, params, config):
 @RouteTableDef.ws(currency=COIN_SYMBOL)
 async def unsubscribeFromNewBlocks(subscriber, id, params, config):
 
-    logger.printInfo(f"Executing WS method unsubscribeFromNewBlocks with id {id} and params {params}")
+    Logger.printDebug(f"Executing WS method unsubscribeFromNewBlocks with id {id} and params {params}")
 
     responseSchema = utils.getWSRequestMethodSchema(UNSUBSCRIBE_FROM_NEW_BLOCKS)
 
@@ -109,3 +109,4 @@ async def unsubscribeFromNewBlocks(subscriber, id, params, config):
                   f"{config.networkName}{topics.TOPIC_SEPARATOR}"
                   f"{topics.NEW_BLOCKS_TOPIC}"
     )
+"""

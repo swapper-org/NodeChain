@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from aiohttp import web
-from logger import logger
+from logger.logger import Logger
 
 appModules = {}
 
@@ -44,9 +44,9 @@ def appModule(moduleAppPath):
     def moduleWrapper(function):
 
         if moduleAppPath in appModules:
-            logger.printWarning(f"Module {moduleAppPath} already registered")
+            Logger.printWarning(f"Module {moduleAppPath} already registered")
         else:
-            logger.printWarning(f"Registering {moduleAppPath} module")
+            Logger.printDebug(f"Registering {moduleAppPath} module")
             appModules[moduleAppPath] = function()
 
     return moduleWrapper

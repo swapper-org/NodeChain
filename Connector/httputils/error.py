@@ -5,26 +5,18 @@ from json import JSONEncoder
 
 class Error(Exception):
 
-    def __init__(self, message, code):
-        self.message = message
-        self.code = code
-        super().__init__(self.message)
+    def __init__(self, message: str, code: int):
+        super().__init__(message)
+        self._message = message
+        self._code = code
 
     @property
     def code(self):
         return self._code
 
-    @code.setter
-    def code(self, value):
-        self._code = value
-
     @property
     def message(self):
         return self._message
-
-    @message.setter
-    def message(self, value):
-        self._message = value
 
     def jsonEncode(self):
         return ErrorEncoder().encode(self)
@@ -32,49 +24,49 @@ class Error(Exception):
 
 class BadRequestError(Error):
 
-    def __init__(self, message):
+    def __init__(self, message: str = "Bad request"):
         super().__init__(message=message, code=BAD_REQUEST_CODE)
 
 
 class MethodNotAllowedError(Error):
 
-    def __init__(self, message):
+    def __init__(self, message: str = "Method not allowed"):
         super().__init__(message=message, code=METHOD_NOT_ALLOWED_CODE)
 
 
 class InternalServerError(Error):
 
-    def __init__(self, message):
+    def __init__(self, message: str = "Internal server error"):
         super().__init__(message=message, code=INTERNAL_SERVER_ERROR_CODE)
 
 
 class NotFoundError(Error):
 
-    def __init__(self, message):
+    def __init__(self, message: str = "Not found"):
         super().__init__(message=message, code=NOT_FOUND_CODE)
 
 
 class TimeoutError(Error):
 
-    def __init__(self, message):
+    def __init__(self, message: str = "Timeout"):
         super().__init__(message=message, code=TIME_OUT_CODE)
 
 
 class ConflictError(Error):
 
-    def __init__(self, message):
+    def __init__(self, message: str = "Conflict error"):
         super().__init__(message=message, code=CONFLICT_ERROR_CODE)
 
 
 class UnauthorizedError(Error):
 
-    def __init__(self, message):
+    def __init__(self, message: str = "Unauthorized"):
         super().__init__(message=message, code=UNAUTHORIZED_ERROR_CODE)
 
 
 class BadGatewayError(Error):
 
-    def __init__(self, message):
+    def __init__(self, message: str = "Bad gateway"):
         super().__init__(message=message, code=BAD_GATEWAY_CODE)
 
 

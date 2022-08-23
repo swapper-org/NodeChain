@@ -141,6 +141,15 @@ def argumentHandler():
     parser.add_argument('-V', '--version', action="version",
                         version=f"NodeChain version {version}", help="Displays software version information", default=None)
     parser.add_argument("-v", "--verbose", help="If it is set to 0, no output is printed", action="store_true")
+    parser.add_argument(
+        '-cv',
+        '--connectorVerbose',
+        dest='cVerbose',
+        action='store',
+        help='Defines connector verbose. Values accepted from 1 to 5, where 1 is the highest level of verbose',
+        choices=[i.value for i in utils.ConnectorVerbose],
+        default=None
+    )
 
     # exclusive mutually group for config
     configEx = parser.add_mutually_exclusive_group()

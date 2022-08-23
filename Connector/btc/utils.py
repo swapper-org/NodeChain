@@ -7,7 +7,7 @@ import math
 from decimal import Decimal
 import random
 import sys
-from logger import logger
+from logger.logger import Logger
 from rpcutils import error
 from wsutils import topics
 from .constants import *
@@ -46,33 +46,37 @@ def getWSResponseMethodSchema(name):
     return WS_JSON_SCHEMA_FOLDER + name + SCHEMA_CHAR_SEPARATOR + RESPONSE + SCHEMA_EXTENSION
 
 
-class AddrBalanceTopicCloseHandler:
+def getConfigSchema():
+    return f"{RPC_JSON_SCHEMA_FOLDER}config{SCHEMA_EXTENSION}"
 
-    def __init__(self, topicName, config):
-        self.topicName = topicName
-        self.config = config
 
-    def close(self):
+# class AddrBalanceTopicCloseHandler:
 
-        addrTopicSplitted = self.topicName.split(topics.TOPIC_SEPARATOR)
-        id = random.randint(1, sys.maxsize)
+#     def __init__(self, topicName, config):
+#         self.topicName = topicName
+#         self.config = config
 
-        if len(addrTopicSplitted) <= 1:
-            logger.printError(f"Topic name [{self.topicName}] not valid for Address Balance WS")
-            raise error.RpcInternalServerError(id=id, message=f"Can not unsubscribe {self.topicName} to node")
+#     def close(self):
 
-        response = apirpc.notify(
-            id,
-            {
-                "address": addrTopicSplitted[3],
-                "callBackEndpoint": ""
-            },
-            self.config
-        )
+#         addrTopicSplitted = self.topicName.split(topics.TOPIC_SEPARATOR)
+#         id = random.randint(1, sys.maxsize)
 
-        if not response["success"]:
-            logger.printError(f"Can not unsubscribe {self.topicName} to node")
-            raise error.RpcBadRequestError(id=id, message=f"Can not unsubscribe {self.topicName} to node")
+#         if len(addrTopicSplitted) <= 1:
+#            Logger.printError(f"Topic name [{self.topicName}] not valid for Address Balance WS")
+#            raise error.RpcInternalServerError(id=id)
+
+#        response = apirpc.notify(
+#            id,
+#            {
+#                "address": addrTopicSplitted[3],
+#                "callBackEndpoint": ""
+#            },
+#            self.config
+#        )
+
+#        if not response["success"]:
+#            Logger.printError(f"Can not unsubscribe {self.topicName} to node")
+#            raise error.RpcBadGatewayError(id=id)
 
 
 async def decodeTransactionDetails(txDecoded, id, config):

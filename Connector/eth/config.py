@@ -15,10 +15,12 @@ class Config:
 
     def loadConfig(self, config):
 
-        self.rpcEndpoint = config["rpcEndpoint"]
-        self.wsEndpoint = config["wsEndpoint"]
-        self.indexerEndpoint = config["indexerEndpoint"]
-
+        try:
+            self.rpcEndpoint = config["rpcEndpoint"]
+            self.wsEndpoint = config["wsEndpoint"]
+            self.indexerEndpoint = config["indexerEndpoint"]
+        except KeyError:
+            return False, "Can not load config"
         return True, None
 
     @property

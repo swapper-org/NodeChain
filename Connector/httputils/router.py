@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from aiohttp import web
 import json
-from logger import logger
+from logger.logger import Logger
 from patterns import Singleton
 from utils import utils
 from . import error
@@ -25,10 +25,14 @@ class Router(object, metaclass=Singleton.Singleton):
         except KeyError:
             pass
 
-        self.checkIsAvailableRoute(
+        available, err = self.checkIsAvailableRoute(
             coin=coin,
             network=network
         )
+
+        if not available:
+            Logger.printWarning(f"Making RPC request to currency {coin} and network {network}. Error: {err}")
+            raise error.NotFoundError()
 
         response = await currenciesHandler[coin].handleRPCRequest(
             network=network,
@@ -52,10 +56,14 @@ class Router(object, metaclass=Singleton.Singleton):
         except KeyError:
             pass
 
-        self.checkIsAvailableRoute(
+        available, err = self.checkIsAvailableRoute(
             coin=coin,
             network=network
         )
+
+        if not available:
+            Logger.printWarning(f"Making HTTP request to currency {coin} and network {network}. Error: {err}")
+            raise error.NotFoundError()
 
         response = await currenciesHandler[coin].handleHTTPRequest(
             network=network,
@@ -73,10 +81,14 @@ class Router(object, metaclass=Singleton.Singleton):
         coin = request.match_info["coin"]
         network = request.match_info["network"]
 
-        self.checkIsAvailableRoute(
+        available, err = self.checkIsAvailableRoute(
             coin=coin,
             network=network
         )
+
+        if not available:
+            Logger.printWarning(f"Making WS request to currency {coin} and network {network}. Error: {err}")
+            raise error.NotFoundError()
 
         coinHandler = currenciesHandler[coin]
         return await coinHandler.handleWsRequest(
@@ -90,10 +102,14 @@ class Router(object, metaclass=Singleton.Singleton):
         network = request.match_info["network"]
         callbackName = request.match_info["callbackName"]
 
-        self.checkIsAvailableRoute(
+        available, err = self.checkIsAvailableRoute(
             coin=coin,
             network=network
         )
+
+        if not available:
+            Logger.printWarning(f"Making request to currency {coin} and network {network}. Error: {err}")
+            raise error.NotFoundError()
 
         coinHandler = currenciesHandler[coin]
         response = await coinHandler.handleCallback(
@@ -116,10 +132,10 @@ class Router(object, metaclass=Singleton.Singleton):
             }
 
         if coin in self._availableCoins and network in self._availableCoins[coin]:
-            logger.printError(f"Can not add {network} network for {coin} because it is already added")
+            Logger.printWarning(f"Can not add {network} network for {coin} because it is already added")
             return {
                 "success": False,
-                "message": f"Can not add {network} network for {coin} because it is already added"
+                "message": "Network already registered"
             }
 
         coinHandler = currenciesHandler[coin]
@@ -139,7 +155,7 @@ class Router(object, metaclass=Singleton.Singleton):
 
         return {
             "success": True,
-            "message": f"{network} network added for currency {coin}"
+            "message": "Network added successfully"
         }
 
     async def removeCoin(self, coin, network):
@@ -151,16 +167,19 @@ class Router(object, metaclass=Singleton.Singleton):
                 "message": err
             }
 
-        try:
-            self.checkIsAvailableRoute(coin=coin, network=network)
-        except error.NotFoundError:
-            logger.printError(f"{network} network has not been previously added for currency {coin}")
+        available, err = self.checkIsAvailableRoute(
+            coin=coin,
+            network=network
+        )
+
+        if not available:
+            Logger.printWarning(f"Removing config for currency {coin} and network {network} but got error: {err}")
             return {
                 "success": False,
-                "message": f"{network} network has not been previously added for currency {coin}"
+                "message": err
             }
 
-        logger.printInfo(f"Removing {network} network for currency {coin}")
+        Logger.printDebug(f"Removing {network} network for currency {coin}")
 
         del self._availableCoins[coin][network]
         if len(self._availableCoins[coin]) == 0:
@@ -171,7 +190,7 @@ class Router(object, metaclass=Singleton.Singleton):
 
         return {
             "success": ok,
-            "message": f"{network} network removed for currency {coin}" if ok else err
+            "message": "Network removed successfully" if ok else err
         }
 
     def getCoin(self, coin, network):
@@ -183,16 +202,19 @@ class Router(object, metaclass=Singleton.Singleton):
                 "message": err
             }
 
-        try:
-            self.checkIsAvailableRoute(coin=coin, network=network)
-        except error.NotFoundError:
-            logger.printError(f"{network} network has not been previously added for currency {coin}")
+        available, err = self.checkIsAvailableRoute(
+            coin=coin,
+            network=network
+        )
+
+        if not available:
+            Logger.printWarning(f"Getting config for currency {coin} and network {network} but got error: {err}")
             return {
                 "success": False,
-                "message": f"{network} network has not been previously added for currency {coin}"
+                "message": err
             }
 
-        logger.printInfo(f"Returning configuration for {network} network for currency {coin}")
+        Logger.printDebug(f"Returning configuration for {network} network for currency {coin}")
 
         coinHandler = currenciesHandler[coin]
         config, err = coinHandler.getConfig(network)
@@ -204,9 +226,7 @@ class Router(object, metaclass=Singleton.Singleton):
 
         return {
             "success": True,
-            "message": f"Configuration for {network} network for currency {coin} retrieved successfully",
-            "coin": coin,
-            "network": network,
+            "message": "Configuration retrieved successfully",
             "config": config
         }
 
@@ -219,47 +239,51 @@ class Router(object, metaclass=Singleton.Singleton):
                 "message": err
             }
 
-        try:
-            self.checkIsAvailableRoute(coin=coin, network=network)
-        except error.NotFoundError:
-            logger.printError(f"{network} network has not been previously added for currency {coin}")
+        available, err = self.checkIsAvailableRoute(
+            coin=coin,
+            network=network
+        )
+
+        if not available:
+            Logger.printWarning(f"Updating config for currency {coin} and network {network} but got error: {err}")
             return {
                 "success": False,
-                "message": f"{network} network has not been previously added for currency {coin}"
+                "message": err
             }
 
-        logger.printInfo(f"Updating configuration for network {network} for currency {coin}")
+        Logger.printInfo(f"Updating configuration for network {network} for currency {coin}")
 
         coinHandler = currenciesHandler[coin]
         ok, err = await coinHandler.updateConfig(network, config)
 
         return {
             "success": ok,
-            "message": err if not ok else
-            f"Configuration for {network} network for currency {coin} updated successfully"
+            "message": "Configuration network updated successfully" if ok else err
         }
 
     def checkIsAvailableRoute(self, coin, network):
 
         if coin not in self._availableCoins:
-            logger.printError(f"Currency {coin} has not been previously added")
-            raise error.NotFoundError(f"Currency {coin} has not been previously added")
+            Logger.printWarning(f"Currency {coin} has not been previously added")
+            return False, "Currency not added"
 
         if network not in self._availableCoins[coin]:
-            logger.printError(f"{network} network for {coin} has not been previously added")
-            raise error.NotFoundError(f"{network} network for {coin} has not been previously added")
+            Logger.printWarning(f"{network} network for {coin} has not been previously added")
+            return False, "Network not added for currency"
+
+        return True, None
 
     def checkCoinNetworkIntegrity(self, coin, network):
 
         if not utils.isAvailableCurrency(coin):
-            logger.printError(f"Currency {coin} is not supported")
-            return False, f"Currency {coin} is not supported"
+            Logger.printWarning(f"Currency {coin} is not supported")
+            return False, "Currency not supported"
 
         if not utils.isAvailableNetworkForCurrency(coin, network):
-            logger.printError(f"{network} network not supported for currency {coin}")
-            return False, f"{network} network not supported for currency {coin}"
+            Logger.printWarning(f"{network} network not supported for currency {coin}")
+            return False, "Network not supported for currency"
 
-        return True, ""
+        return True, None
 
 
 class CurrencyHandler:

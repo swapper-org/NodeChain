@@ -1,5 +1,7 @@
 #!/usr/bin/python
+import sys
 import asyncio
+import random
 from web3 import Web3
 from rpcutils import error
 from rpcutils.rpcmethod import RouteTableDef as RpcRouteTableDef
@@ -8,7 +10,7 @@ from eth import apirpc as ethapirpc, utils as ethutils
 from eth.constants import COIN_SYMBOL, INDEXER_TXS_PATH, GRAPHQL_PATH
 from httputils import httputils, error as httpError
 from httputils.httpconnector import HTTPConnector
-from logger import logger
+from logger.logger import Logger
 from .constants import *
 from . import utils
 from utils import utils as globalutils
@@ -18,7 +20,7 @@ from utils import utils as globalutils
 @HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 async def getAddressBalance(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getAddressBalance with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_BALANCE)
 
@@ -81,7 +83,7 @@ async def getAddressBalance(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 async def getAddressesBalance(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getAddressBalance with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getAddressBalance with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_BALANCE)
 
@@ -131,9 +133,7 @@ async def getAddressesBalance(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 async def getTransaction(id, params, config):
 
-    logger.printInfo(
-        f"Executing RPC method getTransaction with id {id} and params {params}"
-    )
+    Logger.printDebug(f"Executing RPC method getTransaction with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTION)
 
@@ -151,6 +151,7 @@ async def getTransaction(id, params, config):
     )
 
     if not transaction["transaction"]:
+        Logger.printError(f"Can not retrieve {params['txHash']} transaction")
         return transaction
 
     abi = utils.getFunctionABI(
@@ -170,12 +171,8 @@ async def getTransaction(id, params, config):
         transaction["transaction"]["outputs"][0]["amount"] = str(func_params["_value"])
 
     except ValueError as err:
-
-        logger.printError(f"Can not decode transaction input. Transaction hash is not erc-20 transfer. {err}")
-        raise error.RpcBadRequestError(
-            id=id,
-            message="Transaction input data not corresponding to erc-20 transfer"
-        )
+        Logger.printError(f"Can not decode transaction input. Transaction hash is not erc-20 transfer. {err}")
+        raise error.RpcBadGatewayError(id=id)
 
     err = httputils.validateJSONSchema(transaction, responseSchema)
     if err is not None:
@@ -191,7 +188,7 @@ async def getTransaction(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 async def getTransactions(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getTransactions with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getTransactions with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_TRANSACTIONS)
 
@@ -231,7 +228,7 @@ async def getTransactions(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 async def getAddressHistory(id, params, config):
 
-    logger.printInfo(f"Executing RPC method getAddressHistory with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getAddressHistory with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESS_HISTORY)
 
@@ -257,13 +254,20 @@ async def getAddressHistory(id, params, config):
             )
 
         if "status" not in params or params["status"] in ["confirmed", "all"]:
-            confirmedTask = asyncio.ensure_future(
-                getAddressConfirmedTransactions(
-                    address=params["address"],
-                    contractAddress=contractAddress,
-                    config=config
+            try:
+                confirmedTask = asyncio.ensure_future(
+                    getAddressConfirmedTransactions(
+                        address=params["address"],
+                        contractAddress=contractAddress,
+                        config=config
+                    )
                 )
-            )
+            except httpError.Error as err:
+                raise error.RpcError(
+                    id=id,
+                    message=err.message,
+                    code=err.code
+                )
 
         txs = []
 
@@ -303,8 +307,7 @@ async def getAddressHistory(id, params, config):
 @HttpRouteTableDef.post(currency=COIN_SYMBOL, standard=ERC20_STANDARD_SYMBOL)
 async def getAddressesHistory(id, params, config):
 
-    logger.printInfo(
-        f"Executing RPC method getAddressesHistory with id {id} and params {params}")
+    Logger.printDebug(f"Executing RPC method getAddressesHistory with id {id} and params {params}")
 
     requestSchema, responseSchema = utils.getMethodSchemas(GET_ADDRESSES_HISTORY)
 
@@ -364,7 +367,7 @@ async def getAddressPendingTransactions(address, contractAddress, config):
         )
 
     except httpError.Error as err:
-        logger.printError(f"Could not retrieve pending transactions using Graphql query. {err}")
+        Logger.printError(f"Could not retrieve pending transactions using Graphql query. {err}")
         return []
 
     txs = []
@@ -402,7 +405,7 @@ async def getAddressConfirmedTransactions(address, contractAddress, config):
 
     except httpError.Error as err:
         raise error.RpcError(
-            id=id,
+            id=random.randint(1, sys.maxsize),
             message=err.message,
             code=err.code
         )

@@ -13,8 +13,12 @@ class Config:
         self._electronCashRpcEndpoint = ""
 
     def loadConfig(self, config):
-        self.bitcoinabcRpcEndpoint = config["bitcoinabcRpcEndpoint"]
-        self.electronCashRpcEndpoint = config["electronCashRpcEndpoint"]
+
+        try:
+            self.bitcoinabcRpcEndpoint = config["bitcoinabcRpcEndpoint"]
+            self.electronCashRpcEndpoint = config["electronCashRpcEndpoint"]
+        except KeyError:
+            return False, "Can not load config"
 
         return True, None
 

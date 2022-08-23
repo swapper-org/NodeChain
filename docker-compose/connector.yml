@@ -5,6 +5,7 @@ services:
     image: connector
     environment:
       API_KEY: ${API_KEY}
+      VERBOSE: ${VERBOSE}
 
   nginx:
     image: nginx

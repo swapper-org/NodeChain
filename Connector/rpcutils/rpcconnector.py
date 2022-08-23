@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import aiohttp
-from logger import logger
+from logger.logger import Logger
 from . import error
 from .constants import *
 from http import HTTPStatus
@@ -18,25 +18,23 @@ class RPCConnector:
             JSON_RPC: JSON_RPC_VERSION
         }
 
-        logger.printInfo(f"Making RPC Request to {endpoint}. Payload: {payload}")
+        Logger.printDebug(f"Making RPC Request to {endpoint}. Payload: {payload}")
 
         async with aiohttp.ClientSession() as session:
             async with session.post(endpoint, json=payload) as resp:
+
                 if resp.status != HTTPStatus.OK:
-                    raise error.RpcBadGatewayError(id=id, message="Bad Gateway")
+                    raise error.RpcBadGatewayError(id=id)
                 try:
                     response = await resp.json()
                 except aiohttp.ContentTypeError as err:
-                    logger.printError(f"Json in client response is not supported: {str(err)}")
-                    raise error.RpcBadGatewayError(id=id, message="Bad Gateway")
+                    Logger.printError(f"Json in client response is not supported: {str(err)}")
+                    raise error.RpcBadGatewayError(id=id)
 
-        logger.printInfo(f"Response received from {endpoint}: {response}")
+        Logger.printDebug(f"Response received from {endpoint}: {response}")
 
         if ERROR in response and response[ERROR] is not None:
-            logger.printError(f"Exception occured in server: {response[ERROR]}")
-            raise error.RpcBadGatewayError(
-                id=id,
-                message=f"Exception occured in server: {response[ERROR]}"
-            )
+            Logger.printError(f"Exception occurred in server: {response[ERROR]}")
+            raise error.RpcBadGatewayError(id=id)
 
         return response[RESULT]

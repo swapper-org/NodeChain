@@ -16,11 +16,15 @@ def getMethodSchemas(name):
 
 
 def getRequestMethodSchema(name):
-    return RPC_JSON_SCHEMA_FOLDER + name + SCHEMA_CHAR_SEPARATOR + REQUEST + SCHEMA_EXTENSION
+    return f"{RPC_JSON_SCHEMA_FOLDER}{name}{SCHEMA_CHAR_SEPARATOR}{REQUEST}{SCHEMA_EXTENSION}"
 
 
 def getResponseMethodSchema(name):
-    return RPC_JSON_SCHEMA_FOLDER + name + SCHEMA_CHAR_SEPARATOR + RESPONSE + SCHEMA_EXTENSION
+    return f"{RPC_JSON_SCHEMA_FOLDER}{name}{SCHEMA_CHAR_SEPARATOR}{RESPONSE}{SCHEMA_EXTENSION}"
+
+
+def getConfigSchema():
+    return f"{RPC_JSON_SCHEMA_FOLDER}config{SCHEMA_EXTENSION}"
 
 
 def parseBalancesToTransfers(vin, vout, fee, amount):

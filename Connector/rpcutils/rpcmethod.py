@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from httputils import httputils
-from logger import logger
+from logger.logger import Logger
 from . import rpcutils, error
 from .constants import *
 
@@ -43,15 +43,15 @@ class RouteTableDef:
     def _registerMethod(wrapperApiId, methodName, rpcMethod):
 
         if not RouteTableDef._isWrapperApiRegistered(wrapperApiId=wrapperApiId):
-            logger.printInfo(f"Registering new RPC method {methodName} for wrapper API {wrapperApiId}")
+            Logger.printDebug(f"Registering new RPC method {methodName} for wrapper API {wrapperApiId}")
             RouteTableDef.rpcMethods[wrapperApiId] = {methodName: rpcMethod}
 
         elif not RouteTableDef._isMethodRegistered(wrapperApiId=wrapperApiId, methodName=methodName):
-            logger.printInfo(f"Registering new RPC method {methodName} for wrapper API {wrapperApiId}")
+            Logger.printDebug(f"Registering new RPC method {methodName} for wrapper API {wrapperApiId}")
             RouteTableDef.rpcMethods[wrapperApiId][methodName] = rpcMethod
 
         else:
-            logger.printError(f"HTTP Method {methodName} already registered for wrapper API {wrapperApiId}")
+            Logger.printError(f"HTTP Method {methodName} already registered for wrapper API {wrapperApiId}")
 
     @staticmethod
     def rpc(currency, standard=None):
@@ -94,15 +94,12 @@ class RouteTableDef:
         wrapperApiId = coin if standard is None else f"{coin}/{standard}"
 
         if not RouteTableDef._isMethodRegistered(wrapperApiId=wrapperApiId, methodName=rpcPayload[METHOD]):
-            raise error.RpcNotFoundError(
-                id=rpcPayload[ID],
-                message="Not found"
-            )
+            raise error.RpcNotFoundError(id=rpcPayload[ID])
         elif not RouteTableDef._isAvailableMethodType(
                 wrapperApiId=wrapperApiId,
                 methodName=rpcPayload[METHOD],
                 methodType=request.method
         ):
-            raise error.RpcMethodNotAllowedError("Method not allowed")
+            raise error.RpcMethodNotAllowedError(id=rpcPayload["id"])
 
         return await RouteTableDef.rpcMethods[wrapperApiId][payload[METHOD]].handler(rpcPayload, config)

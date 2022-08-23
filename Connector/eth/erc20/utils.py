@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import json
 from .constants import *
-from logger import logger
+from logger.logger import Logger
 from httputils import error
 from functools import lru_cache
 from web3 import Web3
@@ -12,11 +12,11 @@ def getMethodSchemas(name):
 
 
 def getRequestMethodSchema(name):
-    return RPC_JSON_SCHEMA_FOLDER + name + SCHEMA_CHAR_SEPARATOR + REQUEST + SCHEMA_EXTENSION
+    return f"{RPC_JSON_SCHEMA_FOLDER}{name}{SCHEMA_CHAR_SEPARATOR}{REQUEST}{SCHEMA_EXTENSION}"
 
 
 def getResponseMethodSchema(name):
-    return RPC_JSON_SCHEMA_FOLDER + name + SCHEMA_CHAR_SEPARATOR + RESPONSE + SCHEMA_EXTENSION
+    return f"{RPC_JSON_SCHEMA_FOLDER}{name}{SCHEMA_CHAR_SEPARATOR}{RESPONSE}{SCHEMA_EXTENSION}"
 
 
 def getABISchema(name):
@@ -30,8 +30,8 @@ def getFunctionABI(fileName):
         with open(fileName) as file:
             return json.load(file)
     except FileNotFoundError as err:
-        logger.printError(f"Schema {fileName} not found: {err}")
-        raise error.InternalServerError(f"Schema {fileName} not found: {err}")
+        Logger.printError(f"Schema {fileName} not found: {err}")
+        raise error.InternalServerError()
 
 
 def addressIsInvolvedInTx(address, contract, transaction):
