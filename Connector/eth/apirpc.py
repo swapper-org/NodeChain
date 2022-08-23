@@ -29,24 +29,28 @@ async def getAddressBalance(id, params, config):
             message=err.message
         )
 
-    connLatestTask = RPCConnector.request(
-        endpoint=config.rpcEndpoint,
-        id=id,
-        method=GET_BALANCE_METHOD,
-        params=[
-            utils.ensureHash(params["address"]),
-            "latest"
-        ]
+    connLatestTask = asyncio.ensure_future(
+        RPCConnector.request(
+            endpoint=config.rpcEndpoint,
+            id=id,
+            method=GET_BALANCE_METHOD,
+            params=[
+                utils.ensureHash(params["address"]),
+                "latest"
+            ]
+        )
     )
 
-    connPendingTask = RPCConnector.request(
-        endpoint=config.rpcEndpoint,
-        id=id,
-        method=GET_BALANCE_METHOD,
-        params=[
-            utils.ensureHash(params["address"]),
-            "pending"
-        ]
+    connPendingTask = asyncio.ensure_future(
+        RPCConnector.request(
+            endpoint=config.rpcEndpoint,
+            id=id,
+            method=GET_BALANCE_METHOD,
+            params=[
+                utils.ensureHash(params["address"]),
+                "pending"
+            ]
+        )
     )
 
     connLatest = await connLatestTask
@@ -406,6 +410,7 @@ async def getAddressesTransactionCount(id, params, config):
         )
 
     tasks = []
+
     for address in params["addresses"]:
         tasks.append(
             asyncio.ensure_future(
@@ -702,10 +707,20 @@ async def getAddressHistory(id, params, config):
         )
 
     if "status" not in params or params["status"] in ["pending", "all"]:
-        pendingTask = getAddressPendingTransactions(address=params["address"], config=config)
+        pendingTask = asyncio.ensure_future(
+            getAddressPendingTransactions(
+                address=params["address"],
+                config=config
+            )
+        )
 
     if "status" not in params or params["status"] in ["confirmed", "all"]:
-        confirmedTask = getAddressConfirmedTransactions(address=params["address"], config=config)
+        confirmedTask = asyncio.ensure_future(
+            getAddressConfirmedTransactions(
+                address=params["address"],
+                config=config
+            )
+        )
 
     txs = []
     if 'pendingTask' in locals():
@@ -759,15 +774,16 @@ async def getAddressesHistory(id, params, config):
             message=err.message
         )
 
+    _params = {param: params[param] for param in params if param != "addresses"}
     tasks = []
+
     for address in params["addresses"]:
+        _params["address"] = address
         tasks.append(
             asyncio.ensure_future(
                 getAddressHistory(
                     id=id,
-                    params={
-                        "address": address
-                    },
+                    params=_params,
                     config=config
                 )
             )

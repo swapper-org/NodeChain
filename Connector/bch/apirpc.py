@@ -98,20 +98,21 @@ async def getAddressesHistory(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(err.message)
 
+    _params = {param: params[param] for param in params if param != "addresses"}
     tasks = []
 
     for address in params["addresses"]:
+        _params["address"] = address
         tasks.append(
             asyncio.ensure_future(
                 getAddressHistory(
-                    id,
-                    {
-                        "address": address
-                    },
+                    id=id,
+                    params=_params,
                     config=config
                 )
             )
         )
+
     response = await asyncio.gather(*tasks)
 
     err = httputils.validateJSONSchema(response, responseSchema)

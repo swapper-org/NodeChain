@@ -94,18 +94,16 @@ async def getAddressesBalance(id, params, config):
             message=err.message
         )
 
+    _params = {param: params[param] for param in params if param != "addresses"}
     tasks = []
 
     for address in params["addresses"]:
-
+        _params["address"] = address
         tasks.append(
             asyncio.ensure_future(
                 getAddressBalance(
                     id=id,
-                    params={
-                        "address": address,
-                        "contractAddresses": params["contractAddresses"]
-                    },
+                    params=_params,
                     config=config
                 )
             )
@@ -247,18 +245,22 @@ async def getAddressHistory(id, params, config):
     for contractAddress in params["contractAddresses"]:
 
         if "status" not in params or params["status"] in ["pending", "all"]:
-            pendingTask = getAddressPendingTransactions(
-                address=params["address"],
-                contractAddress=contractAddress,
-                config=config
+            pendingTask = asyncio.ensure_future(
+                getAddressPendingTransactions(
+                    address=params["address"],
+                    contractAddress=contractAddress,
+                    config=config
+                )
             )
 
         if "status" not in params or params["status"] in ["confirmed", "all"]:
             try:
-                confirmedTask = getAddressConfirmedTransactions(
-                    address=params["address"],
-                    contractAddress=contractAddress,
-                    config=config
+                confirmedTask = asyncio.ensure_future(
+                    getAddressConfirmedTransactions(
+                        address=params["address"],
+                        contractAddress=contractAddress,
+                        config=config
+                    )
                 )
             except httpError.Error as err:
                 raise error.RpcError(
@@ -316,18 +318,16 @@ async def getAddressesHistory(id, params, config):
             message=err.message
         )
 
+    _params = {param: params[param] for param in params if param != "addresses"}
     tasks = []
 
     for address in params["addresses"]:
-
+        _params["address"] = address
         tasks.append(
             asyncio.ensure_future(
                 getAddressHistory(
                     id=id,
-                    params={
-                        "address": address,
-                        "contractAddresses": params["contractAddresses"]
-                    },
+                    params=_params,
                     config=config
                 )
             )
@@ -391,11 +391,14 @@ async def getAddressPendingTransactions(address, contractAddress, config):
 async def getAddressConfirmedTransactions(address, contractAddress, config):
 
     try:
+
+        addressPrefixLength = 24
+
         txs = await HTTPConnector.get(
             endpoint=config.indexerEndpoint,
             path=INDEXER_TXS_PATH,
             params={
-                "and": f"(and(status.eq.true,txto.eq.{contractAddress},or(txfrom.eq.{address},contract_to.like.*{address[2:]})))",
+                "and": f"(and(status.eq.true,txto.eq.{contractAddress},or(txfrom.eq.{address},contract_to.eq.{'0'*addressPrefixLength}{address[2:]})))",
                 "order": "time.desc"
             }
         )
