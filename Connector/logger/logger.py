@@ -22,8 +22,8 @@ class Logger:
         logging.warning(msg)
 
     @staticmethod
-    def printError(msg: str):
-        logging.error(msg)
+    def printError(msg: str, exc_info: bool = True):
+        logging.error(msg, exc_info=exc_info)
 
     @staticmethod
     def printDebug(msg: str):

@@ -37,7 +37,7 @@ def getAvailableCurrencies():
             return [conf["token"] for conf in config if "token" in conf]
 
     except Exception as e:
-        logger.printError(f"Can not open configuration file: {str(e)}")
+        Logger.printError(f"Can not open configuration file: {str(e)}")
         raise error.InternalServerError(f"Can not open configuration file: {str(e)}")
 
 
@@ -52,7 +52,7 @@ def isAvailableCurrency(coin):
             return coin in [conf["token"] for conf in config if "token" in conf]
 
     except FileNotFoundError as err:
-        logger.printError(f"File {availableCurrenciesFile} could not be found")
+        Logger.printError(f"File {availableCurrenciesFile} could not be found")
         raise error.InternalServerError(f"File {availableCurrenciesFile} could not be found:{err}")
 
 
@@ -73,7 +73,7 @@ def isAvailableNetworkForCurrency(coin, network):
         return False
 
     except FileNotFoundError as err:
-        logger.printError(f"File {availableCurrenciesFile} could not be found")
+        Logger.printError(f"File {availableCurrenciesFile} could not be found")
         raise error.InternalServerError(f"File {availableCurrenciesFile} could not be found:{err}")
 
 
@@ -84,7 +84,7 @@ def openSchemaFile(schemaFile):
         with open(schemaFile) as file:
             return json.load(file)
     except FileNotFoundError as err:
-        logger.printError(f"Schema {schemaFile} not found: {err}")
+        Logger.printError(f"Schema {schemaFile} not found: {err}")
         raise error.InternalServerError("Unknown error")
 
 
@@ -110,7 +110,7 @@ def paginate(elements, page=None, pageSize=None, side="left"):
     if side == "right":
         return rpaginate(elements=elements, page=page, pageSize=pageSize)
 
-    logger.printError("Value for side parameter not valid in paginate function")
+    Logger.printError("Value for side parameter not valid in paginate function")
     raise error.InternalServerError("Internal server error")
 
 
