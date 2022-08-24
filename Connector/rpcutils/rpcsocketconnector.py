@@ -54,7 +54,7 @@ class RPCSocketConnector:
             Logger.printError(f"Response from node is not JSON format: {str(e)}")
             raise error.RpcBadGatewayError(id=id)
 
-        Logger.printInfo(f"Response received from {hostname}:{port}: {response}")
+        Logger.printDebug(f"Response received from {hostname}:{port}: {response}")
 
         if "error" in response and response["error"] is not None:
             Logger.printError(f"Exception occurred in server: {response['error']}")
