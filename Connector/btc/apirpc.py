@@ -114,7 +114,7 @@ async def getAddressesHistory(id, params, config):
             asyncio.ensure_future(
                 getAddressHistory(
                     id=id,
-                    params=_params,
+                    params=dict(_params),
                     config=config
                 )
             )
