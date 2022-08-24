@@ -64,7 +64,7 @@ async def getAddressBalance(id, params, config):
         response[contractAddress] = {
             "address": params["address"],
             "balance": {
-                "confirmed": str(ethutils.toWei(result["data"])),
+                "confirmed": str(ethutils.toWei(result["data"])) if result["data"] != "0x" else "0",
                 "unconfirmed": "0"
             }
         }
@@ -103,7 +103,7 @@ async def getAddressesBalance(id, params, config):
             asyncio.ensure_future(
                 getAddressBalance(
                     id=id,
-                    params=_params,
+                    params=dict(_params),
                     config=config
                 )
             )
@@ -327,7 +327,7 @@ async def getAddressesHistory(id, params, config):
             asyncio.ensure_future(
                 getAddressHistory(
                     id=id,
-                    params=_params,
+                    params=dict(_params),
                     config=config
                 )
             )
