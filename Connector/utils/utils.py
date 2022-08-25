@@ -134,3 +134,7 @@ def rpaginate(elements, page=None, pageSize=None):
         page = DEFAULT_PAGE
 
     return elements[len(elements) - (pageSize * (page + 1)):len(elements) - pageSize * page]
+
+def saveTransactionLog(currencyName, txId):
+    with open(TRANSACTIONS_LOG_FILE, mode="a") as file:
+        file.write(currencyName + "," + txId)

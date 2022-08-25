@@ -12,6 +12,7 @@ services:
     volumes:
       - ${NGINX_CONFIG_PATH}:/etc/nginx/nginx.conf
       - ${CERT_PATH}:/etc/nginx/certs
+      - ${TRANSACTIONS_LOG}:/usr/src/app/Connector/transactionsLog.log
     ports:
       - ${PORT}:80
       - ${SSL_PORT}:443
