@@ -239,46 +239,46 @@ async def getAddressHistory(id, params, config):
             message=err.message
         )
 
-    response = {}
     recentFirst = "order" not in params or params["order"] == "desc"
 
-    for contractAddress in params["contractAddresses"]:
-
-        if "status" not in params or params["status"] in ["pending", "all"]:
-            pendingTask = asyncio.ensure_future(
-                getAddressPendingTransactions(
-                    address=params["address"],
-                    contractAddress=contractAddress,
-                    config=config
-                )
+    if "status" not in params or params["status"] in ["pending", "all"]:
+        pendingTask = asyncio.ensure_future(
+            getAddressPendingTransactions(
+                address=params["address"],
+                contractAddresses=params["contractAddresses"],
+                config=config
             )
+        )
 
-        if "status" not in params or params["status"] in ["confirmed", "all"]:
-            try:
-                confirmedTask = asyncio.ensure_future(
-                    getAddressConfirmedTransactions(
-                        address=params["address"],
-                        contractAddress=contractAddress,
-                        config=config
-                    )
-                )
-            except httpError.Error as err:
-                raise error.RpcError(
-                    id=id,
-                    message=err.message,
-                    code=err.code
-                )
+    if "status" not in params or params["status"] in ["confirmed", "all"]:
+        confirmedTask = asyncio.ensure_future(
+            getAddressConfirmedTransactions(
+                address=params["address"],
+                contractAddresses=params["contractAddresses"],
+                config=config
+            )
+        )
 
-        txs = []
+    txs = {}
 
-        if 'pendingTask' in locals():
-            txs += await pendingTask
+    if 'pendingTask' in locals():
+        txs = await pendingTask
 
-        if 'confirmedTask' in locals():
-            txs += await confirmedTask
+    if 'confirmedTask' in locals():
+        confirmedTransactions = await confirmedTask
+
+        if not txs:
+            txs = {contractAddress: [] for contractAddress in params["contractAddresses"]}
+
+        for contractAddress in params["contractAddresses"]:
+            if Web3.toChecksumAddress(contractAddress) in confirmedTransactions:
+                txs[contractAddress] += confirmedTransactions[Web3.toChecksumAddress(contractAddress)]
+
+    response = {}
+    for contractAddress, hashes in txs.items():
 
         paginatedTxs = globalutils.paginate(
-            elements=txs,
+            elements=hashes,
             page=params["page"] if "page" in params else None,
             pageSize=params["pageSize"] if "pageSize" in params else None,
             side="left" if recentFirst else "right"
@@ -288,7 +288,7 @@ async def getAddressHistory(id, params, config):
             "address": params["address"],
             "txHashes": paginatedTxs if recentFirst else paginatedTxs[::-1],
             "maxPage": globalutils.getMaxPage(
-                numElements=len(txs),
+                numElements=len(txs[contractAddress]),
                 pageSize=params["pageSize"] if "pageSize" in params else None
             )
         }
@@ -354,7 +354,7 @@ async def getAddressesHistory(id, params, config):
     return response
 
 
-async def getAddressPendingTransactions(address, contractAddress, config):
+async def getAddressPendingTransactions(address, contractAddresses, config):
 
     try:
 
@@ -368,37 +368,41 @@ async def getAddressPendingTransactions(address, contractAddress, config):
 
     except httpError.Error as err:
         Logger.printError(f"Could not retrieve pending transactions using Graphql query. {err}")
-        return []
-
-    txs = []
+        return {contractAddress: [] for contractAddress in contractAddresses}
 
     abi = utils.getFunctionABI(
         utils.getABISchema(TRANSFER_METHOD_ERC_20_ABI)
     )
 
-    contract = Web3().eth.contract(
-        address=Web3.toChecksumAddress(contractAddress),
-        abi=[abi]
-    )
+    txs = {}
 
-    for tx in pendingTransactions["data"]["pending"]["transactions"]:
-        if utils.addressIsInvolvedInTx(address=address, contract=contract, transaction=tx):
-            txs.append(tx["hash"])
+    for contractAddress in contractAddresses:
+
+        txs[contractAddress] = []
+
+        contract = Web3().eth.contract(
+            address=Web3.toChecksumAddress(contractAddress),
+            abi=[abi]
+        )
+
+        for tx in pendingTransactions["data"]["pending"]["transactions"]:
+            if utils.addressIsInvolvedInTx(address=address, contract=contract, transaction=tx):
+                txs[contractAddress].append(tx["hash"])
 
     return txs
 
 
-async def getAddressConfirmedTransactions(address, contractAddress, config):
+async def getAddressConfirmedTransactions(address, contractAddresses, config):
 
     try:
 
         addressPrefixLength = 24
 
-        txs = await HTTPConnector.get(
+        confirmedTransactions = await HTTPConnector.get(
             endpoint=config.indexerEndpoint,
             path=INDEXER_TXS_PATH,
             params={
-                "and": f"(and(status.eq.true,txto.eq.{contractAddress},or(txfrom.eq.{address},contract_to.eq.{'0'*addressPrefixLength}{address[2:]})))",
+                "and": f"(and(status.eq.true,txto.in.({','.join(contractAddresses)}),or(txfrom.eq.{address},contract_to.eq.{'0'*addressPrefixLength}{address[2:]})))",
                 "order": "time.desc"
             }
         )
@@ -410,4 +414,12 @@ async def getAddressConfirmedTransactions(address, contractAddress, config):
             code=err.code
         )
 
-    return [tx["txhash"] for tx in txs]
+    txs = {contractAddress: [] for contractAddress in contractAddresses}
+
+    for contractAddress in contractAddresses:
+        txs[contractAddress] = []
+        for tx in confirmedTransactions:
+            if tx["txto"] == Web3.toChecksumAddress(contractAddress):
+                txs[contractAddress].append(tx["txhash"])
+
+    return txs
