@@ -6,13 +6,14 @@ services:
     environment:
       API_KEY: ${API_KEY}
       VERBOSE: ${VERBOSE}
+    volumes:
+      - ${TRANSACTIONS_LOG}:/usr/src/app/Connector/transactionsLog.log
 
   nginx:
     image: nginx
     volumes:
       - ${NGINX_CONFIG_PATH}:/etc/nginx/nginx.conf
       - ${CERT_PATH}:/etc/nginx/certs
-      - ${TRANSACTIONS_LOG}:/usr/src/app/Connector/transactionsLog.log
     ports:
       - ${PORT}:80
       - ${SSL_PORT}:443
