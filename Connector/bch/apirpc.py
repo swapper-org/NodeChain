@@ -688,6 +688,7 @@ async def broadcastTransaction(id, params, config):
             message=err.message
         )
 
+    Logger.printWarning("Broadcasted transaction in Bitcoin Cash network: " + str(hash))
     return response
 
 

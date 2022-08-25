@@ -701,6 +701,7 @@ async def broadcastTransaction(id, params, config):
             message=err.message
         )
 
+    Logger.printWarning("Broadcasted transaction in Bitcoin network: " + str(hash))
     return response
 
 
