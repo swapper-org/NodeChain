@@ -5,6 +5,7 @@ from httputils import error
 from logger.logger import Logger
 from .constants import *
 from functools import lru_cache
+import time
 
 
 def getAvailableCurrenciesFile():
@@ -214,3 +215,6 @@ def createCurrentConfigFile():
             file.write(json.dumps({}))
     except Exception as err:
         Logger.printError(f"Can not create backup file: {err}")
+=======
+        file.write(f"{int(time.time())},{currencyName},{txId}\n")
+>>>>>>> 27d2ced (Timestamp in transaction logging)
