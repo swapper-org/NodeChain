@@ -4,6 +4,7 @@ import json
 import logger
 from enum import Enum
 
+
 AVAILABLE_CURRENCIES = "./Connector/availableCurrencies.json"
 DEFAULT_CONFIG = "./scripts/defaultConfig.json"
 CUSTOM_CONFIG = "./scripts/config.json"
@@ -55,6 +56,7 @@ def connectorQueries(args):
     querySSL(args.ssl, args.certs)
 
     os.environ["VERBOSE"] = args.cVerbose if args.cVerbose else queryConnectorVerbose(args)
+    os.environ["CONNECTOR_PATH"] = args.cPath if args.cPath else queryConnectorPath(args)
 
 
 def queryConfigurable(args, question, configurable):
@@ -109,6 +111,21 @@ def queryPath(args, coin, network):
         os.environ["BLOCKCHAIN_PATH"] = path
         if args.verbose:
             logger.printInfo(f"Blockchain path selected: {path}", verbosity=args.verbose)
+
+
+def queryConnectorPath(args):
+    try:
+        path = input("Please choose the directory to save Connector data (../Connector): ")
+    except SyntaxError:
+        path = "../Connector"
+
+    if not path:
+        path = "../Connector"
+
+    if args.verbose:
+        logger.printInfo(f"Connector path selected: {path}", verbosity=args.verbose)
+
+    return path
 
 
 def queryCerts(certs):

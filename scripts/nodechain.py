@@ -150,6 +150,14 @@ def argumentHandler():
         choices=[i.value for i in utils.ConnectorVerbose],
         default=None
     )
+    parser.add_argument(
+        '-cp',
+        '--connectorPath',
+        dest='cPath',
+        action='store',
+        help='Path where Connector data is stored',
+        default=None
+    )
 
     # exclusive mutually group for config
     configEx = parser.add_mutually_exclusive_group()

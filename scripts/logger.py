@@ -32,8 +32,10 @@ def printEnvs():
     network = os.getenv("NETWORK")
     configFile = os.getenv("NGINX_CONFIG_PATH")
     certsPath = os.getenv("CERT_PATH")
+    cVerbose = os.getenv("CONNECTOR_VERBOSE")
+    cPath = os.getenv("CONNECTOR_PATH")
 
-    printInfo(f"[ENVIRONMENTAL INFO] Token: {token} | Network: {network} | Port: {port} | Blockchain Path: {blockchainPath} | SSL Port: {sslPort} | Config File: {configFile} | Path to ssl certs: {certsPath}")
+    printInfo(f"[ENVIRONMENTAL INFO] Token: {token} | Network: {network} | Port: {port} | Blockchain Path: {blockchainPath} | SSL Port: {sslPort} | Config File: {configFile} | Path to ssl certs: {certsPath} | Connector verbose: {cVerbose} | Connector Path: {cPath}")
 
 
 def connectorNotRunning(isRunning, args):
