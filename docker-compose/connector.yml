@@ -7,6 +7,7 @@ services:
       API_KEY: ${API_KEY}
       VERBOSE: ${VERBOSE}
     volumes:
+      - ${CONNECTOR_PATH}/data:/usr/src/app/Connector/data
       - ${TRANSACTIONS_LOG}:/usr/src/app/Connector/transactionsLog.log
 
   nginx:

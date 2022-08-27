@@ -31,7 +31,7 @@ async def onStartup(app):
 
     for coin, networks in backUpConfigs.items():
         for networkName, netwrokConfig in networks.items():
-            logger.printInfo(f"Loading backup config for {coin} for {networkName}.")
+            Logger.printInfo(f"Loading backup config for {coin} for {networkName}.")
             await Router().addCoin(coin=coin, network=networkName, config=netwrokConfig)
 
 

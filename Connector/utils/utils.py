@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import os
 import json
 from httputils import error
 from logger.logger import Logger
@@ -144,7 +145,7 @@ def saveTransactionLog(currencyName, txId):
 def saveConfig(coin, network, config):
 
     try:
-        with open(BACK_UP_FILE, mode="r+") as file:
+        with open(CURRENT_CONFIG_FILE, mode="r+") as file:
 
             try:
                 configs = json.load(file)
@@ -169,7 +170,7 @@ def saveConfig(coin, network, config):
 def removeConfig(coin, network):
 
     try:
-        with open(BACK_UP_FILE, mode="r+") as file:
+        with open(CURRENT_CONFIG_FILE, mode="r+") as file:
 
             try:
                 configs = json.load(file)
@@ -198,18 +199,18 @@ def removeConfig(coin, network):
 def getBackupConfigs():
 
     try:
-        with open(BACK_UP_FILE, mode="r+") as file:
+        with open(CURRENT_CONFIG_FILE, mode="r+") as file:
             return json.load(file)
     except FileNotFoundError as err:
         Logger.printError(f"Can not find backup to load configuration: {err}")
-        createBackupFile()
+        createCurrentConfigFile()
         return {}
 
 
-def createBackupFile():
+def createCurrentConfigFile():
 
     try:
-        with open(BACK_UP_FILE, mode="x") as file:
+        with open(CURRENT_CONFIG_FILE, mode="x") as file:
             file.write(json.dumps({}))
     except Exception as err:
         Logger.printError(f"Can not create backup file: {err}")
