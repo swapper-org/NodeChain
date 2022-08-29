@@ -140,7 +140,7 @@ def rpaginate(elements, page=None, pageSize=None):
 
 def saveTransactionLog(currencyName, txId):
     with open(TRANSACTIONS_LOG_FILE, mode="a") as file:
-        file.write(currencyName + "," + txId + "\n")
+        file.write(f"{int(time.time())},{currencyName},{txId}\n")
 
 
 def saveConfig(coin, network, config):
@@ -215,6 +215,3 @@ def createCurrentConfigFile():
             file.write(json.dumps({}))
     except Exception as err:
         Logger.printError(f"Can not create backup file: {err}")
-=======
-        file.write(f"{int(time.time())},{currencyName},{txId}\n")
->>>>>>> 27d2ced (Timestamp in transaction logging)
