@@ -49,12 +49,14 @@ async def getAddressHistory(id, params, config):
 
             mid = (left + right) // 2
 
-            tx = await getTransaction(
-                id=int(time.time()),
-                params={
-                    "txHash": txs[mid]
-                },
-                config=config
+            tx = await asyncio.ensure_future(
+                getTransaction(
+                    id=int(time.time()),
+                    params={
+                        "txHash": txs[mid]
+                    },
+                    config=config
+                )
             )
 
             if tx["transaction"]["blockNumber"]:
@@ -459,14 +461,16 @@ async def getTransactionHex(id, params, config):
     if err is not None:
         raise error.RpcBadRequestError(id=id, message=err.message)
 
-    rawTransaction = await RPCConnector.request(
-        endpoint=config.bitcoincoreRpcEndpoint,
-        id=id,
-        method=GET_RAW_TRANSACTION_METHOD,
-        params=[
-            params["txHash"],
-            False if "verbose" not in params else params["verbose"]
-        ]
+    rawTransaction = await asyncio.ensure_future(
+        RPCConnector.request(
+            endpoint=config.bitcoincoreRpcEndpoint,
+            id=id,
+            method=GET_RAW_TRANSACTION_METHOD,
+            params=[
+                params["txHash"],
+                False if "verbose" not in params else params["verbose"]
+            ]
+        )
     )
 
     response = {"rawTransaction": rawTransaction}
@@ -491,30 +495,36 @@ async def getTransaction(id, params, config):
         raise error.RpcBadRequestError(id=id, message=err.message)
 
     try:
-        transaction = await getTransactionHex(
-            id=id,
-            params={
-                "txHash": params["txHash"],
-                "verbose": True
-            },
-            config=config
+        transaction = await asyncio.ensure_future(
+            getTransactionHex(
+                id=id,
+                params={
+                    "txHash": params["txHash"],
+                    "verbose": True
+                },
+                config=config
+            )
         )
 
         # Check if transaction is confirmed, and obtain block number
         blockNumber = timestamp = None
         if "blockhash" in transaction["rawTransaction"]:
-            transactionBlock = await getBlockByHash(
-                id=id,
-                params={
-                    "blockHash": transaction["rawTransaction"]["blockhash"],
-                    "verbosity": VERBOSITY_DEFAULT_MODE
-                },
-                config=config
+            transactionBlock = await asyncio.ensure_future(
+                getBlockByHash(
+                    id=id,
+                    params={
+                        "blockHash": transaction["rawTransaction"]["blockhash"],
+                        "verbosity": VERBOSITY_DEFAULT_MODE
+                    },
+                    config=config
+                )
             )
             blockNumber = transactionBlock["block"]["height"]
             timestamp = transactionBlock["block"]["time"]
 
-        transactionDetails = await utils.decodeTransactionDetails(transaction["rawTransaction"], id, config)
+        transactionDetails = await asyncio.ensure_future(
+            utils.decodeTransactionDetails(transaction["rawTransaction"], id, config)
+        )
 
         # Converting all transaction details to str
 
