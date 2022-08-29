@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import os
 import json
 from httputils import error
 from logger.logger import Logger
@@ -135,6 +136,81 @@ def rpaginate(elements, page=None, pageSize=None):
 
     return elements[len(elements) - (pageSize * (page + 1)):len(elements) - pageSize * page]
 
+
 def saveTransactionLog(currencyName, txId):
     with open(TRANSACTIONS_LOG_FILE, mode="a") as file:
         file.write(currencyName + "," + txId + "\n")
+
+
+def saveConfig(coin, network, config):
+
+    try:
+        with open(CURRENT_CONFIG_FILE, mode="r+") as file:
+
+            try:
+                configs = json.load(file)
+            except json.JSONDecodeError as err:
+                Logger.printError(f"Can not decode backup file. Rewriting config. Error: {err}")
+                configs = {}
+
+            file.seek(0)
+            file.truncate(0)
+
+            if coin not in configs:
+                configs[coin] = {}
+            configs[coin][network] = config
+
+            file.write(json.dumps(configs))
+            file.truncate()
+    except FileNotFoundError as err:
+        Logger.printError(f"Can not find backup file to write configuration: {err}")
+        raise error.InternalServerError("Unknown error")
+
+
+def removeConfig(coin, network):
+
+    try:
+        with open(CURRENT_CONFIG_FILE, mode="r+") as file:
+
+            try:
+                configs = json.load(file)
+            except json.JSONDecodeError as err:
+                Logger.printError(f"Can not decode backup file. Rewriting config. Error: {err}")
+                return
+
+            if coin not in configs:
+                Logger.printError("Can not delete config because it was not saved")
+                return
+
+            del configs[coin][network]
+
+            if not configs[coin]:
+                del configs[coin]
+
+            file.seek(0)
+            file.write(json.dumps(configs))
+            file.truncate()
+
+    except FileNotFoundError as err:
+        Logger.printError(f"Can not find backup file to remove configuration: {err}")
+        raise error.InternalServerError("Unknown error")
+
+
+def getBackupConfigs():
+
+    try:
+        with open(CURRENT_CONFIG_FILE, mode="r+") as file:
+            return json.load(file)
+    except FileNotFoundError as err:
+        Logger.printError(f"Can not find backup to load configuration: {err}")
+        createCurrentConfigFile()
+        return {}
+
+
+def createCurrentConfigFile():
+
+    try:
+        with open(CURRENT_CONFIG_FILE, mode="x") as file:
+            file.write(json.dumps({}))
+    except Exception as err:
+        Logger.printError(f"Can not create backup file: {err}")
