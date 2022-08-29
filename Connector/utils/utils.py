@@ -5,6 +5,7 @@ from httputils import error
 from logger.logger import Logger
 from .constants import *
 from functools import lru_cache
+import time
 
 
 def getAvailableCurrenciesFile():
@@ -139,7 +140,7 @@ def rpaginate(elements, page=None, pageSize=None):
 
 def saveTransactionLog(currencyName, txId):
     with open(TRANSACTIONS_LOG_FILE, mode="a") as file:
-        file.write(currencyName + "," + txId + "\n")
+        file.write(f"{int(time.time())},{currencyName},{txId}\n")
 
 
 def saveConfig(coin, network, config):

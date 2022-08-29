@@ -688,7 +688,8 @@ async def broadcastTransaction(id, params, config):
             message=err.message
         )
 
-    globalUtils.saveTransactionLog("bch", hash)
+    globalUtils.saveTransactionLog(currencyName=COIN_SYMBOL, txId=hash)
+
     return response
 
 
