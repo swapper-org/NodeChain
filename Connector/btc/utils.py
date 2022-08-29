@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import asyncio
 import hashlib
 import base58
 import bech32
@@ -112,13 +113,15 @@ async def decodeTransactionDetails(txDecoded, id, config):
             )
             break
 
-        transaction = await apirpc.getTransactionHex(
-            id=id,
-            params={
-                "txHash": txInput["txid"],
-                "verbose": True
-            },
-            config=config
+        transaction = await asyncio.ensure_future(
+            apirpc.getTransactionHex(
+                id=id,
+                params={
+                    "txHash": txInput["txid"],
+                    "verbose": True
+                },
+                config=config
+            )
         )
 
         for txOutput in transaction["rawTransaction"]["vout"]:
