@@ -46,20 +46,29 @@ async def getAddressBalance(id, params, config):
     )
 
     response = {}
+    tasks = []
 
     for contractAddress in params["contractAddresses"]:
 
-        result = await ethapirpc.call(
-            id=id,
-            params={
-                "transaction": {
-                    "to": contractAddress,
-                    "data": data
-                },
-                "blockNumber": "latest"
-            },
-            config=config
+        tasks.append(
+            asyncio.ensure_future(
+                ethapirpc.call(
+                    id=id,
+                    params={
+                        "transaction": {
+                            "to": contractAddress,
+                            "data": data
+                        },
+                        "blockNumber": "latest"
+                    },
+                    config=config
+                )
+            )
         )
+
+    results = await asyncio.gather(*tasks)
+
+    for contractAddress, result in zip(params["contractAddresses"], results):
 
         response[contractAddress] = {
             "address": params["address"],
